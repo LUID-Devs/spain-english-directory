@@ -1,55 +1,137 @@
-import React from "react";
-import { Authenticator } from "@aws-amplify/ui-react";
-import { Amplify } from "aws-amplify";
-import "@aws-amplify/ui-react/styles.css";
+import React, { useEffect, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 
-Amplify.configure({
-  Auth: {
-    Cognito: {
-        userPoolId: process.env.NEXT_PUBLIC_COGNITO_USER_POOL_ID || "",
-        userPoolClientId: process.env.NEXT_PUBLIC_COGNITO_USER_POOL_CLIENT_ID || "",
-    }
-  },
-});
+interface User {
+  sub: string;
+  email: string;
+  preferred_username?: string;
+  [key: string]: string | number | boolean | undefined;
+}
 
-const formFields = {
-    signUp: {
-      username: {
-        order: 1,
-        placeholder: "Choose a username",
-        label: "Username",
-        inputProps: { required: true },
-      },
-      email: {
-        order: 1,
-        placeholder: "Enter your email address",
-        label: "Email",
-        inputProps: { type: "email", required: true },
-      },
-      password: {
-        order: 3,
-        placeholder: "Enter your password",
-        label: "Password",
-        inputProps: { type: "password", required: true },
-      },
-      confirm_password: {
-        order: 4,
-        placeholder: "Confirm your password",
-        label: "Confirm Password",
-        inputProps: { type: "password", required: true },
-      },
-    },
-  };
+interface AuthContextType {
+  user: User | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  login: () => void;
+  logout: () => void;
+}
+
+const AuthContext = React.createContext<AuthContextType | null>(null);
+
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
+
+  const checkAuthStatus = useCallback(async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/status`, {
+        credentials: 'include',
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setUser(data.user);
+      } else {
+        setUser(null);
+      }
+    } catch (error) {
+      console.error('Error checking auth status:', error);
+      setUser(null);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    checkAuthStatus();
+  }, [checkAuthStatus]);
+
+  const login = () => {
+    router.push('/auth/login');
+  };
+
+  const logout = async () => {
+    try {
+      await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/logout`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+      setUser(null);
+      router.push('/auth/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Even if logout fails, clear user state and redirect
+      setUser(null);
+      router.push('/auth/login');
+    }
+  };
+
+  const value: AuthContextType = {
+    user,
+    isAuthenticated: !!user,
+    isLoading,
+    login,
+    logout
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    // Redirect to login page instead of showing login UI
+    router.push('/auth/login');
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600">Redirecting to authentication...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show debug info in development
+  if (process.env.NODE_ENV === 'development') {
+    return (
+      <AuthContext.Provider value={value}>
+        <div>
+          <div style={{ padding: "10px", background: "#f0f0f0", marginBottom: "20px" }}>
+            <h3>Authentication Debug Info:</h3>
+            <p><strong>User:</strong> {user.email}</p>
+            <p><strong>Sub:</strong> {user.sub}</p>
+            <p><strong>Full User Object:</strong></p>
+            <pre>{JSON.stringify(user, null, 2)}</pre>
+            <div style={{ marginTop: "10px" }}>
+              <button onClick={logout}>Sign Out</button>
+            </div>
+          </div>
+          {children}
+        </div>
+      </AuthContext.Provider>
+    );
+  }
+
   return (
-    <div>
-      <Authenticator formFields={formFields}>
-        {({ user }) =>
-          user ? <div>{children}</div> : <div>Please signin below</div>
-        }
-      </Authenticator>
-    </div>
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
   );
+};
+
+export const useAuth = () => {
+  const context = React.useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
 };
 
 export default AuthProvider;

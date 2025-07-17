@@ -25,7 +25,7 @@ import { useAppDispatch, useAppSelector } from "@/app/redux";
 import Link from "next/link";
 import { setIsSidebarCollapsed } from "@/state";
 import { useGetAuthUserQuery, useGetProjectsQuery } from "@/state/api";
-import { signOut } from "aws-amplify/auth";
+import { useAuth } from "@/app/authProvider";
 
 const Sidebar = () => {
   const [showProjects, setShowProjects] = useState(true);
@@ -38,13 +38,10 @@ const Sidebar = () => {
     (state) => state.global.isSidebarCollapsed,
   );
 
-  const {data: currentUser} = useGetAuthUserQuery({});
-  const handleSignOut = async () => {
-    try{
-      await signOut();
-    } catch (error) {
-      console.error("Failed to sign out: ", error);
-    }
+  const auth = useAuth();
+  const {data: currentUser} = useGetAuthUserQuery(auth.user?.sub || "");
+  const handleSignOut = () => {
+    auth.logout();
   }
   if (!currentUser) return null;
 

@@ -5,7 +5,7 @@ import { useAppDispatch, useAppSelector } from "@/app/redux";
 import { setIsSidebarCollapsed, setIsDarkMode } from "@/state";
 import Image from "next/image";
 import { useGetAuthUserQuery } from "@/state/api";
-import { signOut } from "aws-amplify/auth";
+import { useAuth } from "@/app/authProvider";
 const Navbar = () => {
   const dispatch = useAppDispatch();
   const isSidebarCollapsed = useAppSelector(
@@ -13,13 +13,10 @@ const Navbar = () => {
   );
   const isDarkMode = useAppSelector((state) => state.global.isDarkMode);
 
-  const {data: currentUser} = useGetAuthUserQuery({});
-  const handleSignOut = async () => {
-    try{
-      await signOut();
-    } catch (error) {
-      console.error("Failed to sign out: ", error);
-    }
+  const auth = useAuth();
+  const {data: currentUser} = useGetAuthUserQuery(auth.user?.sub || "");
+  const handleSignOut = () => {
+    auth.logout();
   }
   if (!currentUser) return null;
 
