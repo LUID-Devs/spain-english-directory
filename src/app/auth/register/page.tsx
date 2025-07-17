@@ -88,8 +88,8 @@ const RegisterPage = () => {
           router.push("/auth/login?message=Registration successful! Please log in.");
         }, 1500);
       }
-    } catch (error: any) {
-      setError(error.message || "Registration failed. Please try again.");
+    } catch (error: unknown) {
+      setError(error instanceof Error ? error.message : "Registration failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -121,8 +121,8 @@ const RegisterPage = () => {
 
       // Redirect to login page after successful confirmation
       router.push("/auth/login?message=Account confirmed successfully. Please log in.");
-    } catch (error: any) {
-      setError(error.message || "Confirmation failed. Please try again.");
+    } catch (error: unknown) {
+      setError(error instanceof Error ? error.message : "Confirmation failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -143,7 +143,7 @@ const RegisterPage = () => {
             Check Your Email
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            We've sent a confirmation code to your email address
+            We&apos;ve sent a confirmation code to your email address
           </p>
         </div>
 

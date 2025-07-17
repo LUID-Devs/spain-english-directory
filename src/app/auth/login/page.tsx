@@ -10,7 +10,11 @@ const LoginPage = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [challenge, setChallenge] = useState<any>(null);
+  const [challenge, setChallenge] = useState<{
+    challenge: string;
+    session: string;
+    challengeParameters: Record<string, string>;
+  } | null>(null);
   const [mfaCode, setMfaCode] = useState("");
   const router = useRouter();
 
@@ -51,8 +55,8 @@ const LoginPage = () => {
         // Successful login
         router.push("/dashboard");
       }
-    } catch (error: any) {
-      setError(error.message || "Login failed. Please try again.");
+    } catch (error: unknown) {
+      setError(error instanceof Error ? error.message : "Login failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -71,8 +75,8 @@ const LoginPage = () => {
         },
         credentials: "include",
         body: JSON.stringify({
-          challengeName: challenge.challenge,
-          session: challenge.session,
+          challengeName: challenge?.challenge,
+          session: challenge?.session,
           challengeResponses: {
             SMS_MFA_CODE: mfaCode,
             SOFTWARE_TOKEN_MFA_CODE: mfaCode,
@@ -90,8 +94,8 @@ const LoginPage = () => {
       if (data.success) {
         router.push("/dashboard");
       }
-    } catch (error: any) {
-      setError(error.message || "MFA verification failed. Please try again.");
+    } catch (error: unknown) {
+      setError(error instanceof Error ? error.message : "MFA verification failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -255,7 +259,7 @@ const LoginPage = () => {
                 href="/auth/register"
                 className="text-blue-600 hover:text-blue-500 text-sm font-medium"
               >
-                Don't have an account? Sign up
+                Don&apos;t have an account? Sign up
               </Link>
             </div>
           </form>
