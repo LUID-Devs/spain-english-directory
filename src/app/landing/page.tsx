@@ -419,47 +419,257 @@ const LandingPage = () => {
       </div>
 
       {/* Footer */}
-      <footer className="bg-neutral-900 border-t border-neutral-800 text-white py-12">
+      <footer className="border-t border-blue-500/20 bg-black/90 backdrop-blur-xl relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <div className="flex items-center mb-4">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
+          <div className="py-12 md:py-16">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12">
+              {/* Brand Column */}
+              <motion.div 
+                className="space-y-4"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.1 }}
+                viewport={{ once: true }}
+              >
+                <div className="flex items-center gap-3">
+                  <motion.div
+                    className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center"
+                    whileHover={{ scale: 1.1, rotate: 5 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                  >
+                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </motion.div>
+                  <h3 className="font-bold text-xl bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                    TaskLuid
+                  </h3>
                 </div>
-                <h3 className="ml-3 text-xl font-bold">TaskLuid</h3>
+                <p className="text-gray-300 text-sm max-w-xs leading-relaxed">
+                  Streamline your workflow and boost productivity with our comprehensive AI-powered task management platform.
+                </p>
+                
+                {/* Social Links */}
+                <div className="flex space-x-4 pt-2">
+                  <motion.a 
+                    href="https://twitter.com" 
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-blue-500/20 text-blue-400 hover:text-blue-300 hover:border-blue-400/40 transition-all duration-300"
+                    whileHover={{ scale: 1.1, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                    aria-label="Follow us on Twitter"
+                  >
+                    <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
+                    </svg>
+                  </motion.a>
+                  <motion.a 
+                    href="https://linkedin.com" 
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-blue-500/20 text-blue-400 hover:text-blue-300 hover:border-blue-400/40 transition-all duration-300"
+                    whileHover={{ scale: 1.1, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                    aria-label="Connect with us on LinkedIn"
+                  >
+                    <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                    </svg>
+                  </motion.a>
+                  <motion.a 
+                    href="mailto:support@taskluid.com"
+                    className="p-2 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-blue-500/20 text-blue-400 hover:text-blue-300 hover:border-blue-400/40 transition-all duration-300"
+                    whileHover={{ scale: 1.1, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                    aria-label="Send us an email"
+                  >
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                  </motion.a>
+                </div>
+              </motion.div>
+
+              {/* Products Column */}
+              <motion.div 
+                className="space-y-4"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                viewport={{ once: true }}
+              >
+                <h4 className="font-semibold text-white text-lg mb-4">Products</h4>
+                <ul className="space-y-3">
+                  <li>
+                    <Link href="#features" className="text-gray-300 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center group">
+                      <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-3 group-hover:bg-blue-300 transition-colors"></span>
+                      Task Management
+                    </Link>
+                  </li>
+                  <li>
+                    <motion.a 
+                      href="/dashboard" 
+                      className="text-gray-300 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center group"
+                      whileHover={{ x: 4 }}
+                    >
+                      <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-3 group-hover:bg-blue-300 transition-colors"></span>
+                      Project Dashboard
+                    </motion.a>
+                  </li>
+                  <li>
+                    <Link href="#" className="text-gray-300 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center group">
+                      <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-3 group-hover:bg-blue-300 transition-colors"></span>
+                      Team Collaboration
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/auth/login" className="text-gray-300 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center group">
+                      <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-3 group-hover:bg-blue-300 transition-colors"></span>
+                      Sign In
+                    </Link>
+                  </li>
+                </ul>
+              </motion.div>
+
+              {/* Resources Column */}
+              <motion.div 
+                className="space-y-4"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+                viewport={{ once: true }}
+              >
+                <h4 className="font-semibold text-white text-lg mb-4">Resources</h4>
+                <ul className="space-y-3">
+                  <li>
+                    <Link href="#about" className="text-gray-300 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center group">
+                      <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-3 group-hover:bg-blue-300 transition-colors"></span>
+                      About Us
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="#" className="text-gray-300 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center group">
+                      <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-3 group-hover:bg-blue-300 transition-colors"></span>
+                      Project Templates
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="#" className="text-gray-300 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center group">
+                      <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-3 group-hover:bg-blue-300 transition-colors"></span>
+                      Best Practices
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="#" className="text-gray-300 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center group">
+                      <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-3 group-hover:bg-blue-300 transition-colors"></span>
+                      API Documentation
+                    </Link>
+                  </li>
+                </ul>
+              </motion.div>
+
+              {/* Support Column */}
+              <motion.div 
+                className="space-y-4"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.4 }}
+                viewport={{ once: true }}
+              >
+                <h4 className="font-semibold text-white text-lg mb-4">Support</h4>
+                <ul className="space-y-3">
+                  <li>
+                    <Link href="#" className="text-gray-300 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center group">
+                      <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-3 group-hover:bg-blue-300 transition-colors"></span>
+                      Help Center
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="#" className="text-gray-300 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center group">
+                      <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-3 group-hover:bg-blue-300 transition-colors"></span>
+                      Documentation
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="#" className="text-gray-300 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center group">
+                      <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-3 group-hover:bg-blue-300 transition-colors"></span>
+                      Contact Us
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="#" className="text-gray-300 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center group">
+                      <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-3 group-hover:bg-blue-300 transition-colors"></span>
+                      Privacy Policy
+                    </Link>
+                  </li>
+                </ul>
+              </motion.div>
+            </div>
+
+            {/* Bottom Bar */}
+            <motion.div 
+              className="border-t border-blue-500/20 mt-12 pt-8"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.5 }}
+              viewport={{ once: true }}
+            >
+              <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <p className="text-sm text-gray-400">
+                  © 2025 TaskLuid. All rights reserved.
+                </p>
+                <div className="flex items-center gap-6 text-sm">
+                  <Link
+                    href="#"
+                    className="text-gray-400 hover:text-blue-400 transition-colors duration-300"
+                  >
+                    Privacy Policy
+                  </Link>
+                  <Link
+                    href="#"
+                    className="text-gray-400 hover:text-blue-400 transition-colors duration-300"
+                  >
+                    Terms of Service
+                  </Link>
+                  <Link
+                    href="#"
+                    className="text-gray-400 hover:text-blue-400 transition-colors duration-300"
+                  >
+                    Cookie Policy
+                  </Link>
+                </div>
               </div>
-              <p className="text-neutral-400">
-                Streamline your workflow and boost productivity with our comprehensive AI-powered task management platform.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Product</h4>
-              <ul className="space-y-2 text-neutral-400">
-                <li><Link href="#features" className="hover:text-white transition-colors">Features</Link></li>
-                <li><Link href="/auth/login" className="hover:text-white transition-colors">Sign In</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Company</h4>
-              <ul className="space-y-2 text-neutral-400">
-                <li><Link href="#about" className="hover:text-white transition-colors">About</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Contact</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Support</h4>
-              <ul className="space-y-2 text-neutral-400">
-                <li><Link href="#" className="hover:text-white transition-colors">Help Center</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Documentation</Link></li>
-              </ul>
-            </div>
+            </motion.div>
           </div>
-          <div className="border-t border-neutral-800 mt-8 pt-8 text-center text-neutral-400">
-            <p>&copy; 2025 TaskLuid. All rights reserved.</p>
-          </div>
+        </div>
+        
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <motion.div
+            className="absolute -bottom-32 -left-32 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl"
+            animate={{
+              x: [0, 50, 0],
+              y: [0, -30, 0],
+            }}
+            transition={{
+              duration: 20,
+              repeat: Infinity,
+              ease: "linear"
+            }}
+          />
+          <motion.div
+            className="absolute -bottom-32 -right-32 w-64 h-64 bg-purple-500/5 rounded-full blur-3xl"
+            animate={{
+              x: [0, -50, 0],
+              y: [0, -20, 0],
+            }}
+            transition={{
+              duration: 25,
+              repeat: Infinity,
+              ease: "linear"
+            }}
+          />
         </div>
       </footer>
     </div>
