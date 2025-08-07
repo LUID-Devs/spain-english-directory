@@ -21,7 +21,7 @@ function StatCard({ number, label }: { number: string; label: string }) {
   );
 }
 
-function FeatureCard({ feature, index }: { feature: any; index: number }) {
+function FeatureCard({ feature, index }: { feature: { icon: React.ElementType; title: string; description: string }; index: number }) {
   return (
     <FadeInWhenVisible delay={index * 0.2}>
       <motion.div
@@ -94,7 +94,7 @@ const LandingPage = () => {
                 </span>
               </h2>
               <p className="text-xl text-neutral-400 mb-12 max-w-2xl mx-auto">
-                Join thousands of teams who've revolutionized their productivity with our AI-powered project management platform. Organize, track, and complete projects efficiently.
+                Join thousands of teams who&apos;ve revolutionized their productivity with our AI-powered project management platform. Organize, track, and complete projects efficiently.
               </p>
               
               {/* CTA Buttons */}
@@ -330,7 +330,7 @@ const LandingPage = () => {
                 Trusted by Teams Worldwide
               </h2>
               <p className="text-neutral-400 text-xl max-w-3xl mx-auto">
-                Join thousands of teams who've transformed their productivity with TaskLuid
+                Join thousands of teams who&apos;ve transformed their productivity with TaskLuid
               </p>
             </div>
           </FadeInWhenVisible>
@@ -356,7 +356,7 @@ const LandingPage = () => {
                       ))}
                     </div>
                   </div>
-                  <p className="text-neutral-300 mb-4 italic">"{testimonial.quote}"</p>
+                  <p className="text-neutral-300 mb-4 italic">&quot;{testimonial.quote}&quot;</p>
                   <div className="flex items-center">
                     <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center mr-3">
                       <span className="text-white font-bold text-sm">

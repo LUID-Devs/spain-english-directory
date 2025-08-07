@@ -25,8 +25,8 @@ function FadeInWhenVisible({ children, delay = 0, direction = "up" }: FadeInWhen
       initial={{ opacity: 0, ...directions[direction] }}
       animate={{ 
         opacity: isInView ? 1 : 0, 
-        y: isInView ? 0 : directions[direction].y || 0,
-        x: isInView ? 0 : directions[direction].x || 0
+        y: isInView ? 0 : (directions[direction] as { y: number }).y || 0,
+        x: isInView ? 0 : (directions[direction] as { x: number }).x || 0
       }}
       transition={{ duration: 0.8, delay }}
     >

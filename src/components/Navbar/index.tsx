@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { Search, Settings, Menu, Moon, Sun, User, Crown, LogOut } from "lucide-react";
+import { Search, Settings, Menu, Moon, Sun, User, LogOut } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAppDispatch, useAppSelector } from "@/app/redux";
