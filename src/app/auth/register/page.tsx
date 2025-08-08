@@ -185,7 +185,7 @@ const RegisterPage = () => {
               </motion.div>
             </Link>
             <p className="text-gray-300">Check Your Email</p>
-            <p className="text-sm text-gray-400 mt-1">We've sent a confirmation code to your email address</p>
+            <p className="text-sm text-gray-400 mt-1">We&apos;ve sent a confirmation code to your email address</p>
           </div>
 
           {/* Auth Card */}
