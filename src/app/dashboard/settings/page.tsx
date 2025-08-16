@@ -1,4 +1,5 @@
 import Header from "@/components/Header";
+import { SubscriptionDashboard } from "@/components/subscription/SubscriptionDashboard";
 import React from "react";
 
 const SettingsPage = () => {
@@ -16,7 +17,10 @@ const SettingsPage = () => {
   return (
     <div className="p-8">
       <Header name="Settings" />
-      <div className="space-y-4">
+      
+      {/* User Settings */}
+      <div className="space-y-4 mb-8">
+        <h2 className="text-2xl font-bold">User Settings</h2>
         <div>
           <label className={labelStyles}>Username</label>
           <div className={textStyles}>{userSettings.username}</div>
@@ -27,6 +31,12 @@ const SettingsPage = () => {
           <label className={labelStyles}>Roles</label>
           <div className={textStyles}>{userSettings.roleName}</div>
         </div>
+      </div>
+
+      {/* Subscription Settings */}
+      <div className="space-y-4">
+        <h2 className="text-2xl font-bold">Subscription & Billing</h2>
+        <SubscriptionDashboard />
       </div>
     </div>
   );

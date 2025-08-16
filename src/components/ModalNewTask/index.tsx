@@ -1,5 +1,6 @@
 import Modal from "@/components/Modal";
 import { Priority, Status, useCreateTaskMutation } from "@/state/api";
+import { UsageGate } from "@/components/subscription/UsageGate";
 import React, { useState } from "react";
 import { formatISO } from "date-fns";
 
@@ -152,15 +153,17 @@ const ModalNewTask = ({ isOpen, onClose, id = null }: Props) => {
             onChange={(e) => setProjectId(e.target.value)}
           />
         )}
-        <button
-          type="submit"
-          className={`focus-offset-2 mt-4 flex w-full justify-center rounded-md border border-transparent bg-blue-primary px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 ${
-            !isFormValid() || isLoading ? "cursor-not-allowed opacity-50" : ""
-          }`}
-          disabled={!isFormValid() || isLoading}
-        >
-          {isLoading ? "Creating..." : "Create Task"}
-        </button>
+        <UsageGate feature="task creation">
+          <button
+            type="submit"
+            className={`focus-offset-2 mt-4 flex w-full justify-center rounded-md border border-transparent bg-blue-primary px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 ${
+              !isFormValid() || isLoading ? "cursor-not-allowed opacity-50" : ""
+            }`}
+            disabled={!isFormValid() || isLoading}
+          >
+            {isLoading ? "Creating..." : "Create Task"}
+          </button>
+        </UsageGate>
       </form>
     </Modal>
   );

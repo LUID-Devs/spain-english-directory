@@ -25,6 +25,7 @@ import {
   YAxis,
 } from "recharts";
 import { dataGridClassNames, dataGridSxStyles } from "@/lib/utils";
+import { SubscriptionStatus } from "@/components/subscription/SubscriptionStatus";
 
 const taskColumns: GridColDef[] = [
   { field: "title", headerName: "Title", width: 200 },
@@ -94,6 +95,12 @@ const DashboardPage = () => {
   return (
     <div className="container h-full w-[100%] bg-gray-100 bg-transparent p-8">
       <Header name="Project Management Dashboard" />
+      
+      {/* Subscription Status */}
+      <div className="mb-6">
+        <SubscriptionStatus />
+      </div>
+      
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="rounded-lg bg-white p-4 shadow dark:bg-dark-secondary">
           <h3 className="mb-4 text-lg font-semibold dark:text-white">
