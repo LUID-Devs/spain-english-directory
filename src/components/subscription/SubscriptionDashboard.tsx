@@ -22,7 +22,6 @@ import {
 } from '@mui/material';
 import {
   CreditCard,
-  Calendar,
   Zap,
   AlertCircle,
   ExternalLink,
@@ -30,11 +29,11 @@ import {
 import { format } from 'date-fns';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { subscriptionApi } from '@/lib/subscription-api';
-import { SUBSCRIPTION_PLANS, formatPrice } from '@/lib/stripe';
+import { formatPrice } from '@/lib/stripe';
 import { SubscriptionPlans } from './SubscriptionPlans';
 
 export function SubscriptionDashboard() {
-  const { subscriptionData, currentPlan, refreshSubscription } = useSubscription();
+  const { subscriptionData, refreshSubscription } = useSubscription();
   const [showPlansModal, setShowPlansModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -47,8 +46,9 @@ export function SubscriptionDashboard() {
         `${window.location.origin}/dashboard/settings`
       );
       window.open(result.url, '_blank');
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to open billing portal');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to open billing portal';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -60,8 +60,9 @@ export function SubscriptionDashboard() {
       await subscriptionApi.cancelSubscription(false); // Cancel at period end
       await refreshSubscription();
       setShowCancelModal(false);
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to cancel subscription');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to cancel subscription';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -183,7 +184,7 @@ export function SubscriptionDashboard() {
 
               {usagePercentage >= 80 && usage.taskLimit !== 999999 && (
                 <Alert severity="warning" sx={{ mb: 2 }}>
-                  You're approaching your task limit. Consider upgrading your plan.
+                  You&apos;re approaching your task limit. Consider upgrading your plan.
                 </Alert>
               )}
 
@@ -247,7 +248,7 @@ export function SubscriptionDashboard() {
                   Cancel Subscription
                 </Typography>
                 <Typography variant="body2" color="text.secondary" paragraph>
-                  Cancel your subscription at any time. You'll continue to have access to your plan features until the end of your billing period.
+                  Cancel your subscription at any time. You&apos;ll continue to have access to your plan features until the end of your billing period.
                 </Typography>
                 <Button
                   variant="outlined"
@@ -291,7 +292,7 @@ export function SubscriptionDashboard() {
             Are you sure you want to cancel your subscription?
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            You'll continue to have access to your {subscription.name} plan features until{' '}
+            You&apos;ll continue to have access to your {subscription.name} plan features until{' '}
             {subscription.currentPeriodEnd && format(new Date(subscription.currentPeriodEnd), 'PPP')}.
             After that, your account will be downgraded to the Free plan.
           </Typography>

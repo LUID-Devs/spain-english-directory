@@ -16,9 +16,9 @@ const createAuthenticatedAxios = () => {
 export interface SubscriptionPlan {
   name: string;
   price: number;
-  priceId: string;
+  priceId?: string; // Optional for free plans
   taskLimit: number;
-  features: string[];
+  features: readonly string[];
   status?: string;
   currentPeriodEnd?: string;
   cancelAtPeriodEnd?: boolean;

@@ -10,7 +10,7 @@ import {
   Card,
   CardContent,
 } from '@mui/material';
-import { Upgrade, Zap } from 'lucide-react';
+import { ArrowUp, Zap } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 
@@ -71,7 +71,7 @@ export function SubscriptionStatus({
           <Button
             size="small"
             variant="outlined"
-            startIcon={<Upgrade size={14} />}
+            startIcon={<ArrowUp size={14} />}
             onClick={() => router.push('/pricing')}
           >
             Upgrade
@@ -136,7 +136,7 @@ export function SubscriptionStatus({
             </Typography>
             <Button
               variant="contained"
-              startIcon={<Upgrade size={16} />}
+              startIcon={<ArrowUp size={16} />}
               onClick={() => router.push('/pricing')}
               size="small"
             >
@@ -149,7 +149,7 @@ export function SubscriptionStatus({
           <Box sx={{ mt: 2 }}>
             <Button
               variant="outlined"
-              startIcon={<Upgrade size={16} />}
+              startIcon={<ArrowUp size={16} />}
               onClick={() => router.push('/pricing')}
               size="small"
             >

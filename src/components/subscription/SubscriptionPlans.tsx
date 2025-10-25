@@ -16,7 +16,6 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  CircularProgress,
 } from '@mui/material';
 import { Check as CheckIcon, Star as StarIcon } from 'lucide-react';
 import { Elements } from '@stripe/react-stripe-js';
@@ -28,7 +27,6 @@ export function SubscriptionPlans() {
   const { subscriptionData, currentPlan, refreshSubscription } = useSubscription();
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [loading, setLoading] = useState(false);
 
   const handleSelectPlan = (planName: string) => {
     if (planName === 'Free') {
@@ -65,7 +63,7 @@ export function SubscriptionPlans() {
   };
 
   const isButtonDisabled = (planName: string) => {
-    return currentPlan?.name === planName || loading;
+    return currentPlan?.name === planName;
   };
 
   return (
@@ -157,11 +155,7 @@ export function SubscriptionPlans() {
                     onClick={() => handleSelectPlan(plan.name)}
                     sx={{ mt: 'auto' }}
                   >
-                    {loading ? (
-                      <CircularProgress size={20} />
-                    ) : (
-                      getButtonText(plan.name)
-                    )}
+                    {getButtonText(plan.name)}
                   </Button>
                 </CardContent>
               </Card>

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -10,10 +10,9 @@ import {
   Typography,
   Box,
   LinearProgress,
-  Chip,
   Alert,
 } from '@mui/material';
-import { Upgrade, AlertTriangle } from 'lucide-react';
+import { ArrowUp } from 'lucide-react';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { SubscriptionPlans } from './SubscriptionPlans';
 
@@ -24,13 +23,13 @@ interface UsageGateProps {
 }
 
 export function UsageGate({ children, feature = 'task creation', requiresPremium = false }: UsageGateProps) {
-  const { subscriptionData, canCreateTask, isPremium, isSubscribed } = useSubscription();
+  const { subscriptionData, canCreateTask, isPremium } = useSubscription();
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [canProceed, setCanProceed] = useState(true);
   const [isChecking, setIsChecking] = useState(false);
 
   // Check if user can proceed with the action
-  const checkAccess = async () => {
+  const checkAccess = useCallback(async () => {
     if (requiresPremium && !isPremium) {
       setCanProceed(false);
       return;
@@ -48,15 +47,15 @@ export function UsageGate({ children, feature = 'task creation', requiresPremium
         setIsChecking(false);
       }
     }
-  };
+  }, [requiresPremium, isPremium, feature, canCreateTask]);
 
   useEffect(() => {
     checkAccess();
-  }, [subscriptionData, requiresPremium, feature]);
+  }, [subscriptionData, requiresPremium, feature, checkAccess]);
 
   // Render children with click handler that checks access
   const handleAction = (originalHandler?: () => void) => {
-    return async (event: any) => {
+    return async (event: Event) => {
       event.preventDefault();
       
       await checkAccess();
@@ -76,10 +75,11 @@ export function UsageGate({ children, feature = 'task creation', requiresPremium
   // Clone children and add click handler
   const wrappedChildren = React.Children.map(children, (child) => {
     if (React.isValidElement(child)) {
-      const originalOnClick = child.props.onClick;
-      return React.cloneElement(child, {
+      const childProps = child.props as { onClick?: () => void; disabled?: boolean };
+      const originalOnClick = childProps.onClick;
+      return React.cloneElement(child as React.ReactElement<Record<string, unknown>>, {
         onClick: handleAction(originalOnClick),
-        disabled: child.props.disabled || isChecking,
+        disabled: childProps.disabled || isChecking,
       });
     }
     return child;
@@ -123,7 +123,7 @@ export function UsageGate({ children, feature = 'task creation', requiresPremium
             </Button>
           }
         >
-          You're approaching your task limit ({usageInfo.current}/{usageInfo.limit})
+          You&apos;re approaching your task limit ({usageInfo.current}/{usageInfo.limit})
         </Alert>
       )}
 
@@ -135,7 +135,7 @@ export function UsageGate({ children, feature = 'task creation', requiresPremium
         fullWidth
       >
         <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Upgrade size={24} />
+          <ArrowUp size={24} />
           {requiresPremium ? 'Premium Feature Required' : 'Upgrade Required'}
         </DialogTitle>
         
@@ -149,7 +149,7 @@ export function UsageGate({ children, feature = 'task creation', requiresPremium
           ) : (
             <Box sx={{ mb: 3 }}>
               <Alert severity="warning" sx={{ mb: 2 }}>
-                You've reached your task limit. Upgrade to continue creating tasks.
+                You&apos;ve reached your task limit. Upgrade to continue creating tasks.
               </Alert>
               
               {usageInfo && (

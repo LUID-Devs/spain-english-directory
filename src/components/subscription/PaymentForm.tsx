@@ -13,7 +13,6 @@ import {
   useStripe,
   useElements,
   CardElement,
-  Elements,
 } from '@stripe/react-stripe-js';
 import { subscriptionApi } from '@/lib/subscription-api';
 import { SUBSCRIPTION_PLANS, formatPrice } from '@/lib/stripe';
@@ -99,9 +98,10 @@ export function PaymentForm({ planName, onSuccess, onCancel }: PaymentFormProps)
       }
 
       onSuccess();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Payment error:', err);
-      setError(err.response?.data?.error || err.message || 'Payment failed');
+      const errorMessage = err instanceof Error ? err.message : 'Payment failed';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

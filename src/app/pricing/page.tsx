@@ -43,7 +43,7 @@ export default function PricingPage() {
                     What happens if I exceed my task limit?
                   </Typography>
                   <Typography variant="body1" color="text.secondary">
-                    You'll be prompted to upgrade your plan when you reach your task limit. Your existing tasks will remain accessible.
+                    You&apos;ll be prompted to upgrade your plan when you reach your task limit. Your existing tasks will remain accessible.
                   </Typography>
                 </Box>
                 
