@@ -98,27 +98,6 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
-  // Show debug info in development
-  if (process.env.NODE_ENV === 'development') {
-    return (
-      <AuthContext.Provider value={value}>
-        <div>
-          <div style={{ padding: "10px", background: "#f0f0f0", marginBottom: "20px" }}>
-            <h3>Authentication Debug Info:</h3>
-            <p><strong>User:</strong> {user.email}</p>
-            <p><strong>Sub:</strong> {user.sub}</p>
-            <p><strong>Full User Object:</strong></p>
-            <pre>{JSON.stringify(user, null, 2)}</pre>
-            <div style={{ marginTop: "10px" }}>
-              <button onClick={logout}>Sign Out</button>
-            </div>
-          </div>
-          {children}
-        </div>
-      </AuthContext.Provider>
-    );
-  }
-
   return (
     <AuthContext.Provider value={value}>
       {children}
