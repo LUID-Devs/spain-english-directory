@@ -38,12 +38,22 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
     try {
       setLoading(true);
       setError(null);
-      const data = await subscriptionApi.getCurrentSubscription();
+      
+      // Add timeout to prevent blocking
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Subscription fetch timeout')), 5000)
+      );
+      
+      const data = await Promise.race([
+        subscriptionApi.getCurrentSubscription(),
+        timeoutPromise
+      ]) as SubscriptionData;
+      
       setSubscriptionData(data);
     } catch (err) {
       console.error('Error fetching subscription:', err);
       setError('Failed to load subscription data');
-      // Set default free plan data
+      // Set default free plan data immediately
       setSubscriptionData({
         subscription: SUBSCRIPTION_PLANS.FREE,
         usage: {

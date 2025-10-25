@@ -83,11 +83,11 @@ const Sidebar = () => {
         {/* NAVBAR LINKS */}
         <nav className="z-10 w-full">
           <SidebarLink href="/" icon={Home} label="Home" />
-          <SidebarLink href="/timeline" icon={Briefcase} label="Timeline" />
-          <SidebarLink href="/search" icon={Search} label="Search" />
-          <SidebarLink href="/settings" icon={Settings} label="Settings" />
-          <SidebarLink href="/users" icon={User} label="Users" />
-          <SidebarLink href="/teams" icon={Users} label="Teams" />
+          <SidebarLink href="/dashboard/timeline" icon={Briefcase} label="Timeline" />
+          <SidebarLink href="/dashboard/search" icon={Search} label="Search" />
+          <SidebarLink href="/dashboard/settings" icon={Settings} label="Settings" />
+          <SidebarLink href="/dashboard/users" icon={User} label="Users" />
+          <SidebarLink href="/dashboard/teams" icon={Users} label="Teams" />
         </nav>
         {/* PROJECT LINKS */}
 
@@ -107,7 +107,7 @@ const Sidebar = () => {
           projects?.map((project) => (
             <SidebarLink
               key={project.id}
-              href={`/projects/${project.id}`}
+              href={`/dashboard/projects/${project.id}`}
               icon={Briefcase}
               label={project.name}
             />
@@ -127,23 +127,23 @@ const Sidebar = () => {
         {showPriority && (
           <>
             <SidebarLink
-              href="/priority/urgent"
+              href="/dashboard/priority/urgent"
               icon={CircleAlert}
               label="Urgent"
             />
             <SidebarLink
-              href="/priority/high"
+              href="/dashboard/priority/high"
               icon={ShieldAlert}
               label="High"
             />
             <SidebarLink
-              href="/priority/medium"
+              href="/dashboard/priority/medium"
               icon={AlertTriangle}
               label="Medium"
             />
-            <SidebarLink href="/priority/low" icon={AlertOctagon} label="Low" />
+            <SidebarLink href="/dashboard/priority/low" icon={AlertOctagon} label="Low" />
             <SidebarLink
-              href="/priority/backlog"
+              href="/dashboard/priority/backlog"
               icon={Layers3}
               label="Backlog"
             />
