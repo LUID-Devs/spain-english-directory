@@ -34,7 +34,17 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Debug timing
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[SUBSCRIPTION] SubscriptionProvider mounted at:', Date.now());
+    }
+  }, []);
+
   const fetchSubscription = async () => {
+    const subStart = Date.now();
+    console.log('[SUBSCRIPTION] Starting subscription fetch at:', subStart);
+    
     try {
       setLoading(true);
       setError(null);
@@ -49,9 +59,12 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
         timeoutPromise
       ]) as SubscriptionData;
       
+      const subEnd = Date.now();
+      console.log('[SUBSCRIPTION] Subscription request completed in:', subEnd - subStart, 'ms');
       setSubscriptionData(data);
     } catch (err) {
-      console.error('Error fetching subscription:', err);
+      const subEnd = Date.now();
+      console.error('[SUBSCRIPTION] Subscription fetch failed after:', subEnd - subStart, 'ms', err);
       setError('Failed to load subscription data');
       // Set default free plan data immediately
       setSubscriptionData({
@@ -65,6 +78,7 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
       });
     } finally {
       setLoading(false);
+      console.log('[SUBSCRIPTION] Subscription loading complete at:', Date.now());
     }
   };
 

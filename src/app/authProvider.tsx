@@ -23,23 +23,46 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
+  // Debug timing
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[AUTH] AuthProvider mounted at:', Date.now());
+    }
+  }, []);
+
   const checkAuthStatus = useCallback(async () => {
+    const authStart = Date.now();
+    console.log('[AUTH] Starting auth check at:', authStart);
+    
     try {
+      // Add timeout to prevent hanging
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000);
+      
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/status`, {
         credentials: 'include',
+        signal: controller.signal,
       });
+      
+      clearTimeout(timeoutId);
+      const authEnd = Date.now();
+      console.log('[AUTH] Auth request completed in:', authEnd - authStart, 'ms');
       
       if (response.ok) {
         const data = await response.json();
         setUser(data.user);
+        console.log('[AUTH] User authenticated:', data.user?.username || 'Unknown');
       } else {
         setUser(null);
+        console.log('[AUTH] User not authenticated');
       }
     } catch (error) {
-      console.error('Error checking auth status:', error);
+      const authEnd = Date.now();
+      console.error('[AUTH] Auth check failed after:', authEnd - authStart, 'ms', error);
       setUser(null);
     } finally {
       setIsLoading(false);
+      console.log('[AUTH] Auth loading complete at:', Date.now());
     }
   }, []);
 

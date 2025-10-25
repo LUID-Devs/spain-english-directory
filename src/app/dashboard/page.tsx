@@ -26,6 +26,7 @@ import {
 } from "recharts";
 import { dataGridClassNames, dataGridSxStyles } from "@/lib/utils";
 import { SubscriptionStatus } from "@/components/subscription/SubscriptionStatus";
+import { PerformanceDebug } from "@/components/PerformanceDebug";
 
 const taskColumns: GridColDef[] = [
   { field: "title", headerName: "Title", width: 200 },
@@ -124,6 +125,7 @@ const DashboardPage = () => {
 
   return (
     <div className="container h-full w-[100%] bg-gray-100 bg-transparent p-8">
+      <PerformanceDebug />
       <Header name="Project Management Dashboard" />
       
       {/* Subscription Status */}
