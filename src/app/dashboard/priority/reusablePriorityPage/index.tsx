@@ -74,8 +74,11 @@ const ReusablePriorityPage = ({ priority }: Props) => {
   const [isModalNewTaskOpen, setIsModalNewTaskOpen] = useState(false);
 
   const auth = useAuth();
-  const {data: currentUser} = useGetAuthUserQuery(auth.user?.sub || "");
-  const userId = currentUser?.userDetails?.userId ?? null;
+  const userIdentifier = auth.user?.sub || auth.user?.userId || "";
+  const {data: currentUser, isLoading: userLoading, error: userError} = useGetAuthUserQuery(userIdentifier);
+  const userId = currentUser?.userId ?? null;
+  
+  
   const {
     data: tasks,
     isLoading,
@@ -87,7 +90,21 @@ const ReusablePriorityPage = ({ priority }: Props) => {
     (task: Task) => task.priority === priority,
   );
 
-  if (isTasksError || !tasks) return <div>Error fetching tasks</div>;
+  if (userLoading || isLoading) {
+    return <div>Loading tasks...</div>;
+  }
+
+  if (!auth.user || userId === null) {
+    return <div>Please log in to view your tasks</div>;
+  }
+
+  if (isTasksError) {
+    return <div>Error fetching tasks</div>;
+  }
+
+  if (!tasks || tasks.length === 0) {
+    return <div>No tasks found</div>;
+  }
 
   return (
     <div className="m-5 p-4">
@@ -120,9 +137,7 @@ const ReusablePriorityPage = ({ priority }: Props) => {
           Table
         </button>
       </div>
-      {isLoading ? (
-        <div>Loading tasks...</div>
-      ) : view === "list" ? (
+      {view === "list" ? (
         <div className="grid grid-cols-1 gap-4">
           {filteredTasks?.map((task: Task) => (
             <TaskCard key={task.id} task={task} />
