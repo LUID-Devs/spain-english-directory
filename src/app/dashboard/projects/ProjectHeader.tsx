@@ -16,9 +16,10 @@ import ModalNewProject from "./ModalNewProject";
 type Props = {
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  projectName: string;
 };
 
-const ProjectHeader = ({ activeTab, setActiveTab }: Props) => {
+const ProjectHeader = ({ activeTab, setActiveTab, projectName }: Props) => {
   const [isModalNewProjectOpen, setIsModalNewProjectOpen] = useState(false);
   return (
     <div className="px-4 xl:px-6">
@@ -29,7 +30,7 @@ const ProjectHeader = ({ activeTab, setActiveTab }: Props) => {
       />
       <div className="p-b pt-6 lg:pb-4 lg:pt-8">
         <Header
-          name="Product Design Development"
+          name={projectName}
           buttonComponent={
             <button
               className="flex items-center rounded-md bg-blue-primary px-3 py-2 text-white hover:bg-blue-600"

@@ -14,23 +14,39 @@ const ModalNewProject = ({ isOpen, onClose }: Props) => {
   const [description, setDescription] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [error, setError] = useState<string>("");
 
   const handleSubmit = async () => {
     if (!projectName || !startDate || !endDate) return;
 
-    const formattedStartDate = formatISO(new Date(startDate), {
-      representation: "complete",
-    });
-    const formattedEndDate = formatISO(new Date(endDate), {
-      representation: "complete",
-    });
+    setError(""); // Clear any previous errors
 
-    await createProject({
-      name: projectName,
-      description,
-      startDate: formattedStartDate,
-      endDate: formattedEndDate,
-    });
+    try {
+      const formattedStartDate = formatISO(new Date(startDate), {
+        representation: "complete",
+      });
+      const formattedEndDate = formatISO(new Date(endDate), {
+        representation: "complete",
+      });
+
+      await createProject({
+        name: projectName,
+        description,
+        startDate: formattedStartDate,
+        endDate: formattedEndDate,
+      }).unwrap();
+
+      // Success - clear form and close modal
+      setProjectName("");
+      setDescription("");
+      setStartDate("");
+      setEndDate("");
+      setError("");
+      onClose();
+    } catch (err: any) {
+      // Handle error
+      setError(err?.data?.message || "Failed to create project. Please try again.");
+    }
   };
 
   const isFormValid = () => {
@@ -76,6 +92,13 @@ const ModalNewProject = ({ isOpen, onClose }: Props) => {
             onChange={(e) => setEndDate(e.target.value)}
           />
         </div>
+        
+        {error && (
+          <div className="mt-4 p-3 bg-red-100 border border-red-300 text-red-700 rounded-md">
+            {error}
+          </div>
+        )}
+
         <button
           type="submit"
           className={`focus-offset-2 mt-4 flex w-full justify-center rounded-md border border-transparent bg-blue-primary px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 ${

@@ -7,6 +7,7 @@ import List from "@/app/dashboard/projects/ListView";
 import Timeline from "@/app/dashboard/projects/Timeline";
 import Table from "@/app/dashboard/projects/Table";
 import ModalNewTask from "@/components/ModalNewTask";
+import { useGetProjectsQuery } from "@/state/api";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -15,6 +16,9 @@ type Props = {
 const Project = ({ params }: Props) => {
   // Unwrap params using React.use()
   const { id } = React.use(params);
+
+  const { data: projects } = useGetProjectsQuery();
+  const currentProject = projects?.find(project => project.id === parseInt(id));
 
   const [activeTab, setActiveTab] = useState("Board");
   const [isModalNewTaskOpen, setIsModalNewTaskOpen] = useState(false);
@@ -27,7 +31,11 @@ const Project = ({ params }: Props) => {
         onClose={() => setIsModalNewTaskOpen(false)}
         id={id}
       />
-      <ProjectHeader activeTab={activeTab} setActiveTab={setActiveTab} />
+      <ProjectHeader 
+        activeTab={activeTab} 
+        setActiveTab={setActiveTab} 
+        projectName={currentProject?.name || "Loading..."} 
+      />
       {activeTab === "Board" && (
         <Board id={id} setIsModalNewTaskOpen={setIsModalNewTaskOpen} />
       )}
