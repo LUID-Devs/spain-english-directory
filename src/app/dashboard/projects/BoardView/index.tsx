@@ -69,7 +69,7 @@ const TaskColumn = ({
     }),
   }));
 
-  const tasksCount = tasks.filter((task) => task.status === status).length;
+  const tasksCount = tasks.filter((task) => (task.status || "To Do") === status).length;
 
   // Specific type for statusColor
   const statusColor: Record<TaskStatus, string> = {
@@ -116,7 +116,7 @@ const TaskColumn = ({
       </div>
 
       {tasks
-        .filter((task) => task.status === status)
+        .filter((task) => (task.status || "To Do") === status)
         .map((task) => (
           <Task key={task.id} task={task} />
         ))}

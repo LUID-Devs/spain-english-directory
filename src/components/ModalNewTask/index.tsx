@@ -38,7 +38,11 @@ const ModalNewTask = ({ isOpen, onClose, id = null }: Props) => {
   }, [currentUser, authorUserId]);
 
   const handleSubmit = async () => {
-    if (!title || !authorUserId || !(id !== null || projectId)) return;
+    console.log('handleSubmit called', { title, authorUserId, id, projectId });
+    if (!title || !authorUserId || !((id !== null) || projectId)) {
+      console.log('Validation failed', { title, authorUserId, id, projectId });
+      return;
+    }
 
     try {
       const taskData = {
@@ -54,7 +58,8 @@ const ModalNewTask = ({ isOpen, onClose, id = null }: Props) => {
         projectId: id !== null ? Number(id) : Number(projectId),
       };
 
-      await createTask(taskData);
+      console.log('Creating task with data:', taskData);
+      await createTask(taskData).unwrap();
       onClose();
     } catch (error) {
       console.error("Failed to create task:", error);
@@ -62,7 +67,7 @@ const ModalNewTask = ({ isOpen, onClose, id = null }: Props) => {
   };
 
   const isFormValid = () => {
-    return (title && authorUserId) || !(id !== null || projectId);
+    return title && authorUserId && (id !== null || projectId);
   };
 
   const selectStyles =
@@ -182,7 +187,7 @@ const ModalNewTask = ({ isOpen, onClose, id = null }: Props) => {
             ))}
           </select>
         )}
-        <UsageGate feature="task creation">
+       
           <button
             type="submit"
             className={`focus-offset-2 mt-4 flex w-full justify-center rounded-md border border-transparent bg-blue-primary px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 ${
@@ -192,7 +197,7 @@ const ModalNewTask = ({ isOpen, onClose, id = null }: Props) => {
           >
             {isLoading ? "Creating..." : "Create Task"}
           </button>
-        </UsageGate>
+    
       </form>
     </Modal>
   );
