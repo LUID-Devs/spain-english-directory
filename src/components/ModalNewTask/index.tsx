@@ -1,8 +1,9 @@
 import Modal from "@/components/Modal";
-import { Priority, Status, useCreateTaskMutation } from "@/state/api";
+import { Priority, Status, useCreateTaskMutation, useGetUsersQuery, useGetProjectsQuery, useGetAuthUserQuery } from "@/state/api";
 import { UsageGate } from "@/components/subscription/UsageGate";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { formatISO } from "date-fns";
+import { useAuth } from "@/app/authProvider";
 
 type Props = {
   isOpen: boolean;
@@ -12,6 +13,12 @@ type Props = {
 
 const ModalNewTask = ({ isOpen, onClose, id = null }: Props) => {
   const [createTask, { isLoading }] = useCreateTaskMutation();
+  const auth = useAuth();
+  const userIdentifier = auth.user?.sub || auth.user?.userId || "";
+  const {data: currentUser} = useGetAuthUserQuery(userIdentifier);
+  const {data: users} = useGetUsersQuery();
+  const {data: projects} = useGetProjectsQuery();
+  
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState<Status>(Status.ToDo);
@@ -22,6 +29,13 @@ const ModalNewTask = ({ isOpen, onClose, id = null }: Props) => {
   const [authorUserId, setAuthorUserId] = useState("");
   const [assignedUserId, setAssignedUserId] = useState("");
   const [projectId, setProjectId] = useState("");
+
+  // Set current user as default author when user data loads
+  useEffect(() => {
+    if (currentUser?.userId && !authorUserId) {
+      setAuthorUserId(currentUser.userId.toString());
+    }
+  }, [currentUser, authorUserId]);
 
   const handleSubmit = async () => {
     if (!title || !authorUserId || !(id !== null || projectId)) return;
@@ -130,28 +144,43 @@ const ModalNewTask = ({ isOpen, onClose, id = null }: Props) => {
             onChange={(e) => setDueDate(e.target.value)}
           />
         </div>
-        <input
-          type="text"
+        <select
           className={inputStyles}
-          placeholder="Author User ID"
           value={authorUserId}
           onChange={(e) => setAuthorUserId(e.target.value)}
-        />
-        <input
-          type="text"
+        >
+          <option value="">Select Author</option>
+          {users?.map((user) => (
+            <option key={user.userId} value={user.userId}>
+              {user.username}
+            </option>
+          ))}
+        </select>
+        <select
           className={inputStyles}
-          placeholder="Assigned User ID"
           value={assignedUserId}
           onChange={(e) => setAssignedUserId(e.target.value)}
-        />
+        >
+          <option value="">Select Assignee (Optional)</option>
+          {users?.map((user) => (
+            <option key={user.userId} value={user.userId}>
+              {user.username}
+            </option>
+          ))}
+        </select>
         {id === null && (
-          <input
-            type="text"
+          <select
             className={inputStyles}
-            placeholder="ProjectId"
             value={projectId}
             onChange={(e) => setProjectId(e.target.value)}
-          />
+          >
+            <option value="">Select Project</option>
+            {projects?.map((project) => (
+              <option key={project.id} value={project.id}>
+                {project.name}
+              </option>
+            ))}
+          </select>
         )}
         <UsageGate feature="task creation">
           <button

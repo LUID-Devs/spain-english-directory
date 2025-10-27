@@ -70,6 +70,13 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     checkAuthStatus();
   }, [checkAuthStatus]);
 
+  // Handle redirect to login when user is not authenticated
+  useEffect(() => {
+    if (!isLoading && !user) {
+      router.push('/auth/login');
+    }
+  }, [isLoading, user, router]);
+
   const login = () => {
     router.push('/auth/login');
   };
@@ -110,8 +117,6 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   if (!user) {
-    // Redirect to login page instead of showing login UI
-    router.push('/auth/login');
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">

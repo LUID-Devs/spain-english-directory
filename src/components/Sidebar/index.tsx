@@ -24,7 +24,7 @@ import { usePathname } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/app/redux";
 import Link from "next/link";
 import { setIsSidebarCollapsed } from "@/state";
-import { useGetAuthUserQuery, useGetProjectsQuery } from "@/state/api";
+import { useGetAuthUserQuery, useGetProjectsQuery, useGetTeamsQuery } from "@/state/api";
 import { useAuth } from "@/app/authProvider";
 
 const Sidebar = () => {
@@ -32,6 +32,7 @@ const Sidebar = () => {
   const [showPriority, setShowPriority] = useState(false);
 
   const { data: projects } = useGetProjectsQuery();
+  const { data: teams } = useGetTeamsQuery();
 
   const dispatch = useAppDispatch();
   const isSidebarCollapsed = useAppSelector(
@@ -39,13 +40,15 @@ const Sidebar = () => {
   );
 
   const auth = useAuth();
-  const {data: currentUser} = useGetAuthUserQuery(auth.user?.sub || "");
+  const userIdentifier = auth.user?.sub || auth.user?.userId || "";
+  const {data: currentUser} = useGetAuthUserQuery(userIdentifier);
   const handleSignOut = () => {
     auth.logout();
   }
   if (!currentUser) return null;
 
-  const currentUserDetails = currentUser?.userDetails;
+  const currentUserDetails = currentUser;
+  const userTeam = teams?.find(team => team.teamId === currentUser.teamId);
 
   const sidebarClassNames = `fixed flex flex-col h-[100%] justify-between shadow-xl transition-all duration-300 h-full z-40 dark:bg-black overflow-y-auto bg-white ${isSidebarCollapsed ? "w-0 hidden" : "w-64"}`;
   return (
@@ -54,7 +57,7 @@ const Sidebar = () => {
         {/* TOP LOGO */}
         <div className="z-50 flex min-h-[56px] w-64 items-center justify-between bg-white px-6 pt-3 dark:bg-black">
           <div className="text-xl font-bold text-gray-800 dark:text-white">
-            EDLIST
+            TaskLuid
           </div>
           {isSidebarCollapsed ? null : (
             <button
@@ -72,7 +75,7 @@ const Sidebar = () => {
           <Image src="https://luid-pm-s3-images.s3.us-east-1.amazonaws.com/logo.png" alt="logo" width={40} height={40} />
           <div>
             <h3 className="text-md font-bold tracking-wide dark:text-gray-200">
-              EDROH TEAM
+              {userTeam?.teamName || 'My Team'}
             </h3>
             <div className="mt-1 flex items-start gap-2">
               <LockIcon className="mt-[0.1rem] h-3 w-3 text-gray-500 dark:text-gray-400" />
@@ -155,7 +158,7 @@ const Sidebar = () => {
           <div className="align-center flex h-9 w-9 justify-center">
             {!!currentUserDetails?.profilePictureUrl ? (
               <Image
-                src={`https://luid-pm-s3-images.s3.us-east-1.amazonaws.com/${currentUserDetails?.profilePictureUrl}`}
+                src={`https://pm-s3-images.s3.us-east-1.amazonaws.com/${currentUserDetails?.profilePictureUrl}`}
                 alt={currentUserDetails?.username || "User Profile Picture"}
                 width={30}
                 height={30}

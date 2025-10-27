@@ -5,7 +5,8 @@ import {
   Project,
   Task,
   useGetProjectsQuery,
-  useGetTasksQuery,
+  useGetTasksByUserQuery,
+  useGetAuthUserQuery,
 } from "@/state/api";
 import React from "react";
 import { useAppSelector } from "../redux";
@@ -27,6 +28,7 @@ import {
 import { dataGridClassNames, dataGridSxStyles } from "@/lib/utils";
 import { SubscriptionStatus } from "@/components/subscription/SubscriptionStatus";
 import { PerformanceDebug } from "@/components/PerformanceDebug";
+import { useAuth } from "../authProvider";
 
 const taskColumns: GridColDef[] = [
   { field: "title", headerName: "Title", width: 200 },
@@ -38,11 +40,16 @@ const taskColumns: GridColDef[] = [
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
 const DashboardPage = () => {
+  const auth = useAuth();
+  const userIdentifier = auth.user?.sub || auth.user?.userId || "";
+  const {data: currentUser} = useGetAuthUserQuery(userIdentifier);
+  const userId = currentUser?.userId ?? null;
+  
   const {
     data: tasks,
     isLoading: tasksLoading,
     isError: tasksError,
-  } = useGetTasksQuery({ projectId: parseInt("1") });
+  } = useGetTasksByUserQuery(userId || 0, { skip: userId === null });
   const { data: projects, isLoading: isProjectsLoading } =
     useGetProjectsQuery();
 
