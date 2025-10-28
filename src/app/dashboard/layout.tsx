@@ -4,6 +4,7 @@ import { Elements } from '@stripe/react-stripe-js';
 import { stripePromise } from '@/lib/stripe';
 import AuthProvider from "../authProvider";
 import DashboardWrapper from "../dashboardWrapper";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import { SubscriptionProvider } from '@/contexts/SubscriptionContext';
 
 export default function DashboardLayout({
@@ -13,13 +14,15 @@ export default function DashboardLayout({
 }) {
   return (
     <AuthProvider>
-      <Elements stripe={stripePromise}>
-        <SubscriptionProvider>
-          <DashboardWrapper>
-            {children}
-          </DashboardWrapper>
-        </SubscriptionProvider>
-      </Elements>
+      <ProtectedRoute>
+        <Elements stripe={stripePromise}>
+          <SubscriptionProvider>
+            <DashboardWrapper>
+              {children}
+            </DashboardWrapper>
+          </SubscriptionProvider>
+        </Elements>
+      </ProtectedRoute>
     </AuthProvider>
   );
 }

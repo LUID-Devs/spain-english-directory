@@ -70,12 +70,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     checkAuthStatus();
   }, [checkAuthStatus]);
 
-  // Handle redirect to login when user is not authenticated
-  useEffect(() => {
-    if (!isLoading && !user) {
-      router.push('/auth/login');
-    }
-  }, [isLoading, user, router]);
+  // Remove global redirect - let individual pages handle their own auth requirements
 
   const login = () => {
     router.push('/auth/login');
@@ -87,11 +82,10 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         method: 'POST',
         credentials: 'include',
       });
-      setUser(null);
-      router.push('/auth/login');
     } catch (error) {
       console.error('Logout error:', error);
-      // Even if logout fails, clear user state and redirect
+    } finally {
+      // Always clear user state and redirect, regardless of API call result
       setUser(null);
       router.push('/auth/login');
     }
@@ -105,26 +99,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     logout
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-600">Redirecting to authentication...</p>
-        </div>
-      </div>
-    );
-  }
+  // Always render children - let individual pages handle auth requirements
 
   return (
     <AuthContext.Provider value={value}>

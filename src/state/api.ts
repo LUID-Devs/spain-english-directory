@@ -6,6 +6,23 @@ export interface Project {
   description?: string;
   startDate?: string;
   endDate?: string;
+  archived?: boolean;
+  archivedAt?: string;
+  statistics?: {
+    totalTasks: number;
+    completedTasks: number;
+    inProgressTasks: number;
+    todoTasks: number;
+    progress: number;
+    memberCount: number;
+    status: string;
+  };
+  teamMembers?: {
+    userId: number;
+    username: string;
+    profilePictureUrl?: string;
+  }[];
+  taskCount?: number;
 }
 
 export enum Status {
@@ -85,8 +102,11 @@ export const api = createApi({
       query: (userSub: string) => `users/${userSub}`,
       providesTags: ["Users"],
     }),
-    getProjects: build.query<Project[], void>({
-      query: () => "projects",
+    getProjects: build.query<Project[], { archived?: boolean }>({
+      query: ({ archived } = {}) => {
+        const params = archived !== undefined ? `?archived=${archived}` : '';
+        return `projects${params}`;
+      },
       providesTags: [{ type: "Projects" }],
     }),
     createProject: build.mutation<Project, Partial<Project>>({
@@ -94,6 +114,35 @@ export const api = createApi({
         url: "projects",
         method: "POST",
         body: project,
+      }),
+      invalidatesTags: ["Projects"],
+    }),
+    updateProject: build.mutation<Project, { id: string; project: Partial<Project> }>({
+      query: ({ id, project }) => ({
+        url: `projects/${id}`,
+        method: "PUT",
+        body: project,
+      }),
+      invalidatesTags: ["Projects"],
+    }),
+    deleteProject: build.mutation<{ message: string }, string>({
+      query: (id) => ({
+        url: `projects/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Projects"],
+    }),
+    archiveProject: build.mutation<Project, string>({
+      query: (id) => ({
+        url: `projects/${id}/archive`,
+        method: "PATCH",
+      }),
+      invalidatesTags: ["Projects"],
+    }),
+    unarchiveProject: build.mutation<Project, string>({
+      query: (id) => ({
+        url: `projects/${id}/unarchive`,
+        method: "PATCH",
       }),
       invalidatesTags: ["Projects"],
     }),
@@ -146,6 +195,10 @@ export const api = createApi({
 export const {
   useGetProjectsQuery,
   useCreateProjectMutation,
+  useUpdateProjectMutation,
+  useDeleteProjectMutation,
+  useArchiveProjectMutation,
+  useUnarchiveProjectMutation,
   useGetTasksQuery,
   useCreateTaskMutation,
   useUpdateTaskStatusMutation,
