@@ -1,15 +1,22 @@
 import { Task } from "@/state/api";
 import { format } from "date-fns";
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
+import TaskDetailModal from "@/components/TaskDetailModal";
 
 type Props = {
   task: Task;
 };
 
 const TaskCard = ({ task }: Props) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
   return (
-    <div className="mb-3 rounded bg-white p-4 shadow dark:bg-dark-secondary dark:text-white">
+    <>
+      <div 
+        onClick={() => setIsModalOpen(true)}
+        className="mb-3 rounded bg-white p-4 shadow dark:bg-dark-secondary dark:text-white hover:shadow-md transition-shadow cursor-pointer"
+      >
       {task.attachments && task.attachments.length > 0 && (
         <div className="">
           <strong>Attachments:</strong>
@@ -61,7 +68,15 @@ const TaskCard = ({ task }: Props) => {
         <strong>Assignee:</strong>{" "}
         {task.assignee ? task.assignee.username : "Undassigned"}
       </p>
-    </div>
+      </div>
+      
+      <TaskDetailModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        taskId={task.id}
+        editMode={false}
+      />
+    </>
   );
 };
 

@@ -1,13 +1,15 @@
 "use client";
 
 import React from "react";
-import { useGetTasksQuery, useUpdateTaskStatusMutation } from "@/state/api";
+import { useGetTasksQuery, useUpdateTaskStatusMutation, useDeleteTaskMutation } from "@/state/api";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { Task as TaskType } from "@/state/api";
-import { EllipsisVertical, MessageSquareMore, Plus } from "lucide-react";
+import { EllipsisVertical, MessageSquareMore, Plus, Edit, Trash2, Eye } from "lucide-react";
 import { format } from "date-fns";
 import Image from "next/image";
+import TaskDetailModal from "@/components/TaskDetailModal";
+import DeleteTaskModal from "@/components/DeleteTaskModal";
 import type { DropTargetMonitor, DragSourceMonitor } from 'react-dnd';
 
 // Literal type for status values
@@ -129,6 +131,11 @@ type TaskProps = {
 };
 
 const Task = ({ task }: TaskProps) => {
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [isEditMode, setIsEditMode] = React.useState(false);
+  const [showDropdown, setShowDropdown] = React.useState(false);
+  const [showDeleteModal, setShowDeleteModal] = React.useState(false);
+  const [deleteTask, { isLoading: isDeleting }] = useDeleteTaskMutation();
   const [{ isDragging }, drag] = useDrag(() => ({
     type: "task",
     item: { id: task.id },
@@ -147,6 +154,62 @@ const Task = ({ task }: TaskProps) => {
     : "";
 
   const numberOfComments = (task.comments && task.comments.length) || 0;
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Don't open modal if dragging or if clicking on menu button
+    if (!isDragging) {
+      setIsEditMode(false);
+      setIsModalOpen(true);
+    }
+  };
+
+  const handleMenuClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowDropdown(!showDropdown);
+  };
+
+  const handleMenuAction = (action: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowDropdown(false);
+    
+    switch(action) {
+      case 'view':
+        setIsEditMode(false);
+        setIsModalOpen(true);
+        break;
+      case 'edit':
+        setIsEditMode(true);
+        setIsModalOpen(true);
+        break;
+      case 'delete':
+        setShowDeleteModal(true);
+        break;
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    try {
+      await deleteTask(task.id).unwrap();
+      setShowDeleteModal(false);
+    } catch (error: any) {
+      console.error('Failed to delete task:', error);
+      // You could add a toast notification here
+      alert(error?.data?.message || 'Failed to delete task. Please try again.');
+      setShowDeleteModal(false);
+    }
+  };
+
+  // Close dropdown when clicking outside
+  React.useEffect(() => {
+    const handleClickOutside = () => {
+      setShowDropdown(false);
+    };
+
+    if (showDropdown) {
+      document.addEventListener('click', handleClickOutside);
+      return () => document.removeEventListener('click', handleClickOutside);
+    }
+  }, [showDropdown]);
 
   const PriorityTag = ({ priority }: { priority: TaskType["priority"] }) => (
     <div
@@ -175,16 +238,20 @@ const Task = ({ task }: TaskProps) => {
         isDragging ? "opacity-50" : "opacity-100"
       }`}
     >
-      {task.attachments && task.attachments.length > 0 && (
-        <Image
-          src={`https://luid-pm-s3-images.s3.us-east-1.amazonaws.com/${task.attachments[0].fileURL}`}
-          alt={task.attachments[0].fileName}
-          width={400}
-          height={200}
-          className="h-auto w-full rounded-t-md"
-        />
-      )}
-      <div className="p-4 md:p-6">
+      <div 
+        onClick={handleCardClick}
+        className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors rounded-md cursor-pointer"
+      >
+          {task.attachments && task.attachments.length > 0 && (
+            <Image
+              src={`https://luid-pm-s3-images.s3.us-east-1.amazonaws.com/${task.attachments[0].fileURL}`}
+              alt={task.attachments[0].fileName}
+              width={400}
+              height={200}
+              className="h-auto w-full rounded-t-md"
+            />
+          )}
+          <div className="p-4 md:p-6">
         <div className="flex items-start justify-between">
           <div className="flex flex-1 flex-wrap items-center gap-2">
             {task.priority && <PriorityTag priority={task.priority} />}
@@ -199,9 +266,40 @@ const Task = ({ task }: TaskProps) => {
               ))}
             </div>
           </div>
-          <button className="flex h-6 w-4 flex-shrink-0 items-center justify-center dark:text-neutral-500">
-            <EllipsisVertical size={26} />
-          </button>
+          <div className="relative">
+            <button 
+              onClick={handleMenuClick}
+              className="flex h-6 w-4 flex-shrink-0 items-center justify-center dark:text-neutral-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded p-1"
+            >
+              <EllipsisVertical size={16} />
+            </button>
+            
+            {showDropdown && (
+              <div className="absolute right-0 top-8 z-20 bg-white dark:bg-dark-secondary border border-gray-200 dark:border-gray-600 rounded-md shadow-lg py-1 w-32">
+                <button
+                  onClick={(e) => handleMenuAction('view', e)}
+                  className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
+                  <Eye className="h-4 w-4" />
+                  View
+                </button>
+                <button
+                  onClick={(e) => handleMenuAction('edit', e)}
+                  className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
+                  <Edit className="h-4 w-4" />
+                  Edit
+                </button>
+                <button
+                  onClick={(e) => handleMenuAction('delete', e)}
+                  className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Delete
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="my-3 flex justify-between">
@@ -253,7 +351,26 @@ const Task = ({ task }: TaskProps) => {
             </span>
           </div>
         </div>
-      </div>
+          </div>
+        </div>
+      
+      <TaskDetailModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setIsEditMode(false);
+        }}
+        taskId={task.id}
+        editMode={isEditMode}
+      />
+      
+      <DeleteTaskModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleConfirmDelete}
+        taskTitle={task.title}
+        isDeleting={isDeleting}
+      />
     </div>
   );
 };

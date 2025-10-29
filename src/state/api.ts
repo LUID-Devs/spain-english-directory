@@ -194,6 +194,10 @@ export const api = createApi({
           ? result.map(({ id }) => ({ type: "Tasks" as const, id }))
           : [{ type: "Tasks" as const }],
     }),
+    getTask: build.query<Task, number>({
+      query: (taskId) => `tasks/${taskId}`,
+      providesTags: (result, error, taskId) => [{ type: "Tasks", id: taskId }],
+    }),
     getTasksByUser: build.query<Task[], number>({
       query: (userId) => `tasks/user/${userId}`,
       providesTags: (result, error, userId) =>
@@ -206,6 +210,24 @@ export const api = createApi({
         url: "tasks",
         method: "POST",
         body: task,
+      }),
+      invalidatesTags: ["Tasks"],
+    }),
+    updateTask: build.mutation<Task, { taskId: number; task: Partial<Task> }>({
+      query: ({ taskId, task }) => ({
+        url: `tasks/${taskId}`,
+        method: "PUT",
+        body: task,
+      }),
+      invalidatesTags: (result, error, { taskId }) => [
+        { type: "Tasks", id: taskId },
+        "Tasks",
+      ],
+    }),
+    deleteTask: build.mutation<{ message: string }, number>({
+      query: (taskId) => ({
+        url: `tasks/${taskId}`,
+        method: "DELETE",
       }),
       invalidatesTags: ["Tasks"],
     }),
@@ -243,7 +265,10 @@ export const {
   useFavoriteProjectMutation,
   useUnfavoriteProjectMutation,
   useGetTasksQuery,
+  useGetTaskQuery,
   useCreateTaskMutation,
+  useUpdateTaskMutation,
+  useDeleteTaskMutation,
   useUpdateTaskStatusMutation,
   useSearchQuery,
   useGetUsersQuery,
