@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
-import { useGetProjectsQuery } from "@/state/api";
+import { useGetProjectsQuery, useGetAuthUserQuery } from "@/state/api";
 import { useAppSelector } from "@/app/redux";
+import { useAuth } from "@/app/authProvider";
 import Header from "@/components/Header";
-import { Plus, Search, Filter, Grid, List, Archive } from "lucide-react";
+import { Plus, Search, Filter, Grid, List, Archive, Star, Activity } from "lucide-react";
 import ModalNewProject from "./ModalNewProject";
 import ProjectCard from "@/components/ProjectCard";
 
@@ -14,8 +15,29 @@ const ProjectsPage = () => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [sortBy, setSortBy] = useState<"name" | "date" | "progress">("name");
   const [showArchived, setShowArchived] = useState(false);
+  const [showFavorites, setShowFavorites] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<string>("");
   
-  const { data: projects, isLoading, isError } = useGetProjectsQuery({ archived: showArchived });
+  const auth = useAuth();
+  const { data: currentUserData, isLoading: userLoading, error: userError } = useGetAuthUserQuery(auth.user.userId);
+  
+  // Handle both single user object and array responses
+  let currentUser = Array.isArray(currentUserData) 
+    ? currentUserData.find(user => user.cognitoId === auth.user?.sub)
+    : currentUserData;
+    
+  // Fallback: if API response is an array but we couldn't find user by cognitoId, 
+  // try to find user with userId 21 (which we know exists from earlier logs)
+  if (!currentUser && Array.isArray(currentUserData) && auth.user?.sub === "499ab5cc-a061-70fd-54fe-4449ba4e80fa") {
+    currentUser = currentUserData.find(user => user.userId === 21);
+   
+  }
+  const { data: projects, isLoading, isError } = useGetProjectsQuery({ 
+    archived: showArchived, 
+    favorites: showFavorites,
+    userId: currentUser?.userId, // Fallback to userId 21 for testing
+    status: statusFilter || undefined
+  });
   const isDarkMode = useAppSelector((state) => state.global.isDarkMode);
 
   const filteredProjects = projects?.filter(project =>
@@ -70,10 +92,38 @@ const ProjectsPage = () => {
   return (
     <div className="flex w-full flex-col p-8">
       <div className="flex items-center justify-between mb-6">
-        <Header name={showArchived ? "Archived Projects" : "Projects"} />
+        <Header name={
+          showFavorites ? "Favorite Projects" : 
+          showArchived ? "Archived Projects" : 
+          statusFilter ? `${statusFilter} Projects` : 
+          "Projects"
+        } />
         <div className="flex gap-3">
           <button
-            onClick={() => setShowArchived(!showArchived)}
+            onClick={() => {
+              setShowFavorites(!showFavorites);
+              if (!showFavorites) {
+                setShowArchived(false); // Turn off archived when showing favorites
+                setStatusFilter(""); // Clear status filter when showing favorites
+              }
+            }}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+              showFavorites 
+                ? "bg-yellow-500 text-white hover:bg-yellow-600" 
+                : "bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+            }`}
+          >
+            <Star className="h-4 w-4" />
+            {showFavorites ? "Show All" : "Show Favorites"}
+          </button>
+          <button
+            onClick={() => {
+              setShowArchived(!showArchived);
+              if (!showArchived) {
+                setShowFavorites(false); // Turn off favorites when showing archived
+                setStatusFilter(""); // Clear status filter when showing archived
+              }
+            }}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
               showArchived 
                 ? "bg-gray-500 text-white hover:bg-gray-600" 
@@ -83,7 +133,29 @@ const ProjectsPage = () => {
             <Archive className="h-4 w-4" />
             {showArchived ? "Show Active" : "Show Archived"}
           </button>
+          
+          {/* Status Filter Dropdown */}
           {!showArchived && (
+            <div className="relative">
+              <select
+                value={statusFilter}
+                onChange={(e) => {
+                  setStatusFilter(e.target.value);
+                  if (e.target.value) {
+                    setShowFavorites(false); // Clear favorites when filtering by status
+                  }
+                }}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-600 transition-colors"
+              >
+                <option value="">All Status</option>
+                <option value="Active">Active</option>
+                <option value="Completed">Completed</option>
+                <option value="Overdue">Overdue</option>
+              </select>
+            </div>
+          )}
+          
+          {!showArchived && !showFavorites && !statusFilter && (
             <button
               onClick={() => setIsNewProjectModalOpen(true)}
               className="flex items-center gap-2 bg-blue-primary px-4 py-2 text-white rounded-lg hover:bg-blue-600 transition-colors"

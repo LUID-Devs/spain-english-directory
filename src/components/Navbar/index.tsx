@@ -28,7 +28,7 @@ const Navbar = () => {
   if (!currentUser) return null;
 
   const currentUserDetails = currentUser?.userDetails;
-
+  console.log('Navbar - Auth & User Data:', auth.user?.sub, currentUser, currentUserDetails);
   return (
     <motion.div 
       className="flex items-center justify-between bg-black/90 backdrop-blur-md px-4 py-3 border-b border-blue-500/20 sticky top-0 z-40"

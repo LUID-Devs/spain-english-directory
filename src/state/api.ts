@@ -8,6 +8,7 @@ export interface Project {
   endDate?: string;
   archived?: boolean;
   archivedAt?: string;
+  isFavorited?: boolean;
   statistics?: {
     totalTasks: number;
     completedTasks: number;
@@ -93,7 +94,11 @@ export interface Team {
 export const api = createApi({
   baseQuery: fetchBaseQuery({ 
     baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL,
-    credentials: 'include'
+    credentials: 'include',
+    prepareHeaders: (headers) => {
+      console.log('API Request headers prepared, baseUrl:', process.env.NEXT_PUBLIC_API_BASE_URL);
+      return headers;
+    },
   }),
   reducerPath: "api",
   tagTypes: ["Projects", "Tasks", "Users", "Teams"],
@@ -102,10 +107,16 @@ export const api = createApi({
       query: (userSub: string) => `users/${userSub}`,
       providesTags: ["Users"],
     }),
-    getProjects: build.query<Project[], { archived?: boolean }>({
-      query: ({ archived } = {}) => {
-        const params = archived !== undefined ? `?archived=${archived}` : '';
-        return `projects${params}`;
+    getProjects: build.query<Project[], { archived?: boolean; favorites?: boolean; userId?: number; status?: string }>({
+      query: ({ archived, favorites, userId, status } = {}) => {
+        const params = new URLSearchParams();
+        if (archived !== undefined) params.append('archived', archived.toString());
+        if (favorites !== undefined) params.append('favorites', favorites.toString());
+        if (userId !== undefined) params.append('userId', userId.toString());
+        if (status !== undefined) params.append('status', status);
+        
+        const queryString = params.toString();
+        return `projects${queryString ? `?${queryString}` : ''}`;
       },
       providesTags: [{ type: "Projects" }],
     }),
@@ -145,6 +156,36 @@ export const api = createApi({
         method: "PATCH",
       }),
       invalidatesTags: ["Projects"],
+    }),
+    favoriteProject: build.mutation<{ message: string }, { id: string; userId: number }>({
+      query: ({ id, userId }) => ({
+        url: `projects/${id}/favorite`,
+        method: "POST",
+        body: { userId },
+      }),
+      invalidatesTags: ["Projects"],
+      async onQueryStarted({ id }, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(api.util.invalidateTags(["Projects"]));
+        } catch {
+        }
+      },
+    }),
+    unfavoriteProject: build.mutation<{ message: string }, { id: string; userId: number }>({
+      query: ({ id, userId }) => ({
+        url: `projects/${id}/favorite`,
+        method: "DELETE",
+        body: { userId },
+      }),
+      invalidatesTags: ["Projects"],
+      async onQueryStarted({ id }, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(api.util.invalidateTags(["Projects"]));
+        } catch {
+        }
+      },
     }),
     getTasks: build.query<Task[], { projectId: number }>({
       query: ({ projectId }) => `tasks?projectId=${projectId}`,
@@ -199,6 +240,8 @@ export const {
   useDeleteProjectMutation,
   useArchiveProjectMutation,
   useUnarchiveProjectMutation,
+  useFavoriteProjectMutation,
+  useUnfavoriteProjectMutation,
   useGetTasksQuery,
   useCreateTaskMutation,
   useUpdateTaskStatusMutation,

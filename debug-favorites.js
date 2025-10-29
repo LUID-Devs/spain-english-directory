@@ -1,0 +1,1 @@
+console.log('Testing favorite button debug'); const favoriteButtons = document.querySelectorAll('button[title*="favorite"]'); console.log('Found favorite buttons:', favoriteButtons.length); favoriteButtons.forEach((btn, i) => { console.log(`Button ${i}:`, btn, 'onClick:', btn.onclick); });

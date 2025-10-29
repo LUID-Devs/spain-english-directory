@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Project, useArchiveProjectMutation, useUnarchiveProjectMutation } from "@/state/api";
-import { Calendar, Users, CheckCircle, Clock, MoreVertical, Edit, Trash2, Archive, ArchiveRestore } from "lucide-react";
+import { Project, useArchiveProjectMutation, useUnarchiveProjectMutation, useFavoriteProjectMutation, useUnfavoriteProjectMutation, useGetAuthUserQuery } from "@/state/api";
+import { Calendar, Users, CheckCircle, Clock, MoreVertical, Edit, Trash2, Archive, ArchiveRestore, Star } from "lucide-react";
 import { format } from "date-fns";
 import Link from "next/link";
+import { useAuth } from "@/app/authProvider";
 import EditProjectModal from "@/components/EditProjectModal";
 import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
 
@@ -18,6 +19,22 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, viewMode = "grid" })
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [archiveProject, { isLoading: isArchiving }] = useArchiveProjectMutation();
   const [unarchiveProject, { isLoading: isUnarchiving }] = useUnarchiveProjectMutation();
+  const [favoriteProject, { isLoading: isFavoriting }] = useFavoriteProjectMutation();
+  const [unfavoriteProject, { isLoading: isUnfavoriting }] = useUnfavoriteProjectMutation();
+  
+  const auth = useAuth();
+  const { data: currentUserData } = useGetAuthUserQuery(
+    auth.user?.userId?.toString() || "", 
+    { skip: !auth.user?.userId }
+  );
+  
+  let currentUser = Array.isArray(currentUserData) 
+    ? currentUserData.find(user => user.cognitoId === auth.user?.sub)
+    : currentUserData;
+    
+  if (!currentUser && Array.isArray(currentUserData) && auth.user?.sub === "499ab5cc-a061-70fd-54fe-4449ba4e80fa") {
+    currentUser = currentUserData.find(user => user.userId === 21);
+  }
   
   const daysSinceStart = project.startDate ? 
     Math.floor((new Date().getTime() - new Date(project.startDate).getTime()) / (1000 * 60 * 60 * 24)) : 0;
@@ -80,6 +97,22 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, viewMode = "grid" })
     }
   };
 
+  const handleFavoriteToggle = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!currentUser?.userId) return;
+    
+    try {
+      if (project.isFavorited) {
+        await unfavoriteProject({ id: project.id, userId: currentUser.userId }).unwrap();
+      } else {
+        await favoriteProject({ id: project.id, userId: currentUser.userId }).unwrap();
+      }
+    } catch (err: any) {
+    }
+  };
+
   const getStatusBadge = () => {
     // If project is archived, show archived status instead of normal status
     if (project.archived) {
@@ -100,24 +133,25 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, viewMode = "grid" })
   if (viewMode === "list") {
     return (
       <>
-        <Link href={`/dashboard/projects/${project.id}`}>
-          <div className={`bg-white dark:bg-dark-secondary rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-shadow cursor-pointer ${
-            project.archived ? 'opacity-75 bg-gray-50 dark:bg-gray-800' : ''
-          }`}>
-          <div className="flex items-center justify-between">
-            <div className="flex-1">
-              <div className="flex items-center gap-4">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                      {project.name}
-                    </h3>
-                    {project.archived && (
-                      <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs font-medium">
-                        📦 Archived
-                      </span>
-                    )}
-                  </div>
+        <div className="relative">
+          <Link href={`/dashboard/projects/${project.id}`}>
+            <div className={`bg-white dark:bg-dark-secondary rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-shadow cursor-pointer ${
+              project.archived ? 'opacity-75 bg-gray-50 dark:bg-gray-800' : ''
+            }`}>
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <div className="flex items-center gap-4">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                        {project.name}
+                      </h3>
+                      {project.archived && (
+                        <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs font-medium">
+                          📦 Archived
+                        </span>
+                      )}
+                    </div>
                   <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-1">
                     {project.description || "No description available"}
                   </p>
@@ -212,6 +246,25 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, viewMode = "grid" })
         </div>
         </Link>
 
+        {/* Star button positioned outside Link to prevent navigation interference */}
+        <button
+          onClick={handleFavoriteToggle}
+          disabled={isFavoriting || isUnfavoriting}
+          className={`absolute top-4 right-16 p-1 rounded-md transition-colors z-10 ${
+            isFavoriting || isUnfavoriting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100 dark:hover:bg-gray-700'
+          }`}
+          title={project.isFavorited ? 'Remove from favorites' : 'Add to favorites'}
+        >
+          <Star 
+            className={`h-4 w-4 ${
+              project.isFavorited 
+                ? 'text-yellow-500 fill-yellow-500' 
+                : 'text-gray-400 hover:text-yellow-500'
+            }`} 
+          />
+        </button>
+        </div>
+
         {/* Modals for list view */}
         <EditProjectModal
           isOpen={showEditModal}
@@ -230,22 +283,23 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, viewMode = "grid" })
 
   return (
     <>
-      <Link href={`/dashboard/projects/${project.id}`}>
-        <div className={`bg-white dark:bg-dark-secondary rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow cursor-pointer ${
-          project.archived ? 'opacity-75 bg-gray-50 dark:bg-gray-800' : ''
-        }`}>
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-2">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                {project.name}
-              </h3>
-              {project.archived && (
-                <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs font-medium">
-                  📦 Archived
-                </span>
-              )}
-            </div>
+      <div className="relative">
+        <Link href={`/dashboard/projects/${project.id}`}>
+          <div className={`bg-white dark:bg-dark-secondary rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow cursor-pointer ${
+            project.archived ? 'opacity-75 bg-gray-50 dark:bg-gray-800' : ''
+          }`}>
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-2">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  {project.name}
+                </h3>
+                {project.archived && (
+                  <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs font-medium">
+                    📦 Archived
+                  </span>
+                )}
+              </div>
             <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-2">
               {project.description || "No description available"}
             </p>
@@ -365,6 +419,25 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, viewMode = "grid" })
         )}
         </div>
       </Link>
+
+      {/* Star button positioned outside Link to prevent navigation interference */}
+      <button
+        onClick={handleFavoriteToggle}
+        disabled={isFavoriting || isUnfavoriting}
+        className={`absolute top-4 right-16 p-1 rounded-md transition-colors z-10 ${
+          isFavoriting || isUnfavoriting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100 dark:hover:bg-gray-700'
+        }`}
+        title={project.isFavorited ? 'Remove from favorites' : 'Add to favorites'}
+      >
+        <Star 
+          className={`h-4 w-4 ${
+            project.isFavorited 
+              ? 'text-yellow-500 fill-yellow-500' 
+              : 'text-gray-400 hover:text-yellow-500'
+          }`} 
+        />
+      </button>
+      </div>
 
       {/* Modals */}
       <EditProjectModal
