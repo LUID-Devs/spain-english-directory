@@ -28,13 +28,10 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, viewMode = "grid" })
     { skip: !auth.user?.userId }
   );
   
-  let currentUser = Array.isArray(currentUserData) 
+  const currentUser = Array.isArray(currentUserData) 
     ? currentUserData.find(user => user.cognitoId === auth.user?.sub)
     : currentUserData;
-    
-  if (!currentUser && Array.isArray(currentUserData) && auth.user?.sub === "499ab5cc-a061-70fd-54fe-4449ba4e80fa") {
-    currentUser = currentUserData.find(user => user.userId === 21);
-  }
+
   
   const daysSinceStart = project.startDate ? 
     Math.floor((new Date().getTime() - new Date(project.startDate).getTime()) / (1000 * 60 * 60 * 24)) : 0;
