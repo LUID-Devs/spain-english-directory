@@ -58,6 +58,21 @@ export interface Attachment {
   uploadedByUserId: number;
 }
 
+export interface Comment {
+  id: number;
+  text: string;
+  taskId: number;
+  userId: number;
+  createdAt: string;
+  updatedAt: string;
+  user: {
+    userId: number;
+    username: string;
+    email: string;
+    profilePictureUrl?: string;
+  };
+}
+
 export interface Task {
   id: number;
   title: string;
@@ -101,7 +116,7 @@ export const api = createApi({
     },
   }),
   reducerPath: "api",
-  tagTypes: ["Projects", "Tasks", "Users", "Teams"],
+  tagTypes: ["Projects", "Tasks", "Users", "Teams", "Comments"],
   endpoints: (build) => ({
     getAuthUser: build.query({
       query: (userSub: string) => `users/${userSub}`,
@@ -231,6 +246,43 @@ export const api = createApi({
       }),
       invalidatesTags: ["Tasks"],
     }),
+    getTaskComments: build.query<Comment[], number>({
+      query: (taskId) => `tasks/${taskId}/comments`,
+      providesTags: (result, error, taskId) =>
+        result
+          ? result.map(({ id }) => ({ type: "Comments" as const, id }))
+          : [{ type: "Comments" as const, id: taskId }],
+    }),
+    createComment: build.mutation<Comment, { taskId: number; text: string; userId: number }>({
+      query: ({ taskId, text, userId }) => ({
+        url: `tasks/${taskId}/comments`,
+        method: "POST",
+        body: { text, userId },
+      }),
+      invalidatesTags: (result, error, { taskId }) => [
+        { type: "Comments", id: taskId },
+        "Comments",
+      ],
+    }),
+    updateComment: build.mutation<Comment, { commentId: number; text: string; userId: number }>({
+      query: ({ commentId, text, userId }) => ({
+        url: `comments/${commentId}`,
+        method: "PUT",
+        body: { text, userId },
+      }),
+      invalidatesTags: (result, error, { commentId }) => [
+        { type: "Comments", id: commentId },
+        "Comments",
+      ],
+    }),
+    deleteComment: build.mutation<{ message: string }, { commentId: number; userId: number }>({
+      query: ({ commentId, userId }) => ({
+        url: `comments/${commentId}`,
+        method: "DELETE",
+        body: { userId },
+      }),
+      invalidatesTags: ["Comments"],
+    }),
     updateTaskStatus: build.mutation<Task, { taskId: number; status: string }>({
       query: ({ taskId, status }) => ({
         url: `tasks/${taskId}/status`,
@@ -270,6 +322,10 @@ export const {
   useUpdateTaskMutation,
   useDeleteTaskMutation,
   useUpdateTaskStatusMutation,
+  useGetTaskCommentsQuery,
+  useCreateCommentMutation,
+  useUpdateCommentMutation,
+  useDeleteCommentMutation,
   useSearchQuery,
   useGetUsersQuery,
   useGetTeamsQuery,

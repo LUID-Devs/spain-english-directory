@@ -11,9 +11,9 @@ import {
   User, 
   Flag, 
   Clock, 
-  MessageSquare,
   Paperclip
 } from "lucide-react";
+import CommentsSection from "@/components/CommentsSection";
 import { Status, Priority } from "@/state/api";
 
 interface TaskDetailModalProps {
@@ -387,33 +387,9 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
               </div>
 
               {/* Comments Section */}
-              {task.comments && task.comments.length > 0 && (
-                <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
-                  <div className="flex items-center gap-2 mb-4">
-                    <MessageSquare className="h-5 w-5 text-gray-400" />
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                      Comments ({task.comments.length})
-                    </h3>
-                  </div>
-                  <div className="space-y-4 max-h-40 overflow-y-auto">
-                    {task.comments.map((comment) => (
-                      <div key={comment.id} className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="font-medium text-gray-900 dark:text-white">
-                            {comment.user?.username || "Unknown User"}
-                          </span>
-                          <span className="text-sm text-gray-500 dark:text-gray-400">
-                            {comment.createdAt && format(new Date(comment.createdAt), "PPP 'at' p")}
-                          </span>
-                        </div>
-                        <div className="text-gray-700 dark:text-gray-300">
-                          {comment.text}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+              <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+                <CommentsSection taskId={taskId} />
+              </div>
 
               {/* Attachments Section */}
               {task.attachments && task.attachments.length > 0 && (
