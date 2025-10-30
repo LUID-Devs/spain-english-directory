@@ -55,7 +55,12 @@ export interface Attachment {
   fileURL: string;
   fileName: string;
   taskId: number;
-  uploadedByUserId: number;
+  uploadedById: number;
+  uploadedBy: {
+    userId: number;
+    username: string;
+    email: string;
+  };
 }
 
 export interface Comment {
@@ -116,7 +121,7 @@ export const api = createApi({
     },
   }),
   reducerPath: "api",
-  tagTypes: ["Projects", "Tasks", "Users", "Teams", "Comments"],
+  tagTypes: ["Projects", "Tasks", "Users", "Teams", "Comments", "Attachments"],
   endpoints: (build) => ({
     getAuthUser: build.query({
       query: (userSub: string) => `users/${userSub}`,
@@ -283,6 +288,32 @@ export const api = createApi({
       }),
       invalidatesTags: ["Comments"],
     }),
+    getTaskAttachments: build.query<Attachment[], number>({
+      query: (taskId) => `tasks/${taskId}/attachments`,
+      providesTags: (result, error, taskId) =>
+        result
+          ? result.map(({ id }) => ({ type: "Attachments" as const, id }))
+          : [{ type: "Attachments" as const, id: taskId }],
+    }),
+    uploadAttachment: build.mutation<Attachment, { taskId: number; formData: FormData }>({
+      query: ({ taskId, formData }) => ({
+        url: `tasks/${taskId}/attachments`,
+        method: "POST",
+        body: formData,
+      }),
+      invalidatesTags: (result, error, { taskId }) => [
+        { type: "Attachments", id: taskId },
+        "Attachments",
+      ],
+    }),
+    deleteAttachment: build.mutation<{ message: string }, { attachmentId: number; userId: number }>({
+      query: ({ attachmentId, userId }) => ({
+        url: `attachments/${attachmentId}`,
+        method: "DELETE",
+        body: { userId },
+      }),
+      invalidatesTags: ["Attachments"],
+    }),
     updateTaskStatus: build.mutation<Task, { taskId: number; status: string }>({
       query: ({ taskId, status }) => ({
         url: `tasks/${taskId}/status`,
@@ -326,6 +357,9 @@ export const {
   useCreateCommentMutation,
   useUpdateCommentMutation,
   useDeleteCommentMutation,
+  useGetTaskAttachmentsQuery,
+  useUploadAttachmentMutation,
+  useDeleteAttachmentMutation,
   useSearchQuery,
   useGetUsersQuery,
   useGetTeamsQuery,

@@ -14,6 +14,7 @@ import {
   Paperclip
 } from "lucide-react";
 import CommentsSection from "@/components/CommentsSection";
+import AttachmentsSection from "@/components/AttachmentsSection";
 import { Status, Priority } from "@/state/api";
 
 interface TaskDetailModalProps {
@@ -386,34 +387,15 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                 </div>
               </div>
 
+              {/* Attachments Section */}
+              <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+                <AttachmentsSection taskId={taskId} />
+              </div>
+
               {/* Comments Section */}
               <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
                 <CommentsSection taskId={taskId} />
               </div>
-
-              {/* Attachments Section */}
-              {task.attachments && task.attachments.length > 0 && (
-                <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
-                  <div className="flex items-center gap-2 mb-4">
-                    <Paperclip className="h-5 w-5 text-gray-400" />
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                      Attachments ({task.attachments.length})
-                    </h3>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {task.attachments.map((attachment) => (
-                      <div key={attachment.id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-3">
-                        <div className="text-sm font-medium text-gray-900 dark:text-white mb-1">
-                          {attachment.fileName}
-                        </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">
-                          {attachment.fileURL}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
           )}
         </div>
