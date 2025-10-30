@@ -6,6 +6,7 @@ import {
   useCreateCommentMutation, 
   useUpdateCommentMutation, 
   useDeleteCommentMutation,
+  useGetAuthUserQuery,
   Comment 
 } from "@/state/api";
 import { useAuth } from "@/app/authProvider";
@@ -25,6 +26,11 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ taskId }) => {
   
   const auth = useAuth();
   const currentUserId = auth.user?.userId;
+  
+  // Get current user's database info to compare userId for ownership
+  const { data: currentUser } = useGetAuthUserQuery(currentUserId!, { 
+    skip: !currentUserId 
+  });
 
   const [newComment, setNewComment] = useState("");
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
@@ -38,7 +44,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ taskId }) => {
       await createComment({
         taskId,
         text: newComment.trim(),
-        userId: currentUserId,
+        userId: currentUserId, // Send cognitoId, backend will resolve to database userId
       }).unwrap();
       setNewComment("");
     } catch (error) {
@@ -58,7 +64,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ taskId }) => {
       await updateComment({
         commentId,
         text: editingText.trim(),
-        userId: currentUserId,
+        userId: currentUserId, // Send cognitoId, backend will resolve to database userId
       }).unwrap();
       setEditingCommentId(null);
       setEditingText("");
@@ -77,7 +83,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ taskId }) => {
     
     if (window.confirm("Are you sure you want to delete this comment?")) {
       try {
-        await deleteComment({ commentId, userId: currentUserId }).unwrap();
+        await deleteComment({ commentId, userId: currentUserId }).unwrap(); // Send cognitoId, backend will resolve to database userId
       } catch (error) {
         console.error("Failed to delete comment:", error);
       }
@@ -153,7 +159,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ taskId }) => {
             <CommentItem
               key={comment.id}
               comment={comment}
-              currentUserId={currentUserId}
+              currentUserId={currentUser?.userId}
               isEditing={editingCommentId === comment.id}
               editingText={editingText}
               onEditingTextChange={setEditingText}
