@@ -48,6 +48,23 @@ export interface User {
   profilePictureUrl?: string;
   cognitoId?: string;
   teamId?: number;
+  role?: string;
+}
+
+export interface UserWithStats extends User {
+  teamName?: string;
+  taskStats: {
+    authored: number;
+    assigned: number;
+    completed: number;
+    pending: number;
+    overdue: number;
+  };
+  activityStats: {
+    totalComments: number;
+    totalAttachments: number;
+    lastActivity: string | null;
+  };
 }
 
 export interface Attachment {
@@ -328,6 +345,26 @@ export const api = createApi({
       query: () => "users",
       providesTags: ["Users"],
     }),
+    getUsersWithStats: build.query<UserWithStats[], void>({
+      query: () => "users/with-stats",
+      providesTags: ["Users"],
+    }),
+    inviteUser: build.mutation<{ message: string; invitation: any }, { email: string; teamId: number; role: string }>({
+      query: (invitationData) => ({
+        url: "users/invite",
+        method: "POST",
+        body: invitationData,
+      }),
+      invalidatesTags: ["Users"],
+    }),
+    updateUserRole: build.mutation<{ message: string; user: any }, { userId: number; role: string }>({
+      query: ({ userId, role }) => ({
+        url: `users/${userId}/role`,
+        method: "PUT",
+        body: { role },
+      }),
+      invalidatesTags: ["Users"],
+    }),
     getTeams: build.query<Team[], void>({
       query: () => "teams",
       providesTags: ["Teams"],
@@ -362,6 +399,9 @@ export const {
   useDeleteAttachmentMutation,
   useSearchQuery,
   useGetUsersQuery,
+  useGetUsersWithStatsQuery,
+  useInviteUserMutation,
+  useUpdateUserRoleMutation,
   useGetTeamsQuery,
   useGetTasksByUserQuery,
   useGetAuthUserQuery,
