@@ -121,6 +121,13 @@ export interface SearchResults {
   users?: User[];
 }
 
+export interface SearchSuggestion {
+  type: 'task' | 'project' | 'user';
+  id: number;
+  title: string;
+  subtitle: string;
+}
+
 export interface Team {
   teamId: number;
   teamName: string;
@@ -372,6 +379,36 @@ export const api = createApi({
     search: build.query<SearchResults, string>({
       query: (query) => `search?query=${query}`,
     }),
+    advancedSearch: build.query<SearchResults, {
+      query?: string;
+      type?: string;
+      status?: string;
+      priority?: string;
+      assigneeId?: number;
+      authorId?: number;
+      projectId?: number;
+      teamId?: number;
+      dateFrom?: string;
+      dateTo?: string;
+      archived?: boolean;
+    }>({
+      query: (params) => {
+        const queryParams = new URLSearchParams();
+        Object.entries(params).forEach(([key, value]) => {
+          if (value !== undefined && value !== null && value !== '') {
+            queryParams.append(key, value.toString());
+          }
+        });
+        return `search/advanced?${queryParams.toString()}`;
+      },
+    }),
+    getSearchSuggestions: build.query<{ suggestions: SearchSuggestion[] }, { query: string; type?: string }>({
+      query: ({ query, type }) => {
+        const params = new URLSearchParams({ query });
+        if (type) params.append('type', type);
+        return `search/suggestions?${params.toString()}`;
+      },
+    }),
   }),
 });
 
@@ -398,6 +435,8 @@ export const {
   useUploadAttachmentMutation,
   useDeleteAttachmentMutation,
   useSearchQuery,
+  useAdvancedSearchQuery,
+  useGetSearchSuggestionsQuery,
   useGetUsersQuery,
   useGetUsersWithStatsQuery,
   useInviteUserMutation,
