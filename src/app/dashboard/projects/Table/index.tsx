@@ -1,7 +1,7 @@
-import { useAppSelector } from "@/app/redux";
+import { useGlobalStore } from "@/stores/globalStore";
 import Header from "@/components/Header";
 import { dataGridClassNames, dataGridSxStyles } from "@/lib/utils";
-import { useGetTasksQuery } from "@/state/api";
+import { useGetTasksQuery } from "@/hooks/useApi";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import React from "react";
 
@@ -66,7 +66,7 @@ const columns: GridColDef[] = [
 ];
 
 const TableView = ({ id, setIsModalNewTaskOpen }: Props) => {
-  const isDarkMode = useAppSelector((state) => state.global.isDarkMode);
+  const isDarkMode = useGlobalStore().isDarkMode;
   const {
     data: tasks,
     error,

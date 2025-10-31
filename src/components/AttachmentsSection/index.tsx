@@ -5,9 +5,9 @@ import {
   useGetTaskAttachmentsQuery, 
   useUploadAttachmentMutation, 
   useDeleteAttachmentMutation,
-  useGetAuthUserQuery,
   Attachment 
-} from "@/state/api";
+} from "@/hooks/useApi";
+import { useCurrentUser } from "@/stores/userStore";
 import { useAuth } from "@/app/authProvider";
 import { format } from "date-fns";
 import { 
@@ -37,9 +37,7 @@ const AttachmentsSection: React.FC<AttachmentsSectionProps> = ({ taskId }) => {
   const currentUserId = auth.user?.userId;
   
   // Get current user's database info to compare userId for ownership
-  const { data: currentUser } = useGetAuthUserQuery(currentUserId!, { 
-    skip: !currentUserId 
-  });
+  const { currentUser } = useCurrentUser();
   
   const [isDragging, setIsDragging] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<{ [key: string]: number }>({});

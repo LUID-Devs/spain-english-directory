@@ -1,11 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
-import { useGetProjectsQuery, useGetAuthUserQuery } from "@/state/api";
-import { useAppSelector } from "@/app/redux";
-import { useAuth } from "@/app/authProvider";
+import { useGetProjectsQuery } from "@/hooks/useApi";
+import { useCurrentUser } from "@/stores/userStore";
 import Header from "@/components/Header";
-import { Plus, Search, Filter, Grid, List, Archive, Star, Activity } from "lucide-react";
+import { Plus, Search, Grid, List, Archive, Star } from "lucide-react";
 import ModalNewProject from "./ModalNewProject";
 import ProjectCard from "@/components/ProjectCard";
 
@@ -18,27 +17,13 @@ const ProjectsPage = () => {
   const [showFavorites, setShowFavorites] = useState(false);
   const [statusFilter, setStatusFilter] = useState<string>("");
   
-  const auth = useAuth();
-  const { data: currentUserData, isLoading: userLoading, error: userError } = useGetAuthUserQuery(auth.user.userId);
-  
-  // Handle both single user object and array responses
-  let currentUser = Array.isArray(currentUserData) 
-    ? currentUserData.find(user => user.cognitoId === auth.user?.sub)
-    : currentUserData;
-    
-  // Fallback: if API response is an array but we couldn't find user by cognitoId, 
-  // try to find user with userId 21 (which we know exists from earlier logs)
-  if (!currentUser && Array.isArray(currentUserData) && auth.user?.sub === "499ab5cc-a061-70fd-54fe-4449ba4e80fa") {
-    currentUser = currentUserData.find(user => user.userId === 21);
-   
-  }
+  const { currentUser } = useCurrentUser();
   const { data: projects, isLoading, isError } = useGetProjectsQuery({ 
     archived: showArchived, 
     favorites: showFavorites,
     userId: currentUser?.userId, // Fallback to userId 21 for testing
     status: statusFilter || undefined
   });
-  const isDarkMode = useAppSelector((state) => state.global.isDarkMode);
 
   const filteredProjects = projects?.filter(project =>
     project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||

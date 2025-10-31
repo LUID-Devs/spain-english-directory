@@ -2,13 +2,13 @@
 
 import React, { useState } from "react";
 import { 
-  useGetTaskCommentsQuery, 
   useCreateCommentMutation, 
   useUpdateCommentMutation, 
   useDeleteCommentMutation,
-  useGetAuthUserQuery,
   Comment 
-} from "@/state/api";
+} from "@/hooks/useApi";
+import { useGetTaskCommentsQuery } from "@/hooks/useApi";
+import { useCurrentUser } from "@/stores/userStore";
 import { useAuth } from "@/app/authProvider";
 import { format } from "date-fns";
 import { MessageSquare, Send, Edit3, Trash2, X, Check } from "lucide-react";
@@ -28,9 +28,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ taskId }) => {
   const currentUserId = auth.user?.userId;
   
   // Get current user's database info to compare userId for ownership
-  const { data: currentUser } = useGetAuthUserQuery(currentUserId!, { 
-    skip: !currentUserId 
-  });
+  const { currentUser } = useCurrentUser();
 
   const [newComment, setNewComment] = useState("");
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);

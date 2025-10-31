@@ -20,7 +20,7 @@ import {
 import { Check as CheckIcon, Star as StarIcon } from 'lucide-react';
 import { Elements } from '@stripe/react-stripe-js';
 import { stripePromise, SUBSCRIPTION_PLANS, formatPrice } from '@/lib/stripe';
-import { useSubscription } from '@/contexts/SubscriptionContext';
+import { useSubscription } from '@/stores/subscriptionStore';
 import { PaymentForm } from './PaymentForm';
 
 export function SubscriptionPlans() {

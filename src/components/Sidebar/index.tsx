@@ -21,27 +21,27 @@ import {
   ShieldAlert,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { useAppDispatch, useAppSelector } from "@/app/redux";
 import Link from "next/link";
-import { setIsSidebarCollapsed } from "@/state";
-import { useGetAuthUserQuery, useGetProjectsQuery, useGetTeamsQuery } from "@/state/api";
+import { useGlobalStore } from "@/stores/globalStore";
+import { useGetProjectsQuery, useGetTeamsQuery } from "@/hooks/useApi";
+import { useCurrentUser } from "@/stores/userStore";
 import { useAuth } from "@/app/authProvider";
 
 const Sidebar = () => {
   const [showProjects, setShowProjects] = useState(true);
   const [showPriority, setShowPriority] = useState(false);
 
-  const { data: projects } = useGetProjectsQuery();
-  const { data: teams } = useGetTeamsQuery();
-
-  const dispatch = useAppDispatch();
-  const isSidebarCollapsed = useAppSelector(
-    (state) => state.global.isSidebarCollapsed,
-  );
+  const { isSidebarCollapsed, toggleSidebar } = useGlobalStore();
 
   const auth = useAuth();
-  const userIdentifier = auth.user?.sub || auth.user?.userId || "";
-  const {data: currentUser} = useGetAuthUserQuery(userIdentifier);
+  const { currentUser } = useCurrentUser();
+
+  const { data: projects } = useGetProjectsQuery({}, {
+    skip: isSidebarCollapsed, // Skip loading if sidebar is collapsed
+  });
+  const { data: teams } = useGetTeamsQuery(undefined, {
+    skip: isSidebarCollapsed, // Skip loading if sidebar is collapsed
+  });
   const handleSignOut = () => {
     auth.logout();
   }
@@ -63,7 +63,7 @@ const Sidebar = () => {
             <button
               className="py-3"
               onClick={() => {
-                dispatch(setIsSidebarCollapsed(!isSidebarCollapsed));
+                toggleSidebar();
               }}
             >
               <X className="h-6 w-6 text-gray-800 hover:text-gray-500 dark:text-white" />

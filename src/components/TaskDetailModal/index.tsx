@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useGetTaskQuery, useUpdateTaskMutation, useGetUsersQuery } from "@/state/api";
+import { useGetTaskQuery, useUpdateTaskMutation, useGetUsersQuery } from "@/hooks/useApi";
 import { format } from "date-fns";
 import { 
   X, 
@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import CommentsSection from "@/components/CommentsSection";
 import AttachmentsSection from "@/components/AttachmentsSection";
-import { Status, Priority } from "@/state/api";
+import { Status, Priority } from "@/hooks/useApi";
 
 interface TaskDetailModalProps {
   isOpen: boolean;
@@ -26,7 +26,9 @@ interface TaskDetailModalProps {
 
 const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, taskId, editMode = false }) => {
   const { data: task, isLoading, error } = useGetTaskQuery(taskId, { skip: !isOpen });
-  const { data: users = [] } = useGetUsersQuery();
+  const { data: users = [] } = useGetUsersQuery(undefined, {
+    skip: !isOpen, // Only load users when modal is open
+  });
   const [updateTask, { isLoading: isUpdating }] = useUpdateTaskMutation();
   
   const [isEditing, setIsEditing] = useState(editMode);

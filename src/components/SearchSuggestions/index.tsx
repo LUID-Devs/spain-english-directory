@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { SearchSuggestion } from "@/state/api";
+import { SearchSuggestion } from "@/hooks/useApi";
 
 interface SearchSuggestionsProps {
   suggestions: SearchSuggestion[];

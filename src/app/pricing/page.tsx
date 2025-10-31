@@ -4,7 +4,7 @@ import React from 'react';
 import { Container, Typography, Box } from '@mui/material';
 import { Elements } from '@stripe/react-stripe-js';
 import { stripePromise } from '@/lib/stripe';
-import { SubscriptionProvider } from '@/contexts/SubscriptionContext';
+import { SubscriptionProvider } from '@/components/SubscriptionProvider';
 import { SubscriptionPlans } from '@/components/subscription/SubscriptionPlans';
 
 export default function PricingPage() {

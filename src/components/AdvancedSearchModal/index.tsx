@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import Modal from "@/components/Modal";
-import { useGetUsersQuery, useGetProjectsQuery, useGetTeamsQuery } from "@/state/api";
+import { useGetUsersQuery, useGetProjectsQuery, useGetTeamsQuery } from "@/hooks/useApi";
 
 interface AdvancedSearchModalProps {
   isOpen: boolean;
@@ -32,9 +32,15 @@ const AdvancedSearchModal = ({
 }: AdvancedSearchModalProps) => {
   const [filters, setFilters] = useState<SearchFilters>(initialFilters);
   
-  const { data: users } = useGetUsersQuery();
-  const { data: projects } = useGetProjectsQuery({});
-  const { data: teams } = useGetTeamsQuery();
+  const { data: users } = useGetUsersQuery(undefined, {
+    skip: !isOpen, // Only load when modal is open
+  });
+  const { data: projects } = useGetProjectsQuery({}, {
+    skip: !isOpen, // Only load when modal is open
+  });
+  const { data: teams } = useGetTeamsQuery(undefined, {
+    skip: !isOpen, // Only load when modal is open
+  });
 
   const handleFilterChange = (key: keyof SearchFilters, value: any) => {
     setFilters(prev => ({

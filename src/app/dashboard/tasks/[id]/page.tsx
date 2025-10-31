@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useGetTaskQuery, useUpdateTaskMutation, useGetUsersQuery } from "@/state/api";
+import { useGetTaskQuery, useUpdateTaskMutation, useGetUsersQuery } from "@/hooks/useApi";
 import { format } from "date-fns";
 import { 
   ArrowLeft, 
@@ -16,7 +16,7 @@ import {
   Paperclip
 } from "lucide-react";
 import Link from "next/link";
-import { Status, Priority } from "@/state/api";
+import { Status, Priority } from "@/hooks/useApi";
 
 type Props = {
   params: Promise<{ id: string }>;

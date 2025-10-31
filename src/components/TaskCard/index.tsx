@@ -1,4 +1,4 @@
-import { Task } from "@/state/api";
+import { Task } from "@/hooks/useApi";
 import { format } from "date-fns";
 import React, { useState } from "react";
 import Image from "next/image";

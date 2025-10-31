@@ -1,5 +1,5 @@
 import Modal from "@/components/Modal";
-import { useUpdateProjectMutation, Project } from "@/state/api";
+import { useUpdateProjectMutation, Project } from "@/hooks/useApi";
 import React, { useState, useEffect } from "react";
 import { formatISO, format } from "date-fns";
 

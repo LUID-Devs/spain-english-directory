@@ -4,12 +4,11 @@ import {
   Priority,
   Project,
   Task,
-  useGetProjectsQuery,
-  useGetTasksByUserQuery,
-  useGetAuthUserQuery,
-} from "@/state/api";
+} from "@/hooks/useApi";
+import { useCurrentUser } from "@/stores/userStore";
+import { useGetProjectsQuery, useGetTasksByUserQuery } from "@/hooks/useApi";
+import { useGlobalStore } from "@/stores/globalStore";
 import React from "react";
-import { useAppSelector } from "../redux";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import Header from "@/components/Header";
 import {
@@ -28,7 +27,6 @@ import {
 import { dataGridClassNames, dataGridSxStyles } from "@/lib/utils";
 import { SubscriptionStatus } from "@/components/subscription/SubscriptionStatus";
 import { PerformanceDebug } from "@/components/PerformanceDebug";
-import { useAuth } from "../authProvider";
 
 const taskColumns: GridColDef[] = [
   { field: "title", headerName: "Title", width: 200 },
@@ -40,9 +38,7 @@ const taskColumns: GridColDef[] = [
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
 const DashboardPage = () => {
-  const auth = useAuth();
-  const userIdentifier = auth.user?.sub || auth.user?.userId || "";
-  const {data: currentUser} = useGetAuthUserQuery(userIdentifier);
+  const { currentUser } = useCurrentUser();
   const userId = currentUser?.userId ?? null;
   
   const {
@@ -53,7 +49,7 @@ const DashboardPage = () => {
   const { data: projects, isLoading: isProjectsLoading } =
     useGetProjectsQuery();
 
-  const isDarkMode = useAppSelector((state) => state.global.isDarkMode);
+  const isDarkMode = useGlobalStore((state) => state.isDarkMode);
 
   if (tasksLoading || isProjectsLoading) {
     return (

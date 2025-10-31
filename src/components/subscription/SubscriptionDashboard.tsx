@@ -27,7 +27,7 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { format } from 'date-fns';
-import { useSubscription } from '@/contexts/SubscriptionContext';
+import { useSubscription } from '@/stores/subscriptionStore';
 import { subscriptionApi } from '@/lib/subscription-api';
 import { formatPrice } from '@/lib/stripe';
 import { SubscriptionPlans } from './SubscriptionPlans';

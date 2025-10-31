@@ -1,5 +1,5 @@
 import Modal from "@/components/Modal";
-import { useDeleteProjectMutation, Project } from "@/state/api";
+import { useDeleteProjectMutation, Project } from "@/hooks/useApi";
 import React, { useState } from "react";
 import { AlertTriangle } from "lucide-react";
 

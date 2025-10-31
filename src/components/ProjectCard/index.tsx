@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Project, useArchiveProjectMutation, useUnarchiveProjectMutation, useFavoriteProjectMutation, useUnfavoriteProjectMutation, useGetAuthUserQuery } from "@/state/api";
+import { Project } from "@/services/apiService";
+import { useArchiveProjectMutation, useUnarchiveProjectMutation, useFavoriteProjectMutation, useUnfavoriteProjectMutation } from "@/hooks/useApi";
 import { Calendar, Users, CheckCircle, Clock, MoreVertical, Edit, Trash2, Archive, ArchiveRestore, Star } from "lucide-react";
 import { format } from "date-fns";
 import Link from "next/link";
-import { useAuth } from "@/app/authProvider";
+import { useCurrentUser } from "@/stores/userStore";
 import EditProjectModal from "@/components/EditProjectModal";
 import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
 
@@ -22,15 +23,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, viewMode = "grid" })
   const [favoriteProject, { isLoading: isFavoriting }] = useFavoriteProjectMutation();
   const [unfavoriteProject, { isLoading: isUnfavoriting }] = useUnfavoriteProjectMutation();
   
-  const auth = useAuth();
-  const { data: currentUserData } = useGetAuthUserQuery(
-    auth.user?.userId?.toString() || "", 
-    { skip: !auth.user?.userId }
-  );
-  
-  const currentUser = Array.isArray(currentUserData) 
-    ? currentUserData.find(user => user.cognitoId === auth.user?.sub)
-    : currentUserData;
+  const { currentUser } = useCurrentUser();
 
   
   const daysSinceStart = project.startDate ? 
@@ -106,7 +99,8 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, viewMode = "grid" })
       } else {
         await favoriteProject({ id: project.id, userId: currentUser.userId }).unwrap();
       }
-    } catch (err: any) {
+    } catch (error) {
+      console.error('Failed to toggle favorite:', error);
     }
   };
 

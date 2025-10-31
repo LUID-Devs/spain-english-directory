@@ -1,11 +1,13 @@
 "use client";
 
-import { useAppSelector } from "@/app/redux";
+import { useGlobalStore } from "@/stores/globalStore";
 import Header from "@/components/Header";
 import ModalNewTask from "@/components/ModalNewTask";
 import TaskCard from "@/components/TaskCard";
 import { dataGridClassNames, dataGridSxStyles } from "@/lib/utils";
-import { Priority, Task, useGetAuthUserQuery, useGetTasksByUserQuery } from "@/state/api";
+import { Priority, Task } from "@/hooks/useApi";
+import { useGetTasksByUserQuery } from "@/hooks/useApi";
+import { useCurrentUser } from "@/stores/userStore";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import React, { useState } from "react";
 import { useAuth } from "@/app/authProvider";
@@ -74,8 +76,7 @@ const ReusablePriorityPage = ({ priority }: Props) => {
   const [isModalNewTaskOpen, setIsModalNewTaskOpen] = useState(false);
 
   const auth = useAuth();
-  const userIdentifier = auth.user?.sub || auth.user?.userId || "";
-  const {data: currentUser, isLoading: userLoading, error: userError} = useGetAuthUserQuery(userIdentifier);
+  const { currentUser, isLoading: userLoading } = useCurrentUser();
   const userId = currentUser?.userId ?? null;
   
   
@@ -85,7 +86,7 @@ const ReusablePriorityPage = ({ priority }: Props) => {
     isError: isTasksError,
   } = useGetTasksByUserQuery(userId || 0, { skip: userId === null });
 
-  const isDarkMode = useAppSelector((state) => state.global.isDarkMode);
+  const isDarkMode = useGlobalStore((state) => state.isDarkMode);
   const filteredTasks = tasks?.filter(
     (task: Task) => task.priority === priority,
   );

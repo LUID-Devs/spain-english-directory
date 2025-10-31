@@ -1,7 +1,7 @@
 "use client";
-import { useGetUsersWithStatsQuery, useInviteUserMutation, useUpdateUserRoleMutation, UserWithStats } from "@/state/api";
+import { useGetUsersWithStatsQuery, useInviteUserMutation, useUpdateUserRoleMutation, UserWithStats } from "@/hooks/useApi";
 import React, { useState } from "react";
-import { useAppSelector } from "@/app/redux";
+import { useGlobalStore } from "@/stores/globalStore";
 import Header from "@/components/Header";
 import UserCard from "@/components/UserCard";
 import InviteUserModal from "@/components/InviteUserModal";
@@ -50,7 +50,7 @@ const Users = () => {
   const { data: users, isLoading, isError } = useGetUsersWithStatsQuery();
   const [inviteUser] = useInviteUserMutation();
   const [updateUserRole] = useUpdateUserRoleMutation();
-  const isDarkMode = useAppSelector((state) => state.global.isDarkMode);
+  const isDarkMode = useGlobalStore().isDarkMode;
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);

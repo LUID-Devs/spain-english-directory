@@ -7,7 +7,7 @@ import List from "@/app/dashboard/projects/ListView";
 import Timeline from "@/app/dashboard/projects/Timeline";
 import Table from "@/app/dashboard/projects/Table";
 import ModalNewTask from "@/components/ModalNewTask";
-import { useGetProjectsQuery } from "@/state/api";
+import { useGetProjectsQuery } from "@/hooks/useApi";
 
 type Props = {
   params: Promise<{ id: string }>;

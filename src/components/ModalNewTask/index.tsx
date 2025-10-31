@@ -1,9 +1,8 @@
 import Modal from "@/components/Modal";
-import { Priority, Status, useCreateTaskMutation, useGetUsersQuery, useGetProjectsQuery, useGetAuthUserQuery } from "@/state/api";
-import { UsageGate } from "@/components/subscription/UsageGate";
+import { Priority, Status, useCreateTaskMutation, useGetUsersQuery, useGetProjectsQuery } from "@/hooks/useApi";
+import { useCurrentUser } from "@/stores/userStore";
 import React, { useState, useEffect } from "react";
 import { formatISO } from "date-fns";
-import { useAuth } from "@/app/authProvider";
 
 type Props = {
   isOpen: boolean;
@@ -13,11 +12,13 @@ type Props = {
 
 const ModalNewTask = ({ isOpen, onClose, id = null }: Props) => {
   const [createTask, { isLoading }] = useCreateTaskMutation();
-  const auth = useAuth();
-  const userIdentifier = auth.user?.sub || auth.user?.userId || "";
-  const {data: currentUser} = useGetAuthUserQuery(userIdentifier);
-  const {data: users} = useGetUsersQuery();
-  const {data: projects} = useGetProjectsQuery();
+  const { currentUser } = useCurrentUser();
+  const {data: users} = useGetUsersQuery(undefined, {
+    skip: !isOpen, // Only load when modal is open
+  });
+  const {data: projects} = useGetProjectsQuery({}, {
+    skip: !isOpen, // Only load when modal is open
+  });
   
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");

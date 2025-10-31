@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import { ArrowUp, Zap } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useSubscription } from '@/contexts/SubscriptionContext';
+import { useSubscription } from '@/stores/subscriptionStore';
 
 interface SubscriptionStatusProps {
   compact?: boolean;

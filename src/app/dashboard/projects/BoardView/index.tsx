@@ -1,10 +1,10 @@
 "use client";
 
 import React from "react";
-import { useGetTasksQuery, useUpdateTaskStatusMutation, useDeleteTaskMutation } from "@/state/api";
+import { useGetTasksQuery, useUpdateTaskStatusMutation, useDeleteTaskMutation } from "@/hooks/useApi";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { Task as TaskType } from "@/state/api";
+import { Task as TaskType } from "@/hooks/useApi";
 import { EllipsisVertical, MessageSquareMore, Plus, Edit, Trash2, Eye } from "lucide-react";
 import { format } from "date-fns";
 import Image from "next/image";

@@ -3,22 +3,17 @@ import React, { useState } from "react";
 import { Search, Settings, Menu, Moon, Sun, User, LogOut } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { useAppDispatch, useAppSelector } from "@/app/redux";
-import { setIsSidebarCollapsed, setIsDarkMode } from "@/state";
+import { useGlobalStore } from "@/stores/globalStore";
 import Image from "next/image";
-import { useGetAuthUserQuery } from "@/state/api";
+import { useCurrentUser } from "@/stores/userStore";
 import { useAuth } from "@/app/authProvider";
 
 const Navbar = () => {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const dispatch = useAppDispatch();
-  const isSidebarCollapsed = useAppSelector(
-    (state) => state.global.isSidebarCollapsed,
-  );
-  const isDarkMode = useAppSelector((state) => state.global.isDarkMode);
+  const { isSidebarCollapsed, isDarkMode, toggleSidebar, toggleDarkMode } = useGlobalStore();
 
   const auth = useAuth();
-  const {data: currentUser} = useGetAuthUserQuery(auth.user?.sub || "");
+  const { currentUser } = useCurrentUser();
   
   const handleSignOut = () => {
     auth.logout();
@@ -41,7 +36,7 @@ const Navbar = () => {
         {/* Menu Toggle */}
         {!isSidebarCollapsed ? null : (
           <motion.button
-            onClick={() => dispatch(setIsSidebarCollapsed(!isSidebarCollapsed))}
+            onClick={toggleSidebar}
             className="p-2 rounded-lg hover:bg-blue-500/10 border border-transparent hover:border-blue-500/20 transition-all duration-300"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -69,7 +64,7 @@ const Navbar = () => {
       <div className="flex items-center gap-2">
         {/* Theme Toggle */}
         <motion.button
-          onClick={() => dispatch(setIsDarkMode(!isDarkMode))}
+          onClick={toggleDarkMode}
           className="p-2 rounded-lg hover:bg-blue-500/10 border border-transparent hover:border-blue-500/20 transition-all duration-300"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}

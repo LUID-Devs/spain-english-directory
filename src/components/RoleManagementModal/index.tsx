@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import Modal from "@/components/Modal";
-import { UserWithStats } from "@/state/api";
+import { UserWithStats } from "@/hooks/useApi";
 
 interface RoleManagementModalProps {
   isOpen: boolean;

@@ -11,7 +11,7 @@ import {
   useAdvancedSearchQuery, 
   useGetSearchSuggestionsQuery,
   SearchSuggestion 
-} from "@/state/api";
+} from "@/hooks/useApi";
 import { debounce } from "lodash";
 import React, { useEffect, useState, useRef } from "react";
 
@@ -41,7 +41,7 @@ const Search = () => {
     skip: searchMode !== 'advanced' || Object.keys(currentFilters).length === 0,
   });
 
-  // Search suggestions query
+  // Search suggestions query with debouncing
   const {
     data: suggestionsData,
     isLoading: isSuggestionsLoading,
@@ -49,6 +49,7 @@ const Search = () => {
     { query: searchTerm },
     {
       skip: !searchTerm || searchTerm.length < 2 || !showSuggestions,
+      refetchOnMountOrArgChange: false, // Prevent excessive refetching
     }
   );
 

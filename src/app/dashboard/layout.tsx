@@ -5,7 +5,7 @@ import { stripePromise } from '@/lib/stripe';
 import AuthProvider from "../authProvider";
 import DashboardWrapper from "../dashboardWrapper";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import { SubscriptionProvider } from '@/contexts/SubscriptionContext';
+import { SubscriptionProvider } from '@/components/SubscriptionProvider';
 
 export default function DashboardLayout({
   children,

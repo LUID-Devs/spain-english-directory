@@ -1,7 +1,7 @@
 "use client";
 
-import { useGetTeamsQuery } from "@/state/api";
-import { useAppSelector } from "@/app/redux";
+import { useGetTeamsQuery } from "@/hooks/useApi";
+import { useGlobalStore } from "@/stores/globalStore";
 import Header from "@/components/Header";
 import {
   DataGrid,
@@ -31,7 +31,7 @@ const columns: GridColDef[] = [
 
 const Teams = () => {
   const { data: teams, isLoading, isError } = useGetTeamsQuery();
-  const isDarkMode = useAppSelector((state) => state.global.isDarkMode);
+  const isDarkMode = useGlobalStore().isDarkMode;
 
   if (isLoading) return <div>Loading...</div>;
   if (isError || !teams) return <div>Error fetching teams</div>;
