@@ -1,4 +1,3 @@
-"use client";
 
 import React from "react";
 import { useGetTasksQuery, useUpdateTaskStatusMutation, useDeleteTaskMutation } from "@/hooks/useApi";
@@ -7,7 +6,7 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 import { Task as TaskType } from "@/hooks/useApi";
 import { EllipsisVertical, MessageSquareMore, Plus, Edit, Trash2, Eye } from "lucide-react";
 import { format } from "date-fns";
-import Image from "next/image";
+
 import TaskDetailModal from "@/components/TaskDetailModal";
 import DeleteTaskModal from "@/components/DeleteTaskModal";
 import type { DropTargetMonitor, DragSourceMonitor } from 'react-dnd';
@@ -243,7 +242,7 @@ const Task = ({ task }: TaskProps) => {
         className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors rounded-md cursor-pointer"
       >
           {task.attachments && task.attachments.length > 0 && (
-            <Image
+            <img
               src={`https://luid-pm-s3-images.s3.us-east-1.amazonaws.com/${task.attachments[0].fileURL}`}
               alt={task.attachments[0].fileName}
               width={400}
@@ -324,7 +323,7 @@ const Task = ({ task }: TaskProps) => {
         <div className="mt-3 flex items-center justify-between">
           <div className="flex -space-x-[6px] overflow-hidden">
             {task.assignee && (
-              <Image
+              <img
                 key={task.assignee.userId}
                 src={`https://luid-pm-s3-images.s3.us-east-1.amazonaws.com/${task.assignee.profilePictureUrl!}`}
                 alt={task.assignee.username}
@@ -334,7 +333,7 @@ const Task = ({ task }: TaskProps) => {
               />
             )}
             {task.author && (
-              <Image
+              <img
                 key={task.author.userId}
                 src={`https://luid-pm-s3-images.s3.us-east-1.amazonaws.com/${task.author.profilePictureUrl!}`}
                 alt={task.author.username}

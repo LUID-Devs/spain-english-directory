@@ -1,4 +1,3 @@
-"use client";
 
 import { useGlobalStore } from "@/stores/globalStore";
 import Header from "@/components/Header";

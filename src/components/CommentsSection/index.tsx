@@ -1,4 +1,3 @@
-"use client";
 
 import React, { useState } from "react";
 import { 
@@ -12,7 +11,7 @@ import { useCurrentUser } from "@/stores/userStore";
 import { useAuth } from "@/app/authProvider";
 import { format } from "date-fns";
 import { MessageSquare, Send, Edit3, Trash2, X, Check } from "lucide-react";
-import Image from "next/image";
+
 
 interface CommentsSectionProps {
   taskId: number;
@@ -216,7 +215,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
       {/* Avatar */}
       <div className="flex-shrink-0">
         {comment.user.profilePictureUrl ? (
-          <Image
+          <img
             src={`https://luid-pm-s3-images.s3.us-east-1.amazonaws.com/${comment.user.profilePictureUrl}`}
             alt={comment.user.username}
             width={32}

@@ -1,7 +1,5 @@
-"use client";
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 
 const LoginPage = () => {
@@ -17,7 +15,7 @@ const LoginPage = () => {
     challengeParameters: Record<string, string>;
   } | null>(null);
   const [mfaCode, setMfaCode] = useState("");
-  const router = useRouter();
+  const navigate = useNavigate();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -34,7 +32,7 @@ const LoginPage = () => {
     setError("");
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/login`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -54,7 +52,7 @@ const LoginPage = () => {
         setChallenge(data);
       } else if (data.success) {
         // Successful login
-        router.push("/dashboard");
+        navigate("/dashboard");
       }
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "Login failed. Please try again.");
@@ -69,7 +67,7 @@ const LoginPage = () => {
     setError("");
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/respond-to-challenge`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/respond-to-challenge`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -93,7 +91,7 @@ const LoginPage = () => {
       }
 
       if (data.success) {
-        router.push("/dashboard");
+        navigate("/dashboard");
       }
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "MFA verification failed. Please try again.");

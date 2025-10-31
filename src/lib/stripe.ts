@@ -2,7 +2,7 @@ import { loadStripe } from '@stripe/stripe-js';
 
 // Initialize Stripe
 export const stripePromise = loadStripe(
-  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
+  import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY!
 );
 
 // Subscription plans that match backend configuration
@@ -10,7 +10,7 @@ export const SUBSCRIPTION_PLANS = {
   FREE: {
     name: 'Free',
     price: 0,
-    priceId: process.env.NEXT_PUBLIC_STRIPE_FREE_PRICE_ID,
+    priceId: import.meta.env.VITE_STRIPE_FREE_PRICE_ID,
     taskLimit: 5,
     features: [
       'Up to 5 tasks',
@@ -22,7 +22,7 @@ export const SUBSCRIPTION_PLANS = {
   STARTER: {
     name: 'Starter',
     price: 9,
-    priceId: process.env.NEXT_PUBLIC_STRIPE_STARTER_PRICE_ID,
+    priceId: import.meta.env.VITE_STRIPE_STARTER_PRICE_ID,
     taskLimit: 50,
     features: [
       'Up to 50 tasks',
@@ -36,7 +36,7 @@ export const SUBSCRIPTION_PLANS = {
   PRO: {
     name: 'Pro',
     price: 19,
-    priceId: process.env.NEXT_PUBLIC_STRIPE_PRO_PRICE_ID,
+    priceId: import.meta.env.VITE_STRIPE_PRO_PRICE_ID,
     taskLimit: 500,
     features: [
       'Up to 500 tasks',
@@ -52,7 +52,7 @@ export const SUBSCRIPTION_PLANS = {
   ENTERPRISE: {
     name: 'Enterprise',
     price: 49,
-    priceId: process.env.NEXT_PUBLIC_STRIPE_ENTERPRISE_PRICE_ID,
+    priceId: import.meta.env.VITE_STRIPE_ENTERPRISE_PRICE_ID,
     taskLimit: -1, // Unlimited
     features: [
       'Unlimited tasks',

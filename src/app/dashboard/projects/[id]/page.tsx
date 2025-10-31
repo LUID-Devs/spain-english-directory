@@ -1,4 +1,3 @@
-"use client";
 
 import React, { useState } from "react";
 import ProjectHeader from "@/app/dashboard/projects/ProjectHeader";

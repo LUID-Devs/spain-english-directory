@@ -1,10 +1,8 @@
-"use client";
 import React, { useState } from "react";
 import { Search, Settings, Menu, Moon, Sun, User, LogOut } from "lucide-react";
-import Link from "next/link";
+import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useGlobalStore } from "@/stores/globalStore";
-import Image from "next/image";
 import { useCurrentUser } from "@/stores/userStore";
 import { useAuth } from "@/app/authProvider";
 
@@ -87,7 +85,7 @@ const Navbar = () => {
         </motion.button>
 
         {/* Settings Link */}
-        <Link href="/dashboard/settings">
+        <Link to="/dashboard/settings">
           <motion.div
             className="p-2 rounded-lg hover:bg-blue-500/10 border border-transparent hover:border-blue-500/20 transition-all duration-300"
             whileHover={{ scale: 1.05 }}
@@ -116,7 +114,7 @@ const Navbar = () => {
                     whileHover={{ scale: 1.1 }}
                     transition={{ type: "spring", stiffness: 300, damping: 20 }}
                   >
-                    <Image
+                    <img
                       src={`https://luid-pm-s3-images.s3.us-east-1.amazonaws.com/${currentUserDetails.profilePictureUrl}`}
                       alt={currentUserDetails.username || "User Profile Picture"}
                       width={32}
@@ -171,7 +169,7 @@ const Navbar = () => {
                 <div className="px-4 py-3 border-b border-blue-500/20">
                   <div className="flex items-center gap-3">
                     {currentUserDetails?.profilePictureUrl ? (
-                      <Image
+                      <img
                         src={`https://luid-pm-s3-images.s3.us-east-1.amazonaws.com/${currentUserDetails.profilePictureUrl}`}
                         alt={currentUserDetails.username || "User Profile Picture"}
                         width={40}
@@ -196,7 +194,7 @@ const Navbar = () => {
 
                 {/* Menu Items */}
                 <div className="py-2">
-                  <Link href="/dashboard/settings">
+                  <Link to="/dashboard/settings">
                     <motion.div 
                       className="px-4 py-2 text-sm text-white hover:text-blue-400 cursor-pointer flex items-center gap-3 hover:bg-blue-500/10 transition-all duration-200"
                       whileHover={{ x: 4 }}

@@ -1,21 +1,20 @@
-"use client";
 import React, { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../authProvider";
 
 const AuthPage = () => {
-  const router = useRouter();
+  const navigate = useNavigate();
   const { user, isLoading } = useAuth();
 
   useEffect(() => {
     // If not loading and user is authenticated, redirect to dashboard
     if (!isLoading && user) {
-      router.push('/dashboard');
+      navigate('/dashboard');
     } else if (!isLoading && !user) {
       // If not authenticated, redirect to login
-      router.push('/auth/login');
+      navigate('/auth/login');
     }
-  }, [isLoading, user, router]);
+  }, [isLoading, user, navigate]);
 
   // Show loading while checking auth status
   return (

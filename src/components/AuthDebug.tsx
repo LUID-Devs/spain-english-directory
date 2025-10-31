@@ -4,9 +4,9 @@ function AuthDebug() {
   const auth = useAuth();
 
   const signOutRedirect = () => {
-    const clientId = process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID;
-    const logoutUri = process.env.NEXT_PUBLIC_COGNITO_REDIRECT_URI;
-    const cognitoDomain = process.env.NEXT_PUBLIC_COGNITO_AUTHORITY;
+    const clientId = import.meta.env.VITE_COGNITO_CLIENT_ID;
+    const logoutUri = import.meta.env.VITE_COGNITO_REDIRECT_URI;
+    const cognitoDomain = import.meta.env.VITE_COGNITO_AUTHORITY;
     window.location.href = `${cognitoDomain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(logoutUri || "")}`;
   };
 

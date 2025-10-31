@@ -3,7 +3,7 @@ import { Project } from "@/services/apiService";
 import { useArchiveProjectMutation, useUnarchiveProjectMutation, useFavoriteProjectMutation, useUnfavoriteProjectMutation } from "@/hooks/useApi";
 import { Calendar, Users, CheckCircle, Clock, MoreVertical, Edit, Trash2, Archive, ArchiveRestore, Star } from "lucide-react";
 import { format } from "date-fns";
-import Link from "next/link";
+import { Link } from "react-router-dom";
 import { useCurrentUser } from "@/stores/userStore";
 import EditProjectModal from "@/components/EditProjectModal";
 import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";

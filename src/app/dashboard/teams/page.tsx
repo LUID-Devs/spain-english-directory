@@ -1,4 +1,3 @@
-"use client";
 
 import { useGetTeamsQuery } from "@/hooks/useApi";
 import { useGlobalStore } from "@/stores/globalStore";

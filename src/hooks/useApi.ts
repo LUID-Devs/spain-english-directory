@@ -1,4 +1,3 @@
-"use client";
 import { useEffect, useCallback, useState } from 'react';
 import { useApiStore } from '@/stores/apiStore';
 import { useUserStore } from '@/stores/userStore';

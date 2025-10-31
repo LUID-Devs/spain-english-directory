@@ -1,7 +1,5 @@
-"use client";
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 
 const RegisterPage = () => {
@@ -16,7 +14,7 @@ const RegisterPage = () => {
   const [success, setSuccess] = useState(false);
   const [confirmationCode, setConfirmationCode] = useState("");
   const [showConfirmation, setShowConfirmation] = useState(false);
-  const router = useRouter();
+  const navigate = useNavigate();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -61,7 +59,7 @@ const RegisterPage = () => {
     setError("");
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/register`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -86,7 +84,7 @@ const RegisterPage = () => {
         setSuccess(true);
         // Redirect to login after successful registration
         setTimeout(() => {
-          router.push("/auth/login?message=Registration successful! Please log in.");
+          navigate("/auth/login?message=Registration successful! Please log in.");
         }, 1500);
       }
     } catch (error: unknown) {
@@ -102,7 +100,7 @@ const RegisterPage = () => {
     setError("");
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/confirm-signup`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/confirm-signup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -121,7 +119,7 @@ const RegisterPage = () => {
       }
 
       // Redirect to login page after successful confirmation
-      router.push("/auth/login?message=Account confirmed successfully. Please log in.");
+      navigate("/auth/login?message=Account confirmed successfully. Please log in.");
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "Confirmation failed. Please try again.");
     } finally {

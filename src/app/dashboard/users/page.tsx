@@ -1,4 +1,3 @@
-"use client";
 import { useGetUsersWithStatsQuery, useInviteUserMutation, useUpdateUserRoleMutation, UserWithStats } from "@/hooks/useApi";
 import React, { useState } from "react";
 import { useGlobalStore } from "@/stores/globalStore";
@@ -13,7 +12,7 @@ import {
   GridToolbarExport,
   GridToolbarFilterButton,
 } from "@mui/x-data-grid";
-import Image from "next/image";
+
 import { dataGridClassNames, dataGridSxStyles } from "@/lib/utils";
 
 const CustomToolBar = () => (
@@ -33,7 +32,7 @@ const columns: GridColDef[] = [
     renderCell: (params) => (
       <div className="flex h-full w-full items-center justify-center">
         <div className="h-9 w-9">
-          <Image
+          <img
             src={`https://pm-s3-images.s3.us-east-1.amazonaws.com/${params.value}`}
             alt={params.row.username}
             width={100}

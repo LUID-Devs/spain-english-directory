@@ -1,4 +1,3 @@
-"use client";
 
 import React, { useState } from "react";
 import { useGetTaskQuery, useUpdateTaskMutation, useGetUsersQuery } from "@/hooks/useApi";
@@ -15,7 +14,7 @@ import {
   MessageSquare,
   Paperclip
 } from "lucide-react";
-import Link from "next/link";
+import { Link } from "react-router-dom";
 import { Status, Priority } from "@/hooks/useApi";
 
 type Props = {

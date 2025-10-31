@@ -1,5 +1,3 @@
-'use client';
-
 import React from 'react';
 import {
   Box,
@@ -11,7 +9,7 @@ import {
   CardContent,
 } from '@mui/material';
 import { ArrowUp, Zap } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useNavigate } from 'react-router-dom';
 import { useSubscription } from '@/stores/subscriptionStore';
 
 interface SubscriptionStatusProps {
@@ -24,7 +22,7 @@ export function SubscriptionStatus({
   showUpgradeButton = true 
 }: SubscriptionStatusProps) {
   const { subscriptionData, currentPlan, loading } = useSubscription();
-  const router = useRouter();
+  const navigate = useNavigate();
 
   if (loading) {
     return (
@@ -90,7 +88,7 @@ export function SubscriptionStatus({
             size="small"
             variant="outlined"
             startIcon={<ArrowUp size={14} />}
-            onClick={() => router.push('/pricing')}
+            onClick={() => navigate('/pricing')}
           >
             Upgrade
           </Button>
@@ -155,7 +153,7 @@ export function SubscriptionStatus({
             <Button
               variant="contained"
               startIcon={<ArrowUp size={16} />}
-              onClick={() => router.push('/pricing')}
+              onClick={() => navigate('/pricing')}
               size="small"
             >
               Upgrade Plan
@@ -168,7 +166,7 @@ export function SubscriptionStatus({
             <Button
               variant="outlined"
               startIcon={<ArrowUp size={16} />}
-              onClick={() => router.push('/pricing')}
+              onClick={() => navigate('/pricing')}
               size="small"
             >
               Upgrade to Pro

@@ -1,5 +1,5 @@
 import { User } from "@/hooks/useApi";
-import Image from "next/image";
+
 import React from "react";
 
 type UserWithStats = User & {
@@ -43,7 +43,7 @@ const UserCard = ({ user, showStats = false, onManageRole }: Props) => {
       <div className="flex items-start space-x-4">
         {/* Profile Picture */}
         <div className="flex-shrink-0">
-          <Image
+          <img
             src={user.profilePictureUrl 
               ? `https://pm-s3-images.s3.us-east-1.amazonaws.com/${user.profilePictureUrl}`
               : `https://pm-s3-images.s3.us-east-1.amazonaws.com/p1.jpeg`

@@ -1,4 +1,3 @@
-"use client";
 
 import React, { useState, useRef } from "react";
 import { 
@@ -118,7 +117,7 @@ const AttachmentsSection: React.FC<AttachmentsSectionProps> = ({ taskId }) => {
   };
 
   const handleDownload = (attachment: Attachment) => {
-    const downloadUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/attachments/${attachment.id}`;
+    const downloadUrl = `${import.meta.env.VITE_API_BASE_URL}/attachments/${attachment.id}`;
     const link = document.createElement('a');
     link.href = downloadUrl;
     link.download = attachment.fileName || 'attachment';
@@ -134,7 +133,7 @@ const AttachmentsSection: React.FC<AttachmentsSectionProps> = ({ taskId }) => {
       case 'png':
       case 'gif':
       case 'webp':
-        return <Image className="h-4 w-4" />;
+        return <img className="h-4 w-4" />;
       case 'pdf':
         return <FileText className="h-4 w-4" />;
       case 'mp3':

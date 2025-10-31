@@ -1,4 +1,3 @@
-"use client";
 import React, { useEffect } from 'react';
 import { useAuth } from '@/app/authProvider';
 import { useUserStore } from '@/stores/userStore';
@@ -14,29 +13,44 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   
   useEffect(() => {
     const loadUser = async () => {
-      const userIdentifier = auth.user?.sub || auth.user?.userId || "";
-      setUserIdentifier(userIdentifier);
-      
-      if (!userIdentifier) {
-        setCurrentUser(null);
+      // If auth is loading, don't do anything
+      if (auth.isLoading) {
         return;
       }
 
-      try {
-        setLoading(true);
+      // If user is authenticated, set the user from auth
+      if (auth.isAuthenticated && auth.user) {
+        const userIdentifier = auth.user.sub || auth.user.email || auth.user.userId || "";
+        setUserIdentifier(userIdentifier);
+        
+        try {
+          setLoading(true);
+          setError(null);
+          // For now, use the auth user directly or fetch additional user data
+          if (auth.user.userId) {
+            // If we already have a complete user object, use it
+            setCurrentUser(auth.user);
+          } else if (userIdentifier) {
+            // Otherwise fetch the complete user data
+            const user = await apiService.getAuthUser(userIdentifier);
+            setCurrentUser(user);
+          }
+        } catch (error) {
+          console.error('Failed to load user:', error);
+          setError(error instanceof Error ? error.message : 'Failed to load user');
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        // User is not authenticated
+        setCurrentUser(null);
+        setUserIdentifier("");
         setError(null);
-        const user = await apiService.getAuthUser(userIdentifier);
-        setCurrentUser(user);
-      } catch (error) {
-        console.error('Failed to load user:', error);
-        setError(error instanceof Error ? error.message : 'Failed to load user');
-      } finally {
-        setLoading(false);
       }
     };
 
     loadUser();
-  }, [auth.user, setUserIdentifier, setLoading, setError, setCurrentUser]);
+  }, [auth.user, auth.isAuthenticated, auth.isLoading, setUserIdentifier, setLoading, setError, setCurrentUser]);
 
   return <>{children}</>;
 };

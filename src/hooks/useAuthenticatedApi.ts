@@ -12,7 +12,7 @@ export const useAuthenticatedApi = () => {
       ...options.headers,
     };
 
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}${url}`, {
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}${url}`, {
       ...options,
       headers,
     });

@@ -1,4 +1,3 @@
-"use client";
 import React, { useEffect } from 'react';
 import { useSubscriptionStore } from '@/stores/subscriptionStore';
 

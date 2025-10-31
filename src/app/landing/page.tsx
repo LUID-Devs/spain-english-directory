@@ -1,6 +1,5 @@
-"use client";
 import React, { useEffect } from "react";
-import Link from "next/link";
+import { Link } from "react-router-dom";
 import FadeInWhenVisible from "@/components/ui/fade-in-when-visible";
 import { motion } from "framer-motion";
 

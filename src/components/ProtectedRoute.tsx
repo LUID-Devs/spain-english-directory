@@ -1,6 +1,5 @@
-"use client";
 import React, { useEffect } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/app/authProvider';
 
 interface ProtectedRouteProps {
@@ -15,18 +14,18 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   showLoading = true 
 }) => {
   const { user, isLoading } = useAuth();
-  const router = useRouter();
-  const pathname = usePathname();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     // Only redirect if not loading and user is not authenticated
     if (!isLoading && !user) {
       // Avoid redirect if already on an auth page
-      if (!pathname.startsWith('/auth')) {
-        router.push(redirectTo);
+      if (!location.pathname.startsWith('/auth')) {
+        navigate(redirectTo);
       }
     }
-  }, [isLoading, user, router, redirectTo, pathname]);
+  }, [isLoading, user, navigate, redirectTo, location.pathname]);
 
   // Show loading state
   if (isLoading) {
@@ -43,7 +42,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   // If not authenticated and not on auth page, show nothing (redirect will happen)
-  if (!user && !pathname.startsWith('/auth')) {
+  if (!user && !location.pathname.startsWith('/auth')) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
