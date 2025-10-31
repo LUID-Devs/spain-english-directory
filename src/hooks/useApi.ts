@@ -5,6 +5,12 @@ import { useUserStore } from '@/stores/userStore';
 import { useRequestManager } from '@/stores/requestManager';
 import { apiService, Status, Priority, Task, Project, User, Comment, Attachment } from '@/services/apiService';
 
+// Utility function to create RTK Query-like mutation results
+const createMutationResult = <T>(promise: Promise<T>) => {
+  (promise as any).unwrap = () => promise;
+  return promise;
+};
+
 // Hook to replace useGetAuthUserQuery
 export const useGetAuthUserQuery = (userIdentifier: string, options: { skip?: boolean } = {}) => {
   const { currentUser, isLoading, error, setCurrentUser, setLoading, setError, setUserIdentifier } = useUserStore();
@@ -195,52 +201,32 @@ export const useGetTaskCommentsQuery = (taskId: number) => {
 
 // Mutation hooks
 export const useCreateTaskMutation = () => {
-  const createTask = useCallback(async (taskData: any) => {
-    try {
-      const result = await apiService.createTask(taskData);
-      return { unwrap: () => Promise.resolve(result) };
-    } catch (error) {
-      return { unwrap: () => Promise.reject(error) };
-    }
+  const createTask = useCallback((taskData: any) => {
+    return createMutationResult(apiService.createTask(taskData));
   }, []);
 
-  return [createTask, { isLoading: false }]; // You can add loading state management if needed
+  return [createTask, { isLoading: false }];
 };
 
 export const useCreateProjectMutation = () => {
-  const createProject = useCallback(async (projectData: any) => {
-    try {
-      const result = await apiService.createProject(projectData);
-      return { unwrap: () => Promise.resolve(result) };
-    } catch (error) {
-      return { unwrap: () => Promise.reject(error) };
-    }
+  const createProject = useCallback((projectData: any) => {
+    return createMutationResult(apiService.createProject(projectData));
   }, []);
 
   return [createProject, { isLoading: false }];
 };
 
 export const useUpdateTaskMutation = () => {
-  const updateTask = useCallback(async ({ taskId, ...updates }: { taskId: number; [key: string]: any }) => {
-    try {
-      const result = await apiService.updateTask(taskId, updates);
-      return { unwrap: () => Promise.resolve(result) };
-    } catch (error) {
-      return { unwrap: () => Promise.reject(error) };
-    }
+  const updateTask = useCallback(({ taskId, ...updates }: { taskId: number; [key: string]: any }) => {
+    return createMutationResult(apiService.updateTask(taskId, updates));
   }, []);
 
   return [updateTask, { isLoading: false }];
 };
 
 export const useUpdateProjectMutation = () => {
-  const updateProject = useCallback(async ({ projectId, ...updates }: { projectId: number; [key: string]: any }) => {
-    try {
-      const result = await apiService.updateProject(projectId, updates);
-      return { unwrap: () => Promise.resolve(result) };
-    } catch (error) {
-      return { unwrap: () => Promise.reject(error) };
-    }
+  const updateProject = useCallback(({ projectId, ...updates }: { projectId: number; [key: string]: any }) => {
+    return createMutationResult(apiService.updateProject(projectId, updates));
   }, []);
 
   return [updateProject, { isLoading: false }];
@@ -484,26 +470,16 @@ export const useGetUsersWithStatsQuery = (params: any = undefined, options: { sk
 
 // More mutation hooks
 export const useInviteUserMutation = () => {
-  const inviteUser = useCallback(async ({ email, teamId, role }: { email: string; teamId: number; role: string }) => {
-    try {
-      const result = await apiService.inviteUser(email, teamId, role);
-      return { unwrap: () => Promise.resolve(result) };
-    } catch (error) {
-      return { unwrap: () => Promise.reject(error) };
-    }
+  const inviteUser = useCallback(({ email, teamId, role }: { email: string; teamId: number; role: string }) => {
+    return createMutationResult(apiService.inviteUser(email, teamId, role));
   }, []);
 
   return [inviteUser, { isLoading: false }];
 };
 
 export const useUpdateUserRoleMutation = () => {
-  const updateUserRole = useCallback(async ({ userId, role }: { userId: number; role: string }) => {
-    try {
-      const result = await apiService.updateUserRole(userId, role);
-      return { unwrap: () => Promise.resolve(result) };
-    } catch (error) {
-      return { unwrap: () => Promise.reject(error) };
-    }
+  const updateUserRole = useCallback((data: { userId: number; role: string }) => {
+    return createMutationResult(apiService.updateUserRole(data.userId, data.role));
   }, []);
 
   return [updateUserRole, { isLoading: false }];
