@@ -1,5 +1,3 @@
-import { useApiStore } from '@/stores/apiStore';
-
 // Types (moved from old api.ts)
 export interface Project {
   id: string;
@@ -179,93 +177,10 @@ class ApiService {
         throw error;
       }
       
-      // In development mode, return mock data for non-auth failures
-      if (import.meta.env.DEV) {
-        console.warn('API call failed, returning mock data for development:', endpoint);
-        return this.getMockData<T>(endpoint);
-      }
       throw error;
     }
   }
 
-  private getMockData<T>(endpoint: string): T {
-    // Mock data for development
-    if (endpoint.includes('/tasks/user/')) {
-      return [
-        {
-          id: 1,
-          title: "Setup development environment",
-          description: "Configure Vite and migrate from Next.js",
-          status: "Work In Progress",
-          priority: "High",
-          tags: "development,setup",
-          startDate: "2024-01-01",
-          dueDate: "2024-01-15",
-          points: 8,
-          projectId: 1,
-          authorUserId: 1,
-          assignedUserId: 1,
-          author: { userId: 1, username: "testuser", email: "test@example.com" },
-          assignee: { userId: 1, username: "testuser", email: "test@example.com" }
-        },
-        {
-          id: 2,
-          title: "Fix authentication flow",
-          description: "Ensure proper user authentication and authorization",
-          status: "To Do",
-          priority: "High",
-          tags: "auth,security",
-          startDate: "2024-01-02",
-          dueDate: "2024-01-10",
-          points: 5,
-          projectId: 1,
-          authorUserId: 1,
-          assignedUserId: 1,
-          author: { userId: 1, username: "testuser", email: "test@example.com" },
-          assignee: { userId: 1, username: "testuser", email: "test@example.com" }
-        }
-      ] as T;
-    }
-    
-    if (endpoint.includes('/projects')) {
-      return [
-        {
-          id: "1",
-          name: "TaskLuid Development",
-          description: "Main development project for TaskLuid platform",
-          startDate: "2024-01-01",
-          endDate: null,
-          archived: false,
-          isFavorited: false,
-          taskCount: 5,
-          statistics: {
-            totalTasks: 5,
-            completedTasks: 1,
-            inProgressTasks: 2,
-            todoTasks: 2,
-            progress: 20,
-            memberCount: 1,
-            status: "Active"
-          }
-        }
-      ] as T;
-    }
-
-    if (endpoint.includes('/users/')) {
-      return {
-        userId: 1,
-        username: "testuser",
-        email: "test@example.com",
-        profilePictureUrl: "default-avatar.png",
-        cognitoId: "test-user-sub",
-        teamId: 1,
-        role: "user"
-      } as T;
-    }
-    
-    // Default empty response
-    return [] as T;
-  }
 
   // Auth
   async getAuthUser(userSub: string): Promise<User> {

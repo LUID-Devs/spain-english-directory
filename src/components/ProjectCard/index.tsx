@@ -43,7 +43,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, viewMode = "grid" })
     }
   }, [showDropdown]);
   
-  // Use real statistics or fallback to mock data
+  // Use real statistics or fallback to defaults
   const progress = project.statistics?.progress || 0;
   const totalTasks = project.statistics?.totalTasks || project.taskCount || 0;
   const completedTasks = project.statistics?.completedTasks || 0;
