@@ -392,29 +392,87 @@ export const useDeleteProjectMutation = () => {
 };
 
 export const useFavoriteProjectMutation = () => {
+  const { projects, setProjects } = useApiStore();
+  
   const favoriteProject = useCallback(async ({ id, userId }: { id: string; userId: number }) => {
+    // Optimistic update - immediately update UI
+    if (projects.data) {
+      const optimisticProjects = projects.data.map(project => 
+        project.id === id ? { ...project, isFavorited: true } : project
+      );
+      setProjects(optimisticProjects);
+    }
+    
     try {
       const result = await apiService.favoriteProject(id, userId);
-      return { unwrap: () => Promise.resolve(result) };
-    } catch (error) {
-      return { unwrap: () => Promise.reject(error) };
+      // Don't invalidate cache - optimistic update is sufficient
+      return result;
+    } catch (error: any) {
+      // Handle "already favorited" error - this means optimistic update was correct
+      if (error?.message === 'Project already favorited') {
+        // Keep the optimistic update, no need to invalidate cache
+        return { message: 'Already favorited, state synced' };
+      }
+      
+      // For other errors, revert optimistic update
+      if (projects.data) {
+        const revertedProjects = projects.data.map(project => 
+          project.id === id ? { ...project, isFavorited: false } : project
+        );
+        setProjects(revertedProjects);
+      }
+      throw error;
     }
-  }, []);
+  }, [projects.data, setProjects]);
 
-  return [favoriteProject, { isLoading: false }];
+  // Return the function that returns a mutation object with unwrap method
+  const mutationWrapper = useCallback((args: { id: string; userId: number }) => ({
+    unwrap: () => favoriteProject(args)
+  }), [favoriteProject]);
+
+  return [mutationWrapper, { isLoading: false }];
 };
 
 export const useUnfavoriteProjectMutation = () => {
+  const { projects, setProjects } = useApiStore();
+  
   const unfavoriteProject = useCallback(async ({ id, userId }: { id: string; userId: number }) => {
+    // Optimistic update - immediately update UI
+    if (projects.data) {
+      const optimisticProjects = projects.data.map(project => 
+        project.id === id ? { ...project, isFavorited: false } : project
+      );
+      setProjects(optimisticProjects);
+    }
+    
     try {
       const result = await apiService.unfavoriteProject(id, userId);
-      return { unwrap: () => Promise.resolve(result) };
-    } catch (error) {
-      return { unwrap: () => Promise.reject(error) };
+      // Don't invalidate cache - optimistic update is sufficient
+      return result;
+    } catch (error: any) {
+      // Handle "favorite not found" error - this means optimistic update was correct
+      if (error?.message === 'Favorite not found') {
+        // Keep the optimistic update, no need to invalidate cache
+        return { message: 'Not favorited, state synced' };
+      }
+      
+      // For other errors, revert optimistic update
+      if (projects.data) {
+        const revertedProjects = projects.data.map(project => 
+          project.id === id ? { ...project, isFavorited: true } : project
+        );
+        setProjects(revertedProjects);
+      }
+      throw error;
     }
-  }, []);
+  }, [projects.data, setProjects]);
 
-  return [unfavoriteProject, { isLoading: false }];
+  // Return the function that returns a mutation object with unwrap method
+  const mutationWrapper = useCallback((args: { id: string; userId: number }) => ({
+    unwrap: () => unfavoriteProject(args)
+  }), [unfavoriteProject]);
+
+  return [mutationWrapper, { isLoading: false }];
 };
 
 export const useArchiveProjectMutation = () => {

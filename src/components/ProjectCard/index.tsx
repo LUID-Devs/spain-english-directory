@@ -99,8 +99,18 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, viewMode = "grid" })
       } else {
         await favoriteProject({ id: project.id, userId: currentUser.userId }).unwrap();
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to toggle favorite:', error);
+      
+      // Handle specific backend error messages
+      if (error?.message === 'Project already favorited' || error?.message === 'Favorite not found') {
+        // These errors indicate the frontend state is out of sync with backend
+        // The optimistic update will be corrected by the cache invalidation
+        console.log('Favorite state out of sync, cache will refresh');
+      } else {
+        // For other errors, you might want to show a toast notification
+        console.error('Unexpected error toggling favorite:', error);
+      }
     }
   };
 

@@ -37,6 +37,8 @@ interface ApiState {
   
   // Cache management
   shouldRefetch: (key: string, ttl?: number) => boolean;
+  markFetched: (key: string) => void;
+  invalidateCache: (key: string) => void;
 }
 
 const initialApiResponse = <T>(): ApiResponse<T> => ({
@@ -184,6 +186,15 @@ export const useApiStore = create<ApiState>()(
         lastFetch: {
           ...state.lastFetch,
           [key]: Date.now()
+        }
+      }));
+    },
+    
+    invalidateCache: (key: string) => {
+      set((state) => ({
+        lastFetch: {
+          ...state.lastFetch,
+          [key]: 0 // Force refetch by setting to 0
         }
       }));
     },
