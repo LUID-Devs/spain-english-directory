@@ -1,6 +1,7 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useGetProjectsQuery } from "@/hooks/useApi";
+import { useProjects } from "@/stores/apiStore";
 import { useCurrentUser } from "@/stores/userStore";
 import Header from "@/components/Header";
 import { Plus, Search, Grid, List, Archive, Star } from "lucide-react";
@@ -17,12 +18,26 @@ const ProjectsPage = () => {
   const [statusFilter, setStatusFilter] = useState<string>("");
   
   const { currentUser } = useCurrentUser();
-  const { data: projects, isLoading, isError } = useGetProjectsQuery({ 
+  
+  // Use both the query hook (for initial fetch) and direct store subscription (for real-time updates)
+  const { data: queryProjects, isLoading: queryLoading, isError, refetch } = useGetProjectsQuery({ 
     archived: showArchived, 
     favorites: showFavorites,
-    userId: currentUser?.userId, // Fallback to userId 21 for testing
+    userId: currentUser?.userId,
     status: statusFilter || undefined
   });
+  
+  // Subscribe directly to store for real-time updates
+  const projectsStore = useProjects();
+  
+  // Use store data if available, otherwise fall back to query data
+  const projects = projectsStore.data || queryProjects;
+  const isLoading = projectsStore.isLoading || queryLoading;
+  
+  // Refetch when filters change
+  useEffect(() => {
+    refetch();
+  }, [showArchived, showFavorites, statusFilter, currentUser?.userId, refetch]);
 
   const filteredProjects = projects?.filter(project =>
     project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||

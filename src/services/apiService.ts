@@ -212,6 +212,11 @@ class ApiService {
     });
   }
 
+  async getProject(id: string, userId?: number): Promise<Project> {
+    const params = userId ? `?userId=${userId}` : '';
+    return this.request<Project>(`/projects/${id}${params}`);
+  }
+
   async updateProject(id: string, project: Partial<Project>): Promise<Project> {
     return this.request<Project>(`/projects/${id}`, {
       method: 'PUT',

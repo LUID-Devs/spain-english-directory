@@ -5,11 +5,10 @@ interface ApiResponse<T> {
   data: T | null;
   isLoading: boolean;
   error: string | null;
-  lastFetched?: number;
 }
 
 interface ApiState {
-  // Data cache
+  // Data storage
   projects: ApiResponse<any[]>;
   tasks: ApiResponse<any[]>;
   users: ApiResponse<any[]>;
@@ -18,14 +17,11 @@ interface ApiState {
   taskAttachments: Record<string, ApiResponse<any[]>>;
   searchResults: ApiResponse<any>;
   
-  // Data freshness tracking
-  lastFetch: Record<string, number>;
-  
   // Generic actions
   setApiData: <T>(key: string, data: ApiResponse<T>) => void;
   setLoading: (key: string, loading: boolean) => void;
   setError: (key: string, error: string | null) => void;
-  clearCache: (key?: string) => void;
+  clearData: (key?: string) => void;
   
   // Specific actions for common operations
   setProjects: (data: any[], loading?: boolean, error?: string | null) => void;
@@ -34,11 +30,6 @@ interface ApiState {
   setTeams: (data: any[], loading?: boolean, error?: string | null) => void;
   setTaskComments: (taskId: string, data: any[], loading?: boolean, error?: string | null) => void;
   setTaskAttachments: (taskId: string, data: any[], loading?: boolean, error?: string | null) => void;
-  
-  // Cache management
-  shouldRefetch: (key: string, ttl?: number) => boolean;
-  markFetched: (key: string) => void;
-  invalidateCache: (key: string) => void;
 }
 
 const initialApiResponse = <T>(): ApiResponse<T> => ({
@@ -47,7 +38,6 @@ const initialApiResponse = <T>(): ApiResponse<T> => ({
   error: null,
 });
 
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
 export const useApiStore = create<ApiState>()(
   subscribeWithSelector((set, get) => ({
@@ -59,13 +49,12 @@ export const useApiStore = create<ApiState>()(
     taskComments: {},
     taskAttachments: {},
     searchResults: initialApiResponse<any>(),
-    lastFetch: {},
     
     // Generic actions
     setApiData: <T>(key: string, data: ApiResponse<T>) => 
       set((state) => ({ 
         ...state, 
-        [key]: { ...data, lastFetched: Date.now() } 
+        [key]: data 
       })),
     
     setLoading: (key: string, loading: boolean) => 
@@ -87,7 +76,7 @@ export const useApiStore = create<ApiState>()(
         }
       })),
     
-    clearCache: (key?: string) => {
+    clearData: (key?: string) => {
       if (key) {
         set((state) => ({
           ...state,
@@ -112,8 +101,7 @@ export const useApiStore = create<ApiState>()(
         projects: { 
           data, 
           isLoading: loading, 
-          error, 
-          lastFetched: Date.now() 
+          error 
         } 
       }),
     
@@ -122,8 +110,7 @@ export const useApiStore = create<ApiState>()(
         tasks: { 
           data, 
           isLoading: loading, 
-          error, 
-          lastFetched: Date.now() 
+          error 
         } 
       }),
     
@@ -132,8 +119,7 @@ export const useApiStore = create<ApiState>()(
         users: { 
           data, 
           isLoading: loading, 
-          error, 
-          lastFetched: Date.now() 
+          error 
         } 
       }),
     
@@ -142,8 +128,7 @@ export const useApiStore = create<ApiState>()(
         teams: { 
           data, 
           isLoading: loading, 
-          error, 
-          lastFetched: Date.now() 
+          error 
         } 
       }),
     
@@ -154,8 +139,7 @@ export const useApiStore = create<ApiState>()(
           [taskId]: { 
             data, 
             isLoading: loading, 
-            error, 
-            lastFetched: Date.now() 
+            error 
           }
         }
       })),
@@ -167,37 +151,10 @@ export const useApiStore = create<ApiState>()(
           [taskId]: { 
             data, 
             isLoading: loading, 
-            error, 
-            lastFetched: Date.now() 
+            error 
           }
         }
       })),
-    
-    // Cache management
-    shouldRefetch: (key: string, ttl = CACHE_TTL) => {
-      const state = get();
-      const lastFetch = state.lastFetch[key];
-      if (!lastFetch) return true;
-      return Date.now() - lastFetch > ttl;
-    },
-    
-    markFetched: (key: string) => {
-      set((state) => ({
-        lastFetch: {
-          ...state.lastFetch,
-          [key]: Date.now()
-        }
-      }));
-    },
-    
-    invalidateCache: (key: string) => {
-      set((state) => ({
-        lastFetch: {
-          ...state.lastFetch,
-          [key]: 0 // Force refetch by setting to 0
-        }
-      }));
-    },
   }))
 );
 
