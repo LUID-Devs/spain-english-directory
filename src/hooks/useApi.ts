@@ -898,7 +898,7 @@ export const useUnarchiveProjectMutation = () => {
 
 // Hook for users with stats
 export const useGetUsersWithStatsQuery = (params: any = undefined, options: { skip?: boolean } = {}) => {
-  const [usersWithStats, setUsersWithStats] = useState<any>(null);
+  const [usersWithStats, setUsersWithStats] = useState<UserWithStats[] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const hasFetchedRef = useRef(false);
@@ -920,6 +920,23 @@ export const useGetUsersWithStatsQuery = (params: any = undefined, options: { sk
     }
   }, []);
 
+  // Listen for user role update events to update local state
+  useEffect(() => {
+    const handleUserRoleUpdate = (event: CustomEvent) => {
+      const { userId, newRole, optimistic, rollback } = event.detail;
+      
+      if (usersWithStats) {
+        const updatedUsers = usersWithStats.map(user => 
+          user.userId === userId ? { ...user, role: newRole } : user
+        );
+        setUsersWithStats(updatedUsers);
+      }
+    };
+
+    window.addEventListener('userRoleUpdated', handleUserRoleUpdate as EventListener);
+    return () => window.removeEventListener('userRoleUpdated', handleUserRoleUpdate as EventListener);
+  }, [usersWithStats]);
+
   useEffect(() => {
     // Update refs
     skipRef.current = options.skip;
@@ -937,24 +954,101 @@ export const useGetUsersWithStatsQuery = (params: any = undefined, options: { sk
     isError: !!error,
     error: error ? new Error(error) : null,
     refetch: fetchUsersWithStats,
+    updateUser: setUsersWithStats, // Expose update function for optimistic updates
   };
 };
 
 // More mutation hooks
 export const useInviteUserMutation = () => {
-  const inviteUser = useCallback(({ email, teamId, role }: { email: string; teamId: number; role: string }) => {
-    return createMutationResult(apiService.inviteUser(email, teamId, role));
+  const inviteUser = useCallback(async ({ email, teamId, role }: { email: string; teamId: number; role: string }) => {
+    const loadingToast = toast.loading('Sending invitation...');
+    
+    try {
+      const result = await apiService.inviteUser(email, teamId, role);
+      toast.success('Invitation sent successfully!', { id: loadingToast });
+      return result;
+    } catch (error: any) {
+      toast.error('Failed to send invitation', { id: loadingToast });
+      throw error;
+    }
   }, []);
 
-  return [inviteUser, { isLoading: false }];
+  // Return the function that returns a mutation object with unwrap method
+  const mutationWrapper = useCallback((args: { email: string; teamId: number; role: string }) => ({
+    unwrap: () => inviteUser(args)
+  }), [inviteUser]);
+
+  return [mutationWrapper, { isLoading: false }];
 };
 
 export const useUpdateUserRoleMutation = () => {
-  const updateUserRole = useCallback((data: { userId: number; role: string }) => {
-    return createMutationResult(apiService.updateUserRole(data.userId, data.role));
-  }, []);
+  const [usersWithStats, setUsersWithStats] = useState<UserWithStats[] | null>(null);
+  
+  // Get users from the users with stats query state if available
+  const { data: currentUsersData } = useGetUsersWithStatsQuery({}, { skip: true });
+  
+  const updateUserRole = useCallback(async (data: { userId: number; role: string }) => {
+    const loadingToast = toast.loading('Updating user role...');
+    
+    // Store original user data for rollback - use either local state or current data
+    const userData = usersWithStats || currentUsersData;
+    const originalUser = userData?.find(user => user.userId === data.userId);
+    
+    // Optimistic update - immediately update the user role in local state
+    if (userData) {
+      const optimisticUsers = userData.map(user => 
+        user.userId === data.userId ? { ...user, role: data.role } : user
+      );
+      
+      // Update local state if we have it
+      if (usersWithStats) {
+        setUsersWithStats(optimisticUsers);
+      }
+      
+      // Dispatch custom event to notify components of the optimistic update
+      window.dispatchEvent(new CustomEvent('userRoleUpdated', { 
+        detail: { userId: data.userId, newRole: data.role, optimistic: true } 
+      }));
+    }
+    
+    try {
+      const result = await apiService.updateUserRole(data.userId, data.role);
+      
+      // Dispatch success event for final UI update
+      window.dispatchEvent(new CustomEvent('userRoleUpdated', { 
+        detail: { userId: data.userId, newRole: data.role, optimistic: false, user: result.user } 
+      }));
+      
+      toast.success('User role updated successfully!', { id: loadingToast });
+      return result;
+    } catch (error: any) {
+      // Rollback optimistic update on error
+      if (userData && originalUser) {
+        const revertedUsers = userData.map(user => 
+          user.userId === data.userId ? originalUser : user
+        );
+        
+        if (usersWithStats) {
+          setUsersWithStats(revertedUsers);
+        }
+        
+        // Dispatch rollback event
+        window.dispatchEvent(new CustomEvent('userRoleUpdated', { 
+          detail: { userId: data.userId, newRole: originalUser.role, optimistic: false, rollback: true } 
+        }));
+      }
+      
+      toast.error('Failed to update user role', { id: loadingToast });
+      throw error;
+    }
+  }, [usersWithStats, currentUsersData]);
 
-  return [updateUserRole, { isLoading: false }];
+  // Return the function that returns a mutation object with unwrap method
+  const mutationWrapper = useCallback((args: { userId: number; role: string }) => ({
+    unwrap: () => updateUserRole(args)
+  }), [updateUserRole]);
+
+  return [mutationWrapper, { isLoading: false }];
 };
 
 // Search hooks
@@ -1179,5 +1273,5 @@ export const useDeleteCommentMutation = () => {
 
 // Export types and enums
 export { Status, Priority } from '@/services/apiService';
-export type { Task, Project, User, Comment, Attachment };
+export type { Task, Project, User, Comment, Attachment, UserWithStats } from '@/services/apiService';
 
