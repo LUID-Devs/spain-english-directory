@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useAuth } from "@/app/authProvider";
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
@@ -16,6 +17,7 @@ const LoginPage = () => {
   } | null>(null);
   const [mfaCode, setMfaCode] = useState("");
   const navigate = useNavigate();
+  const { refreshAuth } = useAuth();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -51,7 +53,8 @@ const LoginPage = () => {
         // Handle MFA challenge
         setChallenge(data);
       } else if (data.success) {
-        // Successful login
+        // Successful login - refresh auth state and navigate
+        await refreshAuth();
         navigate("/dashboard");
       }
     } catch (error: unknown) {
@@ -91,6 +94,8 @@ const LoginPage = () => {
       }
 
       if (data.success) {
+        // Successful MFA - refresh auth state and navigate
+        await refreshAuth();
         navigate("/dashboard");
       }
     } catch (error: unknown) {

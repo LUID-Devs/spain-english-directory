@@ -62,7 +62,7 @@ const DashboardPage = () => {
     );
   }
 
-  if (tasksError || !tasks || !projects) {
+  if (tasksError) {
     return (
       <div className="container h-full w-[100%] bg-gray-100 bg-transparent p-8">
         <Header name="Project Management Dashboard" />
@@ -81,7 +81,7 @@ const DashboardPage = () => {
     );
   }
 
-  const priorityCount = tasks.reduce(
+  const priorityCount = (tasks || []).reduce(
     (acc: Record<string, number>, task: Task) => {
       const { priority } = task;
       acc[priority as Priority] = (acc[priority as Priority] || 0) + 1;
@@ -95,7 +95,7 @@ const DashboardPage = () => {
     count: priorityCount[key],
   }));
 
-  const statusCount = projects.reduce(
+  const statusCount = (projects || []).reduce(
     (acc: Record<string, number>, project: Project) => {
       const status = project.endDate ? "Completed" : "Active";
       acc[status] = (acc[status] || 0) + 1;
@@ -181,7 +181,7 @@ const DashboardPage = () => {
           </h3>
           <div style={{ height: 400, width: "100%" }}>
             <DataGrid
-              rows={tasks}
+              rows={tasks || []}
               columns={taskColumns}
               checkboxSelection
               loading={tasksLoading}

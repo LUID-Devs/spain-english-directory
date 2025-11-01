@@ -125,7 +125,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, viewMode = "grid" })
     return (
       <>
         <div className="relative">
-          <Link href={`/dashboard/projects/${project.id}`}>
+          <Link to={`/dashboard/projects/${project.id}`}>
             <div className={`bg-white dark:bg-dark-secondary rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-shadow cursor-pointer ${
               project.archived ? 'opacity-75 bg-gray-50 dark:bg-gray-800' : ''
             }`}>
@@ -275,7 +275,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, viewMode = "grid" })
   return (
     <>
       <div className="relative">
-        <Link href={`/dashboard/projects/${project.id}`}>
+        <Link to={`/dashboard/projects/${project.id}`}>
           <div className={`bg-white dark:bg-dark-secondary rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow cursor-pointer ${
             project.archived ? 'opacity-75 bg-gray-50 dark:bg-gray-800' : ''
           }`}>

@@ -162,16 +162,24 @@ class ApiService {
       const response = await fetch(url, config);
       
       if (!response.ok) {
-        // In development mode, return mock data for certain endpoints when auth fails
-        if (import.meta.env.DEV && response.status === 401) {
-          return this.getMockData<T>(endpoint);
+        // Handle authentication failures
+        if (response.status === 401) {
+          // Clear any stored auth state and redirect to login
+          console.log('Authentication failed, redirecting to login...');
+          window.location.href = '/auth/login';
+          throw new Error('Authentication required');
         }
         throw new Error(`API Error: ${response.status} ${response.statusText}`);
       }
 
       return response.json();
     } catch (error) {
-      // In development mode, return mock data when API calls fail
+      // Re-throw authentication errors to trigger redirect
+      if (error instanceof Error && error.message === 'Authentication required') {
+        throw error;
+      }
+      
+      // In development mode, return mock data for non-auth failures
       if (import.meta.env.DEV) {
         console.warn('API call failed, returning mock data for development:', endpoint);
         return this.getMockData<T>(endpoint);

@@ -14,6 +14,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: () => void;
   logout: () => void;
+  refreshAuth: () => Promise<void>;
 }
 
 const AuthContext = React.createContext<AuthContextType | null>(null);
@@ -53,42 +54,14 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(data.user);
         console.log('[AUTH] User authenticated:', data.user?.username || 'Unknown');
       } else {
-        // In development mode, provide a test user to allow testing
-        if (import.meta.env.DEV) {
-          const testUser = {
-            userId: 1,
-            sub: "test-user-sub",
-            email: "test@example.com",
-            username: "testuser",
-            role: "user",
-            preferred_username: "testuser"
-          };
-          setUser(testUser);
-          console.log('[AUTH] Using test user for development:', testUser.username);
-        } else {
-          setUser(null);
-          console.log('[AUTH] User not authenticated');
-        }
+        setUser(null);
+        console.log('[AUTH] User not authenticated');
       }
     } catch (error) {
       const authEnd = Date.now();
       console.error('[AUTH] Auth check failed after:', authEnd - authStart, 'ms', error);
       
-      // In development mode, provide a test user even if API fails
-      if (import.meta.env.DEV) {
-        const testUser = {
-          userId: 1,
-          sub: "test-user-sub",
-          email: "test@example.com",
-          username: "testuser",
-          role: "user",
-          preferred_username: "testuser"
-        };
-        setUser(testUser);
-        console.log('[AUTH] Using test user due to API failure in development:', testUser.username);
-      } else {
-        setUser(null);
-      }
+      setUser(null);
     } finally {
       setIsLoading(false);
       console.log('[AUTH] Auth loading complete at:', Date.now());
@@ -125,7 +98,8 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     isAuthenticated: !!user,
     isLoading,
     login,
-    logout
+    logout,
+    refreshAuth: checkAuthStatus
   };
 
   // Always render children - let individual pages handle auth requirements
