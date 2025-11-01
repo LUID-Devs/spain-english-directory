@@ -1,12 +1,10 @@
 import React, { useState, useMemo } from "react";
 import { useGetTeamsQuery, useGetUsersWithStatsQuery, useGetProjectsQuery } from "@/hooks/useApi";
-import { useGlobalStore } from "@/stores/globalStore";
 import Header from "@/components/Header";
 import {
   Users,
   Search,
   Plus,
-  Filter,
   MoreVertical,
   Mail,
   Settings,
@@ -14,10 +12,6 @@ import {
   Crown,
   Shield,
   Briefcase,
-  TrendingUp,
-  Calendar,
-  Star,
-  ChevronRight,
   Activity,
   Award,
   Target
@@ -34,7 +28,7 @@ interface TeamCardProps {
   projects: any[];
 }
 
-const TeamCard: React.FC<TeamCardProps> = ({ team, users, projects }) => {
+const TeamCard: React.FC<TeamCardProps> = ({ team, users = [], projects = [] }) => {
   const [showDropdown, setShowDropdown] = useState(false);
   
   // Find team members
@@ -42,29 +36,21 @@ const TeamCard: React.FC<TeamCardProps> = ({ team, users, projects }) => {
   const productOwner = users.find(user => user.userId === team.productOwnerUserId);
   const projectManager = users.find(user => user.userId === team.projectManagerUserId);
   
-  // Find projects assigned to this team
-  const teamProjects = projects.filter(project => 
-    project.teamMembers?.some((member: any) => 
-      teamMembers.some(teamMember => teamMember.userId === member.userId)
-    )
-  );
-  
   // Calculate team stats
-  const stats = useMemo(() => {
-    const totalTasks = teamMembers.reduce((sum, member) => 
-      sum + (member.taskStats?.authored || 0) + (member.taskStats?.assigned || 0), 0);
-    const completedTasks = teamMembers.reduce((sum, member) => 
-      sum + (member.taskStats?.completed || 0), 0);
-    const completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
-    
-    return {
-      memberCount: teamMembers.length,
-      projectCount: teamProjects.length,
-      totalTasks,
-      completedTasks,
-      completionRate
-    };
-  }, [teamMembers, teamProjects]);
+  const stats = {
+    memberCount: teamMembers.length,
+    projectCount: projects.filter(project => 
+      project.teamMembers?.some((member: any) => 
+        teamMembers.some(teamMember => teamMember.userId === member.userId)
+      )
+    ).length,
+    totalTasks: teamMembers.reduce((sum, member) => 
+      sum + (member.taskStats?.authored || 0) + (member.taskStats?.assigned || 0), 0),
+    completedTasks: teamMembers.reduce((sum, member) => 
+      sum + (member.taskStats?.completed || 0), 0)
+  };
+  
+  const completionRate = stats.totalTasks > 0 ? Math.round((stats.completedTasks / stats.totalTasks) * 100) : 0;
 
   return (
     <div className="bg-white dark:bg-dark-secondary rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow">
@@ -133,7 +119,7 @@ const TeamCard: React.FC<TeamCardProps> = ({ team, users, projects }) => {
         </div>
         <div className="text-center">
           <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
-            {stats.completionRate}%
+            {completionRate}%
           </div>
           <div className="text-xs text-gray-500 dark:text-gray-400">Complete</div>
         </div>
@@ -191,33 +177,6 @@ const TeamCard: React.FC<TeamCardProps> = ({ team, users, projects }) => {
         </div>
       )}
 
-      {/* Active Projects */}
-      {teamProjects.length > 0 && (
-        <div className="mb-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              Active Projects
-            </span>
-            <ChevronRight className="h-4 w-4 text-gray-400" />
-          </div>
-          <div className="space-y-1">
-            {teamProjects.slice(0, 3).map(project => (
-              <div key={project.id} className="flex items-center space-x-2 text-sm">
-                <Briefcase className="h-3 w-3 text-gray-400" />
-                <span className="text-gray-600 dark:text-gray-400 truncate">
-                  {project.name}
-                </span>
-              </div>
-            ))}
-            {teamProjects.length > 3 && (
-              <div className="text-xs text-gray-500 dark:text-gray-400">
-                +{teamProjects.length - 3} more projects
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
       {/* Performance Indicator */}
       <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
         <div className="flex items-center justify-between">
@@ -226,20 +185,20 @@ const TeamCard: React.FC<TeamCardProps> = ({ team, users, projects }) => {
             <span className="text-sm text-gray-600 dark:text-gray-400">Performance</span>
           </div>
           <div className="flex items-center space-x-1">
-            {stats.completionRate >= 80 ? (
+            {completionRate >= 80 ? (
               <Award className="h-4 w-4 text-green-500" />
-            ) : stats.completionRate >= 60 ? (
+            ) : completionRate >= 60 ? (
               <Target className="h-4 w-4 text-yellow-500" />
             ) : (
-              <TrendingUp className="h-4 w-4 text-red-500" />
+              <Activity className="h-4 w-4 text-red-500" />
             )}
             <span className={`text-sm font-medium ${
-              stats.completionRate >= 80 ? 'text-green-600 dark:text-green-400' :
-              stats.completionRate >= 60 ? 'text-yellow-600 dark:text-yellow-400' :
+              completionRate >= 80 ? 'text-green-600 dark:text-green-400' :
+              completionRate >= 60 ? 'text-yellow-600 dark:text-yellow-400' :
               'text-red-600 dark:text-red-400'
             }`}>
-              {stats.completionRate >= 80 ? 'Excellent' :
-               stats.completionRate >= 60 ? 'Good' : 'Needs Focus'}
+              {completionRate >= 80 ? 'Excellent' :
+               completionRate >= 60 ? 'Good' : 'Needs Focus'}
             </span>
           </div>
         </div>
@@ -250,29 +209,37 @@ const TeamCard: React.FC<TeamCardProps> = ({ team, users, projects }) => {
 
 const TeamsPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterBy, setFilterBy] = useState<"all" | "active" | "high-performance">("all");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
+  // Get data with error handling
   const { data: teams, isLoading: teamsLoading, isError: teamsError } = useGetTeamsQuery();
-  const { data: users, isLoading: usersLoading } = useGetUsersWithStatsQuery();
-  const { data: projects, isLoading: projectsLoading } = useGetProjectsQuery();
+  const { data: users = [], isLoading: usersLoading } = useGetUsersWithStatsQuery();
+  const { data: projects = [], isLoading: projectsLoading } = useGetProjectsQuery();
 
   const filteredTeams = useMemo(() => {
     if (!teams) return [];
     
     return teams.filter(team => {
-      const matchesSearch = team.teamName.toLowerCase().includes(searchQuery.toLowerCase());
-      
-      if (!matchesSearch) return false;
-      
-      if (filterBy === "all") return true;
-      
-      // Add more filtering logic here
-      return true;
+      return team.teamName.toLowerCase().includes(searchQuery.toLowerCase());
     });
-  }, [teams, searchQuery, filterBy]);
+  }, [teams, searchQuery]);
 
   const isLoading = teamsLoading || usersLoading || projectsLoading;
+
+  // Calculate overall stats
+  const overallStats = useMemo(() => {
+    const totalMembers = users?.length || 0;
+    const totalProjects = projects?.length || 0;
+    const activeTeams = teams?.length || 0;
+    const averageTeamSize = totalMembers > 0 && activeTeams > 0 ? Math.round(totalMembers / activeTeams) : 0;
+    
+    return {
+      totalMembers,
+      totalProjects,
+      activeTeams,
+      averageTeamSize
+    };
+  }, [teams, users, projects]);
 
   if (isLoading) {
     return (
@@ -306,21 +273,6 @@ const TeamsPage = () => {
       </div>
     );
   }
-
-  // Calculate overall stats
-  const overallStats = useMemo(() => {
-    const totalMembers = (users || []).length;
-    const totalProjects = (projects || []).length;
-    const activeTeams = teams.length;
-    const averageTeamSize = totalMembers > 0 ? Math.round(totalMembers / activeTeams) : 0;
-    
-    return {
-      totalMembers,
-      totalProjects,
-      activeTeams,
-      averageTeamSize
-    };
-  }, [teams, users, projects]);
 
   return (
     <div className="flex w-full flex-col p-8">
@@ -386,17 +338,6 @@ const TeamsPage = () => {
                 className="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
               />
             </div>
-            
-            {/* Filter */}
-            <select
-              value={filterBy}
-              onChange={(e) => setFilterBy(e.target.value as any)}
-              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-            >
-              <option value="all">All Teams</option>
-              <option value="active">Active Teams</option>
-              <option value="high-performance">High Performance</option>
-            </select>
           </div>
           
           <div className="flex gap-2 items-center">

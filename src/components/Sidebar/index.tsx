@@ -116,29 +116,6 @@ const Sidebar = () => {
           </nav>
         </div>
 
-        {/* PINNED SECTION */}
-        {favoriteProjects.length > 0 && (
-          <div className="px-6 py-3">
-            <div className="flex items-center justify-between mb-3">
-              <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                PINNED
-              </h4>
-              <span className="text-xs text-gray-400">{favoriteProjects.length}</span>
-            </div>
-            <nav className="space-y-1">
-              {favoriteProjects.map((project) => (
-                <SidebarLink
-                  key={`pinned-${project.id}`}
-                  href={`/dashboard/projects/${project.id}`}
-                  icon={Star}
-                  label={project.name}
-                  isCompact
-                />
-              ))}
-            </nav>
-          </div>
-        )}
-
         {/* TEAMS SECTION */}
         <div className="px-6 py-3">
           <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
