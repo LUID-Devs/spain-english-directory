@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'sonner';
 import { useGlobalStore } from '@/stores/globalStore';
 import AuthProvider from '@/app/authProvider';
 import DashboardWrapper from '@/app/dashboardWrapper';
@@ -80,6 +81,21 @@ function App() {
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
+      
+      {/* Toast Notifications */}
+      <Toaster 
+        position="top-right"
+        toastOptions={{
+          style: {
+            background: isDarkMode ? '#374151' : '#ffffff',
+            color: isDarkMode ? '#f9fafb' : '#111827',
+            border: `1px solid ${isDarkMode ? '#4b5563' : '#e5e7eb'}`,
+          },
+        }}
+        theme={isDarkMode ? 'dark' : 'light'}
+        richColors
+        closeButton
+      />
     </AuthProvider>
   );
 }

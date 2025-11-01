@@ -1,4 +1,5 @@
 import { useEffect, useCallback, useState, useRef } from 'react';
+import { toast } from 'sonner';
 import { useApiStore } from '@/stores/apiStore';
 import { useUserStore } from '@/stores/userStore';
 import { useRequestManager } from '@/stores/requestManager';
@@ -56,16 +57,13 @@ export const useGetAuthUserQuery = (userIdentifier: string, options: { skip?: bo
 // Hook to replace useGetProjectsQuery
 export const useGetProjectsQuery = (filters: any = {}, options: { skip?: boolean } = {}) => {
   const { projects, setProjects, setLoading, setError } = useApiStore();
-  const hasFetchedRef = useRef(false);
-  const filtersRef = useRef(filters);
-  const skipRef = useRef(options.skip);
   
-  const fetchProjects = useCallback(async () => {
-    if (skipRef.current) return;
+  const fetchProjects = useCallback(async (filtersToUse = filters) => {
+    if (options.skip) return;
     
     try {
       setLoading('projects', true);
-      const projectsData = await apiService.getProjects(filtersRef.current);
+      const projectsData = await apiService.getProjects(filtersToUse);
       setProjects(projectsData);
       return projectsData;
     } catch (error) {
@@ -75,26 +73,33 @@ export const useGetProjectsQuery = (filters: any = {}, options: { skip?: boolean
     } finally {
       setLoading('projects', false);
     }
-  }, [setProjects, setLoading, setError]);
+  }, [options.skip, setProjects, setLoading, setError]);
 
+  // Fetch when filters change
   useEffect(() => {
-    // Update refs
-    filtersRef.current = filters;
-    skipRef.current = options.skip;
-    
-    // Only fetch once on mount unless options change
-    if (!hasFetchedRef.current && !options.skip) {
-      hasFetchedRef.current = true;
-      fetchProjects();
+    if (!options.skip) {
+      fetchProjects(filters);
     }
-  }, [filters, options.skip, fetchProjects]);
+  }, [JSON.stringify(filters), options.skip]);
+
+  // Listen for project deletion events to force refetch
+  useEffect(() => {
+    const handleProjectDeleted = () => {
+      if (!options.skip) {
+        fetchProjects(filters);
+      }
+    };
+
+    window.addEventListener('projectDeleted', handleProjectDeleted);
+    return () => window.removeEventListener('projectDeleted', handleProjectDeleted);
+  }, [filters, options.skip]);
 
   return {
     data: projects.data,
     isLoading: projects.isLoading,
     isError: !!projects.error,
     error: projects.error ? new Error(projects.error) : null,
-    refetch: fetchProjects,
+    refetch: () => fetchProjects(filters),
   };
 };
 
@@ -268,6 +273,8 @@ export const useCreateProjectMutation = () => {
   const { projects, setProjects } = useApiStore();
   
   const createProject = useCallback(async (projectData: any) => {
+    const loadingToast = toast.loading('Creating project...');
+    
     try {
       const newProject = await apiService.createProject(projectData);
       
@@ -276,9 +283,10 @@ export const useCreateProjectMutation = () => {
         setProjects([...projects.data, newProject]);
       }
       
+      toast.success('Project created successfully!', { id: loadingToast });
       return newProject;
     } catch (error) {
-      // No rollback needed since we didn't do optimistic update on error
+      toast.error('Failed to create project', { id: loadingToast });
       throw error;
     }
   }, [projects.data, setProjects]);
@@ -344,6 +352,7 @@ export const useUpdateProjectMutation = () => {
   
   const updateProject = useCallback(async ({ id, project }: { id: string | number; project: any }) => {
     const projectId = String(id);
+    const loadingToast = toast.loading('Updating project...');
     
     console.log('🚀 Updating project:', projectId, 'with data:', project);
     console.log('📋 Current projects in store:', projects.data?.length || 0);
@@ -396,6 +405,7 @@ export const useUpdateProjectMutation = () => {
         }
       }, 200);
       
+      toast.success('Project updated successfully!', { id: loadingToast });
       return result;
     } catch (error: any) {
       console.error('❌ Server update failed:', error);
@@ -407,6 +417,7 @@ export const useUpdateProjectMutation = () => {
         console.log('↩️ Reverting optimistic update');
         setProjects(revertedProjects);
       }
+      toast.error('Failed to update project', { id: loadingToast });
       throw error;
     }
   }, [projects.data, setProjects, currentUser?.userId]);
@@ -606,13 +617,15 @@ export const useCreateCommentMutation = () => {
 };
 
 export const useDeleteProjectMutation = () => {
-  const { projects, setProjects } = useApiStore();
+  const { projects, setProjects, clearData } = useApiStore();
   
   const deleteProject = useCallback(async (projectId: string) => {
+    const loadingToast = toast.loading('Deleting project...');
+    
     // Store original projects for rollback
     const originalProjects = projects.data;
     
-    // Optimistically remove project from UI
+    // Optimistically remove project from UI - this ensures immediate feedback
     if (projects.data) {
       const updatedProjects = projects.data.filter(project => project.id !== projectId);
       setProjects(updatedProjects);
@@ -620,15 +633,26 @@ export const useDeleteProjectMutation = () => {
     
     try {
       const result = await apiService.deleteProject(projectId);
+      
+      // Clear project data to ensure fresh fetch from server
+      // This will force all useGetProjectsQuery hooks to refetch with their current filters
+      clearData('projects');
+      
+      // Force a complete page refresh of projects data by triggering window event
+      // This ensures all views (including archived) get fresh data
+      window.dispatchEvent(new CustomEvent('projectDeleted', { detail: { projectId } }));
+      
+      toast.success('Project deleted successfully!', { id: loadingToast });
       return result;
     } catch (error) {
       // Rollback on error
       if (originalProjects) {
         setProjects(originalProjects);
       }
+      toast.error('Failed to delete project', { id: loadingToast });
       throw error;
     }
-  }, [projects.data, setProjects]);
+  }, [projects.data, setProjects, clearData]);
 
   // Return the function that returns a mutation object with unwrap method
   const mutationWrapper = useCallback((projectId: string) => ({
@@ -667,11 +691,13 @@ export const useFavoriteProjectMutation = () => {
           console.error('Failed to refresh project favorite status:', error);
         }
       }, 1000);
+      toast.success('Project favorited!');
       return result;
     } catch (error: any) {
       // Handle "already favorited" error - this means optimistic update was correct
       if (error?.message === 'Project already favorited') {
         // Keep the optimistic update
+        toast.success('Project favorited!');
         return { message: 'Already favorited, state synced' };
       }
       
@@ -682,6 +708,7 @@ export const useFavoriteProjectMutation = () => {
         );
         setProjects(revertedProjects);
       }
+      toast.error('Failed to favorite project');
       throw error;
     }
   }, [projects.data, setProjects, currentUser?.userId]);
@@ -723,11 +750,13 @@ export const useUnfavoriteProjectMutation = () => {
           console.error('Failed to refresh project favorite status:', error);
         }
       }, 1000);
+      toast.success('Project removed from favorites!');
       return result;
     } catch (error: any) {
       // Handle "favorite not found" error - this means optimistic update was correct
       if (error?.message === 'Favorite not found') {
         // Keep the optimistic update
+        toast.success('Project removed from favorites!');
         return { message: 'Not favorited, state synced' };
       }
       
@@ -738,6 +767,7 @@ export const useUnfavoriteProjectMutation = () => {
         );
         setProjects(revertedProjects);
       }
+      toast.error('Failed to remove from favorites');
       throw error;
     }
   }, [projects.data, setProjects, currentUser?.userId]);
@@ -754,6 +784,8 @@ export const useArchiveProjectMutation = () => {
   const { projects, setProjects } = useApiStore();
   
   const archiveProject = useCallback(async (projectId: string) => {
+    const loadingToast = toast.loading('Archiving project...');
+    
     // Store original project for rollback
     const originalProject = projects.data?.find(project => project.id === projectId);
     
@@ -783,6 +815,7 @@ export const useArchiveProjectMutation = () => {
         }
       }, 500);
       
+      toast.success('Project archived successfully!', { id: loadingToast });
       return result;
     } catch (error) {
       // Rollback on error
@@ -792,6 +825,7 @@ export const useArchiveProjectMutation = () => {
         );
         setProjects(revertedProjects);
       }
+      toast.error('Failed to archive project', { id: loadingToast });
       throw error;
     }
   }, [projects.data, setProjects]);
@@ -808,6 +842,8 @@ export const useUnarchiveProjectMutation = () => {
   const { projects, setProjects } = useApiStore();
   
   const unarchiveProject = useCallback(async (projectId: string) => {
+    const loadingToast = toast.loading('Unarchiving project...');
+    
     // Store original project for rollback
     const originalProject = projects.data?.find(project => project.id === projectId);
     
@@ -837,6 +873,7 @@ export const useUnarchiveProjectMutation = () => {
         }
       }, 500);
       
+      toast.success('Project unarchived successfully!', { id: loadingToast });
       return result;
     } catch (error) {
       // Rollback on error
@@ -846,6 +883,7 @@ export const useUnarchiveProjectMutation = () => {
         );
         setProjects(revertedProjects);
       }
+      toast.error('Failed to unarchive project', { id: loadingToast });
       throw error;
     }
   }, [projects.data, setProjects]);
