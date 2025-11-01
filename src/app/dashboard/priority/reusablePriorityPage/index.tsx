@@ -78,13 +78,27 @@ const ReusablePriorityPage = ({ priority }: Props) => {
   const { currentUser, isLoading: userLoading } = useCurrentUser();
   
   // Improved user ID resolution with better debugging
-  const userId = auth.user?.sub ? parseInt(auth.user.sub) : currentUser?.userId ?? null;
+  let userId: number | null = null;
+  
+  // Try to get userId from auth.user.userId first (database ID), then sub, then currentUser
+  if (auth.user?.userId && typeof auth.user.userId === 'number') {
+    userId = auth.user.userId;
+  } else if (auth.user?.sub) {
+    const parsedFromSub = parseInt(auth.user.sub);
+    if (!isNaN(parsedFromSub)) {
+      userId = parsedFromSub;
+    }
+  } else if (currentUser?.userId) {
+    userId = currentUser.userId;
+  }
   
   console.log('Priority Page Debug:', {
     priority,
     authUser: auth.user,
+    authUserSub: auth.user?.sub,
+    authUserUserId: auth.user?.userId,
     currentUser,
-    userId,
+    resolvedUserId: userId,
     userLoading,
     isAuthenticated: auth.isAuthenticated
   });
@@ -94,7 +108,7 @@ const ReusablePriorityPage = ({ priority }: Props) => {
     isLoading,
     isError: isTasksError,
     error: tasksError,
-  } = useGetTasksByUserQuery(userId || 0, { skip: userId === null || !auth.isAuthenticated });
+  } = useGetTasksByUserQuery(userId, { skip: userId === null || !auth.isAuthenticated });
 
   const isDarkMode = useGlobalStore((state) => state.isDarkMode);
   const filteredTasks = tasks?.filter(

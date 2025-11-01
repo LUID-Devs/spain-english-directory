@@ -91,18 +91,29 @@ export const useGetProjectsQuery = (filters: any = {}, options: { skip?: boolean
 };
 
 // Hook to replace useGetTasksByUserQuery
-export const useGetTasksByUserQuery = (userId: number, options: { skip?: boolean } = {}) => {
+export const useGetTasksByUserQuery = (userId: number | null, options: { skip?: boolean } = {}) => {
   const { tasks, setTasks, setLoading, setError } = useApiStore();
   const { getOrCreateRequest } = useRequestManager();
   
-  const cacheKey = `tasks_user_${userId}`;
+  const cacheKey = `tasks_user_${userId || 'none'}`;
   
   const fetchTasks = useCallback(async () => {
-    if (options.skip || !userId) return;
+    if (options.skip || userId === null || userId === undefined) {
+      console.log('Skipping task fetch:', { skip: options.skip, userId });
+      return;
+    }
+    
+    // Validate userId is a valid number
+    if (isNaN(userId) || userId <= 0) {
+      console.error('Invalid userId for task fetch:', userId);
+      setError('tasks', 'Invalid user ID');
+      return;
+    }
     
     return getOrCreateRequest(cacheKey, async () => {
       try {
         setLoading('tasks', true);
+        console.log('Fetching tasks for userId:', userId);
         const tasksData = await apiService.getTasksByUser(userId);
         setTasks(tasksData);
         return tasksData;

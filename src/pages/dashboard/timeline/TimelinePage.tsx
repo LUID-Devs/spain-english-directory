@@ -18,14 +18,29 @@ const TimelinePage = () => {
   const [filterType, setFilterType] = useState<ActivityType | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   
-  // Extract user ID from auth user data
-  const userId = user?.sub ? parseInt(user.sub) : null;
+  // Improved user ID resolution - use database userId first, then fallback to sub
+  let userId: number | null = null;
+  if (user?.userId && typeof user.userId === 'number') {
+    userId = user.userId;
+  } else if (user?.sub) {
+    const parsedFromSub = parseInt(user.sub);
+    if (!isNaN(parsedFromSub)) {
+      userId = parsedFromSub;
+    }
+  }
+  
+  console.log('Timeline Page Debug:', {
+    user,
+    userId,
+    isAuthenticated,
+    authLoading
+  });
   
   const {
     data: tasks,
     isLoading: tasksLoading,
     isError: tasksError,
-  } = useGetTasksByUserQuery(userId || 0, { skip: !userId || !isAuthenticated });
+  } = useGetTasksByUserQuery(userId, { skip: userId === null || !isAuthenticated });
   
   const {
     data: projects,
@@ -33,8 +48,10 @@ const TimelinePage = () => {
     isError: projectsError
   } = useGetProjectsQuery();
 
-  // Generate timeline activities from available data
+  // Generate timeline activities from available data - MOVED BEFORE EARLY RETURNS
   const timelineActivities = useMemo((): TimelineActivity[] => {
+    if (!tasks && !projects) return [];
+    
     const activities: TimelineActivity[] = [];
     
     // Add task-related activities
@@ -158,6 +175,42 @@ const TimelinePage = () => {
       .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
   }, [tasks, projects, user, filterType, searchQuery]);
 
+  // Group activities by date - MOVED BEFORE EARLY RETURNS
+  const groupedActivities = useMemo(() => {
+    const groups: { [key: string]: TimelineActivity[] } = {};
+    
+    timelineActivities.forEach(activity => {
+      let dateKey: string;
+      
+      if (isToday(activity.timestamp)) {
+        dateKey = 'Today';
+      } else if (isYesterday(activity.timestamp)) {
+        dateKey = 'Yesterday';
+      } else if (isThisWeek(activity.timestamp)) {
+        dateKey = 'This Week';
+      } else {
+        dateKey = format(activity.timestamp, 'MMMM d, yyyy');
+      }
+      
+      if (!groups[dateKey]) {
+        groups[dateKey] = [];
+      }
+      groups[dateKey].push(activity);
+    });
+    
+    return groups;
+  }, [timelineActivities]);
+
+  // Quick stats - MOVED BEFORE EARLY RETURNS
+  const stats = useMemo(() => {
+    const today = timelineActivities.filter(a => isToday(a.timestamp)).length;
+    const thisWeek = timelineActivities.filter(a => isThisWeek(a.timestamp)).length;
+    const taskActivities = timelineActivities.filter(a => a.type.includes('task')).length;
+    const projectActivities = timelineActivities.filter(a => a.type.includes('project')).length;
+    
+    return { today, thisWeek, taskActivities, projectActivities };
+  }, [timelineActivities]);
+
   // Show loading while authenticating or fetching data
   if (authLoading || tasksLoading || projectsLoading) {
     return (
@@ -195,41 +248,6 @@ const TimelinePage = () => {
     );
   }
 
-  // Group activities by date
-  const groupedActivities = useMemo(() => {
-    const groups: { [key: string]: TimelineActivity[] } = {};
-    
-    timelineActivities.forEach(activity => {
-      let dateKey: string;
-      
-      if (isToday(activity.timestamp)) {
-        dateKey = 'Today';
-      } else if (isYesterday(activity.timestamp)) {
-        dateKey = 'Yesterday';
-      } else if (isThisWeek(activity.timestamp)) {
-        dateKey = 'This Week';
-      } else {
-        dateKey = format(activity.timestamp, 'MMMM d, yyyy');
-      }
-      
-      if (!groups[dateKey]) {
-        groups[dateKey] = [];
-      }
-      groups[dateKey].push(activity);
-    });
-    
-    return groups;
-  }, [timelineActivities]);
-
-  // Quick stats
-  const stats = useMemo(() => {
-    const today = timelineActivities.filter(a => isToday(a.timestamp)).length;
-    const thisWeek = timelineActivities.filter(a => isThisWeek(a.timestamp)).length;
-    const taskActivities = timelineActivities.filter(a => a.type.includes('task')).length;
-    const projectActivities = timelineActivities.filter(a => a.type.includes('project')).length;
-    
-    return { today, thisWeek, taskActivities, projectActivities };
-  }, [timelineActivities]);
 
   return (
     <div className="container h-full w-[100%] bg-gray-100 bg-transparent p-8">

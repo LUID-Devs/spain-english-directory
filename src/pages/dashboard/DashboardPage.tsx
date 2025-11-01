@@ -94,14 +94,29 @@ const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 const DashboardPage = () => {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   
-  // Extract user ID from auth user data (which uses 'sub' field)
-  const userId = user?.sub ? parseInt(user.sub) : null;
+  // Improved user ID resolution - use database userId first, then fallback to sub
+  let userId: number | null = null;
+  if (user?.userId && typeof user.userId === 'number') {
+    userId = user.userId;
+  } else if (user?.sub) {
+    const parsedFromSub = parseInt(user.sub);
+    if (!isNaN(parsedFromSub)) {
+      userId = parsedFromSub;
+    }
+  }
+  
+  console.log('Dashboard Debug:', {
+    user,
+    userId,
+    isAuthenticated,
+    authLoading
+  });
   
   const {
     data: tasks,
     isLoading: tasksLoading,
     isError: tasksError,
-  } = useGetTasksByUserQuery(userId || 0, { skip: !userId || !isAuthenticated });
+  } = useGetTasksByUserQuery(userId, { skip: userId === null || !isAuthenticated });
   const { data: projects, isLoading: isProjectsLoading, isError: projectsError } =
     useGetProjectsQuery();
 
@@ -225,7 +240,7 @@ const DashboardPage = () => {
       <div className="mb-6">
         <div className="bg-white dark:bg-dark-secondary rounded-lg p-4 shadow">
           <h2 className="text-xl font-semibold dark:text-white mb-2">
-            Welcome back, {user?.preferred_username || user?.email || 'User'}!
+            Welcome back, {user?.preferred_username || user?.username || 'User'}!
           </h2>
           <p className="text-gray-600 dark:text-gray-400">
             Here's your project overview and recent activity.
