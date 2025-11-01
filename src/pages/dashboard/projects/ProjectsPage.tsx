@@ -19,12 +19,14 @@ const ProjectsPage = () => {
   
   const { currentUser } = useCurrentUser();
   
-  // Use both the query hook (for initial fetch) and direct store subscription (for real-time updates)
+  // Wait for user to be loaded before fetching projects (to ensure favorite status is correct)
   const { data: queryProjects, isLoading: queryLoading, isError, refetch } = useGetProjectsQuery({ 
     archived: showArchived, 
     favorites: showFavorites,
     userId: currentUser?.userId,
     status: statusFilter || undefined
+  }, { 
+    skip: !currentUser?.userId // Skip fetching until we have a user ID
   });
   
   // Subscribe directly to store for real-time updates
@@ -34,9 +36,11 @@ const ProjectsPage = () => {
   const projects = projectsStore.data || queryProjects;
   const isLoading = projectsStore.isLoading || queryLoading;
   
-  // Refetch when filters change
+  // Refetch when filters change or when user becomes available
   useEffect(() => {
-    refetch();
+    if (currentUser?.userId) {
+      refetch();
+    }
   }, [showArchived, showFavorites, statusFilter, currentUser?.userId, refetch]);
 
   const filteredProjects = projects?.filter(project =>
