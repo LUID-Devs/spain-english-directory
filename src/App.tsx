@@ -13,11 +13,11 @@ import RegisterPage from '@/pages/auth/RegisterPage';
 import DashboardPage from '@/pages/dashboard/DashboardPage';
 import ProjectsPage from '@/pages/dashboard/projects/ProjectsPage';
 import ProjectDetailPage from '@/pages/dashboard/projects/ProjectDetailPage';
+import TasksPage from '@/app/dashboard/tasks/page';
 import TaskDetailPage from '@/pages/dashboard/tasks/TaskDetailPage';
 import TeamsPage from '@/pages/dashboard/teams/TeamsPage';
 import UsersPage from '@/pages/dashboard/users/UsersPage';
 import SettingsPage from '@/pages/dashboard/settings/SettingsPage';
-import SearchPage from '@/pages/dashboard/search/SearchPage';
 import TimelinePage from '@/pages/dashboard/timeline/TimelinePage';
 
 // Priority Pages
@@ -60,11 +60,11 @@ function App() {
               <Route index element={<DashboardPage />} />
               <Route path="projects" element={<ProjectsPage />} />
               <Route path="projects/:id" element={<ProjectDetailPage />} />
+              <Route path="tasks" element={<TasksPage />} />
               <Route path="tasks/:id" element={<TaskDetailPage />} />
               <Route path="teams" element={<TeamsPage />} />
               <Route path="users" element={<UsersPage />} />
               <Route path="settings" element={<SettingsPage />} />
-              <Route path="search" element={<SearchPage />} />
               <Route path="timeline" element={<TimelinePage />} />
               
               {/* Priority Routes */}

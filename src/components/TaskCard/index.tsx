@@ -1,17 +1,17 @@
 import { Task } from "@/hooks/useApi";
 import { format, formatDistanceToNow, isAfter, isBefore } from "date-fns";
-import React, { useState } from "react";
+import React from "react";
 
-import TaskDetailModal from "@/components/TaskDetailModal";
 import { getPriorityTheme, getPriorityBadgeClasses, getPriorityCardClasses, getPriorityShadowClasses } from "@/lib/priorityThemes";
 import { Priority } from "@/services/apiService";
+import { useTaskModal } from "@/contexts/TaskModalContext";
 
 type Props = {
   task: Task;
 };
 
 const TaskCard = ({ task }: Props) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { openTaskModal } = useTaskModal();
   const theme = getPriorityTheme(task.priority as Priority);
   
   const getStatusBadgeClasses = (status: string) => {
@@ -49,7 +49,7 @@ const TaskCard = ({ task }: Props) => {
   return (
     <>
       <div 
-        onClick={() => setIsModalOpen(true)}
+        onClick={() => openTaskModal(task.id)}
         className={`group relative bg-white dark:bg-dark-secondary rounded-lg shadow-sm hover:shadow-lg transition-all duration-200 cursor-pointer border border-gray-200 dark:border-gray-700 ${getPriorityCardClasses(task.priority as Priority)} overflow-hidden hover:scale-[1.02] transform`}
       >
         {/* Priority accent bar */}
@@ -164,13 +164,6 @@ const TaskCard = ({ task }: Props) => {
           </div>
         </div>
       </div>
-      
-      <TaskDetailModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        taskId={task.id}
-        editMode={false}
-      />
     </>
   );
 };

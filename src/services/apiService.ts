@@ -372,7 +372,17 @@ class ApiService {
 
   // Search
   async search(query: string): Promise<SearchResults> {
-    return this.request<SearchResults>(`/search?query=${encodeURIComponent(query)}`);
+    const params = new URLSearchParams({ 
+      query,
+      _t: Date.now().toString() // Cache busting
+    });
+    return this.request<SearchResults>(`/search?${params.toString()}`, {
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    });
   }
 
   async advancedSearch(params: {
@@ -398,9 +408,18 @@ class ApiService {
   }
 
   async getSearchSuggestions(query: string, type?: string): Promise<{ suggestions: SearchSuggestion[] }> {
-    const params = new URLSearchParams({ query });
+    const params = new URLSearchParams({ 
+      query,
+      _t: Date.now().toString() // Cache busting
+    });
     if (type) params.append('type', type);
-    return this.request<{ suggestions: SearchSuggestion[] }>(`/search/suggestions?${params.toString()}`);
+    return this.request<{ suggestions: SearchSuggestion[] }>(`/search/suggestions?${params.toString()}`, {
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    });
   }
 }
 

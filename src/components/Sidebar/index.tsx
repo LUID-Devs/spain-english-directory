@@ -5,7 +5,6 @@ import {
   Home,
   X,
   Briefcase,
-  Search,
   Settings,
   User,
   Users,
@@ -27,13 +26,18 @@ import {
   Calendar,
   BookOpen,
   Archive,
-  Zap
+  Zap,
+  CheckSquare,
+  ClipboardList
 } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
 import { useGlobalStore } from "@/stores/globalStore";
 import { useGetProjectsQuery, useGetTeamsQuery } from "@/hooks/useApi";
 import { useCurrentUser } from "@/stores/userStore";
 import { useAuth } from "@/app/authProvider";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 const Sidebar = () => {
   const [showProjects, setShowProjects] = useState(false);
@@ -64,177 +68,133 @@ const Sidebar = () => {
   const favoriteProjects = projects?.slice(0, 4) || [];
   const remainingProjectsCount = (projects?.length || 0) - favoriteProjects.length;
 
-  const sidebarClassNames = `fixed flex flex-col h-[100%] justify-between shadow-xl transition-all duration-300 h-full z-40 dark:bg-black overflow-y-auto bg-white ${isSidebarCollapsed ? "w-0 hidden" : "w-64"}`;
+  const sidebarClassNames = cn(
+    "fixed flex flex-col h-full justify-between transition-all duration-300 z-40 bg-background border-r border-border overflow-y-auto",
+    isSidebarCollapsed ? "w-0 hidden" : "w-64",
+    "shadow-sm" // Using more subtle shadow per design system
+  );
   
   return (
     <div className={sidebarClassNames}>
       <div className="flex h-[100%] w-full flex-col justify-start">
         {/* TOP LOGO */}
-        <div className="z-50 flex min-h-[56px] w-64 items-center justify-between bg-white px-6 pt-3 dark:bg-black">
-          <div className="text-xl font-bold text-gray-800 dark:text-white">
+        <div className="z-50 flex min-h-[56px] w-64 items-center justify-between bg-background px-6 pt-3">
+          <div className="text-xl font-bold text-foreground">
             TaskLuid
           </div>
           {isSidebarCollapsed ? null : (
-            <button
-              className="py-3"
-              onClick={() => {
-                toggleSidebar();
-              }}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleSidebar}
+              className="p-2"
             >
-              <X className="h-6 w-6 text-gray-800 hover:text-gray-500 dark:text-white" />
-            </button>
+              <X className="h-5 w-5" />
+            </Button>
           )}
         </div>
 
         {/* TEAM INFO */}
-        <div className="flex items-center gap-5 border-y-[1.5px] border-gray-200 px-8 py-4 dark:border-gray-700">
+        <div className="flex items-center gap-5 border-y border-border px-8 py-4">
           <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
             <span className="text-white font-bold text-sm">
               {(userTeam?.teamName || 'My Team').charAt(0).toUpperCase()}
             </span>
           </div>
           <div>
-            <h3 className="text-md font-bold tracking-wide dark:text-gray-200">
+            <h3 className="text-md font-bold tracking-wide text-foreground">
               {userTeam?.teamName || 'My Team'}
             </h3>
             <div className="mt-1 flex items-start gap-2">
-              <LockIcon className="mt-[0.1rem] h-3 w-3 text-gray-500 dark:text-gray-400" />
-              <p className="text-xs text-gray-500">Private</p>
+              <LockIcon className="mt-[0.1rem] h-3 w-3 text-muted-foreground" />
+              <p className="text-xs text-muted-foreground">Private</p>
             </div>
           </div>
         </div>
 
         {/* MY WORK SECTION */}
         <div className="px-6 py-3">
-          <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
+          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
             MY WORK
           </h4>
           <nav className="space-y-1">
             <SidebarLink href="/" icon={Home} label="Dashboard" />
+            <SidebarLink href="/dashboard/tasks" icon={CheckSquare} label="My Tasks" />
+            <SidebarLink href="/dashboard/projects" icon={Briefcase} label="Projects" />
             <SidebarLink href="/dashboard/timeline" icon={Activity} label="Timeline" />
-            <SidebarLink href="/dashboard/search" icon={Search} label="Search" />
+          </nav>
+        </div>
+
+        {/* QUICK ACCESS SECTION */}
+        {favoriteProjects.length > 0 && (
+          <div className="px-6 py-3">
+            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+              PINNED PROJECTS
+            </h4>
+            <nav className="space-y-1">
+              {favoriteProjects.map((project) => (
+                <SidebarLink
+                  key={`favorite-${project.id}`}
+                  href={`/dashboard/projects/${project.id}`}
+                  icon={Pin}
+                  label={project.name}
+                  isSubItem
+                />
+              ))}
+            </nav>
+          </div>
+        )}
+
+        {/* PRIORITY TASKS SECTION */}
+        <div className="px-6 py-3">
+          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+            PRIORITY TASKS
+          </h4>
+          <nav className="space-y-1">
+            <SidebarLink
+              href="/dashboard/priority/urgent"
+              icon={CircleAlert}
+              label="Urgent"
+              badge="danger"
+            />
+            <SidebarLink
+              href="/dashboard/priority/high"
+              icon={ShieldAlert}
+              label="High Priority"
+              badge="warning"
+            />
+            <SidebarLink
+              href="/dashboard/priority/medium"
+              icon={AlertTriangle}
+              label="Medium Priority"
+            />
+            <SidebarLink 
+              href="/dashboard/priority/low" 
+              icon={AlertOctagon} 
+              label="Low Priority" 
+            />
+            <SidebarLink
+              href="/dashboard/priority/backlog"
+              icon={Layers3}
+              label="Backlog"
+            />
           </nav>
         </div>
 
         {/* TEAMS SECTION */}
         <div className="px-6 py-3">
-          <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
+          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
             TEAMS
           </h4>
           <nav className="space-y-1">
             <SidebarLink href="/dashboard/teams" icon={Users} label="All Teams" />
             <SidebarLink href="/dashboard/users" icon={User} label="Members" />
-            
-            {/* Projects Subsection */}
-            <div className="ml-4 mt-2">
-              <button
-                onClick={() => setShowProjects((prev) => !prev)}
-                className="flex w-full items-center justify-between py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors"
-              >
-                <div className="flex items-center gap-2">
-                  <Briefcase className="h-4 w-4" />
-                  <span>Projects</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  {projects && projects.length > 0 && (
-                    <span className="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-full">
-                      {projects.length}
-                    </span>
-                  )}
-                  {showProjects ? (
-                    <ChevronUp className="h-4 w-4" />
-                  ) : (
-                    <ChevronDown className="h-4 w-4" />
-                  )}
-                </div>
-              </button>
-              
-              {showProjects && (
-                <div className="ml-4 mt-1 space-y-1">
-                  <SidebarLink
-                    href="/dashboard/projects"
-                    icon={FolderOpen}
-                    label="All Projects"
-                    isSubItem
-                  />
-                  {favoriteProjects.map((project) => (
-                    <SidebarLink
-                      key={`projects-${project.id}`}
-                      href={`/dashboard/projects/${project.id}`}
-                      icon={Briefcase}
-                      label={project.name}
-                      isSubItem
-                    />
-                  ))}
-                  {remainingProjectsCount > 0 && (
-                    <div className="py-1 px-2 text-xs text-gray-500 dark:text-gray-400">
-                      +{remainingProjectsCount} more projects
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Priority Subsection */}
-            <div className="ml-4 mt-2">
-              <button
-                onClick={() => setShowPriority((prev) => !prev)}
-                className="flex w-full items-center justify-between py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors"
-              >
-                <div className="flex items-center gap-2">
-                  <Target className="h-4 w-4" />
-                  <span>Priority</span>
-                </div>
-                {showPriority ? (
-                  <ChevronUp className="h-4 w-4" />
-                ) : (
-                  <ChevronDown className="h-4 w-4" />
-                )}
-              </button>
-              
-              {showPriority && (
-                <div className="ml-4 mt-1 space-y-1">
-                  <SidebarLink
-                    href="/dashboard/priority/urgent"
-                    icon={CircleAlert}
-                    label="Urgent"
-                    isSubItem
-                    badge="danger"
-                  />
-                  <SidebarLink
-                    href="/dashboard/priority/high"
-                    icon={ShieldAlert}
-                    label="High"
-                    isSubItem
-                    badge="warning"
-                  />
-                  <SidebarLink
-                    href="/dashboard/priority/medium"
-                    icon={AlertTriangle}
-                    label="Medium"
-                    isSubItem
-                  />
-                  <SidebarLink 
-                    href="/dashboard/priority/low" 
-                    icon={AlertOctagon} 
-                    label="Low" 
-                    isSubItem
-                  />
-                  <SidebarLink
-                    href="/dashboard/priority/backlog"
-                    icon={Layers3}
-                    label="Backlog"
-                    isSubItem
-                  />
-                </div>
-              )}
-            </div>
           </nav>
         </div>
       </div>
 
       {/* USER PROFILE (Mobile) */}
-      <div className="z-10 flex w-full flex-col items-center gap-4 bg-white px-6 py-4 dark:bg-black border-t border-gray-200 dark:border-gray-700 md:hidden">
+      <div className="z-10 flex w-full flex-col items-center gap-4 bg-background px-6 py-4 border-t border-border md:hidden">
         <div className="flex w-full items-center">
           <div className="align-center flex h-9 w-9 justify-center">
             {!!currentUserDetails?.profilePictureUrl ? (
@@ -253,7 +213,7 @@ const Sidebar = () => {
               </div>
             )}
           </div>
-          <span className="mx-3 text-gray-600 dark:text-white">{currentUserDetails?.username}</span>
+          <span className="mx-3 text-foreground">{currentUserDetails?.username}</span>
           <button 
             className="self-start rounded bg-blue-500 px-4 py-2 text-xs font-bold text-white hover:bg-blue-600 transition-colors md:block" 
             onClick={handleSignOut}
@@ -282,36 +242,43 @@ const SidebarLink = ({ href, icon: Icon, label, isCompact = false, isSubItem = f
     (location.pathname === "/" && href === "/") ||
     (href !== "/" && location.pathname.startsWith(href));
 
-  const getBadgeColor = (badgeType: string) => {
+  const getBadgeVariant = (badgeType: string) => {
     switch (badgeType) {
-      case "danger": return "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400";
-      case "warning": return "bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400";
-      case "success": return "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400";
-      case "info": return "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400";
-      default: return "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400";
+      case "danger": return "destructive";
+      case "warning": return "secondary";
+      case "success": return "default";
+      case "info": return "outline";
+      default: return "secondary";
     }
   };
 
   return (
     <Link to={href} className="block">
       <div
-        className={`relative flex cursor-pointer items-center gap-3 transition-colors rounded-lg ${
+        className={cn(
+          "relative flex cursor-pointer items-center gap-3 transition-colors rounded-md",
           isActive 
-            ? "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300" 
-            : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
-        } ${isCompact ? "py-1.5 px-3" : "py-2 px-3"} ${isSubItem ? "text-sm" : ""}`}
+            ? "bg-accent text-accent-foreground" 
+            : "text-muted-foreground hover:text-foreground hover:bg-accent/50",
+          isCompact ? "py-1.5 px-3" : "py-2 px-3",
+          isSubItem ? "text-sm ml-2" : ""
+        )}
       >
         {isActive && (
-          <div className="absolute left-0 top-0 h-full w-1 bg-blue-500 rounded-r" />
+          <div className="absolute left-0 top-0 h-full w-1 bg-primary rounded-r" />
         )}
-        <Icon className={`${isCompact || isSubItem ? "h-4 w-4" : "h-5 w-5"} ${isActive ? "text-blue-600 dark:text-blue-400" : ""}`} />
-        <span className={`font-medium ${isActive ? "text-blue-700 dark:text-blue-300" : ""} flex-1`}>
+        <Icon className={cn(
+          isCompact || isSubItem ? "h-4 w-4" : "h-5 w-5",
+          isActive ? "text-primary" : ""
+        )} />
+        <span className={cn(
+          "font-medium flex-1",
+          isActive ? "text-foreground" : ""
+        )}>
           {label}
         </span>
         {badge && (
-          <span className={`text-xs px-1.5 py-0.5 rounded-full ${getBadgeColor(badge)}`}>
-            •
-          </span>
+          <Badge variant={getBadgeVariant(badge) as any} className="h-2 w-2 p-0 rounded-full" />
         )}
       </div>
     </Link>

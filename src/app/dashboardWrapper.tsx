@@ -5,6 +5,7 @@ import Sidebar from "@/components/Sidebar";
 import { useGlobalStore } from "@/stores/globalStore";
 import { UserProvider } from "@/components/UserProvider";
 import { useAuth } from "@/app/authProvider";
+import { TaskModalProvider } from "@/contexts/TaskModalContext";
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const { isSidebarCollapsed, isDarkMode } = useGlobalStore();
@@ -19,16 +20,20 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   
   return (
     <UserProvider>
-      <div className="flex min-h-screen w-full bg-gray-50 text-gray-900">
-        {/* sidebar */}
-        <Sidebar />
-        <main
-          className={`flex w-full flex-col bg-gray-50 dark:bg-dark-bg ${isSidebarCollapsed ? "" : "md:pl-64"}`}
-        >
-          <Navbar />
-          {children}
-        </main>
-      </div>
+      <TaskModalProvider>
+        <div className="flex min-h-screen w-full bg-background text-foreground">
+          {/* Sidebar */}
+          <Sidebar />
+          <main
+            className={`flex w-full flex-col transition-all duration-300 ${isSidebarCollapsed ? "" : "md:pl-64"}`}
+          >
+            <Navbar />
+            <div className="flex-1 p-6">
+              {children}
+            </div>
+          </main>
+        </div>
+      </TaskModalProvider>
     </UserProvider>
   );
 };

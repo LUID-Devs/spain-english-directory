@@ -1052,20 +1052,22 @@ export const useUpdateUserRoleMutation = () => {
 };
 
 // Search hooks
-export const useSearchQuery = (query: string) => {
+export const useSearchQuery = (query: string, options: { skip?: boolean } = {}) => {
   const [searchResults, setSearchResults] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const hasFetchedRef = useRef(false);
-  const queryRef = useRef(query);
   
-  const search = useCallback(async () => {
-    if (!queryRef.current.trim()) return;
+  const search = useCallback(async (searchQuery?: string) => {
+    const queryToUse = searchQuery || query;
+    if (!queryToUse.trim() || options.skip) {
+      setSearchResults(null);
+      return;
+    }
     
     try {
       setIsLoading(true);
       setError(null);
-      const results = await apiService.search(queryRef.current);
+      const results = await apiService.search(queryToUse);
       setSearchResults(results);
     } catch (error) {
       console.error('Failed to search:', error);
@@ -1073,18 +1075,20 @@ export const useSearchQuery = (query: string) => {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [query, options.skip]);
 
   useEffect(() => {
-    // Update refs
-    queryRef.current = query;
-    
-    // Only search once on mount unless query changes
-    if (!hasFetchedRef.current && query.trim()) {
-      hasFetchedRef.current = true;
+    console.log('useSearchQuery effect:', { query, skip: options.skip, length: query.length });
+    // Search whenever query changes (if not skipped and query is valid)
+    if (!options.skip && query.trim() && query.length >= 3) {
+      console.log('Triggering search for:', query);
       search();
+    } else if (options.skip || !query.trim()) {
+      console.log('Clearing search results');
+      setSearchResults(null);
+      setError(null);
     }
-  }, [query, search]);
+  }, [query, options.skip, search]);
 
   return {
     data: searchResults,
@@ -1095,14 +1099,19 @@ export const useSearchQuery = (query: string) => {
   };
 };
 
-export const useAdvancedSearchQuery = (params: any) => {
+export const useAdvancedSearchQuery = (params: any, options: { skip?: boolean } = {}) => {
   const [searchResults, setSearchResults] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const hasFetchedRef = useRef(false);
   const paramsRef = useRef(params);
+  const skipRef = useRef(options.skip);
   
   const search = useCallback(async () => {
+    if (skipRef.current || !paramsRef.current) {
+      setSearchResults(null);
+      return;
+    }
+    
     try {
       setIsLoading(true);
       setError(null);
@@ -1119,13 +1128,16 @@ export const useAdvancedSearchQuery = (params: any) => {
   useEffect(() => {
     // Update refs
     paramsRef.current = params;
+    skipRef.current = options.skip;
     
-    // Only search once on mount unless params change
-    if (!hasFetchedRef.current && params) {
-      hasFetchedRef.current = true;
+    // Search whenever params change (if not skipped and params are valid)
+    if (!options.skip && params && Object.keys(params).length > 0) {
       search();
+    } else if (options.skip || !params || Object.keys(params).length === 0) {
+      setSearchResults(null);
+      setError(null);
     }
-  }, [params, search]);
+  }, [JSON.stringify(params), options.skip, search]);
 
   return {
     data: searchResults,
@@ -1136,15 +1148,18 @@ export const useAdvancedSearchQuery = (params: any) => {
   };
 };
 
-export const useGetSearchSuggestionsQuery = (params: { query: string; type?: string }) => {
+export const useGetSearchSuggestionsQuery = (params: { query: string; type?: string }, options: { skip?: boolean; refetchOnMountOrArgChange?: boolean } = {}) => {
   const [suggestions, setSuggestions] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const hasFetchedRef = useRef(false);
   const paramsRef = useRef(params);
+  const skipRef = useRef(options.skip);
   
   const fetchSuggestions = useCallback(async () => {
-    if (!paramsRef.current.query.trim()) return;
+    if (!paramsRef.current.query.trim() || skipRef.current) {
+      setSuggestions(null);
+      return;
+    }
     
     try {
       setIsLoading(true);
@@ -1162,13 +1177,16 @@ export const useGetSearchSuggestionsQuery = (params: { query: string; type?: str
   useEffect(() => {
     // Update refs
     paramsRef.current = params;
+    skipRef.current = options.skip;
     
-    // Only fetch once on mount unless params change
-    if (!hasFetchedRef.current && params.query.trim()) {
-      hasFetchedRef.current = true;
+    // Fetch whenever params change (if not skipped and query is valid)
+    if (!options.skip && params.query.trim()) {
       fetchSuggestions();
+    } else if (options.skip || !params.query.trim()) {
+      setSuggestions(null);
+      setError(null);
     }
-  }, [params.query, params.type, fetchSuggestions]);
+  }, [params.query, params.type, options.skip, fetchSuggestions]);
 
   return {
     data: suggestions,
