@@ -3,105 +3,39 @@ import React, { useState, useEffect } from "react";
 import { useGetProjectsQuery } from "@/hooks/useApi";
 import { useProjects } from "@/stores/apiStore";
 import { useCurrentUser } from "@/stores/userStore";
-import Header from "@/components/Header";
-import { Plus, Search, Grid, List, Archive, Star, ChevronDown, Filter, FolderPlus, Sparkles, ArrowRight } from "lucide-react";
+import { Plus, Search, Grid3X3, List, Archive, Star, Filter, SortAsc, FolderPlus } from "lucide-react";
 import ModalNewProject from "@/app/dashboard/projects/ModalNewProject";
 import ProjectCard from "@/components/ProjectCard";
-
-interface FilterOption {
-  id: string;
-  label: string;
-  icon: React.ReactNode;
-  showArchived: boolean;
-  showFavorites: boolean;
-  statusFilter: string;
-}
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { cn } from "@/lib/utils";
 
 const ProjectsPage = () => {
   const [isNewProjectModalOpen, setIsNewProjectModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [sortBy, setSortBy] = useState<"name" | "date" | "progress">("name");
-  const [showArchived, setShowArchived] = useState(false);
-  const [showFavorites, setShowFavorites] = useState(false);
+  const [activeTab, setActiveTab] = useState<"all" | "favorites" | "archived">("all");
   const [statusFilter, setStatusFilter] = useState<string>("");
-  const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState(false);
   
   const { currentUser } = useCurrentUser();
-  
-  // Define filter options
-  const filterOptions: FilterOption[] = [
-    {
-      id: "all",
-      label: "All Projects",
-      icon: <Filter className="h-4 w-4" />,
-      showArchived: false,
-      showFavorites: false,
-      statusFilter: ""
-    },
-    {
-      id: "favorites",
-      label: "Favorites Only",
-      icon: <Star className="h-4 w-4" />,
-      showArchived: false,
-      showFavorites: true,
-      statusFilter: ""
-    },
-    {
-      id: "archived",
-      label: "Archived Only",
-      icon: <Archive className="h-4 w-4" />,
-      showArchived: true,
-      showFavorites: false,
-      statusFilter: ""
-    },
-    {
-      id: "active",
-      label: "Active Projects",
-      icon: <div className="h-4 w-4 bg-green-500 rounded-full" />,
-      showArchived: false,
-      showFavorites: false,
-      statusFilter: "Active"
-    },
-    {
-      id: "completed",
-      label: "Completed Projects",
-      icon: <div className="h-4 w-4 bg-blue-500 rounded-full" />,
-      showArchived: false,
-      showFavorites: false,
-      statusFilter: "Completed"
-    },
-    {
-      id: "overdue",
-      label: "Overdue Projects",
-      icon: <div className="h-4 w-4 bg-red-500 rounded-full" />,
-      showArchived: false,
-      showFavorites: false,
-      statusFilter: "Overdue"
+
+  const getTabTitle = () => {
+    switch (activeTab) {
+      case "favorites": return "Favorite Projects";
+      case "archived": return "Archived Projects";
+      default: return "Projects";
     }
-  ];
-  
-  // Get current filter option
-  const getCurrentFilter = (): FilterOption => {
-    return filterOptions.find(option => 
-      option.showArchived === showArchived &&
-      option.showFavorites === showFavorites &&
-      option.statusFilter === statusFilter
-    ) || filterOptions[0];
-  };
-  
-  // Handle filter change
-  const handleFilterChange = (option: FilterOption) => {
-    setShowArchived(option.showArchived);
-    setShowFavorites(option.showFavorites);
-    setStatusFilter(option.statusFilter);
-    setIsFilterDropdownOpen(false);
   };
   
   // Wait for user to be loaded before fetching projects (to ensure favorite status is correct)
   const { data: queryProjects, isLoading: queryLoading, isError, refetch } = useGetProjectsQuery({ 
-    archived: showArchived, 
-    favorites: showFavorites,
+    archived: activeTab === "archived", 
+    favorites: activeTab === "favorites",
     userId: currentUser?.userId,
     status: statusFilter || undefined
   }, { 
@@ -128,20 +62,6 @@ const ProjectsPage = () => {
   // Auto-refetch is now handled by the useGetProjectsQuery hook itself
   // No manual refetch needed here
 
-  // Close dropdown on escape key
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setIsFilterDropdownOpen(false);
-      }
-    };
-
-    if (isFilterDropdownOpen) {
-      document.addEventListener('keydown', handleEscape);
-      return () => document.removeEventListener('keydown', handleEscape);
-    }
-  }, [isFilterDropdownOpen]);
-
   const filteredProjects = projects?.filter(project =>
     project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     project.description?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -160,259 +80,194 @@ const ProjectsPage = () => {
 
   if (isLoading) {
     return (
-      <div className="flex w-full flex-col p-8">
-        <Header name="Projects" />
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-            <p className="text-gray-600 dark:text-gray-400">Loading projects...</p>
+      <div className="container mx-auto p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Projects</h1>
+            <p className="text-muted-foreground">Manage and organize your projects</p>
           </div>
         </div>
+        <Card>
+          <CardContent className="flex items-center justify-center h-64">
+            <div className="text-center space-y-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+              <p className="text-muted-foreground">Loading projects...</p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   if (isError) {
     return (
-      <div className="flex w-full flex-col p-8">
-        <Header name="Projects" />
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <p className="text-red-600 mb-4">Error loading projects</p>
-            <button 
-              onClick={() => {
-                refetch();
-              }} 
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-            >
-              Retry
-            </button>
+      <div className="container mx-auto p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Projects</h1>
+            <p className="text-muted-foreground">Manage and organize your projects</p>
           </div>
         </div>
+        <Alert variant="destructive">
+          <AlertDescription>
+            Error loading projects. Please try again.
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => refetch()}
+              className="ml-4"
+            >
+              Retry
+            </Button>
+          </AlertDescription>
+        </Alert>
       </div>
     );
   }
 
   return (
-    <div className="flex w-full flex-col p-8">
-      <div className="flex items-center justify-between mb-6">
-        <Header name={getCurrentFilter().label} />
-        <div className="flex gap-3">
-          {/* Filter Dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-600 transition-colors min-w-[140px]"
-            >
-              {getCurrentFilter().icon}
-              <span className="flex-1 text-left">{getCurrentFilter().label}</span>
-              <ChevronDown className={`h-4 w-4 transition-transform ${isFilterDropdownOpen ? 'rotate-180' : ''}`} />
-            </button>
-            
-            {isFilterDropdownOpen && (
-              <>
-                {/* Backdrop */}
-                <div 
-                  className="fixed inset-0 z-10" 
-                  onClick={() => setIsFilterDropdownOpen(false)}
-                />
-                
-                {/* Dropdown Menu */}
-                <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-20">
-                  <div className="py-1">
-                    {filterOptions.map((option) => (
-                      <button
-                        key={option.id}
-                        onClick={() => handleFilterChange(option)}
-                        className={`w-full flex items-center gap-3 px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
-                          getCurrentFilter().id === option.id 
-                            ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' 
-                            : 'text-gray-700 dark:text-gray-300'
-                        }`}
-                      >
-                        {option.icon}
-                        <span>{option.label}</span>
-                        {getCurrentFilter().id === option.id && (
-                          <div className="ml-auto w-2 h-2 bg-blue-500 rounded-full" />
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-          
-          {/* New Project Button - Only show when viewing all projects */}
-          {getCurrentFilter().id === 'all' && (
-            <button
-              onClick={() => setIsNewProjectModalOpen(true)}
-              className="group relative flex items-center gap-3 bg-gradient-to-r from-blue-primary to-blue-600 px-6 py-3 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 focus:ring-4 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all duration-200 transform hover:scale-105 hover:shadow-lg font-medium text-sm"
-            >
-              <div className="flex items-center justify-center w-5 h-5 bg-white/20 rounded-lg group-hover:bg-white/30 transition-colors duration-200">
-                <Plus className="h-3.5 w-3.5" />
-              </div>
-              <span>New Project</span>
-              <div className="absolute inset-0 bg-white/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-            </button>
-          )}
+    <div className="container mx-auto p-6 space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">{getTabTitle()}</h1>
+          <p className="text-muted-foreground">
+            {sortedProjects.length} project{sortedProjects.length !== 1 ? 's' : ''} 
+            {statusFilter && ` with ${statusFilter.toLowerCase()} status`}
+          </p>
+        </div>
+        {activeTab === "all" && (
+          <Button onClick={() => setIsNewProjectModalOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            New Project
+          </Button>
+        )}
+      </div>
+
+      {/* Tab Navigation */}
+      <div className="flex items-center justify-between">
+        <div className="flex gap-1 p-1 bg-muted rounded-lg">
+          <Button
+            variant={activeTab === "all" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setActiveTab("all")}
+          >
+            All Projects
+          </Button>
+          <Button
+            variant={activeTab === "favorites" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setActiveTab("favorites")}
+          >
+            <Star className="h-4 w-4 mr-2" />
+            Favorites
+          </Button>
+          <Button
+            variant={activeTab === "archived" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setActiveTab("archived")}
+          >
+            <Archive className="h-4 w-4 mr-2" />
+            Archived
+          </Button>
+        </div>
+        
+        {/* View Mode Toggle */}
+        <div className="flex items-center gap-2">
+          <Button
+            variant={viewMode === "grid" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setViewMode("grid")}
+          >
+            <Grid3X3 className="h-4 w-4" />
+          </Button>
+          <Button
+            variant={viewMode === "list" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setViewMode("list")}
+          >
+            <List className="h-4 w-4" />
+          </Button>
         </div>
       </div>
 
       {/* Search and Filter Bar */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-6">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search projects..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-dark-secondary dark:border-gray-600 dark:text-white"
-          />
-        </div>
-        
-        <div className="flex gap-2">
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as "name" | "date" | "progress")}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-dark-secondary dark:border-gray-600 dark:text-white"
-          >
-            <option value="name">Sort by Name</option>
-            <option value="date">Sort by Date</option>
-            <option value="progress">Sort by Progress</option>
-          </select>
-          
-          <div className="flex border border-gray-300 rounded-lg dark:border-gray-600">
-            <button
-              onClick={() => setViewMode("grid")}
-              className={`p-2 ${viewMode === "grid" 
-                ? "bg-blue-500 text-white" 
-                : "bg-white text-gray-600 dark:bg-dark-secondary dark:text-gray-400"
-              } rounded-l-lg`}
-            >
-              <Grid className="h-4 w-4" />
-            </button>
-            <button
-              onClick={() => setViewMode("list")}
-              className={`p-2 ${viewMode === "list" 
-                ? "bg-blue-500 text-white" 
-                : "bg-white text-gray-600 dark:bg-dark-secondary dark:text-gray-400"
-              } rounded-r-lg`}
-            >
-              <List className="h-4 w-4" />
-            </button>
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search projects..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            
+            <div className="flex gap-2">
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="w-40">
+                  <SortAsc className="h-4 w-4 mr-2" />
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="name">Sort by Name</SelectItem>
+                  <SelectItem value="date">Sort by Date</SelectItem>
+                  <SelectItem value="progress">Sort by Progress</SelectItem>
+                </SelectContent>
+              </Select>
+              
+              {activeTab !== "archived" && (
+                <Select value={statusFilter || "all"} onValueChange={(value) => setStatusFilter(value === "all" ? "" : value)}>
+                  <SelectTrigger className="w-32">
+                    <Filter className="h-4 w-4 mr-2" />
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="Active">Active</SelectItem>
+                    <SelectItem value="Completed">Completed</SelectItem>
+                    <SelectItem value="Overdue">Overdue</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       {/* Projects Display */}
       {sortedProjects.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-center">
-          {(() => {
-              // Determine the empty state based on different scenarios
-              const totalProjects = allProjects?.length || 0;
-              const hasSearchTerm = searchTerm.trim().length > 0;
-              const isFilteredView = getCurrentFilter().id !== 'all';
-              
-              if (totalProjects === 0) {
-                // Truly no projects at all - Enhanced design
-                return (
-                  <div className="max-w-md mx-auto">
-                    {/* Enhanced illustration */}
-                    <div className="relative mb-8">
-                      <div className="w-24 h-24 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30 rounded-3xl flex items-center justify-center mb-4 mx-auto transform hover:scale-105 transition-transform duration-300">
-                        <div className="relative">
-                          <FolderPlus className="h-12 w-12 text-blue-600 dark:text-blue-400" />
-                          <div className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center">
-                            <Sparkles className="h-3 w-3 text-white" />
-                          </div>
-                        </div>
-                      </div>
-                      {/* Floating decorative elements */}
-                      <div className="absolute top-4 left-8 w-3 h-3 bg-blue-300 dark:bg-blue-600 rounded-full opacity-40 animate-pulse"></div>
-                      <div className="absolute top-12 right-6 w-2 h-2 bg-purple-300 dark:bg-purple-600 rounded-full opacity-60 animate-pulse" style={{animationDelay: '1s'}}></div>
-                      <div className="absolute bottom-8 left-12 w-2.5 h-2.5 bg-green-300 dark:bg-green-600 rounded-full opacity-50 animate-pulse" style={{animationDelay: '2s'}}></div>
-                    </div>
-                    
-                    {/* Enhanced typography */}
-                    <div className="space-y-4 mb-8">
-                      <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
-                        Let's create something amazing
-                      </h3>
-                      <p className="text-gray-600 dark:text-gray-400 text-lg leading-relaxed">
-                        Start your journey by creating your first project. Organize tasks, track progress, and bring your ideas to life.
-                      </p>
-                    </div>
-                    
-                    {/* Enhanced CTA button */}
-                    <button
-                      onClick={() => setIsNewProjectModalOpen(true)}
-                      className="group relative inline-flex items-center gap-3 bg-gradient-to-r from-blue-primary to-blue-600 text-white px-8 py-4 rounded-2xl hover:from-blue-600 hover:to-blue-700 focus:ring-4 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all duration-300 transform hover:scale-105 hover:shadow-xl font-semibold text-lg"
-                    >
-                      <div className="flex items-center justify-center w-6 h-6 bg-white/20 rounded-lg group-hover:bg-white/30 transition-colors duration-200">
-                        <Plus className="h-4 w-4" />
-                      </div>
-                      <span>Create Your First Project</span>
-                      <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform duration-200" />
-                      <div className="absolute inset-0 bg-white/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    </button>
-                  </div>
-                );
-              } else if (hasSearchTerm) {
-                // Has projects but search returns no results - Enhanced design
-                return (
-                  <div className="max-w-sm mx-auto">
-                    <div className="w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 rounded-2xl flex items-center justify-center mb-6 mx-auto">
-                      <Search className="h-10 w-10 text-gray-400" />
-                    </div>
-                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
-                      No projects match your search
-                    </h3>
-                    <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                      Try adjusting your search terms or browse all projects
-                    </p>
-                  </div>
-                );
-              } else if (isFilteredView) {
-                // Has projects but filter returns no results - Enhanced design
-                return (
-                  <div className="max-w-sm mx-auto">
-                    <div className="w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 rounded-2xl flex items-center justify-center mb-6 mx-auto">
-                      <Filter className="h-10 w-10 text-gray-400" />
-                    </div>
-                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
-                      No projects match your current filter
-                    </h3>
-                    <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                      Try selecting a different filter or view all projects
-                    </p>
-                  </div>
-                );
-              } else {
-                // Viewing all projects but none found (edge case) - Enhanced design
-                return (
-                  <div className="max-w-sm mx-auto">
-                    <div className="w-20 h-20 bg-gradient-to-br from-red-100 to-red-200 dark:from-red-900/30 dark:to-red-800/30 rounded-2xl flex items-center justify-center mb-6 mx-auto">
-                      <Archive className="h-10 w-10 text-red-500" />
-                    </div>
-                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
-                      No projects found
-                    </h3>
-                    <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                      There might be an issue loading your projects. Try refreshing the page.
-                    </p>
-                  </div>
-                );
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center h-64 text-center p-6">
+            <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+              <Plus className="h-8 w-8 text-muted-foreground" />
+            </div>
+            <h3 className="text-lg font-medium mb-2">
+              {allProjects?.length === 0 ? "No projects yet" : "No projects match your search"}
+            </h3>
+            <p className="text-muted-foreground mb-4 max-w-sm">
+              {allProjects?.length === 0 
+                ? "Get started by creating your first project to organize your work" 
+                : "Try adjusting your search terms or filters"
               }
-            })()}
-        </div>
+            </p>
+            {allProjects?.length === 0 && activeTab === "all" && (
+              <Button onClick={() => setIsNewProjectModalOpen(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Create Your First Project
+              </Button>
+            )}
+          </CardContent>
+        </Card>
       ) : (
-        <div className={
+        <div className={cn(
+          "gap-6",
           viewMode === "grid" 
-            ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" 
-            : "flex flex-col gap-4"
-        }>
+            ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3" 
+            : "flex flex-col"
+        )}>
           {sortedProjects.map((project) => (
             <ProjectCard
               key={project.id}

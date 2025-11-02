@@ -2,25 +2,31 @@
 import React, { useState } from "react";
 import { useGetProjectsQuery } from "@/hooks/useApi";
 import { useCurrentUser } from "@/stores/userStore";
-import Header from "@/components/Header";
-import { Plus, Search, Grid, List, Archive, Star } from "lucide-react";
+import { Plus, Search, Grid3X3, List, Archive, Star, Filter, MoreHorizontal, SortAsc } from "lucide-react";
 import ModalNewProject from "./ModalNewProject";
 import ProjectCard from "@/components/ProjectCard";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { cn } from "@/lib/utils";
 
 const ProjectsPage = () => {
   const [isNewProjectModalOpen, setIsNewProjectModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [sortBy, setSortBy] = useState<"name" | "date" | "progress">("name");
-  const [showArchived, setShowArchived] = useState(false);
-  const [showFavorites, setShowFavorites] = useState(false);
+  const [activeTab, setActiveTab] = useState<"all" | "favorites" | "archived">("all");
   const [statusFilter, setStatusFilter] = useState<string>("");
   
   const { currentUser } = useCurrentUser();
   const { data: projects, isLoading, isError } = useGetProjectsQuery({ 
-    archived: showArchived, 
-    favorites: showFavorites,
-    userId: currentUser?.userId, // Fallback to userId 21 for testing
+    archived: activeTab === "archived", 
+    favorites: activeTab === "favorites",
+    userId: currentUser?.userId,
     status: statusFilter || undefined
   });
 
@@ -40,205 +46,203 @@ const ProjectsPage = () => {
     }
   });
 
+  const getTabTitle = () => {
+    switch (activeTab) {
+      case "favorites": return "Favorite Projects";
+      case "archived": return "Archived Projects";
+      default: return "Projects";
+    }
+  };
+
   if (isLoading) {
     return (
-      <div className="flex w-full flex-col p-8">
-        <Header name="Projects" />
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-            <p className="text-gray-600 dark:text-gray-400">Loading projects...</p>
+      <div className="container mx-auto p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Projects</h1>
+            <p className="text-muted-foreground">Manage and organize your projects</p>
           </div>
         </div>
+        <Card>
+          <CardContent className="flex items-center justify-center h-64">
+            <div className="text-center space-y-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+              <p className="text-muted-foreground">Loading projects...</p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   if (isError) {
     return (
-      <div className="flex w-full flex-col p-8">
-        <Header name="Projects" />
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <p className="text-red-600 mb-4">Error loading projects</p>
-            <button 
-              onClick={() => window.location.reload()} 
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-            >
-              Retry
-            </button>
+      <div className="container mx-auto p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Projects</h1>
+            <p className="text-muted-foreground">Manage and organize your projects</p>
           </div>
         </div>
+        <Alert variant="destructive">
+          <AlertDescription>
+            Error loading projects. Please try again.
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => window.location.reload()}
+              className="ml-4"
+            >
+              Retry
+            </Button>
+          </AlertDescription>
+        </Alert>
       </div>
     );
   }
 
   return (
-    <div className="flex w-full flex-col p-8">
-      <div className="flex items-center justify-between mb-6">
-        <Header name={
-          showFavorites ? "Favorite Projects" : 
-          showArchived ? "Archived Projects" : 
-          statusFilter ? `${statusFilter} Projects` : 
-          "Projects"
-        } />
-        <div className="flex gap-3">
-          <button
-            onClick={() => {
-              setShowFavorites(!showFavorites);
-              if (!showFavorites) {
-                setShowArchived(false); // Turn off archived when showing favorites
-                setStatusFilter(""); // Clear status filter when showing favorites
-              }
-            }}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-              showFavorites 
-                ? "bg-yellow-500 text-white hover:bg-yellow-600" 
-                : "bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
-            }`}
-          >
-            <Star className="h-4 w-4" />
-            {showFavorites ? "Show All" : "Show Favorites"}
-          </button>
-          <button
-            onClick={() => {
-              setShowArchived(!showArchived);
-              if (!showArchived) {
-                setShowFavorites(false); // Turn off favorites when showing archived
-                setStatusFilter(""); // Clear status filter when showing archived
-              }
-            }}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-              showArchived 
-                ? "bg-gray-500 text-white hover:bg-gray-600" 
-                : "bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
-            }`}
-          >
-            <Archive className="h-4 w-4" />
-            {showArchived ? "Show Active" : "Show Archived"}
-          </button>
-          
-          {/* Status Filter Dropdown */}
-          {!showArchived && (
-            <div className="relative">
-              <select
-                value={statusFilter}
-                onChange={(e) => {
-                  setStatusFilter(e.target.value);
-                  if (e.target.value) {
-                    setShowFavorites(false); // Clear favorites when filtering by status
-                  }
-                }}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-600 transition-colors"
-              >
-                <option value="">All Status</option>
-                <option value="Active">Active</option>
-                <option value="Completed">Completed</option>
-                <option value="Overdue">Overdue</option>
-              </select>
-            </div>
-          )}
-          
-          {!showArchived && !showFavorites && !statusFilter && (
-            <button
-              onClick={() => setIsNewProjectModalOpen(true)}
-              className="flex items-center gap-2 bg-blue-primary px-4 py-2 text-white rounded-lg hover:bg-blue-600 transition-colors"
-            >
-              <Plus className="h-4 w-4" />
-              New Project
-            </button>
-          )}
+    <div className="container mx-auto p-6 space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">{getTabTitle()}</h1>
+          <p className="text-muted-foreground">
+            {sortedProjects.length} project{sortedProjects.length !== 1 ? 's' : ''} 
+            {statusFilter && ` with ${statusFilter.toLowerCase()} status`}
+          </p>
         </div>
+        {activeTab === "all" && (
+          <Button onClick={() => setIsNewProjectModalOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            New Project
+          </Button>
+        )}
       </div>
 
-      {/* Search and Filter Bar */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-6">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search projects..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-dark-secondary dark:border-gray-600 dark:text-white"
-          />
-        </div>
-        
-        <div className="flex gap-2">
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as "name" | "date" | "progress")}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-dark-secondary dark:border-gray-600 dark:text-white"
-          >
-            <option value="name">Sort by Name</option>
-            <option value="date">Sort by Date</option>
-            <option value="progress">Sort by Progress</option>
-          </select>
+      {/* Tabs and Filters */}
+      <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)}>
+        <div className="flex items-center justify-between">
+          <TabsList>
+            <TabsTrigger value="all">All Projects</TabsTrigger>
+            <TabsTrigger value="favorites">
+              <Star className="h-4 w-4 mr-2" />
+              Favorites
+            </TabsTrigger>
+            <TabsTrigger value="archived">
+              <Archive className="h-4 w-4 mr-2" />
+              Archived
+            </TabsTrigger>
+          </TabsList>
           
-          <div className="flex border border-gray-300 rounded-lg dark:border-gray-600">
-            <button
+          {/* View Mode Toggle */}
+          <div className="flex items-center gap-2">
+            <Button
+              variant={viewMode === "grid" ? "default" : "outline"}
+              size="sm"
               onClick={() => setViewMode("grid")}
-              className={`p-2 ${viewMode === "grid" 
-                ? "bg-blue-500 text-white" 
-                : "bg-white text-gray-600 dark:bg-dark-secondary dark:text-gray-400"
-              } rounded-l-lg`}
             >
-              <Grid className="h-4 w-4" />
-            </button>
-            <button
+              <Grid3X3 className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={viewMode === "list" ? "default" : "outline"}
+              size="sm"
               onClick={() => setViewMode("list")}
-              className={`p-2 ${viewMode === "list" 
-                ? "bg-blue-500 text-white" 
-                : "bg-white text-gray-600 dark:bg-dark-secondary dark:text-gray-400"
-              } rounded-r-lg`}
             >
               <List className="h-4 w-4" />
-            </button>
+            </Button>
           </div>
         </div>
-      </div>
 
-      {/* Projects Display */}
-      {sortedProjects.length === 0 ? (
-        <div className="flex flex-col items-center justify-center h-64 text-center">
-          <div className="mb-4">
-            <div className="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
-              <Plus className="h-8 w-8 text-gray-400" />
+        {/* Search and Filter Bar */}
+        <TabsContent value={activeTab} className="space-y-4">
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex flex-col sm:flex-row gap-4">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search projects..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                
+                <div className="flex gap-2">
+                  <Select value={sortBy} onValueChange={setSortBy}>
+                    <SelectTrigger className="w-40">
+                      <SortAsc className="h-4 w-4 mr-2" />
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="name">Sort by Name</SelectItem>
+                      <SelectItem value="date">Sort by Date</SelectItem>
+                      <SelectItem value="progress">Sort by Progress</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  
+                  {activeTab !== "archived" && (
+                    <Select value={statusFilter} onValueChange={setStatusFilter}>
+                      <SelectTrigger className="w-32">
+                        <Filter className="h-4 w-4 mr-2" />
+                        <SelectValue placeholder="Status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">All Status</SelectItem>
+                        <SelectItem value="Active">Active</SelectItem>
+                        <SelectItem value="Completed">Completed</SelectItem>
+                        <SelectItem value="Overdue">Overdue</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Projects Display */}
+          {sortedProjects.length === 0 ? (
+            <Card>
+              <CardContent className="flex flex-col items-center justify-center h-64 text-center p-6">
+                <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+                  <Plus className="h-8 w-8 text-muted-foreground" />
+                </div>
+                <h3 className="text-lg font-medium mb-2">
+                  {projects?.length === 0 ? "No projects yet" : "No projects match your search"}
+                </h3>
+                <p className="text-muted-foreground mb-4 max-w-sm">
+                  {projects?.length === 0 
+                    ? "Get started by creating your first project to organize your work" 
+                    : "Try adjusting your search terms or filters"
+                  }
+                </p>
+                {projects?.length === 0 && activeTab === "all" && (
+                  <Button onClick={() => setIsNewProjectModalOpen(true)}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Create Your First Project
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+          ) : (
+            <div className={cn(
+              "gap-6",
+              viewMode === "grid" 
+                ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3" 
+                : "flex flex-col"
+            )}>
+              {sortedProjects.map((project) => (
+                <ProjectCard
+                  key={project.id}
+                  project={project}
+                  viewMode={viewMode}
+                />
+              ))}
             </div>
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-              {projects?.length === 0 ? "No projects yet" : "No projects match your search"}
-            </h3>
-            <p className="text-gray-500 dark:text-gray-400 mb-4">
-              {projects?.length === 0 
-                ? "Get started by creating your first project" 
-                : "Try adjusting your search terms"
-              }
-            </p>
-            {projects?.length === 0 && (
-              <button
-                onClick={() => setIsNewProjectModalOpen(true)}
-                className="bg-blue-primary text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
-              >
-                Create Your First Project
-              </button>
-            )}
-          </div>
-        </div>
-      ) : (
-        <div className={
-          viewMode === "grid" 
-            ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" 
-            : "flex flex-col gap-4"
-        }>
-          {sortedProjects.map((project) => (
-            <ProjectCard
-              key={project.id}
-              project={project}
-              viewMode={viewMode}
-            />
-          ))}
-        </div>
-      )}
+          )}
+        </TabsContent>
+      </Tabs>
 
       {/* Create Project Modal */}
       <ModalNewProject

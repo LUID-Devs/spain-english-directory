@@ -7,6 +7,11 @@ import { Link } from "react-router-dom";
 import { useCurrentUser } from "@/stores/userStore";
 import EditProjectModal from "@/components/EditProjectModal";
 import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { cn } from "@/lib/utils";
 
 interface ProjectCardProps {
   project: Project;
@@ -47,7 +52,6 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, viewMode = "grid" })
   const progress = project.statistics?.progress || 0;
   const totalTasks = project.statistics?.totalTasks || project.taskCount || 0;
   const completedTasks = project.statistics?.completedTasks || 0;
-  const memberCount = project.statistics?.memberCount || project.teamMembers?.length || 0;
   const projectStatus = project.statistics?.status || 'Active';
 
   const handleDropdownClick = (e: React.MouseEvent) => {
@@ -115,59 +119,71 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, viewMode = "grid" })
   const getStatusBadge = () => {
     // If project is archived, show archived status instead of normal status
     if (project.archived) {
-      return <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs font-medium">📦 Archived</span>;
+      return <Badge variant="secondary" className="text-xs">Archived</Badge>;
     }
     
-    switch(projectStatus) {
-      case 'Completed':
-        return <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">Completed</span>;
-      case 'Overdue':
-        return <span className="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-medium">Overdue</span>;
-      case 'Active':
-      default:
-        return <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">Active</span>;
+    // Check if project is actually completed (100% progress)
+    if (progress >= 100) {
+      return <Badge variant="default" className="text-xs bg-green-100 text-green-800 hover:bg-green-100">Completed</Badge>;
     }
+    
+    // Determine status based on actual progress and due dates
+    const now = new Date();
+    const endDate = project.endDate ? new Date(project.endDate) : null;
+    
+    // Only show overdue if project has an end date and is overdue by less than 1 year
+    // (to avoid showing very old test projects as overdue)
+    if (endDate && endDate < now) {
+      const daysPastDue = Math.floor((now.getTime() - endDate.getTime()) / (1000 * 60 * 60 * 24));
+      if (daysPastDue < 365) {
+        return <Badge variant="destructive" className="text-xs">Overdue</Badge>;
+      }
+    }
+    
+    // Default to active for ongoing projects
+    return <Badge variant="default" className="text-xs">Active</Badge>;
   };
 
   if (viewMode === "list") {
     return (
       <>
-        <div className="relative">
-          <Link to={`/dashboard/projects/${project.id}`}>
-            <div className={`bg-white dark:bg-dark-secondary rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-5 hover:shadow-md hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-200 cursor-pointer group ${
-              project.archived ? 'opacity-75 bg-gray-50 dark:bg-gray-800' : ''
-            }`}>
+        <Link to={`/dashboard/projects/${project.id}`}>
+          <Card className={cn(
+            "hover:shadow-md transition-all duration-200 cursor-pointer group",
+            project.archived && "opacity-75 bg-muted"
+          )}>
+            <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 {/* Main content area */}
                 <div className="flex-1 min-w-0 pr-16">
                   {/* Title and badge row */}
                   <div className="flex items-center gap-3 mb-2">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate">
+                    <h3 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors truncate">
                       {project.name}
                     </h3>
                     {project.archived && (
-                      <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs font-medium flex-shrink-0">
-                        📦 Archived
-                      </span>
+                      <Badge variant="secondary" className="text-xs">Archived</Badge>
                     )}
                     {getStatusBadge()}
                   </div>
 
                   {/* Description */}
-                  <p className="text-gray-600 dark:text-gray-400 text-sm mb-3 line-clamp-1">
+                  <p className="text-muted-foreground text-sm mb-3 line-clamp-1">
                     {project.description || "No description available"}
                   </p>
 
                   {/* Stats row */}
-                  <div className="flex items-center gap-6 text-sm text-gray-500 dark:text-gray-400 mb-3">
+                  <div className="flex items-center gap-6 text-sm text-muted-foreground mb-3">
                     <div className="flex items-center gap-1.5">
                       <CheckCircle className="h-4 w-4 flex-shrink-0" />
                       <span className="whitespace-nowrap">{completedTasks}/{totalTasks} tasks</span>
                     </div>
                     
                     <div className="flex items-center gap-1.5">
-                      <Users className="h-4 w-4 flex-shrink-0" />
-                      <span className="whitespace-nowrap">{memberCount} members</span>
+                      <Clock className="h-4 w-4 flex-shrink-0" />
+                      <span className="whitespace-nowrap">
+                        {project.updatedAt ? format(new Date(project.updatedAt), "MMM d") : "Unknown"}
+                      </span>
                     </div>
                     
                     <div className="flex items-center gap-1.5">
@@ -185,13 +201,8 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, viewMode = "grid" })
 
                   {/* Progress bar */}
                   <div className="flex items-center gap-3">
-                    <div className="flex-1 max-w-32 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                      <div
-                        className="bg-blue-500 h-2 rounded-full transition-all duration-300"
-                        style={{ width: `${progress}%` }}
-                      ></div>
-                    </div>
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300 min-w-0">
+                    <Progress value={progress} className="flex-1 max-w-32" />
+                    <span className="text-sm font-medium text-foreground min-w-0">
                       {progress}%
                     </span>
                   </div>
@@ -200,40 +211,40 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, viewMode = "grid" })
                 {/* Action buttons area */}
                 <div className="absolute top-4 right-4 flex items-center gap-2">
                   {/* Star button */}
-                  <button
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={handleFavoriteToggle}
                     disabled={isFavoriting || isUnfavoriting}
-                    className={`p-1.5 rounded-md transition-all duration-200 ${
-                      isFavoriting || isUnfavoriting 
-                        ? 'opacity-50 cursor-not-allowed' 
-                        : 'hover:bg-gray-100 dark:hover:bg-gray-700 hover:scale-110'
-                    }`}
-                    title={project.isFavorited ? 'Remove from favorites' : 'Add to favorites'}
+                    className="h-8 w-8 p-0"
                   >
                     <Star 
-                      className={`h-4 w-4 transition-colors ${
+                      className={cn(
+                        "h-4 w-4 transition-colors",
                         project.isFavorited 
-                          ? 'text-yellow-500 fill-yellow-500' 
-                          : 'text-gray-400 hover:text-yellow-500'
-                      }`} 
+                          ? "text-yellow-500 fill-yellow-500" 
+                          : "text-muted-foreground hover:text-yellow-500"
+                      )} 
                     />
-                  </button>
+                  </Button>
 
                   {/* Dropdown menu */}
                   <div className="relative" ref={dropdownRef}>
-                    <button 
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       onClick={handleDropdownClick}
-                      className="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                      className="h-8 w-8 p-0"
                     >
-                      <MoreVertical className="h-4 w-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
-                    </button>
+                      <MoreVertical className="h-4 w-4 text-muted-foreground" />
+                    </Button>
                     
                     {showDropdown && (
-                      <div className="absolute right-0 top-9 z-20 bg-white dark:bg-dark-secondary border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg py-1 w-36 animate-in fade-in-0 zoom-in-95 duration-100">
+                      <div className="absolute right-0 top-9 z-20 bg-background border border-border rounded-lg shadow-lg py-1 w-36 animate-in fade-in-0 zoom-in-95 duration-100">
                         {!project.archived && (
                           <button
                             onClick={(e) => handleMenuAction('edit', e)}
-                            className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                            className="flex items-center gap-2 w-full px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors"
                           >
                             <Edit className="h-4 w-4" />
                             Edit
@@ -243,9 +254,10 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, viewMode = "grid" })
                           <button
                             onClick={(e) => handleMenuAction('unarchive', e)}
                             disabled={isUnarchiving}
-                            className={`flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
-                              isUnarchiving ? 'opacity-50 cursor-not-allowed' : ''
-                            }`}
+                            className={cn(
+                              "flex items-center gap-2 w-full px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors",
+                              isUnarchiving && "opacity-50 cursor-not-allowed"
+                            )}
                           >
                             <ArchiveRestore className="h-4 w-4" />
                             {isUnarchiving ? 'Unarchiving...' : 'Unarchive'}
@@ -254,9 +266,10 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, viewMode = "grid" })
                           <button
                             onClick={(e) => handleMenuAction('archive', e)}
                             disabled={isArchiving}
-                            className={`flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
-                              isArchiving ? 'opacity-50 cursor-not-allowed' : ''
-                            }`}
+                            className={cn(
+                              "flex items-center gap-2 w-full px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors",
+                              isArchiving && "opacity-50 cursor-not-allowed"
+                            )}
                           >
                             <Archive className="h-4 w-4" />
                             {isArchiving ? 'Archiving...' : 'Archive'}
@@ -264,7 +277,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, viewMode = "grid" })
                         )}
                         <button
                           onClick={(e) => handleMenuAction('delete', e)}
-                          className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                          className="flex items-center gap-2 w-full px-3 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors"
                         >
                           <Trash2 className="h-4 w-4" />
                           Delete
@@ -274,9 +287,9 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, viewMode = "grid" })
                   </div>
                 </div>
               </div>
-            </div>
-          </Link>
-        </div>
+            </CardContent>
+          </Card>
+        </Link>
 
         {/* Modals for list view */}
         <EditProjectModal
@@ -296,66 +309,64 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, viewMode = "grid" })
 
   return (
     <>
-      <div className="relative">
-        <Link to={`/dashboard/projects/${project.id}`}>
-          <div className={`bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg hover:border-blue-300 dark:hover:border-blue-600 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group ${
-            project.archived ? 'opacity-75 bg-gray-50 dark:bg-gray-800' : ''
-          }`}>
-            {/* Header with title and badges */}
-            <div className="flex items-start justify-between mb-4">
+      <Link to={`/dashboard/projects/${project.id}`}>
+        <Card className={cn(
+          "hover:shadow-lg transition-all duration-200 cursor-pointer group relative",
+          project.archived && "opacity-75 bg-muted"
+        )}>
+          <CardHeader className="pb-4">
+            <div className="flex items-start justify-between">
               <div className="flex-1 min-w-0 pr-16">
-                <div className="flex items-center gap-3 mb-3">
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate">
+                <div className="flex items-center gap-3 mb-2">
+                  <CardTitle className="text-xl font-bold text-foreground group-hover:text-primary transition-colors truncate">
                     {project.name}
-                  </h3>
+                  </CardTitle>
                   {project.archived && (
-                    <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs font-medium flex-shrink-0">
-                      📦 Archived
-                    </span>
+                    <Badge variant="secondary" className="text-xs">Archived</Badge>
                   )}
                 </div>
-                <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-2 leading-relaxed">
+                <CardDescription className="text-muted-foreground text-sm line-clamp-2">
                   {project.description || "No description available"}
-                </p>
+                </CardDescription>
               </div>
 
               {/* Action buttons */}
               <div className="absolute top-5 right-5 flex items-center gap-2">
                 {/* Star button */}
-                <button
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={handleFavoriteToggle}
                   disabled={isFavoriting || isUnfavoriting}
-                  className={`p-2 rounded-lg transition-all duration-200 ${
-                    isFavoriting || isUnfavoriting 
-                      ? 'opacity-50 cursor-not-allowed' 
-                      : 'hover:bg-gray-100 dark:hover:bg-gray-700 hover:scale-110'
-                  }`}
-                  title={project.isFavorited ? 'Remove from favorites' : 'Add to favorites'}
+                  className="h-8 w-8 p-0"
                 >
                   <Star 
-                    className={`h-5 w-5 transition-colors ${
+                    className={cn(
+                      "h-4 w-4 transition-colors",
                       project.isFavorited 
-                        ? 'text-yellow-500 fill-yellow-500' 
-                        : 'text-gray-400 hover:text-yellow-500'
-                    }`} 
+                        ? "text-yellow-500 fill-yellow-500" 
+                        : "text-muted-foreground hover:text-yellow-500"
+                    )} 
                   />
-                </button>
+                </Button>
 
                 {/* Dropdown menu */}
                 <div className="relative" ref={dropdownRef}>
-                  <button 
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={handleDropdownClick}
-                    className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    className="h-8 w-8 p-0"
                   >
-                    <MoreVertical className="h-5 w-5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
-                  </button>
+                    <MoreVertical className="h-4 w-4 text-muted-foreground" />
+                  </Button>
                   
                   {showDropdown && (
-                    <div className="absolute right-0 top-11 z-20 bg-white dark:bg-dark-secondary border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg py-1 w-36 animate-in fade-in-0 zoom-in-95 duration-100">
+                    <div className="absolute right-0 top-9 z-20 bg-background border border-border rounded-lg shadow-lg py-1 w-36 animate-in fade-in-0 zoom-in-95 duration-100">
                       {!project.archived && (
                         <button
                           onClick={(e) => handleMenuAction('edit', e)}
-                          className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                          className="flex items-center gap-2 w-full px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors"
                         >
                           <Edit className="h-4 w-4" />
                           Edit
@@ -365,9 +376,10 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, viewMode = "grid" })
                         <button
                           onClick={(e) => handleMenuAction('unarchive', e)}
                           disabled={isUnarchiving}
-                          className={`flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
-                            isUnarchiving ? 'opacity-50 cursor-not-allowed' : ''
-                          }`}
+                          className={cn(
+                            "flex items-center gap-2 w-full px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors",
+                            isUnarchiving && "opacity-50 cursor-not-allowed"
+                          )}
                         >
                           <ArchiveRestore className="h-4 w-4" />
                           {isUnarchiving ? 'Unarchiving...' : 'Unarchive'}
@@ -376,9 +388,10 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, viewMode = "grid" })
                         <button
                           onClick={(e) => handleMenuAction('archive', e)}
                           disabled={isArchiving}
-                          className={`flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
-                            isArchiving ? 'opacity-50 cursor-not-allowed' : ''
-                          }`}
+                          className={cn(
+                            "flex items-center gap-2 w-full px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors",
+                            isArchiving && "opacity-50 cursor-not-allowed"
+                          )}
                         >
                           <Archive className="h-4 w-4" />
                           {isArchiving ? 'Archiving...' : 'Archive'}
@@ -386,7 +399,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, viewMode = "grid" })
                       )}
                       <button
                         onClick={(e) => handleMenuAction('delete', e)}
-                        className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                        className="flex items-center gap-2 w-full px-3 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors"
                       >
                         <Trash2 className="h-4 w-4" />
                         Delete
@@ -396,47 +409,44 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, viewMode = "grid" })
                 </div>
               </div>
             </div>
+          </CardHeader>
 
+          <CardContent className="space-y-4">
             {/* Progress section */}
-            <div className="mb-5">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Progress</span>
-                <span className="text-sm font-bold text-blue-600 dark:text-blue-400">{progress}%</span>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-foreground">Progress</span>
+                <span className="text-sm font-medium text-primary">{progress}%</span>
               </div>
-              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
-                <div
-                  className="bg-gradient-to-r from-blue-500 to-blue-600 h-2.5 rounded-full transition-all duration-500 ease-out"
-                  style={{ width: `${progress}%` }}
-                ></div>
-              </div>
+              <Progress value={progress} className="h-2" />
             </div>
 
             {/* Stats grid */}
-            <div className="grid grid-cols-2 gap-4 mb-5">
-              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-muted rounded-lg p-3">
                 <div className="flex items-center gap-2 text-sm">
                   <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                  <span className="text-gray-600 dark:text-gray-400">Tasks</span>
+                  <span className="text-muted-foreground">Tasks</span>
                 </div>
-                <p className="text-lg font-bold text-gray-900 dark:text-white mt-1">
+                <p className="text-lg font-bold text-foreground mt-1">
                   {completedTasks}/{totalTasks}
                 </p>
               </div>
               
-              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+              <div className="bg-muted rounded-lg p-3">
                 <div className="flex items-center gap-2 text-sm">
-                  <Users className="h-4 w-4 text-blue-500 flex-shrink-0" />
-                  <span className="text-gray-600 dark:text-gray-400">Members</span>
+                  <Clock className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                  <span className="text-muted-foreground">Last Update</span>
                 </div>
-                <p className="text-lg font-bold text-gray-900 dark:text-white mt-1">
-                  {memberCount}
+                <p className="text-sm font-bold text-foreground mt-1">
+                  {project.updatedAt ? format(new Date(project.updatedAt), "MMM d") : "Unknown"}
                 </p>
               </div>
             </div>
 
             {/* Footer with date and status */}
-            <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-700">
-              <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+            <div className="flex items-center justify-between pt-3 border-t border-border">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Calendar className="h-4 w-4 flex-shrink-0" />
                 <span>
                   {project.startDate ? format(new Date(project.startDate), "MMM d, yyyy") : "No start date"}
@@ -449,27 +459,59 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, viewMode = "grid" })
             </div>
 
             {/* Due date warning */}
-            {projectStatus !== 'Completed' && project.endDate && new Date(project.endDate) < new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) && (
-              <div className={`mt-4 p-3 border rounded-lg ${
-                projectStatus === 'Overdue' 
-                  ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
-                  : 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800'
-              }`}>
-                <div className={`flex items-center gap-2 text-sm font-medium ${
-                  projectStatus === 'Overdue'
-                    ? 'text-red-800 dark:text-red-200'
-                    : 'text-yellow-800 dark:text-yellow-200'
-                }`}>
+            {progress < 100 && project.endDate && (() => {
+              const now = new Date();
+              const endDate = new Date(project.endDate);
+              const isOverdue = endDate < now;
+              const daysPastDue = isOverdue ? Math.floor((now.getTime() - endDate.getTime()) / (1000 * 60 * 60 * 24)) : 0;
+              const isDueSoon = endDate < new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+              
+              // Only show warning if due soon or overdue by less than 1 year
+              return (isDueSoon && (!isOverdue || daysPastDue < 365));
+            })() && (
+              <div className={cn(
+                "mt-3 p-3 border rounded-lg",
+                (() => {
+                  const now = new Date();
+                  const endDate = new Date(project.endDate);
+                  const isOverdue = endDate < now;
+                  const daysPastDue = isOverdue ? Math.floor((now.getTime() - endDate.getTime()) / (1000 * 60 * 60 * 24)) : 0;
+                  
+                  return (isOverdue && daysPastDue < 365)
+                    ? "bg-destructive/10 border-destructive/20"
+                    : "bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800";
+                })()
+              )}>
+                <div className={cn(
+                  "flex items-center gap-2 text-sm font-medium",
+                  (() => {
+                    const now = new Date();
+                    const endDate = new Date(project.endDate);
+                    const isOverdue = endDate < now;
+                    const daysPastDue = isOverdue ? Math.floor((now.getTime() - endDate.getTime()) / (1000 * 60 * 60 * 24)) : 0;
+                    
+                    return (isOverdue && daysPastDue < 365)
+                      ? "text-destructive"
+                      : "text-yellow-800 dark:text-yellow-200";
+                  })()
+                )}>
                   <Clock className="h-4 w-4 flex-shrink-0" />
                   <span>
-                    {projectStatus === 'Overdue' ? 'Overdue since' : 'Due'} {format(new Date(project.endDate), "MMM d")}
+                    {(() => {
+                      const now = new Date();
+                      const endDate = new Date(project.endDate);
+                      const isOverdue = endDate < now;
+                      const daysPastDue = isOverdue ? Math.floor((now.getTime() - endDate.getTime()) / (1000 * 60 * 60 * 24)) : 0;
+                      
+                      return (isOverdue && daysPastDue < 365) ? 'Overdue since' : 'Due';
+                    })()} {format(new Date(project.endDate), "MMM d")}
                   </span>
                 </div>
               </div>
             )}
-          </div>
-        </Link>
-      </div>
+          </CardContent>
+        </Card>
+      </Link>
 
       {/* Modals */}
       <EditProjectModal
