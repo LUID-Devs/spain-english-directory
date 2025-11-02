@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from "react";
 import { useGetTeamsQuery, useGetUsersWithStatsQuery, useGetProjectsQuery } from "@/hooks/useApi";
-import Header from "@/components/Header";
 import {
   Users,
   Search,
@@ -11,11 +10,18 @@ import {
   UserPlus,
   Crown,
   Shield,
-  Briefcase,
   Activity,
   Award,
-  Target
+  Target,
+  Grid3X3,
+  List
 } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { cn } from "@/lib/utils";
 
 interface TeamCardProps {
   team: {
@@ -53,157 +59,161 @@ const TeamCard: React.FC<TeamCardProps> = ({ team, users = [], projects = [] }) 
   const completionRate = stats.totalTasks > 0 ? Math.round((stats.completedTasks / stats.totalTasks) * 100) : 0;
 
   return (
-    <div className="bg-white dark:bg-dark-secondary rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow">
-      {/* Header */}
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center space-x-3">
-          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-            <Users className="h-6 w-6 text-white" />
+    <Card className="hover:shadow-md transition-shadow">
+      <CardHeader className="pb-4">
+        <div className="flex items-start justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/70 rounded-lg flex items-center justify-center">
+              <Users className="h-6 w-6 text-primary-foreground" />
+            </div>
+            <div>
+              <CardTitle className="text-lg font-semibold">
+                {team.teamName}
+              </CardTitle>
+              <CardDescription>
+                Team ID: {team.teamId}
+              </CardDescription>
+            </div>
           </div>
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-              {team.teamName}
-            </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Team ID: {team.teamId}
-            </p>
+          
+          <div className="relative">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowDropdown(!showDropdown)}
+              className="h-8 w-8 p-0"
+            >
+              <MoreVertical className="h-4 w-4" />
+            </Button>
+            
+            {showDropdown && (
+              <div className="absolute right-0 top-9 z-10 bg-background border border-border rounded-lg shadow-lg py-1 w-48 animate-in fade-in-0 zoom-in-95 duration-100">
+                <button className="flex items-center space-x-2 w-full px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors">
+                  <UserPlus className="h-4 w-4" />
+                  <span>Add Member</span>
+                </button>
+                <button className="flex items-center space-x-2 w-full px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors">
+                  <Settings className="h-4 w-4" />
+                  <span>Team Settings</span>
+                </button>
+                <button className="flex items-center space-x-2 w-full px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors">
+                  <Mail className="h-4 w-4" />
+                  <span>Send Invitation</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
-        
-        <div className="relative">
-          <button
-            onClick={() => setShowDropdown(!showDropdown)}
-            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-          >
-            <MoreVertical className="h-5 w-5" />
-          </button>
-          
-          {showDropdown && (
-            <div className="absolute right-0 top-10 z-10 bg-white dark:bg-dark-secondary border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg py-1 w-48">
-              <button className="flex items-center space-x-2 w-full px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <UserPlus className="h-4 w-4" />
-                <span>Add Member</span>
-              </button>
-              <button className="flex items-center space-x-2 w-full px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <Settings className="h-4 w-4" />
-                <span>Team Settings</span>
-              </button>
-              <button className="flex items-center space-x-2 w-full px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <Mail className="h-4 w-4" />
-                <span>Send Invitation</span>
-              </button>
+      </CardHeader>
+
+      <CardContent className="space-y-6">
+        {/* Team Stats */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="text-center bg-muted rounded-lg p-3">
+            <div className="text-2xl font-bold text-primary">
+              {stats.memberCount}
+            </div>
+            <div className="text-xs text-muted-foreground">Members</div>
+          </div>
+          <div className="text-center bg-muted rounded-lg p-3">
+            <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+              {stats.projectCount}
+            </div>
+            <div className="text-xs text-muted-foreground">Projects</div>
+          </div>
+          <div className="text-center bg-muted rounded-lg p-3">
+            <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+              {stats.totalTasks}
+            </div>
+            <div className="text-xs text-muted-foreground">Tasks</div>
+          </div>
+          <div className="text-center bg-muted rounded-lg p-3">
+            <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
+              {completionRate}%
+            </div>
+            <div className="text-xs text-muted-foreground">Complete</div>
+          </div>
+        </div>
+
+        {/* Team Roles */}
+        <div className="space-y-3">
+          {productOwner && (
+            <div className="flex items-center space-x-3">
+              <Crown className="h-4 w-4 text-yellow-500" />
+              <span className="text-sm text-muted-foreground">Product Owner:</span>
+              <Badge variant="secondary" className="text-xs">
+                {productOwner.username}
+              </Badge>
+            </div>
+          )}
+          {projectManager && (
+            <div className="flex items-center space-x-3">
+              <Shield className="h-4 w-4 text-blue-500" />
+              <span className="text-sm text-muted-foreground">Project Manager:</span>
+              <Badge variant="secondary" className="text-xs">
+                {projectManager.username}
+              </Badge>
             </div>
           )}
         </div>
-      </div>
 
-      {/* Team Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div className="text-center">
-          <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-            {stats.memberCount}
-          </div>
-          <div className="text-xs text-gray-500 dark:text-gray-400">Members</div>
-        </div>
-        <div className="text-center">
-          <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-            {stats.projectCount}
-          </div>
-          <div className="text-xs text-gray-500 dark:text-gray-400">Projects</div>
-        </div>
-        <div className="text-center">
-          <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-            {stats.totalTasks}
-          </div>
-          <div className="text-xs text-gray-500 dark:text-gray-400">Tasks</div>
-        </div>
-        <div className="text-center">
-          <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
-            {completionRate}%
-          </div>
-          <div className="text-xs text-gray-500 dark:text-gray-400">Complete</div>
-        </div>
-      </div>
-
-      {/* Team Roles */}
-      <div className="space-y-3 mb-6">
-        {productOwner && (
-          <div className="flex items-center space-x-3">
-            <Crown className="h-4 w-4 text-yellow-500" />
-            <span className="text-sm text-gray-600 dark:text-gray-400">Product Owner:</span>
-            <span className="text-sm font-medium text-gray-900 dark:text-white">
-              {productOwner.username}
-            </span>
+        {/* Team Members Preview */}
+        {teamMembers.length > 0 && (
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-sm font-medium text-foreground">
+                Team Members
+              </span>
+              <Badge variant="outline" className="text-xs">
+                {teamMembers.length} member{teamMembers.length !== 1 ? 's' : ''}
+              </Badge>
+            </div>
+            <div className="flex -space-x-2">
+              {teamMembers.slice(0, 6).map((member) => (
+                <div
+                  key={member.userId}
+                  className="w-8 h-8 bg-gradient-to-br from-primary/20 to-primary/40 rounded-full border-2 border-background flex items-center justify-center text-xs font-medium text-foreground"
+                  title={member.username}
+                >
+                  {member.username.charAt(0).toUpperCase()}
+                </div>
+              ))}
+              {teamMembers.length > 6 && (
+                <div className="w-8 h-8 bg-muted rounded-full border-2 border-background flex items-center justify-center text-xs font-medium text-muted-foreground">
+                  +{teamMembers.length - 6}
+                </div>
+              )}
+            </div>
           </div>
         )}
-        {projectManager && (
-          <div className="flex items-center space-x-3">
-            <Shield className="h-4 w-4 text-blue-500" />
-            <span className="text-sm text-gray-600 dark:text-gray-400">Project Manager:</span>
-            <span className="text-sm font-medium text-gray-900 dark:text-white">
-              {projectManager.username}
-            </span>
-          </div>
-        )}
-      </div>
 
-      {/* Team Members Preview */}
-      {teamMembers.length > 0 && (
-        <div className="mb-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              Team Members
-            </span>
-            <span className="text-xs text-gray-500 dark:text-gray-400">
-              {teamMembers.length} member{teamMembers.length !== 1 ? 's' : ''}
-            </span>
-          </div>
-          <div className="flex -space-x-2">
-            {teamMembers.slice(0, 6).map((member, index) => (
-              <div
-                key={member.userId}
-                className="w-8 h-8 bg-gradient-to-br from-gray-400 to-gray-600 rounded-full border-2 border-white dark:border-dark-secondary flex items-center justify-center text-xs font-medium text-white"
-                title={member.username}
+        {/* Performance Indicator */}
+        <div className="border-t border-border pt-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Activity className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">Performance</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              {completionRate >= 80 ? (
+                <Award className="h-4 w-4 text-green-500" />
+              ) : completionRate >= 60 ? (
+                <Target className="h-4 w-4 text-yellow-500" />
+              ) : (
+                <Activity className="h-4 w-4 text-red-500" />
+              )}
+              <Badge 
+                variant={completionRate >= 80 ? "default" : completionRate >= 60 ? "secondary" : "destructive"}
+                className="text-xs"
               >
-                {member.username.charAt(0).toUpperCase()}
-              </div>
-            ))}
-            {teamMembers.length > 6 && (
-              <div className="w-8 h-8 bg-gray-300 dark:bg-gray-600 rounded-full border-2 border-white dark:border-dark-secondary flex items-center justify-center text-xs font-medium text-gray-600 dark:text-gray-300">
-                +{teamMembers.length - 6}
-              </div>
-            )}
+                {completionRate >= 80 ? 'Excellent' :
+                 completionRate >= 60 ? 'Good' : 'Needs Focus'}
+              </Badge>
+            </div>
           </div>
         </div>
-      )}
-
-      {/* Performance Indicator */}
-      <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Activity className="h-4 w-4 text-gray-400" />
-            <span className="text-sm text-gray-600 dark:text-gray-400">Performance</span>
-          </div>
-          <div className="flex items-center space-x-1">
-            {completionRate >= 80 ? (
-              <Award className="h-4 w-4 text-green-500" />
-            ) : completionRate >= 60 ? (
-              <Target className="h-4 w-4 text-yellow-500" />
-            ) : (
-              <Activity className="h-4 w-4 text-red-500" />
-            )}
-            <span className={`text-sm font-medium ${
-              completionRate >= 80 ? 'text-green-600 dark:text-green-400' :
-              completionRate >= 60 ? 'text-yellow-600 dark:text-yellow-400' :
-              'text-red-600 dark:text-red-400'
-            }`}>
-              {completionRate >= 80 ? 'Excellent' :
-               completionRate >= 60 ? 'Good' : 'Needs Focus'}
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 
@@ -243,164 +253,182 @@ const TeamsPage = () => {
 
   if (isLoading) {
     return (
-      <div className="flex w-full flex-col p-8">
-        <Header name="Teams" />
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading teams...</p>
+      <div className="container mx-auto p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Teams</h1>
+            <p className="text-muted-foreground">Manage and organize your teams</p>
           </div>
         </div>
+        <Card>
+          <CardContent className="flex items-center justify-center h-64">
+            <div className="text-center space-y-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+              <p className="text-muted-foreground">Loading teams...</p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   if (teamsError || !teams) {
     return (
-      <div className="flex w-full flex-col p-8">
-        <Header name="Teams" />
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <p className="text-red-600 mb-4">Error loading teams</p>
-            <button 
-              onClick={() => window.location.reload()} 
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-            >
-              Retry
-            </button>
+      <div className="container mx-auto p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Teams</h1>
+            <p className="text-muted-foreground">Manage and organize your teams</p>
           </div>
         </div>
+        <Alert variant="destructive">
+          <AlertDescription>
+            Error loading teams. Please try again.
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => window.location.reload()}
+              className="ml-4"
+            >
+              Retry
+            </Button>
+          </AlertDescription>
+        </Alert>
       </div>
     );
   }
 
   return (
-    <div className="flex w-full flex-col p-8">
-      <Header name="Team Management" />
+    <div className="container mx-auto p-6 space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Team Management</h1>
+          <p className="text-muted-foreground">
+            Manage teams, members, and track performance across your organization
+          </p>
+        </div>
+        <Button>
+          <Plus className="h-4 w-4 mr-2" />
+          New Team
+        </Button>
+      </div>
       
       {/* Header Section with Stats */}
-      <div className="mb-6 bg-white dark:bg-dark-secondary rounded-lg p-6 shadow">
-        <div className="flex flex-col lg:flex-row gap-6 items-start lg:items-center justify-between">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <Users className="h-6 w-6 text-blue-600" />
-              <h2 className="text-xl font-semibold dark:text-white">
-                Team Overview
-              </h2>
-            </div>
-            <p className="text-gray-600 dark:text-gray-400">
-              Manage teams, members, and track performance across your organization
-            </p>
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Users className="h-6 w-6 text-primary" />
+            <CardTitle className="text-xl">Team Overview</CardTitle>
           </div>
-          
+          <CardDescription>
+            Overview of your organization's team statistics
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
           {/* Quick Stats */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 text-center">
-            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3">
-              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+            <div className="bg-primary/10 rounded-lg p-4">
+              <div className="text-2xl font-bold text-primary">
                 {overallStats.activeTeams}
               </div>
-              <div className="text-xs text-blue-600 dark:text-blue-400">Active Teams</div>
+              <div className="text-xs text-muted-foreground">Active Teams</div>
             </div>
-            <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-3">
+            <div className="bg-green-100 dark:bg-green-900/20 rounded-lg p-4">
               <div className="text-2xl font-bold text-green-600 dark:text-green-400">
                 {overallStats.totalMembers}
               </div>
-              <div className="text-xs text-green-600 dark:text-green-400">Total Members</div>
+              <div className="text-xs text-muted-foreground">Total Members</div>
             </div>
-            <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-3">
+            <div className="bg-purple-100 dark:bg-purple-900/20 rounded-lg p-4">
               <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
                 {overallStats.totalProjects}
               </div>
-              <div className="text-xs text-purple-600 dark:text-purple-400">Projects</div>
+              <div className="text-xs text-muted-foreground">Projects</div>
             </div>
-            <div className="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-3">
+            <div className="bg-orange-100 dark:bg-orange-900/20 rounded-lg p-4">
               <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
                 {overallStats.averageTeamSize}
               </div>
-              <div className="text-xs text-orange-600 dark:text-orange-400">Avg Size</div>
+              <div className="text-xs text-muted-foreground">Avg Size</div>
             </div>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
-      {/* Controls */}
-      <div className="mb-6 bg-white dark:bg-dark-secondary rounded-lg p-4 shadow">
-        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-          <div className="flex gap-3 items-center">
-            {/* Search */}
-            <div className="relative">
-              <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
+      {/* Search and Filter Bar */}
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
                 placeholder="Search teams..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                className="pl-10"
               />
             </div>
-          </div>
-          
-          <div className="flex gap-2 items-center">
-            {/* View Mode Toggle */}
-            <div className="flex border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
-              <button
-                onClick={() => setViewMode("grid")}
-                className={`px-3 py-2 text-sm ${
-                  viewMode === "grid" 
-                    ? "bg-blue-500 text-white" 
-                    : "bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300"
-                }`}
-              >
-                Grid
-              </button>
-              <button
-                onClick={() => setViewMode("list")}
-                className={`px-3 py-2 text-sm ${
-                  viewMode === "list" 
-                    ? "bg-blue-500 text-white" 
-                    : "bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300"
-                }`}
-              >
-                List
-              </button>
-            </div>
             
-            {/* Create Team Button */}
-            <button className="flex items-center space-x-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
-              <Plus className="h-4 w-4" />
-              <span>New Team</span>
-            </button>
+            {/* View Mode Toggle */}
+            <div className="flex items-center gap-2">
+              <Button
+                variant={viewMode === "grid" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setViewMode("grid")}
+              >
+                <Grid3X3 className="h-4 w-4" />
+              </Button>
+              <Button
+                variant={viewMode === "list" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setViewMode("list")}
+              >
+                <List className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
-      {/* Teams Grid/List */}
+      {/* Teams Display */}
       {filteredTeams.length === 0 ? (
-        <div className="bg-white dark:bg-dark-secondary rounded-lg p-12 shadow text-center">
-          <Users className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-            No Teams Found
-          </h3>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
-            {searchQuery ? 
-              `No teams found matching "${searchQuery}"` :
-              "Create your first team to get started with project collaboration."
-            }
-          </p>
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery('')}
-              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-            >
-              Clear Search
-            </button>
-          )}
-        </div>
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center h-64 text-center p-6">
+            <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+              <Users className="h-8 w-8 text-muted-foreground" />
+            </div>
+            <h3 className="text-lg font-medium mb-2">
+              No Teams Found
+            </h3>
+            <p className="text-muted-foreground mb-4 max-w-sm">
+              {searchQuery ? 
+                `No teams found matching "${searchQuery}"` :
+                "Create your first team to get started with project collaboration."
+              }
+            </p>
+            {searchQuery ? (
+              <Button
+                onClick={() => setSearchQuery('')}
+                variant="outline"
+              >
+                Clear Search
+              </Button>
+            ) : (
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Create Your First Team
+              </Button>
+            )}
+          </CardContent>
+        </Card>
       ) : (
-        <div className={viewMode === "grid" ? 
-          "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : 
-          "space-y-4"
-        }>
+        <div className={cn(
+          "gap-6",
+          viewMode === "grid" 
+            ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3" 
+            : "flex flex-col"
+        )}>
           {filteredTeams.map((team) => (
             <TeamCard
               key={team.teamId}
@@ -414,8 +442,8 @@ const TeamsPage = () => {
       
       {/* Results Count */}
       {filteredTeams.length > 0 && (
-        <div className="mt-8 text-center">
-          <p className="text-gray-500 dark:text-gray-400 text-sm">
+        <div className="text-center">
+          <p className="text-muted-foreground text-sm">
             Showing {filteredTeams.length} of {teams.length} teams
           </p>
         </div>

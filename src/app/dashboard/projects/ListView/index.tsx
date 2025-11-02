@@ -1,8 +1,12 @@
-import Header from "@/components/Header";
 import { Task, useGetTasksQuery } from "@/hooks/useApi";
 import React, { useState, useMemo } from "react";
 import TaskCard from "@/components/TaskCard";
-import { Plus, Filter, SortAsc, Grid3X3, List, Search } from "lucide-react";
+import { Plus, Grid3X3, List, Search, FileText, AlertTriangle } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
 type Props = {
   id: string;
@@ -83,142 +87,152 @@ const ListView = ({
     return filtered;
   }, [tasks, searchQuery, filterBy, sortBy]);
 
-  if (isLoading) return (
-    <div className="flex items-center justify-center h-64">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
-        <p className="text-gray-600 dark:text-gray-400">Loading tasks...</p>
+  if (isLoading) {
+    return (
+      <div className="container mx-auto p-6">
+        <Card>
+          <CardContent className="flex items-center justify-center h-64">
+            <div className="text-center space-y-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+              <p className="text-muted-foreground">Loading tasks...</p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
-    </div>
-  );
+    );
+  }
   
-  if (error) return (
-    <div className="flex items-center justify-center h-64">
-      <div className="text-center">
-        <p className="text-red-600 dark:text-red-400">An error occurred while fetching tasks</p>
+  if (error) {
+    return (
+      <div className="container mx-auto p-6">
+        <Card>
+          <CardContent className="flex items-center justify-center h-64">
+            <div className="text-center space-y-4">
+              <AlertTriangle className="h-12 w-12 text-destructive mx-auto" />
+              <p className="text-destructive">An error occurred while fetching tasks</p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
-    </div>
-  );
+    );
+  }
 
   return (
-    <div className="px-6 pb-8 max-w-[1600px] mx-auto">
-      {/* Enhanced Header */}
-      <div className="py-6 space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
-              Task List
-            </h1>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-              {filteredAndSortedTasks.length} task{filteredAndSortedTasks.length !== 1 ? 's' : ''} found
-            </p>
+    <div className="container mx-auto p-6 space-y-6">
+      {/* Header */}
+      <Card>
+        <CardHeader>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex items-center space-x-3">
+              <FileText className="h-8 w-8 text-primary" />
+              <div>
+                <CardTitle className="text-2xl">Task List</CardTitle>
+                <CardDescription>
+                  {filteredAndSortedTasks.length} task{filteredAndSortedTasks.length !== 1 ? 's' : ''} found
+                </CardDescription>
+              </div>
+            </div>
+            <Button onClick={() => setIsModalNewTaskOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Task
+            </Button>
           </div>
-          <button
-            onClick={() => setIsModalNewTaskOpen(true)}
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-xl shadow-sm hover:shadow-md transition-all duration-200 transform hover:scale-105"
-          >
-            <Plus size={16} />
-            Add Task
-          </button>
-        </div>
+        </CardHeader>
+      </Card>
 
-        {/* Enhanced Controls */}
-        <div className="flex flex-col lg:flex-row gap-4">
-          {/* Search */}
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
-            <input
-              type="text"
-              placeholder="Search tasks..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-dark-secondary text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-            />
-          </div>
+      {/* Controls */}
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex flex-col lg:flex-row gap-4">
+            {/* Search */}
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search tasks..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
 
-          <div className="flex items-center gap-3">
-            {/* Filter */}
-            <select
-              value={filterBy}
-              onChange={(e) => setFilterBy(e.target.value as FilterOption)}
-              className="px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-dark-secondary text-gray-900 dark:text-gray-100 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-            >
-              <option value="all">All Status</option>
-              <option value="To Do">To Do</option>
-              <option value="Work In Progress">In Progress</option>
-              <option value="Under Review">Under Review</option>
-              <option value="Completed">Completed</option>
-            </select>
+            <div className="flex items-center gap-3">
+              {/* Filter */}
+              <Select value={filterBy} onValueChange={(value) => setFilterBy(value as FilterOption)}>
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue placeholder="Filter" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="To Do">To Do</SelectItem>
+                  <SelectItem value="Work In Progress">In Progress</SelectItem>
+                  <SelectItem value="Under Review">Under Review</SelectItem>
+                  <SelectItem value="Completed">Completed</SelectItem>
+                </SelectContent>
+              </Select>
 
-            {/* Sort */}
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as SortOption)}
-              className="px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-dark-secondary text-gray-900 dark:text-gray-100 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-            >
-              <option value="priority">Sort by Priority</option>
-              <option value="dueDate">Sort by Due Date</option>
-              <option value="title">Sort by Title</option>
-              <option value="status">Sort by Status</option>
-            </select>
+              {/* Sort */}
+              <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortOption)}>
+                <SelectTrigger className="w-[160px]">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="priority">Sort by Priority</SelectItem>
+                  <SelectItem value="dueDate">Sort by Due Date</SelectItem>
+                  <SelectItem value="title">Sort by Title</SelectItem>
+                  <SelectItem value="status">Sort by Status</SelectItem>
+                </SelectContent>
+              </Select>
 
-            {/* View Mode Toggle */}
-            <div className="flex items-center border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden bg-white dark:bg-dark-secondary">
-              <button
-                onClick={() => setViewMode("grid")}
-                className={`p-2.5 transition-all duration-200 ${
-                  viewMode === "grid" 
-                    ? "bg-blue-500 text-white" 
-                    : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700"
-                }`}
-              >
-                <Grid3X3 size={16} />
-              </button>
-              <button
-                onClick={() => setViewMode("list")}
-                className={`p-2.5 transition-all duration-200 ${
-                  viewMode === "list" 
-                    ? "bg-blue-500 text-white" 
-                    : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700"
-                }`}
-              >
-                <List size={16} />
-              </button>
+              {/* View Mode Toggle */}
+              <div className="flex items-center gap-1">
+                <Button
+                  variant={viewMode === "grid" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setViewMode("grid")}
+                >
+                  <Grid3X3 className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant={viewMode === "list" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setViewMode("list")}
+                >
+                  <List className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       {/* Tasks Grid/List */}
       {filteredAndSortedTasks.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 text-center">
-          <div className="text-6xl mb-4 opacity-50">📝</div>
-          <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
-            {searchQuery || filterBy !== "all" ? "No matching tasks" : "No tasks yet"}
-          </h3>
-          <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md">
-            {searchQuery || filterBy !== "all" 
-              ? "Try adjusting your search or filters to find more tasks."
-              : "Get started by creating your first task for this project."
-            }
-          </p>
-          {(!searchQuery && filterBy === "all") && (
-            <button
-              onClick={() => setIsModalNewTaskOpen(true)}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-xl shadow-sm hover:shadow-md transition-all duration-200 transform hover:scale-105"
-            >
-              <Plus size={18} />
-              Create First Task
-            </button>
-          )}
-        </div>
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center py-16 text-center">
+            <FileText className="h-16 w-16 text-muted-foreground mb-4" />
+            <h3 className="text-xl font-semibold text-foreground mb-2">
+              {searchQuery || filterBy !== "all" ? "No matching tasks" : "No tasks yet"}
+            </h3>
+            <p className="text-muted-foreground mb-6 max-w-md">
+              {searchQuery || filterBy !== "all" 
+                ? "Try adjusting your search or filters to find more tasks."
+                : "Get started by creating your first task for this project."
+              }
+            </p>
+            {(!searchQuery && filterBy === "all") && (
+              <Button onClick={() => setIsModalNewTaskOpen(true)} size="lg">
+                <Plus className="h-4 w-4 mr-2" />
+                Create First Task
+              </Button>
+            )}
+          </CardContent>
+        </Card>
       ) : (
-        <div className={`
-          ${viewMode === "grid" 
+        <div className={cn(
+          viewMode === "grid" 
             ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6" 
             : "space-y-4"
-          }
-        `}>
+        )}>
           {filteredAndSortedTasks.map((task: Task) => (
             <div key={task.id} className={viewMode === "list" ? "max-w-none" : ""}>
               <TaskCard task={task} />

@@ -4,6 +4,9 @@ import { DisplayOption, Gantt, ViewMode } from "gantt-task-react";
 import "gantt-task-react/dist/index.css";
 import React, { useMemo, useState } from "react";
 import { Plus, Calendar, Filter, BarChart3, Clock, ChevronDown } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 type Props = {
   id: string;
@@ -80,12 +83,12 @@ const Timeline = ({
     }));
   };
 
-  const getViewModeIcon = (mode: ViewMode) => {
+  const getViewModeLabel = (mode: ViewMode) => {
     switch (mode) {
-      case ViewMode.Day: return "📅";
-      case ViewMode.Week: return "📋";
-      case ViewMode.Month: return "🗓️";
-      default: return "📅";
+      case ViewMode.Day: return "Day";
+      case ViewMode.Week: return "Week";
+      case ViewMode.Month: return "Month";
+      default: return "Day";
     }
   };
 
@@ -154,8 +157,8 @@ const Timeline = ({
                       : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700"
                   }`}
                 >
-                  <span>{getViewModeIcon(mode)}</span>
-                  {mode.charAt(0).toUpperCase() + mode.slice(1)}
+                  <Calendar className="h-4 w-4 mr-2" />
+                  {getViewModeLabel(mode)}
                 </button>
               ))}
             </div>
@@ -185,70 +188,71 @@ const Timeline = ({
 
       {/* Timeline Content */}
       {ganttTasks.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 text-center bg-white dark:bg-dark-secondary rounded-2xl border border-gray-200 dark:border-gray-700">
-          <div className="text-6xl mb-4 opacity-50">📅</div>
-          <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
-            No scheduled tasks
-          </h3>
-          <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md">
-            Tasks need start and due dates to appear on the timeline. Create or edit tasks to add scheduling information.
-          </p>
-          <button
-            onClick={() => setIsModalNewTaskOpen(true)}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-xl shadow-sm hover:shadow-md transition-all duration-200 transform hover:scale-105"
-          >
-            <Plus size={18} />
-            Create Scheduled Task
-          </button>
-        </div>
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center py-16 text-center">
+            <Calendar className="h-16 w-16 text-muted-foreground mb-4" />
+            <h3 className="text-xl font-semibold text-foreground mb-2">
+              No scheduled tasks
+            </h3>
+            <p className="text-muted-foreground mb-6 max-w-md">
+              Tasks need start and due dates to appear on the timeline. Create or edit tasks to add scheduling information.
+            </p>
+            <Button onClick={() => setIsModalNewTaskOpen(true)} size="lg">
+              <Plus className="h-4 w-4 mr-2" />
+              Create Scheduled Task
+            </Button>
+          </CardContent>
+        </Card>
       ) : (
-        <div className="bg-white dark:bg-dark-secondary rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm">
-          <div className="timeline-container">
-            <Gantt
-              tasks={ganttTasks}
-              {...displayOptions}
-              columnWidth={displayOptions.viewMode === ViewMode.Month ? 180 : displayOptions.viewMode === ViewMode.Week ? 120 : 80}
-              listCellWidth="200px"
-              barBackgroundColor={isDarkMode ? "#374151" : "#E5E7EB"}
-              barBackgroundSelectedColor={isDarkMode ? "#1F2937" : "#D1D5DB"}
-              arrowColor={isDarkMode ? "#6B7280" : "#9CA3AF"}
-              fontFamily="Inter, -apple-system, BlinkMacSystemFont, system-ui, sans-serif"
-              fontSize="13px"
-              gridLineColor={isDarkMode ? "#374151" : "#F3F4F6"}
-              todayColor={isDarkMode ? "#1E40AF" : "#3B82F6"}
-              TooltipContent={({ task, fontSize, fontFamily }) => (
-                <div 
-                  className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg p-3 max-w-xs"
-                  style={{ fontSize, fontFamily }}
-                >
-                  <div className="font-semibold text-gray-900 dark:text-gray-100 mb-1">
-                    {task.name}
+        <Card>
+          <CardContent className="p-0">
+            <div className="timeline-container">
+              <Gantt
+                tasks={ganttTasks}
+                {...displayOptions}
+                columnWidth={displayOptions.viewMode === ViewMode.Month ? 180 : displayOptions.viewMode === ViewMode.Week ? 120 : 80}
+                listCellWidth="200px"
+                barBackgroundColor={isDarkMode ? "#374151" : "#E5E7EB"}
+                barBackgroundSelectedColor={isDarkMode ? "#1F2937" : "#D1D5DB"}
+                arrowColor={isDarkMode ? "#6B7280" : "#9CA3AF"}
+                fontFamily="Inter, -apple-system, BlinkMacSystemFont, system-ui, sans-serif"
+                fontSize="13px"
+                gridLineColor={isDarkMode ? "#374151" : "#F3F4F6"}
+                todayColor={isDarkMode ? "#1E40AF" : "#3B82F6"}
+                TooltipContent={({ task, fontSize, fontFamily }) => (
+                  <div 
+                    className="bg-background border border-border rounded-lg shadow-lg p-3 max-w-xs"
+                    style={{ fontSize, fontFamily }}
+                  >
+                    <div className="font-semibold text-foreground mb-1">
+                      {task.name}
+                    </div>
+                    <div className="text-sm text-muted-foreground space-y-1">
+                      <div>Start: {task.start.toLocaleDateString()}</div>
+                      <div>End: {task.end.toLocaleDateString()}</div>
+                      <div>Progress: {Math.round(task.progress || 0)}%</div>
+                    </div>
                   </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                    <div>Start: {task.start.toLocaleDateString()}</div>
-                    <div>End: {task.end.toLocaleDateString()}</div>
-                    <div>Progress: {Math.round(task.progress || 0)}%</div>
-                  </div>
-                </div>
-              )}
-            />
-          </div>
-          
-          {/* Tasks without dates warning */}
-          {tasksWithoutDates.length > 0 && (
-            <div className="border-t border-gray-200 dark:border-gray-700 p-4 bg-orange-50 dark:bg-orange-900/10">
-              <div className="flex items-center gap-2 text-orange-800 dark:text-orange-200">
-                <Clock size={16} />
-                <span className="text-sm font-medium">
-                  {tasksWithoutDates.length} task{tasksWithoutDates.length !== 1 ? 's' : ''} not shown (missing start/due dates)
-                </span>
-              </div>
-              <p className="text-xs text-orange-700 dark:text-orange-300 mt-1">
-                Add dates to these tasks to include them in the timeline view.
-              </p>
+                )}
+              />
             </div>
-          )}
-        </div>
+            
+            {/* Tasks without dates warning */}
+            {tasksWithoutDates.length > 0 && (
+              <Alert className="m-4">
+                <Clock className="h-4 w-4" />
+                <AlertDescription>
+                  <div className="font-medium mb-1">
+                    {tasksWithoutDates.length} task{tasksWithoutDates.length !== 1 ? 's' : ''} not shown (missing start/due dates)
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Add dates to these tasks to include them in the timeline view.
+                  </div>
+                </AlertDescription>
+              </Alert>
+            )}
+          </CardContent>
+        </Card>
       )}
     </div>
   );

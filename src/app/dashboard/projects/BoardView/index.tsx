@@ -1,12 +1,37 @@
-
 import React, { useEffect } from "react";
 import { useGetTasksQuery, useUpdateTaskStatusMutation, useDeleteTaskMutation } from "@/hooks/useApi";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { Task as TaskType } from "@/hooks/useApi";
-import { EllipsisVertical, MessageSquareMore, Plus, Edit, Trash2, Eye, Clock, User, Calendar } from "lucide-react";
+import { 
+  EllipsisVertical, 
+  MessageSquareMore, 
+  Plus, 
+  Edit, 
+  Trash2, 
+  Eye, 
+  Clock, 
+  User, 
+  Calendar,
+  AlertTriangle,
+  Target,
+  Activity,
+  List as ListIcon,
+  CheckCircle2
+} from "lucide-react";
 import { format, formatDistanceToNow, isAfter, isBefore } from "date-fns";
-
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { cn } from "@/lib/utils";
 import TaskDetailModal from "@/components/TaskDetailModal";
 import DeleteTaskModal from "@/components/DeleteTaskModal";
 import type { DropTargetMonitor, DragSourceMonitor } from 'react-dnd';
@@ -71,13 +96,47 @@ const BoardView = ({
     };
   }, [refetch]);
 
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>An error occurred while fetching tasks</div>;
+  if (isLoading) {
+    return (
+      <div className="container mx-auto p-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
+          {taskStatus.map((status) => (
+            <Card key={status}>
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-sm font-medium">{status}</CardTitle>
+                  <Badge variant="secondary">0</Badge>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-center h-32">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+  
+  if (error) {
+    return (
+      <div className="container mx-auto p-6">
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center h-32 text-center space-y-4">
+            <AlertTriangle className="h-12 w-12 text-destructive" />
+            <p className="text-muted-foreground">An error occurred while fetching tasks</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
-    <>
+    <div className="container mx-auto p-6">
       <DndProvider backend={HTML5Backend}>
-        <div className="grid grid-cols-1 gap-6 p-6 md:grid-cols-2 xl:grid-cols-4 max-w-[1600px] mx-auto">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
           {taskStatus.map((status) => (
             <TaskColumn
               key={status}
@@ -100,7 +159,7 @@ const BoardView = ({
           editMode={selectedTask.editMode}
         />
       )}
-    </>
+    </div>
   );
 };
 
@@ -129,124 +188,89 @@ const TaskColumn = ({
 
   const tasksCount = tasks.filter((task) => (task.status || "To Do") === status).length;
 
-  // Enhanced status configuration with Apple HIG principles
-  const statusConfig: Record<TaskStatus, {
-    color: string;
-    bgColor: string;
-    lightBg: string;
-    darkBg: string;
-    icon: string;
-  }> = {
-    "To Do": {
-      color: "#007AFF",
-      bgColor: "bg-blue-50",
-      lightBg: "bg-blue-50/80",
-      darkBg: "bg-blue-950/30",
-      icon: ""
-    },
-    "Work In Progress": {
-      color: "#34C759",
-      bgColor: "bg-green-50",
-      lightBg: "bg-green-50/80", 
-      darkBg: "bg-green-950/30",
-      icon: ""
-    },
-    "Under Review": {
-      color: "#FF9500",
-      bgColor: "bg-orange-50",
-      lightBg: "bg-orange-50/80",
-      darkBg: "bg-orange-950/30", 
-      icon: ""
-    },
-    "Completed": {
-      color: "#8E8E93",
-      bgColor: "bg-gray-50",
-      lightBg: "bg-gray-50/80",
-      darkBg: "bg-gray-950/30",
-      icon: ""
-    },
+  const getStatusConfig = (status: TaskStatus) => {
+    const configs = {
+      "To Do": {
+        variant: "outline" as const,
+        icon: ListIcon,
+        className: "border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950"
+      },
+      "Work In Progress": {
+        variant: "secondary" as const,
+        icon: Activity,
+        className: "border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-950"
+      },
+      "Under Review": {
+        variant: "outline" as const,
+        icon: Eye,
+        className: "border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-950"
+      },
+      "Completed": {
+        variant: "default" as const,
+        icon: CheckCircle2,
+        className: "border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950"
+      },
+    };
+    return configs[status];
   };
 
-  const config = statusConfig[status];
+  const config = getStatusConfig(status);
+  const StatusIcon = config.icon;
 
   return (
-    <div
+    <Card
       ref={(instance) => {
         drop(instance);
       }}
-      className={`transition-all duration-300 ease-out ${
-        isOver 
-          ? "scale-[1.02] ring-2 ring-blue-500/30 ring-offset-2 dark:ring-offset-dark-bg" 
-          : ""
-      }`}
+      className={cn(
+        "transition-all duration-300 ease-out",
+        config.className,
+        isOver && "ring-2 ring-primary ring-offset-2"
+      )}
     >
-      <div className="mb-4">
-        <div className="relative overflow-hidden rounded-2xl bg-white/80 dark:bg-dark-secondary/80 backdrop-blur-sm border border-gray-100 dark:border-gray-800 shadow-sm">
-          {/* Header with gradient accent */}
-          <div className="relative">
-            <div 
-              className="absolute inset-0 opacity-[0.03]"
-              style={{ backgroundColor: config.color }}
-            />
-            <div className="relative px-4 py-3 border-b border-gray-100 dark:border-gray-700/50">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-lg">{config.icon}</span>
-                    <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 tracking-tight">
-                      {status}
-                    </h3>
-                  </div>
-                  <div 
-                    className="inline-flex items-center justify-center min-w-[24px] h-6 rounded-full text-xs font-medium text-white shadow-sm"
-                    style={{ backgroundColor: config.color }}
-                  >
-                    {tasksCount}
-                  </div>
-                </div>
-                <div className="flex items-center space-x-1">
-                  <button className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 text-gray-500 dark:text-gray-400">
-                    <EllipsisVertical size={16} />
-                  </button>
-                  <button
-                    className="p-1.5 rounded-lg transition-all duration-200 text-white shadow-sm hover:shadow-md transform hover:scale-105"
-                    style={{ backgroundColor: config.color }}
-                    onClick={() => setIsModalNewTaskOpen(true)}
-                  >
-                    <Plus size={14} />
-                  </button>
-                </div>
-              </div>
-            </div>
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <StatusIcon className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">{status}</CardTitle>
+            <Badge variant={config.variant} className="text-xs">
+              {tasksCount}
+            </Badge>
           </div>
-          
-          {/* Tasks container */}
-          <div className="p-3 min-h-[200px] space-y-3"
-            style={{ 
-              background: `linear-gradient(180deg, ${config.lightBg} 0%, transparent 100%)` 
-            }}
-          >
-            {tasks
-              .filter((task) => (task.status || "To Do") === status)
-              .map((task) => (
-                <Task key={task.id} task={task} onTaskSelect={onTaskSelect} />
-              ))}
-            
-            {tasksCount === 0 && (
-              <div className="flex flex-col items-center justify-center py-8 text-center">
-                <div className="text-3xl mb-2 opacity-50">{config.icon}</div>
-                <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
-                  No {status.toLowerCase()} tasks
-                </p>
-                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                  Drag tasks here or create new ones
-                </p>
-              </div>
-            )}
+          <div className="flex items-center space-x-1">
+            <Button variant="ghost" size="sm">
+              <EllipsisVertical className="h-4 w-4" />
+            </Button>
+            <Button 
+              size="sm"
+              onClick={() => setIsModalNewTaskOpen(true)}
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
           </div>
         </div>
-      </div>
-    </div>
+      </CardHeader>
+      
+      <CardContent className="space-y-3 min-h-[200px]">
+        {tasks
+          .filter((task) => (task.status || "To Do") === status)
+          .map((task) => (
+            <Task key={task.id} task={task} onTaskSelect={onTaskSelect} />
+          ))}
+        
+        {tasksCount === 0 && (
+          <div className="flex flex-col items-center justify-center py-8 text-center">
+            <StatusIcon className="h-8 w-8 text-muted-foreground mb-2" />
+            <p className="text-sm text-muted-foreground font-medium">
+              No {status.toLowerCase()} tasks
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Drag tasks here or create new ones
+            </p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 };
 
@@ -333,48 +357,29 @@ const Task = ({ task, onTaskSelect }: TaskProps) => {
   }, [showDropdown]);
 
   const getPriorityConfig = (priority: TaskType["priority"]) => {
-    switch (priority) {
-      case "Urgent":
-        return { 
-          color: "#FF3B30", 
-          bg: "bg-red-50", 
-          text: "text-red-700", 
-          icon: "",
-          ring: "ring-red-200"
-        };
-      case "High":
-        return { 
-          color: "#FF9500", 
-          bg: "bg-orange-50", 
-          text: "text-orange-700", 
-          icon: "",
-          ring: "ring-orange-200"
-        };
-      case "Medium":
-        return { 
-          color: "#007AFF", 
-          bg: "bg-blue-50", 
-          text: "text-blue-700", 
-          icon: "",
-          ring: "ring-blue-200"
-        };
-      case "Low":
-        return { 
-          color: "#34C759", 
-          bg: "bg-green-50", 
-          text: "text-green-700", 
-          icon: "",
-          ring: "ring-green-200"
-        };
-      default:
-        return { 
-          color: "#8E8E93", 
-          bg: "bg-gray-50", 
-          text: "text-gray-700", 
-          icon: "",
-          ring: "ring-gray-200"
-        };
-    }
+    const configs = {
+      "Urgent": { 
+        variant: "destructive" as const,
+        icon: AlertTriangle,
+      },
+      "High": { 
+        variant: "default" as const,
+        icon: Target,
+      },
+      "Medium": { 
+        variant: "secondary" as const,
+        icon: Activity,
+      },
+      "Low": { 
+        variant: "outline" as const,
+        icon: Clock,
+      },
+      "Backlog": { 
+        variant: "outline" as const,
+        icon: ListIcon,
+      },
+    };
+    return configs[priority as keyof typeof configs] || { variant: "outline" as const, icon: Activity };
   };
 
   const getDueDateStatus = () => {
@@ -386,50 +391,34 @@ const Task = ({ task, onTaskSelect }: TaskProps) => {
     if (task.status === "Completed") return null;
     
     if (isBefore(dueDate, now)) {
-      return { type: "overdue", text: "Overdue", color: "#FF3B30", bg: "bg-red-50", textColor: "text-red-700" };
+      return { type: "overdue", text: "Overdue", variant: "destructive" as const };
     } else if (formatDistanceToNow(dueDate).includes("day") && parseInt(formatDistanceToNow(dueDate)) <= 2) {
-      return { type: "due-soon", text: "Due soon", color: "#FF9500", bg: "bg-orange-50", textColor: "text-orange-700" };
+      return { type: "due-soon", text: "Due soon", variant: "secondary" as const };
     }
     
     return null;
   };
 
   const priorityConfig = getPriorityConfig(task.priority);
+  const PriorityIcon = priorityConfig.icon;
   const dueDateStatus = getDueDateStatus();
 
   return (
-    <div
-      ref={(instance) => {
-        drag(instance);
-      }}
-      className={`relative group transition-all duration-300 ease-out ${
-        isDragging ? "opacity-60 scale-95 rotate-2" : "opacity-100"
-      }`}
-    >
-      <div 
+    <>
+      <Card
+        ref={(instance) => {
+          drag(instance);
+        }}
+        className={cn(
+          "cursor-pointer transition-all duration-300 hover:shadow-md",
+          isDragging && "opacity-60 scale-95 rotate-2"
+        )}
         onClick={handleCardClick}
-        className="relative overflow-hidden rounded-xl bg-white dark:bg-dark-secondary border border-gray-100 dark:border-gray-700/50 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer group-hover:scale-[1.02] backdrop-blur-sm"
       >
-        {/* Priority accent line */}
-        {task.priority && (
-          <div 
-            className="absolute top-0 left-0 right-0 h-1 transition-all duration-300"
-            style={{ backgroundColor: priorityConfig.color }}
-          />
-        )}
-
-        {/* Due date status indicator */}
-        {dueDateStatus && (
-          <div 
-            className={`absolute top-2 right-2 z-10 px-2 py-1 rounded-full text-xs font-medium shadow-sm ${dueDateStatus.bg} ${dueDateStatus.textColor}`}
-          >
-            {dueDateStatus.text}
-          </div>
-        )}
-
+      <CardContent className="p-4 space-y-3">
         {/* Image attachment */}
         {task.attachments && task.attachments.length > 0 && (
-          <div className="relative">
+          <div className="relative rounded-md overflow-hidden">
             <img
               src={`https://luid-pm-s3-images.s3.us-east-1.amazonaws.com/${task.attachments[0].fileURL}`}
               alt={task.attachments[0].fileName}
@@ -438,26 +427,25 @@ const Task = ({ task, onTaskSelect }: TaskProps) => {
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
           </div>
         )}
-
-        <div className="p-4 space-y-3">
           {/* Header with menu */}
           <div className="flex items-start justify-between">
             <div className="flex-1 space-y-2">
               {/* Priority and tags */}
               <div className="flex items-center gap-2 flex-wrap">
                 {task.priority && (
-                  <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ring-1 ring-inset ${priorityConfig.bg} ${priorityConfig.text} ${priorityConfig.ring}`}>
-                    <span>{priorityConfig.icon}</span>
+                  <Badge variant={priorityConfig.variant} className="text-xs">
+                    <PriorityIcon className="h-3 w-3 mr-1" />
                     {task.priority}
-                  </div>
+                  </Badge>
                 )}
                 {taskTagsSplit.map((tag) => (
-                  <div
+                  <Badge
                     key={tag}
-                    className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
+                    variant="outline"
+                    className="text-xs"
                   >
                     {tag}
-                  </div>
+                  </Badge>
                 ))}
               </div>
               
@@ -571,8 +559,8 @@ const Task = ({ task, onTaskSelect }: TaskProps) => {
               </div>
             )}
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
       
       <DeleteTaskModal
         isOpen={showDeleteModal}
@@ -581,7 +569,7 @@ const Task = ({ task, onTaskSelect }: TaskProps) => {
         taskTitle={task.title}
         isDeleting={isDeleting}
       />
-    </div>
+    </>
   );
 };
 

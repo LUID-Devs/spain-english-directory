@@ -1,33 +1,31 @@
 import { useGetUsersWithStatsQuery, useInviteUserMutation, useUpdateUserRoleMutation, UserWithStats } from "@/hooks/useApi";
 import React, { useState } from "react";
-import { useGlobalStore } from "@/stores/globalStore";
-import Header from "@/components/Header";
 import UserCard from "@/components/UserCard";
 import InviteUserModal from "@/components/InviteUserModal";
 import RoleManagementModal from "@/components/RoleManagementModal";
 import {
-  DataGrid,
-  GridColDef,
-  GridToolbarContainer,
-  GridToolbarExport,
-  GridToolbarFilterButton,
-} from "@mui/x-data-grid";
+  Users,
+  Search,
+  Plus,
+  Settings,
+  Grid3X3,
+  List,
+  UserPlus
+} from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 
-import { dataGridClassNames, dataGridSxStyles } from "@/lib/utils";
-
-const CustomToolBar = () => (
-  <GridToolbarContainer className="toolbar flex gap-2">
-    <GridToolbarFilterButton />
-    <GridToolbarExport />
-  </GridToolbarContainer>
-);
-
-const getRoleBadgeProps = (role: string) => {
-  const roleMap: Record<string, { bg: string; text: string; label: string }> = {
-    'admin': { bg: 'bg-red-100 dark:bg-red-900/20', text: 'text-red-800 dark:text-red-200', label: 'Admin' },
-    'project_manager': { bg: 'bg-purple-100 dark:bg-purple-900/20', text: 'text-purple-800 dark:text-purple-200', label: 'Project Manager' },
-    'member': { bg: 'bg-blue-100 dark:bg-blue-900/20', text: 'text-blue-800 dark:text-blue-200', label: 'Member' },
-    'viewer': { bg: 'bg-gray-100 dark:bg-gray-700', text: 'text-gray-800 dark:text-gray-200', label: 'Viewer' },
+const getRoleBadge = (role: string) => {
+  const roleMap: Record<string, { variant: "default" | "secondary" | "destructive" | "outline"; label: string }> = {
+    'admin': { variant: 'destructive', label: 'Admin' },
+    'project_manager': { variant: 'default', label: 'Project Manager' },
+    'member': { variant: 'secondary', label: 'Member' },
+    'viewer': { variant: 'outline', label: 'Viewer' },
   };
   return roleMap[role] || roleMap['member'];
 };
@@ -36,119 +34,23 @@ const UsersPage = () => {
   const { data: users, isLoading, isError } = useGetUsersWithStatsQuery();
   const [inviteUser] = useInviteUserMutation();
   const [updateUserRole] = useUpdateUserRoleMutation();
-  const isDarkMode = useGlobalStore().isDarkMode;
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserWithStats | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const handleManageRole = (user: UserWithStats) => {
     setSelectedUser(user);
     setIsRoleModalOpen(true);
   };
 
-  const columns: GridColDef[] = [
-    { field: "userId", headerName: "ID", width: 80 },
-    {
-      field: "user",
-      headerName: "User",
-      width: 250,
-      renderCell: (params) => (
-        <div className="flex items-center space-x-3 py-2">
-          <div className="h-10 w-10 flex-shrink-0">
-            <img
-              src={params.row.profilePictureUrl 
-                ? `https://pm-s3-images.s3.us-east-1.amazonaws.com/${params.row.profilePictureUrl}`
-                : `https://pm-s3-images.s3.us-east-1.amazonaws.com/p1.jpeg`
-              }
-              alt={params.row.username}
-              className="h-10 w-10 rounded-full border-2 border-gray-200 object-cover dark:border-gray-600"
-            />
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="text-sm font-medium text-gray-900 dark:text-white truncate">
-              {params.row.username}
-            </div>
-            <div className="text-sm text-gray-500 dark:text-gray-400 truncate">
-              {params.row.email}
-            </div>
-          </div>
-        </div>
-      ),
-    },
-    {
-      field: "role",
-      headerName: "Role",
-      width: 150,
-      renderCell: (params) => {
-        const roleProps = getRoleBadgeProps(params.value || 'member');
-        return (
-          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${roleProps.bg} ${roleProps.text}`}>
-            {roleProps.label}
-          </span>
-        );
-      },
-    },
-    {
-      field: "teamName",
-      headerName: "Team",
-      width: 150,
-      renderCell: (params) => (
-        params.value ? (
-          <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/20 dark:text-green-200">
-            {params.value}
-          </span>
-        ) : (
-          <span className="text-sm text-gray-400 dark:text-gray-500">No team</span>
-        )
-      ),
-    },
-    {
-      field: "taskStats",
-      headerName: "Task Stats",
-      width: 200,
-      renderCell: (params) => {
-        const stats = params.value;
-        if (!stats) return <span className="text-gray-400">No data</span>;
-        
-        return (
-          <div className="flex space-x-3 text-xs">
-            <div className="text-center">
-              <div className="font-semibold text-blue-600 dark:text-blue-400">{stats.authored}</div>
-              <div className="text-gray-500">Created</div>
-            </div>
-            <div className="text-center">
-              <div className="font-semibold text-green-600 dark:text-green-400">{stats.completed}</div>
-              <div className="text-gray-500">Done</div>
-            </div>
-            <div className="text-center">
-              <div className="font-semibold text-red-600 dark:text-red-400">{stats.overdue}</div>
-              <div className="text-gray-500">Overdue</div>
-            </div>
-          </div>
-        );
-      },
-    },
-    {
-      field: "actions",
-      headerName: "Actions",
-      width: 100,
-      sortable: false,
-      renderCell: (params) => (
-        <button
-          onClick={() => handleManageRole(params.row)}
-          className="inline-flex items-center rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 transition-colors"
-          title="Manage role"
-        >
-          <svg className="h-3 w-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-          Manage
-        </button>
-      ),
-    },
-  ];
+  // Filter users based on search query
+  const filteredUsers = users?.filter(user =>
+    user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    user.teamName?.toLowerCase().includes(searchQuery.toLowerCase())
+  ) || [];
 
   const handleInviteUser = async (invitationData: {
     email: string;
@@ -178,78 +80,136 @@ const UsersPage = () => {
 
   if (isLoading) {
     return (
-      <div className="flex w-full flex-col p-8">
-        <Header name="Team Members" />
-        <div className="flex items-center justify-center h-64">
-          <div className="flex items-center space-x-2">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <span className="text-gray-600 dark:text-gray-400">Loading team members...</span>
+      <div className="container mx-auto p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Team Members</h1>
+            <p className="text-muted-foreground">Manage and organize your team</p>
           </div>
         </div>
+        <Card>
+          <CardContent className="flex items-center justify-center h-64">
+            <div className="text-center space-y-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+              <p className="text-muted-foreground">Loading team members...</p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   if (isError || !users) {
     return (
-      <div className="flex w-full flex-col p-8">
-        <Header name="Team Members" />
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <div className="mx-auto h-12 w-12 text-red-400">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
-              </svg>
-            </div>
-            <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">Error loading users</h3>
-            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              There was a problem fetching the team members. Please try again.
-            </p>
+      <div className="container mx-auto p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Team Members</h1>
+            <p className="text-muted-foreground">Manage and organize your team</p>
           </div>
         </div>
+        <Alert variant="destructive">
+          <AlertDescription>
+            Error loading team members. Please try again.
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => window.location.reload()}
+              className="ml-4"
+            >
+              Retry
+            </Button>
+          </AlertDescription>
+        </Alert>
       </div>
     );
   }
 
   return (
-    <div className="flex w-full flex-col p-8">
-      <div className="mb-6 flex items-center justify-between">
-        <Header name="Team Members" />
-        <div className="flex items-center gap-4">
-          <div className="flex rounded-lg border border-gray-300 dark:border-gray-600">
-            <button
-              onClick={() => setViewMode('cards')}
-              className={`px-4 py-2 text-sm font-medium ${
-                viewMode === 'cards'
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-white text-gray-700 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
-              } rounded-l-lg border-r border-gray-300 dark:border-gray-600`}
-            >
-              Cards
-            </button>
-            <button
-              onClick={() => setViewMode('table')}
-              className={`px-4 py-2 text-sm font-medium ${
-                viewMode === 'table'
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-white text-gray-700 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
-              } rounded-r-lg`}
-            >
-              Table
-            </button>
-          </div>
-          <button 
-            onClick={() => setIsInviteModalOpen(true)}
-            className="rounded-lg bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-          >
-            Invite User
-          </button>
+    <div className="container mx-auto p-6 space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Team Members</h1>
+          <p className="text-muted-foreground">
+            {filteredUsers.length} member{filteredUsers.length !== 1 ? 's' : ''} in your organization
+          </p>
         </div>
+        <Button onClick={() => setIsInviteModalOpen(true)}>
+          <UserPlus className="h-4 w-4 mr-2" />
+          Invite User
+        </Button>
       </div>
 
-      {viewMode === 'cards' ? (
+      {/* Search and Filter Bar */}
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search team members..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            
+            {/* View Mode Toggle */}
+            <div className="flex items-center gap-2">
+              <Button
+                variant={viewMode === "cards" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setViewMode("cards")}
+              >
+                <Grid3X3 className="h-4 w-4" />
+              </Button>
+              <Button
+                variant={viewMode === "table" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setViewMode("table")}
+              >
+                <List className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Users Display */}
+      {filteredUsers.length === 0 ? (
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center h-64 text-center p-6">
+            <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+              <Users className="h-8 w-8 text-muted-foreground" />
+            </div>
+            <h3 className="text-lg font-medium mb-2">
+              No Team Members Found
+            </h3>
+            <p className="text-muted-foreground mb-4 max-w-sm">
+              {searchQuery ? 
+                `No members found matching "${searchQuery}"` :
+                "Invite your first team member to get started with collaboration."
+              }
+            </p>
+            {searchQuery ? (
+              <Button
+                onClick={() => setSearchQuery('')}
+                variant="outline"
+              >
+                Clear Search
+              </Button>
+            ) : (
+              <Button onClick={() => setIsInviteModalOpen(true)}>
+                <UserPlus className="h-4 w-4 mr-2" />
+                Invite Your First Member
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+      ) : viewMode === 'cards' ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {users.map((user) => (
+          {filteredUsers.map((user) => (
             <UserCard 
               key={user.userId} 
               user={user} 
@@ -259,18 +219,110 @@ const UsersPage = () => {
           ))}
         </div>
       ) : (
-        <div style={{ height: 650, width: "100%" }}>
-          <DataGrid
-            rows={users || []}
-            columns={columns}
-            getRowId={(row) => row.userId}
-            pagination
-            slots={{
-              toolbar: CustomToolBar,
-            }}
-            className={dataGridClassNames}
-            sx={dataGridSxStyles(isDarkMode)}
-          />
+        <Card>
+          <CardHeader>
+            <CardTitle>Team Members</CardTitle>
+            <CardDescription>
+              Manage roles and view member statistics
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>User</TableHead>
+                  <TableHead>Role</TableHead>
+                  <TableHead>Team</TableHead>
+                  <TableHead>Task Stats</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredUsers.map((user) => {
+                  const roleBadge = getRoleBadge(user.role || 'member');
+                  return (
+                    <TableRow key={user.userId}>
+                      <TableCell>
+                        <div className="flex items-center space-x-3">
+                          <div className="h-10 w-10 flex-shrink-0">
+                            <img
+                              src={user.profilePictureUrl 
+                                ? `https://pm-s3-images.s3.us-east-1.amazonaws.com/${user.profilePictureUrl}`
+                                : `https://pm-s3-images.s3.us-east-1.amazonaws.com/p1.jpeg`
+                              }
+                              alt={user.username}
+                              className="h-10 w-10 rounded-full border-2 border-border object-cover"
+                            />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="text-sm font-medium text-foreground truncate">
+                              {user.username}
+                            </div>
+                            <div className="text-sm text-muted-foreground truncate">
+                              {user.email}
+                            </div>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={roleBadge.variant} className="text-xs">
+                          {roleBadge.label}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {user.teamName ? (
+                          <Badge variant="outline" className="text-xs">
+                            {user.teamName}
+                          </Badge>
+                        ) : (
+                          <span className="text-sm text-muted-foreground">No team</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {user.taskStats ? (
+                          <div className="flex space-x-4 text-xs">
+                            <div className="text-center">
+                              <div className="font-semibold text-primary">{user.taskStats.authored}</div>
+                              <div className="text-muted-foreground">Created</div>
+                            </div>
+                            <div className="text-center">
+                              <div className="font-semibold text-green-600">{user.taskStats.completed}</div>
+                              <div className="text-muted-foreground">Done</div>
+                            </div>
+                            <div className="text-center">
+                              <div className="font-semibold text-red-600">{user.taskStats.overdue}</div>
+                              <div className="text-muted-foreground">Overdue</div>
+                            </div>
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground text-sm">No data</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleManageRole(user)}
+                        >
+                          <Settings className="h-4 w-4 mr-1" />
+                          Manage
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Results Count */}
+      {filteredUsers.length > 0 && (
+        <div className="text-center">
+          <p className="text-muted-foreground text-sm">
+            Showing {filteredUsers.length} of {users.length} team members
+          </p>
         </div>
       )}
 

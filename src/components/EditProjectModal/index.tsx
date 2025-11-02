@@ -2,6 +2,12 @@ import Modal from "@/components/Modal";
 import { useUpdateProjectMutation, Project } from "@/hooks/useApi";
 import React, { useState, useEffect } from "react";
 import { formatISO, format } from "date-fns";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertTriangle } from "lucide-react";
 
 type Props = {
   isOpen: boolean;
@@ -66,9 +72,6 @@ const EditProjectModal = ({ isOpen, onClose, project }: Props) => {
     return projectName && startDate && endDate;
   };
 
-  const inputStyles =
-    "w-full rounded border border-gray-300 p-2 shadow-sm dark:border-dark-tertiary dark:bg-dark-tertiary dark:text-white dark:focus:outline-none";
-
   return (
     <Modal isOpen={isOpen} onClose={onClose} name="Edit Project">
       <form
@@ -78,13 +81,11 @@ const EditProjectModal = ({ isOpen, onClose, project }: Props) => {
           handleSubmit();
         }}
       >
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Project Name *
-          </label>
-          <input
+        <div className="space-y-2">
+          <Label htmlFor="projectName">Project Name *</Label>
+          <Input
+            id="projectName"
             type="text"
-            className={inputStyles}
             placeholder="Project Name"
             value={projectName}
             onChange={(e) => setProjectName(e.target.value)}
@@ -92,12 +93,10 @@ const EditProjectModal = ({ isOpen, onClose, project }: Props) => {
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Description
-          </label>
-          <textarea
-            className={inputStyles}
+        <div className="space-y-2">
+          <Label htmlFor="description">Description</Label>
+          <Textarea
+            id="description"
             placeholder="Description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
@@ -106,25 +105,21 @@ const EditProjectModal = ({ isOpen, onClose, project }: Props) => {
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Start Date *
-            </label>
-            <input
+          <div className="space-y-2">
+            <Label htmlFor="startDate">Start Date *</Label>
+            <Input
+              id="startDate"
               type="date"
-              className={inputStyles}
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
               required
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              End Date *
-            </label>
-            <input
+          <div className="space-y-2">
+            <Label htmlFor="endDate">End Date *</Label>
+            <Input
+              id="endDate"
               type="date"
-              className={inputStyles}
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
               required
@@ -133,28 +128,30 @@ const EditProjectModal = ({ isOpen, onClose, project }: Props) => {
         </div>
         
         {error && (
-          <div className="mt-4 p-3 bg-red-100 border border-red-300 text-red-700 rounded-md">
-            {error}
-          </div>
+          <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              {error}
+            </AlertDescription>
+          </Alert>
         )}
 
         <div className="flex gap-3 pt-4">
-          <button
+          <Button
             type="button"
+            variant="outline"
             onClick={onClose}
-            className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+            className="flex-1"
           >
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
             type="submit"
-            className={`flex-1 px-4 py-2 text-white bg-blue-primary hover:bg-blue-600 rounded-md transition-colors ${
-              !isFormValid() || isLoading ? "cursor-not-allowed opacity-50" : ""
-            }`}
+            className="flex-1"
             disabled={!isFormValid() || isLoading}
           >
             {isLoading ? "Updating..." : "Update Project"}
-          </button>
+          </Button>
         </div>
       </form>
     </Modal>
