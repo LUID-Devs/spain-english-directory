@@ -134,7 +134,7 @@ const TaskColumn = ({
       bgColor: "bg-orange-50",
       lightBg: "bg-orange-50/80",
       darkBg: "bg-orange-950/30", 
-      icon: "👀"
+      icon: ""
     },
     "Completed": {
       color: "#8E8E93",
@@ -341,7 +341,7 @@ const Task = ({ task, onTaskSelect }: TaskProps) => {
           color: "#34C759", 
           bg: "bg-green-50", 
           text: "text-green-700", 
-          icon: "🌱",
+          icon: "",
           ring: "ring-green-200"
         };
       default:
@@ -349,7 +349,7 @@ const Task = ({ task, onTaskSelect }: TaskProps) => {
           color: "#8E8E93", 
           bg: "bg-gray-50", 
           text: "text-gray-700", 
-          icon: "📦",
+          icon: "",
           ring: "ring-gray-200"
         };
     }
@@ -444,11 +444,7 @@ const Task = ({ task, onTaskSelect }: TaskProps) => {
                 <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 line-clamp-2 leading-tight">
                   {task.title}
                 </h4>
-                {typeof task.points === "number" && (
-                  <div className="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300">
-                    {task.points} pts
-                  </div>
-                )}
+                
               </div>
             </div>
             

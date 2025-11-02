@@ -1,9 +1,24 @@
-import Modal from "@/components/Modal";
 import { Priority, Status, useCreateTaskMutation, useGetUsersQuery, useGetProjectsQuery } from "@/hooks/useApi";
 import { useCurrentUser } from "@/stores/userStore";
 import React, { useState, useEffect } from "react";
 import { formatISO } from "date-fns";
-import { getPriorityTheme, getPriorityButtonClasses, getPriorityBadgeClasses } from "@/lib/priorityThemes";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type Props = {
   isOpen: boolean;
@@ -13,7 +28,7 @@ type Props = {
 };
 
 const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) => {
-  const [createTask, { isLoading }] = useCreateTaskMutation();
+  const [createTask, { isLoading }] = useCreateTaskMutation() as any;
   const { currentUser } = useCurrentUser();
   const {data: users} = useGetUsersQuery(undefined, {
     skip: !isOpen, // Only load when modal is open
@@ -80,38 +95,22 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
     return title && authorUserId && (id !== null || projectId);
   };
 
-  const theme = getPriorityTheme(priority);
-
-  const baseInputStyles = "w-full rounded-lg border px-4 py-3 text-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-white dark:bg-dark-tertiary border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400";
-  
-  const focusStyles = `focus:border-transparent focus:ring-2`;
-  
-  const inputStyles = `${baseInputStyles} ${focusStyles}`;
-  
-  const selectStyles = `${baseInputStyles} ${focusStyles} cursor-pointer`;
-
   return (
-    <Modal isOpen={isOpen} onClose={onClose} name="Create New Task">
-      <div className="mt-6">
-        {/* Priority indicator */}
-        {defaultPriority && (
-          <div className="mb-6 p-4 rounded-lg border" style={{ backgroundColor: `${theme.primaryColor}10`, borderColor: `${theme.primaryColor}30` }}>
-            <div className="flex items-center">
-              <span className="text-2xl mr-3">{theme.emptyStateIcon}</span>
-              <div>
-                <h3 className="font-semibold" style={{ color: theme.primaryColor }}>
-                  Creating {priority} Priority Task
-                </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  This task will be set to {priority.toLowerCase()} priority by default
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden bg-white dark:bg-gray-900">
+        <DialogHeader>
+          <DialogTitle>
+            Create New Task
+            {defaultPriority && (
+              <span className="ml-2 text-sm font-normal text-gray-600 dark:text-gray-400">
+                ({priority} Priority)
+              </span>
+            )}
+          </DialogTitle>
+        </DialogHeader>
 
         <form
-          className="space-y-6"
+          className="overflow-y-auto max-h-[calc(90vh-120px)] space-y-6"
           onSubmit={(e) => {
             e.preventDefault();
             handleSubmit();
@@ -119,251 +118,206 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
         >
           {/* Title */}
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Task Title *
-            </label>
-            <input
-              type="text"
-              className={inputStyles}
-              placeholder="Enter a clear, descriptive title"
+            <Label htmlFor="title" className="text-gray-900 dark:text-gray-100 font-medium">
+              Title <span className="text-destructive">*</span>
+            </Label>
+            <Input
+              id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              style={{ 
-                focusRingColor: theme.primaryColor,
-                borderColor: title ? theme.primaryColor : undefined 
-              }}
+              placeholder="Enter a clear, descriptive title"
+              required
             />
           </div>
 
           {/* Description */}
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Description
-            </label>
-            <textarea
-              rows={3}
-              className={inputStyles}
-              placeholder="Provide additional context and details"
+            <Label htmlFor="description" className="text-gray-900 dark:text-gray-100 font-medium">Description</Label>
+            <Textarea
+              id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              style={{ 
-                focusRingColor: theme.primaryColor,
-                borderColor: description ? theme.primaryColor : undefined 
-              }}
+              placeholder="Provide additional context and requirements..."
+              rows={3}
             />
           </div>
 
           {/* Status and Priority */}
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Status
-              </label>
-              <select
-                className={selectStyles}
+              <Label className="text-gray-900 dark:text-gray-100 font-medium">Status</Label>
+              <Select
                 value={status}
-                onChange={(e) =>
-                  setStatus(Status[e.target.value as keyof typeof Status])
-                }
-                style={{ 
-                  focusRingColor: theme.primaryColor,
-                  borderColor: status ? theme.primaryColor : undefined 
-                }}
+                onValueChange={(value) => setStatus(Status[value as keyof typeof Status])}
               >
-                <option value={Status.ToDo}>To Do</option>
-                <option value={Status.WorkInProgress}>Work In Progress</option>
-                <option value={Status.UnderReview}>Under Review</option>
-                <option value={Status.Completed}>Completed</option>
-              </select>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={Status.ToDo}>To Do</SelectItem>
+                  <SelectItem value={Status.WorkInProgress}>Work In Progress</SelectItem>
+                  <SelectItem value={Status.UnderReview}>Under Review</SelectItem>
+                  <SelectItem value={Status.Completed}>Completed</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Priority *
-              </label>
-              <div className="relative">
-                <select
-                  className={selectStyles}
-                  value={priority}
-                  onChange={(e) =>
-                    setPriority(Priority[e.target.value as keyof typeof Priority])
-                  }
-                  style={{ 
-                    focusRingColor: theme.primaryColor,
-                    borderColor: theme.primaryColor
-                  }}
-                >
-                  <option value={Priority.Urgent}>🚨 Urgent</option>
-                  <option value={Priority.High}>⚡ High</option>
-                  <option value={Priority.Medium}>📋 Medium</option>
-                  <option value={Priority.Low}>🌱 Low</option>
-                  <option value={Priority.Backlog}>📦 Backlog</option>
-                </select>
-                <div className="absolute right-12 top-1/2 transform -translate-y-1/2">
-                  <span className={getPriorityBadgeClasses(priority)}>
-                    {priority}
-                  </span>
-                </div>
-              </div>
+              <Label className="text-gray-900 dark:text-gray-100 font-medium">
+                Priority <span className="text-destructive">*</span>
+              </Label>
+              <Select
+                value={priority}
+                onValueChange={(value) => setPriority(Priority[value as keyof typeof Priority])}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={Priority.Urgent}>Urgent</SelectItem>
+                  <SelectItem value={Priority.High}>High</SelectItem>
+                  <SelectItem value={Priority.Medium}>Medium</SelectItem>
+                  <SelectItem value={Priority.Low}>Low</SelectItem>
+                  <SelectItem value={Priority.Backlog}>Backlog</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
           {/* Tags */}
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Tags
-            </label>
-            <input
-              type="text"
-              className={inputStyles}
-              placeholder="Add tags separated by commas (e.g., frontend, bug, feature)"
+            <Label htmlFor="tags" className="text-gray-900 dark:text-gray-100 font-medium">Tags</Label>
+            <Input
+              id="tags"
               value={tags}
               onChange={(e) => setTags(e.target.value)}
-              style={{ 
-                focusRingColor: theme.primaryColor,
-                borderColor: tags ? theme.primaryColor : undefined 
-              }}
+              placeholder="Enter tags separated by commas"
             />
+            {tags && (
+              <div className="flex flex-wrap gap-1 mt-2">
+                {tags.split(',').filter(tag => tag.trim()).map((tag, index) => (
+                  <span key={index} className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200">
+                    {tag.trim()}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Dates */}
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Start Date
-              </label>
-              <input
+              <Label htmlFor="startDate" className="text-gray-900 dark:text-gray-100 font-medium">Start Date</Label>
+              <Input
+                id="startDate"
                 type="date"
-                className={inputStyles}
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                style={{ 
-                  focusRingColor: theme.primaryColor,
-                  borderColor: startDate ? theme.primaryColor : undefined 
-                }}
               />
             </div>
-
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Due Date
-              </label>
-              <input
+              <Label htmlFor="dueDate" className="text-gray-900 dark:text-gray-100 font-medium">Due Date</Label>
+              <Input
+                id="dueDate"
                 type="date"
-                className={inputStyles}
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
-                style={{ 
-                  focusRingColor: theme.primaryColor,
-                  borderColor: dueDate ? theme.primaryColor : undefined 
-                }}
               />
             </div>
           </div>
 
           {/* Team Assignment */}
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Author *
-              </label>
-              <select
-                className={selectStyles}
+              <Label className="text-gray-900 dark:text-gray-100 font-medium">
+                Author <span className="text-destructive">*</span>
+              </Label>
+              <Select
                 value={authorUserId}
-                onChange={(e) => setAuthorUserId(e.target.value)}
-                style={{ 
-                  focusRingColor: theme.primaryColor,
-                  borderColor: authorUserId ? theme.primaryColor : undefined 
-                }}
+                onValueChange={setAuthorUserId}
               >
-                <option value="">Select Author</option>
-                {users?.map((user) => (
-                  <option key={user.userId} value={user.userId}>
-                    👤 {user.username}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select author" />
+                </SelectTrigger>
+                <SelectContent>
+                  {users?.map((user) => (
+                    <SelectItem key={user.userId} value={user.userId.toString()}>
+                      {user.username}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Assignee
-              </label>
-              <select
-                className={selectStyles}
-                value={assignedUserId}
-                onChange={(e) => setAssignedUserId(e.target.value)}
-                style={{ 
-                  focusRingColor: theme.primaryColor,
-                  borderColor: assignedUserId ? theme.primaryColor : undefined 
-                }}
+              <Label className="text-gray-900 dark:text-gray-100 font-medium">Assignee</Label>
+              <Select
+                value={assignedUserId || "unassigned"}
+                onValueChange={(value) => setAssignedUserId(value === "unassigned" ? "" : value)}
               >
-                <option value="">Select Assignee (Optional)</option>
-                {users?.map((user) => (
-                  <option key={user.userId} value={user.userId}>
-                    👥 {user.username}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select assignee (optional)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="unassigned">Unassigned</SelectItem>
+                  {users?.map((user) => (
+                    <SelectItem key={user.userId} value={user.userId.toString()}>
+                      {user.username}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
-          {/* Project Selection */}
+          {/* Project Selection (only if not in a specific project) */}
           {id === null && (
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Project *
-              </label>
-              <select
-                className={selectStyles}
+              <Label className="text-gray-900 dark:text-gray-100 font-medium">
+                Project <span className="text-destructive">*</span>
+              </Label>
+              <Select
                 value={projectId}
-                onChange={(e) => setProjectId(e.target.value)}
-                style={{ 
-                  focusRingColor: theme.primaryColor,
-                  borderColor: projectId ? theme.primaryColor : undefined 
-                }}
+                onValueChange={setProjectId}
               >
-                <option value="">Select Project</option>
-                {projects?.map((project) => (
-                  <option key={project.id} value={project.id}>
-                    📁 {project.name}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select project" />
+                </SelectTrigger>
+                <SelectContent>
+                  {projects?.map((project) => (
+                    <SelectItem key={project.id} value={project.id.toString()}>
+                      {project.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           )}
 
           {/* Submit Button */}
-          <div className="pt-4">
-            <button
+          <div className="flex flex-col gap-3 pt-4">
+            <Button
               type="submit"
-              className={`w-full py-3 px-6 rounded-lg font-semibold text-white transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-                !isFormValid() || isLoading 
-                  ? "bg-gray-400 cursor-not-allowed opacity-50" 
-                  : `${getPriorityButtonClasses(priority)} shadow-lg hover:shadow-xl`
-              }`}
               disabled={!isFormValid() || isLoading}
-              style={!isFormValid() || isLoading ? {} : { 
-                backgroundColor: theme.primaryColor,
-                focusRingColor: theme.primaryColor 
-              }}
+              className="w-full"
             >
               {isLoading ? (
-                <div className="flex items-center justify-center">
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2" />
                   Creating Task...
-                </div>
+                </>
               ) : (
-                <div className="flex items-center justify-center">
-                  <span className="mr-2">✨</span>
-                  Create {priority} Task
-                </div>
+                `Create ${priority} Priority Task`
               )}
-            </button>
+            </Button>
+            
+            {!isFormValid() && (
+              <p className="text-xs text-destructive text-center">
+                Please fill in all required fields marked with *
+              </p>
+            )}
           </div>
         </form>
-      </div>
-    </Modal>
+      </DialogContent>
+    </Dialog>
   );
 };
 

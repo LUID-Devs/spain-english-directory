@@ -3,19 +3,27 @@ import React, { useState, useEffect } from "react";
 import { useGetTaskQuery, useUpdateTaskMutation, useGetUsersQuery } from "@/hooks/useApi";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { 
-  X, 
-  Edit, 
-  Save, 
-  Calendar, 
-  User, 
-  Flag, 
-  Clock, 
-  Paperclip
-} from "lucide-react";
+import { Edit, Save, Calendar, User, Flag, Clock, Paperclip } from "lucide-react";
 import CommentsSection from "@/components/CommentsSection";
 import AttachmentsSection from "@/components/AttachmentsSection";
 import { Status, Priority } from "@/hooks/useApi";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface TaskDetailModalProps {
   isOpen: boolean;
@@ -29,7 +37,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
   const { data: users = [] } = useGetUsersQuery(undefined, {
     skip: !isOpen, // Only load users when modal is open
   });
-  const [updateTask, { isLoading: isUpdating }] = useUpdateTaskMutation();
+  const [updateTask, { isLoading: isUpdating }] = useUpdateTaskMutation() as any;
   
   const [isEditing, setIsEditing] = useState(editMode);
   const [editForm, setEditForm] = useState({
@@ -131,79 +139,50 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
     }
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-black bg-opacity-50" 
-        onClick={handleClose}
-      />
-      
-      {/* Modal */}
-      <div className="relative bg-white dark:bg-dark-secondary rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-500 dark:text-gray-400">
-              Task #{taskId}
-            </span>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            {!isEditing ? (
-              <button
-                onClick={() => setIsEditing(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-              >
-                <Edit className="h-4 w-4" />
-                Edit
-              </button>
-            ) : (
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={handleSave}
-                  disabled={isUpdating}
-                  className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50"
-                >
-                  <Save className="h-4 w-4" />
-                  {isUpdating ? "Saving..." : "Save"}
-                </button>
-                <button
-                  onClick={() => setIsEditing(false)}
-                  className="flex items-center gap-2 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
-            )}
-            <button
-              onClick={handleClose}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-            >
-              <X className="h-5 w-5" />
-            </button>
-          </div>
-        </div>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden bg-white dark:bg-gray-900">
+        <DialogHeader>
+          <DialogTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-mono bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded">
+                Task #{taskId}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              {!isEditing ? (
+                <Button onClick={() => setIsEditing(true)} variant="outline" size="sm">
+                  <Edit className="h-4 w-4 mr-2" />
+                  Edit
+                </Button>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Button onClick={handleSave} disabled={isUpdating} size="sm">
+                    <Save className="h-4 w-4 mr-2" />
+                    {isUpdating ? "Saving..." : "Save"}
+                  </Button>
+                  <Button onClick={() => setIsEditing(false)} variant="outline" size="sm">
+                    Cancel
+                  </Button>
+                </div>
+              )}
+            </div>
+          </DialogTitle>
+        </DialogHeader>
 
-        {/* Content */}
-        <div className="p-6">
+        <div className="overflow-y-auto max-h-[calc(90vh-120px)] space-y-6">
           {isLoading ? (
-            <div className="animate-pulse space-y-4">
-              <div className="h-8 bg-gray-200 rounded w-3/4"></div>
-              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-              <div className="space-y-2">
-                <div className="h-4 bg-gray-200 rounded w-full"></div>
-                <div className="h-4 bg-gray-200 rounded w-5/6"></div>
-                <div className="h-4 bg-gray-200 rounded w-4/6"></div>
+            <div className="space-y-4">
+              <div className="h-8 bg-muted rounded animate-pulse" />
+              <div className="h-20 bg-muted rounded animate-pulse" />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="h-16 bg-muted rounded animate-pulse" />
+                <div className="h-16 bg-muted rounded animate-pulse" />
               </div>
             </div>
           ) : error || !task ? (
             <div className="text-center py-8">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                Task Not Found
-              </h3>
+              <h3 className="text-lg font-semibold mb-2">Task Not Found</h3>
               <p className="text-gray-600 dark:text-gray-400">
                 The task you're looking for doesn't exist or has been deleted.
               </p>
@@ -211,209 +190,219 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
           ) : (
             <div className="space-y-6">
               {/* Title */}
-              <div>
+              <div className="space-y-2">
                 {!isEditing ? (
-                  <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {task.title}
-                  </h1>
+                  <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{task.title}</h1>
                 ) : (
-                  <input
-                    type="text"
-                    value={editForm.title}
-                    onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
-                    className="text-2xl font-bold w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded p-2 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                    placeholder="Task title..."
-                  />
+                  <div className="space-y-2">
+                    <Label htmlFor="title" className="text-gray-900 dark:text-gray-100 font-medium">Title</Label>
+                    <Input
+                      id="title"
+                      value={editForm.title}
+                      onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                      placeholder="Enter task title..."
+                    />
+                  </div>
                 )}
               </div>
 
-              {/* Status and Priority Badges */}
-              <div className="flex items-center gap-4">
-                {!isEditing ? (
-                  <>
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(task.status!)}`}>
+              {/* Status and Priority */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-gray-900 dark:text-gray-100 font-medium">Status</Label>
+                  {!isEditing ? (
+                    <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(task.status!)}`}>
                       {task.status}
-                    </span>
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getPriorityColor(task.priority!)}`}>
-                      {task.priority}
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <select
+                    </div>
+                  ) : (
+                    <Select
                       value={editForm.status}
-                      onChange={(e) => setEditForm({ ...editForm, status: e.target.value as Status })}
-                      className="px-3 py-1 rounded-full text-sm font-medium border bg-white dark:bg-dark-secondary dark:border-gray-600 dark:text-white"
+                      onValueChange={(value) => setEditForm({ ...editForm, status: value as Status })}
                     >
-                      {Object.values(Status).map((status) => (
-                        <option key={status} value={status}>{status}</option>
-                      ))}
-                    </select>
-                    <select
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.values(Status).map((status) => (
+                          <SelectItem key={status} value={status}>
+                            {status}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-gray-900 dark:text-gray-100 font-medium">Priority</Label>
+                  {!isEditing ? (
+                    <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getPriorityColor(task.priority!)}`}>
+                      {task.priority}
+                    </div>
+                  ) : (
+                    <Select
                       value={editForm.priority}
-                      onChange={(e) => setEditForm({ ...editForm, priority: e.target.value as Priority })}
-                      className="px-3 py-1 rounded-full text-sm font-medium border bg-white dark:bg-dark-secondary dark:border-gray-600 dark:text-white"
+                      onValueChange={(value) => setEditForm({ ...editForm, priority: value as Priority })}
                     >
-                      {Object.values(Priority).map((priority) => (
-                        <option key={priority} value={priority}>{priority}</option>
-                      ))}
-                    </select>
-                  </>
-                )}
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.values(Priority).map((priority) => (
+                          <SelectItem key={priority} value={priority}>
+                            {priority}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                </div>
               </div>
 
               {/* Description */}
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Description</h3>
+              <div className="space-y-2">
+                <Label className="text-gray-900 dark:text-gray-100 font-medium">Description</Label>
                 {!isEditing ? (
-                  <div className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                  <div className="text-sm text-gray-900 dark:text-gray-100 whitespace-pre-wrap min-h-[60px] p-3 border rounded-md bg-gray-50 dark:bg-gray-800">
                     {task.description || "No description provided."}
                   </div>
                 ) : (
-                  <textarea
+                  <Textarea
                     value={editForm.description}
                     onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                    placeholder="Enter task description..."
                     rows={4}
-                    className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark-secondary text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                    placeholder="Task description..."
                   />
                 )}
               </div>
 
               {/* Task Details Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Assignee */}
-                <div className="flex items-center gap-3">
-                  <User className="h-5 w-5 text-gray-400" />
-                  <div className="flex-1">
-                    <label className="text-sm font-medium text-gray-600 dark:text-gray-400 block">Assignee</label>
-                    {!isEditing ? (
-                      <div className="text-gray-900 dark:text-white">
-                        {task.assignee ? task.assignee.username : "Unassigned"}
-                      </div>
-                    ) : (
-                      <select
-                        value={editForm.assignedUserId || ""}
-                        onChange={(e) => setEditForm({ ...editForm, assignedUserId: e.target.value ? parseInt(e.target.value) : undefined })}
-                        className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-dark-secondary text-gray-900 dark:text-white"
-                      >
-                        <option value="">Unassigned</option>
-                        {users.map((user) => (
-                          <option key={user.userId} value={user.userId}>{user.username}</option>
-                        ))}
-                      </select>
-                    )}
-                  </div>
-                </div>
-
-                {/* Author */}
-                <div className="flex items-center gap-3">
-                  <User className="h-5 w-5 text-gray-400" />
-                  <div>
-                    <label className="text-sm font-medium text-gray-600 dark:text-gray-400 block">Author</label>
-                    <div className="text-gray-900 dark:text-white">
-                      {task.author ? task.author.username : "Unknown"}
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2 text-gray-900 dark:text-gray-100 font-medium">
+                    <User className="h-4 w-4" />
+                    Assignee
+                  </Label>
+                  {!isEditing ? (
+                    <div className="text-sm text-gray-900 dark:text-gray-100 p-2 border rounded bg-gray-50 dark:bg-gray-800">
+                      {task.assignee?.username || "Unassigned"}
                     </div>
-                  </div>
+                  ) : (
+                    <Select
+                      value={editForm.assignedUserId?.toString() || "unassigned"}
+                      onValueChange={(value) => setEditForm({ ...editForm, assignedUserId: value === "unassigned" ? undefined : parseInt(value) })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select assignee" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="unassigned">Unassigned</SelectItem>
+                        {users?.map((user) => (
+                          <SelectItem key={user.userId} value={user.userId.toString()}>
+                            {user.username}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
                 </div>
 
                 {/* Start Date */}
-                <div className="flex items-center gap-3">
-                  <Calendar className="h-5 w-5 text-gray-400" />
-                  <div className="flex-1">
-                    <label className="text-sm font-medium text-gray-600 dark:text-gray-400 block">Start Date</label>
-                    {!isEditing ? (
-                      <div className="text-gray-900 dark:text-white">
-                        {task.startDate ? format(new Date(task.startDate), "PPP") : "Not set"}
-                      </div>
-                    ) : (
-                      <input
-                        type="date"
-                        value={editForm.startDate}
-                        onChange={(e) => setEditForm({ ...editForm, startDate: e.target.value })}
-                        className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-dark-secondary text-gray-900 dark:text-white"
-                      />
-                    )}
-                  </div>
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2 text-gray-900 dark:text-gray-100 font-medium">
+                    <Calendar className="h-4 w-4" />
+                    Start Date
+                  </Label>
+                  {!isEditing ? (
+                    <div className="text-sm text-gray-900 dark:text-gray-100 p-2 border rounded bg-gray-50 dark:bg-gray-800">
+                      {task.startDate ? format(new Date(task.startDate), "PPP") : "Not set"}
+                    </div>
+                  ) : (
+                    <Input
+                      type="date"
+                      value={editForm.startDate}
+                      onChange={(e) => setEditForm({ ...editForm, startDate: e.target.value })}
+                    />
+                  )}
                 </div>
 
                 {/* Due Date */}
-                <div className="flex items-center gap-3">
-                  <Clock className="h-5 w-5 text-gray-400" />
-                  <div className="flex-1">
-                    <label className="text-sm font-medium text-gray-600 dark:text-gray-400 block">Due Date</label>
-                    {!isEditing ? (
-                      <div className="text-gray-900 dark:text-white">
-                        {task.dueDate ? format(new Date(task.dueDate), "PPP") : "Not set"}
-                      </div>
-                    ) : (
-                      <input
-                        type="date"
-                        value={editForm.dueDate}
-                        onChange={(e) => setEditForm({ ...editForm, dueDate: e.target.value })}
-                        className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-dark-secondary text-gray-900 dark:text-white"
-                      />
-                    )}
-                  </div>
-                </div>
-
-                {/* Points */}
-                <div className="flex items-center gap-3">
-                  <Flag className="h-5 w-5 text-gray-400" />
-                  <div className="flex-1">
-                    <label className="text-sm font-medium text-gray-600 dark:text-gray-400 block">Story Points</label>
-                    {!isEditing ? (
-                      <div className="text-gray-900 dark:text-white">
-                        {task.points || 0} points
-                      </div>
-                    ) : (
-                      <input
-                        type="number"
-                        value={editForm.points}
-                        onChange={(e) => setEditForm({ ...editForm, points: parseInt(e.target.value) || 0 })}
-                        min="0"
-                        className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-dark-secondary text-gray-900 dark:text-white"
-                      />
-                    )}
-                  </div>
-                </div>
-
-                {/* Tags */}
-                <div className="flex items-center gap-3">
-                  <span className="h-5 w-5 flex items-center justify-center">🏷️</span>
-                  <div className="flex-1">
-                    <label className="text-sm font-medium text-gray-600 dark:text-gray-400 block">Tags</label>
-                    {!isEditing ? (
-                      <div className="text-gray-900 dark:text-white">
-                        {task.tags || "No tags"}
-                      </div>
-                    ) : (
-                      <input
-                        type="text"
-                        value={editForm.tags}
-                        onChange={(e) => setEditForm({ ...editForm, tags: e.target.value })}
-                        placeholder="Enter tags separated by commas"
-                        className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-dark-secondary text-gray-900 dark:text-white"
-                      />
-                    )}
-                  </div>
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2 text-gray-900 dark:text-gray-100 font-medium">
+                    <Clock className="h-4 w-4" />
+                    Due Date
+                  </Label>
+                  {!isEditing ? (
+                    <div className="text-sm text-gray-900 dark:text-gray-100 p-2 border rounded bg-gray-50 dark:bg-gray-800">
+                      {task.dueDate ? format(new Date(task.dueDate), "PPP") : "Not set"}
+                    </div>
+                  ) : (
+                    <Input
+                      type="date"
+                      value={editForm.dueDate}
+                      onChange={(e) => setEditForm({ ...editForm, dueDate: e.target.value })}
+                    />
+                  )}
                 </div>
               </div>
 
-              {/* Attachments Section */}
-              <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
-                <AttachmentsSection taskId={taskId} />
+              {/* Author and Tags */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-gray-900 dark:text-gray-100 font-medium">Author</Label>
+                  <div className="text-sm text-gray-900 dark:text-gray-100 p-2 border rounded bg-gray-50 dark:bg-gray-800">
+                    {task.author?.username || "Unknown"}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-gray-900 dark:text-gray-100 font-medium">Tags</Label>
+                  {!isEditing ? (
+                    <div className="min-h-[40px] p-2 border rounded bg-gray-50 dark:bg-gray-800">
+                      {task.tags ? (
+                        <div className="flex flex-wrap gap-1">
+                          {task.tags.split(',').map((tag: string, index: number) => (
+                            <span key={index} className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200">
+                              {tag.trim()}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="text-gray-600 dark:text-gray-300 text-sm">No tags</span>
+                      )}
+                    </div>
+                  ) : (
+                    <Input
+                      value={editForm.tags}
+                      onChange={(e) => setEditForm({ ...editForm, tags: e.target.value })}
+                      placeholder="Enter tags separated by commas"
+                    />
+                  )}
+                </div>
               </div>
 
-              {/* Comments Section */}
-              <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
-                <CommentsSection taskId={taskId} />
+              {/* Attachments */}
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2 text-gray-900 dark:text-gray-100 font-medium">
+                  <Paperclip className="h-4 w-4" />
+                  Attachments
+                </Label>
+                <div className="border rounded-md p-4">
+                  <AttachmentsSection taskId={taskId} />
+                </div>
+              </div>
+
+              {/* Comments */}
+              <div className="space-y-2">
+                <Label className="text-gray-900 dark:text-gray-100 font-medium">Comments</Label>
+                <div className="border rounded-md p-4">
+                  <CommentsSection taskId={taskId} />
+                </div>
               </div>
             </div>
           )}
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 
