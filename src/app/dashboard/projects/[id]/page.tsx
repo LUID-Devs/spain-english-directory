@@ -6,7 +6,7 @@ import List from "@/app/dashboard/projects/ListView";
 import Timeline from "@/app/dashboard/projects/Timeline";
 import Table from "@/app/dashboard/projects/Table";
 import ModalNewTask from "@/components/ModalNewTask";
-import { useGetProjectsQuery } from "@/hooks/useApi";
+import { useGetProjectsQuery, useGetTasksQuery } from "@/hooks/useApi";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -15,9 +15,18 @@ type Props = {
 const Project = ({ params }: Props) => {
   // Unwrap params using React.use()
   const { id } = React.use(params);
+  const projectId = parseInt(id);
 
   const { data: projects } = useGetProjectsQuery();
-  const currentProject = projects?.find(project => project.id === parseInt(id));
+  const currentProject = projects?.find(project => project.id === projectId);
+
+  // Fetch tasks for this specific project - will refetch when projectId changes
+  const {
+    data: tasks,
+    isLoading: tasksLoading,
+    isError: tasksError,
+    refetch: refetchTasks
+  } = useGetTasksQuery({ projectId }, { skip: !projectId || isNaN(projectId) });
 
   const [activeTab, setActiveTab] = useState("Board");
   const [isModalNewTaskOpen, setIsModalNewTaskOpen] = useState(false);
@@ -36,16 +45,44 @@ const Project = ({ params }: Props) => {
         projectName={currentProject?.name || "Loading..."} 
       />
       {activeTab === "Board" && (
-        <Board id={id} setIsModalNewTaskOpen={setIsModalNewTaskOpen} />
+        <Board 
+          id={id} 
+          setIsModalNewTaskOpen={setIsModalNewTaskOpen}
+          tasks={tasks}
+          tasksLoading={tasksLoading}
+          tasksError={tasksError}
+          refetchTasks={refetchTasks}
+        />
       )}
       {activeTab === "List" && (
-        <List id={id} setIsModalNewTaskOpen={setIsModalNewTaskOpen} />
+        <List 
+          id={id} 
+          setIsModalNewTaskOpen={setIsModalNewTaskOpen}
+          tasks={tasks}
+          tasksLoading={tasksLoading}
+          tasksError={tasksError}
+          refetchTasks={refetchTasks}
+        />
       )}
       {activeTab === "Timeline" && (
-        <Timeline id={id} setIsModalNewTaskOpen={setIsModalNewTaskOpen} />
+        <Timeline 
+          id={id} 
+          setIsModalNewTaskOpen={setIsModalNewTaskOpen}
+          tasks={tasks}
+          tasksLoading={tasksLoading}
+          tasksError={tasksError}
+          refetchTasks={refetchTasks}
+        />
       )}
       {activeTab === "Table" && (
-        <Table id={id} setIsModalNewTaskOpen={setIsModalNewTaskOpen} />
+        <Table 
+          id={id} 
+          setIsModalNewTaskOpen={setIsModalNewTaskOpen}
+          tasks={tasks}
+          tasksLoading={tasksLoading}
+          tasksError={tasksError}
+          refetchTasks={refetchTasks}
+        />
       )}
     </div>
   );

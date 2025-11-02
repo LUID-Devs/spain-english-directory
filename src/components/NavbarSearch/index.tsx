@@ -80,7 +80,6 @@ const NavbarSearch: React.FC<NavbarSearchProps> = ({
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
-    console.log('Input changed:', value, 'Length:', value.length);
     setSearchTerm(value);
     
     // Keep input focused while showing real-time search results
@@ -88,12 +87,10 @@ const NavbarSearch: React.FC<NavbarSearchProps> = ({
   };
 
   const handleInputFocus = () => {
-    console.log('Input focused, searchTerm:', searchTerm, 'Length:', searchTerm.length);
     if (searchTerm.length >= 2 && searchTerm.length < 3) {
       setShowSuggestions(true);
     }
     if (searchTerm.length >= 3) {
-      console.log('Setting showResults to true on focus');
       setShowResults(true);
     }
   };
@@ -246,16 +243,7 @@ const NavbarSearch: React.FC<NavbarSearchProps> = ({
 
         {/* Search Results Dropdown */}
         <AnimatePresence>
-          {(() => {
-            console.log('Dropdown render check:', { 
-              showResults, 
-              searchTerm, 
-              searchTermLength: searchTerm.length,
-              hasSearchResults: !!searchResults,
-              searchResults
-            });
-            return showResults;
-          })() && (
+          {showResults && (
             <motion.div
               key={`search-dropdown-${searchTerm}`}
               ref={dropdownRef}

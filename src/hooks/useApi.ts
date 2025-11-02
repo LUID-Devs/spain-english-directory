@@ -472,7 +472,7 @@ export const useGetTeamsQuery = (params: any = undefined, options: { skip?: bool
 // Hook for tasks query by project
 export const useGetTasksQuery = (params: { projectId: number }, options: { skip?: boolean } = {}) => {
   const { tasks, setTasks, setLoading, setError } = useApiStore();
-  const hasFetchedRef = useRef(false);
+  const prevProjectIdRef = useRef(params.projectId);
   const projectIdRef = useRef(params.projectId);
   const skipRef = useRef(options.skip);
   
@@ -481,22 +481,27 @@ export const useGetTasksQuery = (params: { projectId: number }, options: { skip?
     
     try {
       setLoading('tasks', true);
+      console.log('🔄 Fetching tasks for projectId:', projectIdRef.current);
       const tasksData = await apiService.getTasks(projectIdRef.current);
       setTasks(tasksData);
     } catch (error) {
       console.error('Failed to fetch tasks:', error);
       setError('tasks', error instanceof Error ? error.message : 'Failed to fetch tasks');
+    } finally {
+      setLoading('tasks', false);
     }
   }, [setTasks, setLoading, setError]);
 
   useEffect(() => {
     // Update refs
+    const projectIdChanged = prevProjectIdRef.current !== params.projectId;
     projectIdRef.current = params.projectId;
     skipRef.current = options.skip;
     
-    // Only fetch once on mount unless projectId or skip changes
-    if (!hasFetchedRef.current && !options.skip && params.projectId) {
-      hasFetchedRef.current = true;
+    // Fetch on mount or when projectId changes
+    if (!options.skip && params.projectId && (projectIdChanged || prevProjectIdRef.current === params.projectId)) {
+      console.log('🚀 Project ID changed from', prevProjectIdRef.current, 'to', params.projectId, '- fetching tasks');
+      prevProjectIdRef.current = params.projectId;
       fetchTasks();
     }
   }, [params.projectId, options.skip, fetchTasks]);
@@ -1078,13 +1083,10 @@ export const useSearchQuery = (query: string, options: { skip?: boolean } = {}) 
   }, [query, options.skip]);
 
   useEffect(() => {
-    console.log('useSearchQuery effect:', { query, skip: options.skip, length: query.length });
     // Search whenever query changes (if not skipped and query is valid)
     if (!options.skip && query.trim() && query.length >= 3) {
-      console.log('Triggering search for:', query);
       search();
     } else if (options.skip || !query.trim()) {
-      console.log('Clearing search results');
       setSearchResults(null);
       setError(null);
     }

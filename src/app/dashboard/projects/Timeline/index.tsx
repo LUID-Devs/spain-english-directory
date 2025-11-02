@@ -8,17 +8,34 @@ import { Plus, Calendar, Filter, BarChart3, Clock, ChevronDown } from "lucide-re
 type Props = {
   id: string;
   setIsModalNewTaskOpen: (isOpen: boolean) => void;
+  tasks?: any[];
+  tasksLoading?: boolean;
+  tasksError?: boolean;
+  refetchTasks?: () => void;
 };
 
 type TaskTypeItems = "task" | "milestone" | "project";
 
-const Timeline = ({ id, setIsModalNewTaskOpen }: Props) => {
+const Timeline = ({ 
+  id, 
+  setIsModalNewTaskOpen, 
+  tasks: propTasks, 
+  tasksLoading, 
+  tasksError, 
+  refetchTasks 
+}: Props) => {
   const isDarkMode = useGlobalStore().isDarkMode;
-  const {
-    data: tasks,
-    error,
-    isLoading,
-  } = useGetTasksQuery({ projectId: Number(id) });
+  
+  // Fallback to fetching data if not provided via props
+  const { data: fetchedTasks, isLoading: fetchedLoading, error: fetchedError } = useGetTasksQuery(
+    { projectId: Number(id) }, 
+    { skip: !!propTasks }
+  );
+  
+  // Use prop data if available, otherwise use fetched data
+  const tasks = propTasks || fetchedTasks;
+  const isLoading = tasksLoading !== undefined ? tasksLoading : fetchedLoading;
+  const error = tasksError !== undefined ? tasksError : fetchedError;
 
   const [displayOptions, setDisplayOptions] = useState<DisplayOption>({
     viewMode: ViewMode.Month,

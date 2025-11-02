@@ -8,15 +8,32 @@ import { format } from "date-fns";
 type Props = {
   id: string;
   setIsModalNewTaskOpen: (isOpen: boolean) => void;
+  tasks?: any[];
+  tasksLoading?: boolean;
+  tasksError?: boolean;
+  refetchTasks?: () => void;
 };
 
-const TableView = ({ id, setIsModalNewTaskOpen }: Props) => {
+const TableView = ({ 
+  id, 
+  setIsModalNewTaskOpen, 
+  tasks: propTasks, 
+  tasksLoading, 
+  tasksError, 
+  refetchTasks 
+}: Props) => {
   const isDarkMode = useGlobalStore().isDarkMode;
-  const {
-    data: tasks,
-    error,
-    isLoading,
-  } = useGetTasksQuery({ projectId: Number(id) });
+  
+  // Fallback to fetching data if not provided via props
+  const { data: fetchedTasks, isLoading: fetchedLoading, error: fetchedError } = useGetTasksQuery(
+    { projectId: Number(id) }, 
+    { skip: !!propTasks }
+  );
+  
+  // Use prop data if available, otherwise use fetched data
+  const tasks = propTasks || fetchedTasks;
+  const isLoading = tasksLoading !== undefined ? tasksLoading : fetchedLoading;
+  const error = tasksError !== undefined ? tasksError : fetchedError;
 
   const [searchQuery, setSearchQuery] = useState("");
 

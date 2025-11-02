@@ -7,18 +7,34 @@ import { Plus, Filter, SortAsc, Grid3X3, List, Search } from "lucide-react";
 type Props = {
   id: string;
   setIsModalNewTaskOpen: (isOpen: boolean) => void;
+  tasks?: Task[];
+  tasksLoading?: boolean;
+  tasksError?: boolean;
+  refetchTasks?: () => void;
 };
 
 type ViewMode = "grid" | "list";
 type SortOption = "priority" | "dueDate" | "title" | "status";
 type FilterOption = "all" | "To Do" | "Work In Progress" | "Under Review" | "Completed";
 
-const ListView = ({ id, setIsModalNewTaskOpen }: Props) => {
-  const {
-    data: tasks,
-    error,
-    isLoading,
-  } = useGetTasksQuery({ projectId: Number(id) });
+const ListView = ({ 
+  id, 
+  setIsModalNewTaskOpen, 
+  tasks: propTasks, 
+  tasksLoading, 
+  tasksError, 
+  refetchTasks 
+}: Props) => {
+  // Fallback to fetching data if not provided via props
+  const { data: fetchedTasks, isLoading: fetchedLoading, error: fetchedError } = useGetTasksQuery(
+    { projectId: Number(id) }, 
+    { skip: !!propTasks }
+  );
+  
+  // Use prop data if available, otherwise use fetched data
+  const tasks = propTasks || fetchedTasks;
+  const isLoading = tasksLoading !== undefined ? tasksLoading : fetchedLoading;
+  const error = tasksError !== undefined ? tasksError : fetchedError;
 
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [sortBy, setSortBy] = useState<SortOption>("priority");

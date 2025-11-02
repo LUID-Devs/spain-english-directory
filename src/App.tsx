@@ -17,7 +17,7 @@ import TasksPage from '@/app/dashboard/tasks/page';
 import TaskDetailPage from '@/pages/dashboard/tasks/TaskDetailPage';
 import TeamsPage from '@/pages/dashboard/teams/TeamsPage';
 import UsersPage from '@/pages/dashboard/users/UsersPage';
-import SettingsPage from '@/pages/dashboard/settings/SettingsPage';
+import SettingsPage from '@/app/dashboard/settings/page';
 import TimelinePage from '@/pages/dashboard/timeline/TimelinePage';
 
 // Priority Pages

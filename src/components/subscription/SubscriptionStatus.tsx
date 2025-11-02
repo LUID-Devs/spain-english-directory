@@ -1,16 +1,12 @@
 import React from 'react';
-import {
-  Box,
-  Typography,
-  Chip,
-  LinearProgress,
-  Button,
-  Card,
-  CardContent,
-} from '@mui/material';
 import { ArrowUp, Zap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useSubscription } from '@/stores/subscriptionStore';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { cn } from '@/lib/utils';
 
 interface SubscriptionStatusProps {
   compact?: boolean;
@@ -24,29 +20,24 @@ export function SubscriptionStatus({
   const { subscriptionData, currentPlan, loading } = useSubscription();
   const navigate = useNavigate();
 
-  if (loading) {
-    return (
-      <Card sx={{ mb: 3 }}>
-        <CardContent>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <div className="animate-pulse flex space-x-4">
-              <div className="rounded-full bg-gray-300 h-4 w-4"></div>
-              <div className="flex-1 space-y-2">
-                <div className="h-4 bg-gray-300 rounded w-3/4"></div>
-                <div className="h-3 bg-gray-300 rounded w-1/2"></div>
-              </div>
-            </div>
-          </Box>
-        </CardContent>
-      </Card>
-    );
-  }
+  // Provide fallback data
+  const defaultData = {
+    subscription: {
+      name: 'Free',
+      price: 0,
+      taskLimit: 5,
+      features: ['Up to 5 tasks', 'Basic project management', 'Email support']
+    },
+    usage: {
+      tasksCreated: 0,
+      taskLimit: 5,
+      remaining: 5
+    }
+  };
 
-  if (!subscriptionData) {
-    return null;
-  }
-
-  const { usage } = subscriptionData;
+  const dataToUse = subscriptionData || defaultData;
+  const planToUse = currentPlan || dataToUse.subscription;
+  const { usage } = dataToUse;
   const usagePercentage = usage.taskLimit === 999999 
     ? 0 
     : (usage.tasksCreated / usage.taskLimit) * 100;
@@ -56,122 +47,124 @@ export function SubscriptionStatus({
 
   if (compact) {
     return (
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-        <Chip
-          label={currentPlan?.name || 'Free'}
-          color={currentPlan?.name === 'Free' ? 'default' : 'primary'}
-          icon={<Zap size={16} />}
-          size="small"
-        />
+      <div className="flex items-center gap-4">
+        <Badge 
+          variant={planToUse?.name === 'Free' ? 'secondary' : 'default'}
+          className="gap-1"
+        >
+          <Zap size={14} />
+          {planToUse?.name || 'Free'}
+        </Badge>
         
         {usage.taskLimit !== 999999 && (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Typography variant="caption" color="text.secondary">
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">
               {usage.tasksCreated}/{usage.taskLimit}
-            </Typography>
-            <LinearProgress
-              variant="determinate"
+            </span>
+            <Progress
               value={Math.min(usagePercentage, 100)}
-              sx={{ 
-                width: 60, 
-                height: 4, 
-                borderRadius: 2,
-                backgroundColor: 'grey.200',
-              }}
-              color={isAtLimit ? 'error' : isNearLimit ? 'warning' : 'primary'}
+              className={cn(
+                "w-16 h-1",
+                isAtLimit ? "text-destructive" : 
+                isNearLimit ? "text-yellow-500" : "text-primary"
+              )}
             />
-          </Box>
+          </div>
         )}
 
-        {showUpgradeButton && currentPlan?.name === 'Free' && (
+        {showUpgradeButton && planToUse?.name === 'Free' && (
           <Button
-            size="small"
-            variant="outlined"
-            startIcon={<ArrowUp size={14} />}
+            size="sm"
+            variant="outline"
             onClick={() => navigate('/pricing')}
           >
+            <ArrowUp size={14} className="mr-1" />
             Upgrade
           </Button>
         )}
-      </Box>
+      </div>
     );
   }
 
   return (
-    <Card sx={{ mb: 3 }}>
-      <CardContent>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-          <Box>
-            <Typography variant="h6" gutterBottom>
-              Current Plan: {currentPlan?.name || 'Free'}
-            </Typography>
-            {currentPlan?.price && (
-              <Typography variant="body2" color="text.secondary">
-                ${currentPlan.price}/month
-              </Typography>
+    <Card className="mb-6">
+      <CardHeader className="pb-3">
+        <div className="flex justify-between items-start">
+          <div>
+            <CardTitle className="text-lg">
+              Current Plan: {planToUse?.name || 'Free'}
+            </CardTitle>
+            {planToUse?.price && planToUse.price > 0 && (
+              <p className="text-sm text-muted-foreground mt-1">
+                ${planToUse.price}/month
+              </p>
             )}
-          </Box>
+          </div>
           
-          <Chip
-            label={currentPlan?.name || 'Free'}
-            color={currentPlan?.name === 'Free' ? 'default' : 'primary'}
-            icon={<Zap size={16} />}
-          />
-        </Box>
+          <Badge 
+            variant={planToUse?.name === 'Free' ? 'secondary' : 'default'}
+            className="gap-1"
+          >
+            <Zap size={14} />
+            {planToUse?.name || 'Free'}
+          </Badge>
+        </div>
+      </CardHeader>
 
+      <CardContent className="pt-0">
         {usage.taskLimit !== 999999 && (
-          <Box sx={{ mb: 2 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-              <Typography variant="body2" color="text.secondary">
+          <div className="mb-4">
+            <div className="flex justify-between mb-2">
+              <span className="text-sm text-muted-foreground">
                 Tasks Used
-              </Typography>
-              <Typography variant="body2">
+              </span>
+              <span className="text-sm font-medium">
                 {usage.tasksCreated} / {usage.taskLimit}
-              </Typography>
-            </Box>
-            <LinearProgress
-              variant="determinate"
+              </span>
+            </div>
+            <Progress
               value={Math.min(usagePercentage, 100)}
-              sx={{ height: 8, borderRadius: 4 }}
-              color={isAtLimit ? 'error' : isNearLimit ? 'warning' : 'primary'}
+              className={cn(
+                "h-2",
+                isAtLimit ? "[&>div]:bg-destructive" : 
+                isNearLimit ? "[&>div]:bg-yellow-500" : "[&>div]:bg-primary"
+              )}
             />
-          </Box>
+          </div>
         )}
 
         {(isNearLimit || isAtLimit) && showUpgradeButton && (
-          <Box sx={{ mt: 2 }}>
-            <Typography 
-              variant="body2" 
-              color={isAtLimit ? 'error' : 'warning.main'}
-              gutterBottom
-            >
+          <div className="mt-4 p-4 rounded-lg bg-muted">
+            <p className={cn(
+              "text-sm mb-3",
+              isAtLimit ? "text-destructive" : "text-yellow-600"
+            )}>
               {isAtLimit 
                 ? 'You\'ve reached your task limit. Upgrade to continue creating tasks.'
                 : 'You\'re approaching your task limit. Consider upgrading your plan.'
               }
-            </Typography>
+            </p>
             <Button
-              variant="contained"
-              startIcon={<ArrowUp size={16} />}
               onClick={() => navigate('/pricing')}
-              size="small"
+              size="sm"
             >
+              <ArrowUp size={14} className="mr-2" />
               Upgrade Plan
             </Button>
-          </Box>
+          </div>
         )}
 
-        {showUpgradeButton && currentPlan?.name === 'Free' && !isNearLimit && (
-          <Box sx={{ mt: 2 }}>
+        {showUpgradeButton && planToUse?.name === 'Free' && !isNearLimit && (
+          <div className="mt-4">
             <Button
-              variant="outlined"
-              startIcon={<ArrowUp size={16} />}
+              variant="outline"
               onClick={() => navigate('/pricing')}
-              size="small"
+              size="sm"
             >
+              <ArrowUp size={14} className="mr-2" />
               Upgrade to Pro
             </Button>
-          </Box>
+          </div>
         )}
       </CardContent>
     </Card>

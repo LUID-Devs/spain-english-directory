@@ -17,12 +17,34 @@ type TaskStatus = "To Do" | "Work In Progress" | "Under Review" | "Completed";
 type BoardProps = {
   id: string;
   setIsModalNewTaskOpen: (isOpen: boolean) => void;
+  tasks?: TaskType[];
+  tasksLoading?: boolean;
+  tasksError?: boolean;
+  refetchTasks?: () => void;
 };
 
 const taskStatus: TaskStatus[] = ["To Do", "Work In Progress", "Under Review", "Completed"];
 
-const BoardView = ({ id, setIsModalNewTaskOpen }: BoardProps) => {
-  const { data: tasks, isLoading, error, refetch } = useGetTasksQuery({ projectId: Number(id) });
+const BoardView = ({ 
+  id, 
+  setIsModalNewTaskOpen, 
+  tasks: propTasks, 
+  tasksLoading, 
+  tasksError, 
+  refetchTasks 
+}: BoardProps) => {
+  // Fallback to fetching data if not provided via props (for backward compatibility)
+  const { data: fetchedTasks, isLoading: fetchedLoading, error: fetchedError, refetch: fetchedRefetch } = useGetTasksQuery(
+    { projectId: Number(id) }, 
+    { skip: !!propTasks }
+  );
+  
+  // Use prop data if available, otherwise use fetched data
+  const tasks = propTasks || fetchedTasks;
+  const isLoading = tasksLoading !== undefined ? tasksLoading : fetchedLoading;
+  const error = tasksError !== undefined ? tasksError : fetchedError;
+  const refetch = refetchTasks || fetchedRefetch;
+
   const [updateTaskStatus] = useUpdateTaskStatusMutation();
   const [selectedTask, setSelectedTask] = React.useState<{ taskId: number; editMode: boolean } | null>(null);
 
