@@ -97,12 +97,12 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden bg-white dark:bg-gray-900">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden">
         <DialogHeader>
           <DialogTitle>
             Create New Task
             {defaultPriority && (
-              <span className="ml-2 text-sm font-normal text-gray-600 dark:text-gray-400">
+              <span className="ml-2 text-sm font-normal text-muted-foreground">
                 ({priority} Priority)
               </span>
             )}
@@ -118,7 +118,7 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
         >
           {/* Title */}
           <div className="space-y-2">
-            <Label htmlFor="title" className="text-gray-900 dark:text-gray-100 font-medium">
+            <Label htmlFor="title" className="text-foreground font-medium">
               Title <span className="text-destructive">*</span>
             </Label>
             <Input
@@ -132,7 +132,7 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
 
           {/* Description */}
           <div className="space-y-2">
-            <Label htmlFor="description" className="text-gray-900 dark:text-gray-100 font-medium">Description</Label>
+            <Label htmlFor="description" className="text-foreground font-medium">Description</Label>
             <Textarea
               id="description"
               value={description}
@@ -145,7 +145,7 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
           {/* Status and Priority */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label className="text-gray-900 dark:text-gray-100 font-medium">Status</Label>
+              <Label className="text-foreground font-medium">Status</Label>
               <Select
                 value={status}
                 onValueChange={(value) => setStatus(Status[value as keyof typeof Status])}
@@ -162,7 +162,7 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label className="text-gray-900 dark:text-gray-100 font-medium">
+              <Label className="text-foreground font-medium">
                 Priority <span className="text-destructive">*</span>
               </Label>
               <Select
@@ -185,7 +185,7 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
 
           {/* Tags */}
           <div className="space-y-2">
-            <Label htmlFor="tags" className="text-gray-900 dark:text-gray-100 font-medium">Tags</Label>
+            <Label htmlFor="tags" className="text-foreground font-medium">Tags</Label>
             <Input
               id="tags"
               value={tags}
@@ -195,7 +195,7 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
             {tags && (
               <div className="flex flex-wrap gap-1 mt-2">
                 {tags.split(',').filter(tag => tag.trim()).map((tag, index) => (
-                  <span key={index} className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200">
+                  <span key={index} className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-secondary text-secondary-foreground">
                     {tag.trim()}
                   </span>
                 ))}
@@ -206,7 +206,7 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
           {/* Dates */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="startDate" className="text-gray-900 dark:text-gray-100 font-medium">Start Date</Label>
+              <Label htmlFor="startDate" className="text-foreground font-medium">Start Date</Label>
               <Input
                 id="startDate"
                 type="date"
@@ -215,7 +215,7 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="dueDate" className="text-gray-900 dark:text-gray-100 font-medium">Due Date</Label>
+              <Label htmlFor="dueDate" className="text-foreground font-medium">Due Date</Label>
               <Input
                 id="dueDate"
                 type="date"
@@ -228,7 +228,7 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
           {/* Team Assignment */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label className="text-gray-900 dark:text-gray-100 font-medium">
+              <Label className="text-foreground font-medium">
                 Author <span className="text-destructive">*</span>
               </Label>
               <Select
@@ -248,7 +248,7 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label className="text-gray-900 dark:text-gray-100 font-medium">Assignee</Label>
+              <Label className="text-foreground font-medium">Assignee</Label>
               <Select
                 value={assignedUserId || "unassigned"}
                 onValueChange={(value) => setAssignedUserId(value === "unassigned" ? "" : value)}
@@ -271,7 +271,7 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
           {/* Project Selection (only if not in a specific project) */}
           {id === null && (
             <div className="space-y-2">
-              <Label className="text-gray-900 dark:text-gray-100 font-medium">
+              <Label className="text-foreground font-medium">
                 Project <span className="text-destructive">*</span>
               </Label>
               <Select

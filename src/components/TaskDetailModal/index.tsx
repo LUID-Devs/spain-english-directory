@@ -141,11 +141,11 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden bg-white dark:bg-gray-900">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <span className="text-sm font-mono bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded">
+              <span className="text-sm font-mono bg-muted text-muted-foreground px-2 py-1 rounded">
                 Task #{taskId}
               </span>
             </div>
@@ -192,10 +192,10 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
               {/* Title */}
               <div className="space-y-2">
                 {!isEditing ? (
-                  <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{task.title}</h1>
+                  <h1 className="text-2xl font-bold">{task.title}</h1>
                 ) : (
                   <div className="space-y-2">
-                    <Label htmlFor="title" className="text-gray-900 dark:text-gray-100 font-medium">Title</Label>
+                    <Label htmlFor="title" className="text-foreground font-medium">Title</Label>
                     <Input
                       id="title"
                       value={editForm.title}
@@ -209,7 +209,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
               {/* Status and Priority */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-gray-900 dark:text-gray-100 font-medium">Status</Label>
+                  <Label className="text-foreground font-medium">Status</Label>
                   {!isEditing ? (
                     <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(task.status!)}`}>
                       {task.status}
@@ -233,7 +233,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-gray-900 dark:text-gray-100 font-medium">Priority</Label>
+                  <Label className="text-foreground font-medium">Priority</Label>
                   {!isEditing ? (
                     <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getPriorityColor(task.priority!)}`}>
                       {task.priority}
@@ -260,9 +260,9 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
 
               {/* Description */}
               <div className="space-y-2">
-                <Label className="text-gray-900 dark:text-gray-100 font-medium">Description</Label>
+                <Label className="text-foreground font-medium">Description</Label>
                 {!isEditing ? (
-                  <div className="text-sm text-gray-900 dark:text-gray-100 whitespace-pre-wrap min-h-[60px] p-3 border rounded-md bg-gray-50 dark:bg-gray-800">
+                  <div className="text-sm text-foreground whitespace-pre-wrap min-h-[60px] p-3 border rounded-md bg-muted/30">
                     {task.description || "No description provided."}
                   </div>
                 ) : (
@@ -279,12 +279,12 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Assignee */}
                 <div className="space-y-2">
-                  <Label className="flex items-center gap-2 text-gray-900 dark:text-gray-100 font-medium">
+                  <Label className="flex items-center gap-2 text-foreground font-medium">
                     <User className="h-4 w-4" />
                     Assignee
                   </Label>
                   {!isEditing ? (
-                    <div className="text-sm text-gray-900 dark:text-gray-100 p-2 border rounded bg-gray-50 dark:bg-gray-800">
+                    <div className="text-sm text-foreground p-2 border rounded bg-muted/30">
                       {task.assignee?.username || "Unassigned"}
                     </div>
                   ) : (
@@ -309,12 +309,12 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
 
                 {/* Start Date */}
                 <div className="space-y-2">
-                  <Label className="flex items-center gap-2 text-gray-900 dark:text-gray-100 font-medium">
+                  <Label className="flex items-center gap-2 text-foreground font-medium">
                     <Calendar className="h-4 w-4" />
                     Start Date
                   </Label>
                   {!isEditing ? (
-                    <div className="text-sm text-gray-900 dark:text-gray-100 p-2 border rounded bg-gray-50 dark:bg-gray-800">
+                    <div className="text-sm text-foreground p-2 border rounded bg-muted/30">
                       {task.startDate ? format(new Date(task.startDate), "PPP") : "Not set"}
                     </div>
                   ) : (
@@ -328,12 +328,12 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
 
                 {/* Due Date */}
                 <div className="space-y-2">
-                  <Label className="flex items-center gap-2 text-gray-900 dark:text-gray-100 font-medium">
+                  <Label className="flex items-center gap-2 text-foreground font-medium">
                     <Clock className="h-4 w-4" />
                     Due Date
                   </Label>
                   {!isEditing ? (
-                    <div className="text-sm text-gray-900 dark:text-gray-100 p-2 border rounded bg-gray-50 dark:bg-gray-800">
+                    <div className="text-sm text-foreground p-2 border rounded bg-muted/30">
                       {task.dueDate ? format(new Date(task.dueDate), "PPP") : "Not set"}
                     </div>
                   ) : (
@@ -349,25 +349,25 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
               {/* Author and Tags */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-gray-900 dark:text-gray-100 font-medium">Author</Label>
-                  <div className="text-sm text-gray-900 dark:text-gray-100 p-2 border rounded bg-gray-50 dark:bg-gray-800">
+                  <Label className="text-foreground font-medium">Author</Label>
+                  <div className="text-sm text-foreground p-2 border rounded bg-muted/30">
                     {task.author?.username || "Unknown"}
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-gray-900 dark:text-gray-100 font-medium">Tags</Label>
+                  <Label className="text-foreground font-medium">Tags</Label>
                   {!isEditing ? (
-                    <div className="min-h-[40px] p-2 border rounded bg-gray-50 dark:bg-gray-800">
+                    <div className="min-h-[40px] p-2 border rounded bg-muted/30">
                       {task.tags ? (
                         <div className="flex flex-wrap gap-1">
                           {task.tags.split(',').map((tag: string, index: number) => (
-                            <span key={index} className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200">
+                            <span key={index} className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-secondary text-secondary-foreground">
                               {tag.trim()}
                             </span>
                           ))}
                         </div>
                       ) : (
-                        <span className="text-gray-600 dark:text-gray-300 text-sm">No tags</span>
+                        <span className="text-muted-foreground text-sm">No tags</span>
                       )}
                     </div>
                   ) : (
@@ -382,7 +382,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
 
               {/* Attachments */}
               <div className="space-y-2">
-                <Label className="flex items-center gap-2 text-gray-900 dark:text-gray-100 font-medium">
+                <Label className="flex items-center gap-2 text-foreground font-medium">
                   <Paperclip className="h-4 w-4" />
                   Attachments
                 </Label>
@@ -393,7 +393,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
 
               {/* Comments */}
               <div className="space-y-2">
-                <Label className="text-gray-900 dark:text-gray-100 font-medium">Comments</Label>
+                <Label className="text-foreground font-medium">Comments</Label>
                 <div className="border rounded-md p-4">
                   <CommentsSection taskId={taskId} />
                 </div>
