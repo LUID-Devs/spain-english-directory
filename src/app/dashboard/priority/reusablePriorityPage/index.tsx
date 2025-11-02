@@ -9,7 +9,7 @@ import { Priority, Task } from "@/hooks/useApi";
 import { useGetTasksByUserQuery } from "@/hooks/useApi";
 import { useCurrentUser } from "@/stores/userStore";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "@/app/authProvider";
 import { getPriorityTheme, getPriorityButtonClasses, getPriorityGradientClasses, getPriorityBadgeClasses, getPriorityGradientOverlay, getPriorityShadowClasses, getPriorityContrastTextColor, getPriorityTextBackdrop } from "@/lib/priorityThemes";
 
@@ -198,6 +198,7 @@ const ReusablePriorityPage = ({ priority }: Props) => {
     isLoading,
     isError: isTasksError,
     error: tasksError,
+    refetch: refetchTasks,
   } = useGetTasksByUserQuery(userId, { skip: userId === null || !auth.isAuthenticated });
 
   const isDarkMode = useGlobalStore((state) => state.isDarkMode);
@@ -214,6 +215,19 @@ const ReusablePriorityPage = ({ priority }: Props) => {
   });
 
   const columns = getColumns(priority);
+
+  // Listen for task updates and refetch tasks
+  useEffect(() => {
+    const handleTaskUpdated = () => {
+      refetchTasks();
+    };
+
+    window.addEventListener('taskUpdated', handleTaskUpdated);
+    
+    return () => {
+      window.removeEventListener('taskUpdated', handleTaskUpdated);
+    };
+  }, [refetchTasks]);
 
   if (userLoading || isLoading) {
     return (

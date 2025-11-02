@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useGetTaskQuery, useUpdateTaskMutation, useGetUsersQuery } from "@/hooks/useApi";
 import { format } from "date-fns";
+import { toast } from "sonner";
 import { 
   X, 
   Edit, 
@@ -24,7 +25,7 @@ interface TaskDetailModalProps {
 }
 
 const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, taskId, editMode = false }) => {
-  const { data: task, isLoading, error } = useGetTaskQuery(taskId, { skip: !isOpen });
+  const { data: task, isLoading, error, refetch } = useGetTaskQuery(taskId, { skip: !isOpen });
   const { data: users = [] } = useGetUsersQuery(undefined, {
     skip: !isOpen, // Only load users when modal is open
   });
@@ -61,7 +62,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
 
   const handleSave = async () => {
     try {
-      await updateTask({
+      const updatedTask = await updateTask({
         taskId,
         task: {
           ...editForm,
@@ -69,9 +70,20 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
           dueDate: editForm.dueDate ? new Date(editForm.dueDate).toISOString() : undefined,
         },
       }).unwrap();
+      
+      // Exit edit mode first for smoother transition
       setIsEditing(false);
+      
+      // Silently refetch to update modal data without loading state
+      refetch();
+      
+      // Dispatch custom event to refresh other task-related views
+      window.dispatchEvent(new CustomEvent('taskUpdated', { detail: { taskId } }));
+      
+      toast.success("Task updated successfully!");
     } catch (error) {
       console.error("Failed to update task:", error);
+      toast.error("Failed to update task. Please try again.");
     }
   };
 
