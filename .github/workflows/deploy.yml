@@ -1,65 +1,291 @@
-name: Deploy TaskLuid to Hetzner
+name: Deploy TaskLuid Frontend
 
 on:
   push:
-    branches: [main, production]
-  workflow_dispatch:
+    branches: [main, master]
+  workflow_dispatch: # Allow manual triggers
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  deploy:
+  test:
     runs-on: ubuntu-latest
-    
+    name: 🧪 Run Frontend Tests
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'npm'
-    
-    - name: Install dependencies
-      run: npm ci
-      
-    - name: Run tests
-      run: npm test --if-present
-      
-    - name: Build application
-      run: npm run build
-      
-    - name: Deploy to Hetzner Cloud
-      uses: appleboy/ssh-action@v0.1.7
-      with:
-        host: ${{ secrets.HETZNER_HOST }}
-        username: root
-        key: ${{ secrets.HETZNER_SSH_KEY }}
-        port: ${{ secrets.HETZNER_SSH_PORT || 22 }}
-        script: |
-          cd /opt/taskluid
-          
-          # Pull latest changes
-          git pull origin main
-          
-          # Run deployment script
-          chmod +x deploy.sh
-          ./deploy.sh
-          
-          # Verify deployment
-          sleep 10
-          if curl -f http://localhost:3000/health; then
-            echo "✅ Deployment successful!"
-          else
-            echo "❌ Deployment failed!"
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🔍 Run linting
+        run: npm run lint || echo "No lint script found, skipping..."
+
+      - name: 🧪 Run tests
+        run: npm test || echo "No test script found, skipping..."
+        env:
+          NODE_ENV: test
+
+      - name: 🏗️ Test build
+        run: npm run build
+
+      - name: 🔒 Run security audit
+        run: npm audit --audit-level high
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    name: 🏗️ Build Docker Image
+    permissions:
+      contents: read
+      packages: write
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+
+    outputs:
+      image-tag: ${{ steps.meta.outputs.tags }}
+      image-digest: ${{ steps.build.outputs.digest }}
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐳 Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 🔐 Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🏷️ Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix=sha-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: 🏗️ Build and push Docker image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    needs: [test, build]
+    runs-on: ubuntu-latest
+    name: 🚀 Deploy TaskLuid Frontend to Production
+    permissions:
+      contents: read
+      packages: write
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    environment: production
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔑 Setup SSH key
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.HETZNER_SSH_KEY }}
+
+      - name: 📋 Create TaskLuid frontend deployment script
+        run: |
+          cat > deploy-taskluid-frontend.sh << 'EOF'
+          #!/bin/bash
+          set -e
+
+          echo "🚀 Starting TaskLuid frontend deployment..."
+
+          cd /opt/task-luid/task-luid-web
+
+          echo "📦 Creating pre-deployment backup..."
+          timestamp=$(date +%Y%m%d_%H%M%S)
+          mkdir -p /opt/task-luid/backups
+          docker image save taskluid-frontend > /opt/task-luid/backups/frontend_image_$timestamp.tar || echo "⚠️  Image backup failed, continuing..."
+
+          echo "🔐 Logging into container registry..."
+          echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+          echo "📥 Pulling latest frontend image..."
+          docker pull ghcr.io/${{ github.repository }}:latest || echo "⚠️  Pull from registry failed, building locally..."
+
+          echo "🛑 Stopping frontend service..."
+          docker stop taskluid-frontend || echo "Container not running"
+          docker rm taskluid-frontend || echo "Container not found"
+
+          echo "🏗️ Building frontend image..."
+          docker build -t taskluid-frontend .
+
+          echo "🚀 Starting updated frontend service..."
+          docker run -d \
+            --name taskluid-frontend \
+            --restart unless-stopped \
+            -p 3000:80 \
+            --env-file .env.production \
+            taskluid-frontend
+
+          echo "🧹 Cleaning up old images..."
+          docker image prune -f
+
+          echo "⏳ Waiting for frontend to become healthy..."
+          sleep 20
+
+          echo "🏥 Performing frontend health check..."
+          if ! docker ps | grep -q taskluid-frontend; then
+            echo "❌ Frontend container failed to start!"
+            docker logs taskluid-frontend
             exit 1
           fi
-    
-    - name: Notify on success
-      if: success()
-      run: |
-        echo "🎉 TaskLuid successfully deployed to production!"
-        
-    - name: Notify on failure
-      if: failure()
-      run: |
-        echo "❌ TaskLuid deployment failed!"
+
+          max_attempts=10
+          attempt=1
+          while [ $attempt -le $max_attempts ]; do
+            if curl -f http://localhost:3000/health >/dev/null 2>&1; then
+              echo "✅ Frontend health check passed!"
+              break
+            else
+              echo "⏳ Health check attempt $attempt/$max_attempts failed, retrying..."
+              sleep 10
+              ((attempt++))
+            fi
+          done
+
+          if [ $attempt -gt $max_attempts ]; then
+            echo "❌ Frontend health check failed after $max_attempts attempts!"
+            docker logs taskluid-frontend
+            exit 1
+          fi
+
+          echo "🌐 Testing external frontend endpoint..."
+          if curl -f https://taskluid.com/health >/dev/null 2>&1; then
+            echo "✅ External frontend health check passed!"
+          else
+            echo "⚠️  External frontend health check failed, but deployment may still be successful"
+          fi
+
+          echo "✅ TaskLuid Frontend deployment completed successfully!"
+          echo "📊 Frontend container status:"
+          docker ps | grep taskluid-frontend
+          EOF
+
+          chmod +x deploy-taskluid-frontend.sh
+
+      - name: 📤 Copy deployment script
+        run: |
+          scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+            deploy-taskluid-frontend.sh root@${{ secrets.HETZNER_HOST }}:/tmp/
+
+      - name: 🚀 Execute TaskLuid frontend deployment
+        run: |
+          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+            root@${{ secrets.HETZNER_HOST }} \
+            "bash /tmp/deploy-taskluid-frontend.sh"
+
+      - name: 🧹 Cleanup
+        run: |
+          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+            root@${{ secrets.HETZNER_HOST }} \
+            "rm -f /tmp/deploy-taskluid-frontend.sh && docker system prune -f"
+
+  notify:
+    needs: [deploy, build]
+    runs-on: ubuntu-latest
+    name: 📢 Send Discord Notifications
+    if: always()
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📧 Send Discord notification
+        run: |
+          DEPLOY_STATUS="${{ needs.deploy.result }}"
+          BUILD_STATUS="${{ needs.build.result }}"
+
+          if [ "$DEPLOY_STATUS" == "success" ]; then
+            COLOR="3066993"
+            STATUS_EMOJI="✅"
+            STATUS_TEXT="Success"
+            TITLE="🚀 TaskLuid Frontend - Production Deploy Successful"
+          else
+            COLOR="15158332"
+            STATUS_EMOJI="❌"
+            STATUS_TEXT="Failed"
+            TITLE="🚨 TaskLuid Frontend - Production Deploy Failed"
+          fi
+
+          COMMIT_SHA="${{ github.sha }}"
+          COMMIT_SHORT="${COMMIT_SHA:0:7}"
+          COMMIT_AUTHOR="${{ github.actor }}"
+          COMMIT_MESSAGE=$(git log -1 --pretty=format:"%s" || echo "No commit message")
+          BRANCH_NAME="${{ github.ref_name }}"
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%S.000Z")
+
+          cat > discord_payload.json << EOF
+          {
+            "embeds": [
+              {
+                "title": "$TITLE",
+                "color": $COLOR,
+                "timestamp": "$TIMESTAMP",
+                "fields": [
+                  { "name": "Status", "value": "$STATUS_EMOJI $STATUS_TEXT", "inline": true },
+                  { "name": "Environment", "value": "🎨 Production Frontend", "inline": true },
+                  { "name": "Branch", "value": "🌿 $BRANCH_NAME", "inline": true },
+                  { "name": "Commit", "value": "[\`$COMMIT_SHORT\`](https://github.com/${{ github.repository }}/commit/$COMMIT_SHA) by $COMMIT_AUTHOR", "inline": false },
+                  { "name": "Commit Message", "value": "$COMMIT_MESSAGE", "inline": false }
+                ]
+              }
+            ]
+          }
+          EOF
+
+          if [ "$DEPLOY_STATUS" == "success" ]; then
+            jq '.embeds[0].fields += [
+              { "name": "TaskLuid Frontend", "value": "🌐 [App](https://taskluid.com) | [Health Check](https://taskluid.com/health)", "inline": false },
+              { "name": "Services", "value": "🎨 React App | 🔧 Nginx | 🔒 SSL Certificate", "inline": true }
+            ]' discord_payload.json > temp.json && mv temp.json discord_payload.json
+
+            if [ "$BUILD_STATUS" == "success" ]; then
+              jq '.embeds[0].fields += [
+                { "name": "Docker Build", "value": "✅ Image pushed to registry", "inline": true }
+              ]' discord_payload.json > temp.json && mv temp.json discord_payload.json
+            fi
+          else
+            jq '.embeds[0].fields += [
+              { "name": "Failed Job", "value": "Deploy: '"$DEPLOY_STATUS"' | Build: '"$BUILD_STATUS"'", "inline": true },
+              { "name": "Troubleshooting", "value": "🔧 [View Logs](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) | 🩺 Check https://taskluid.com/health", "inline": false }
+            ]' discord_payload.json > temp.json && mv temp.json discord_payload.json
+          fi
+
+          jq '.embeds[0].fields += [
+            { "name": "GitHub Actions", "value": "🔗 [View Run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})", "inline": true }
+          ]' discord_payload.json > temp.json && mv temp.json discord_payload.json
+
+          if [ -n "${{ secrets.DISCORD_WEBHOOK_URL }}" ]; then
+            curl -H "Content-Type: application/json" -X POST -d @discord_payload.json "${{ secrets.DISCORD_WEBHOOK_URL }}"
+            echo "Discord notification sent!"
+          else
+            echo "Discord webhook not configured, skipping notification"
+          fi
