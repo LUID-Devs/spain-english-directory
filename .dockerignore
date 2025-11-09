@@ -1,0 +1,16 @@
+node_modules
+.git
+.gitignore
+README.md
+Dockerfile
+.dockerignore
+npm-debug.log
+.env
+.env.local
+.env.development
+.env.test
+dist
+build
+coverage
+.nyc_output
+HETZNER_DEPLOYMENT.md
