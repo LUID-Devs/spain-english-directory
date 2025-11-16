@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import GoogleSignInButton from "@/components/GoogleSignInButton";
+import { useAuth } from "@/app/authProvider";
 
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
@@ -16,6 +17,17 @@ const RegisterPage = () => {
   const [confirmationCode, setConfirmationCode] = useState("");
   const [showConfirmation, setShowConfirmation] = useState(false);
   const navigate = useNavigate();
+  const { isAuthenticated, isLoading: authLoading, user } = useAuth();
+  const [hasRedirected, setHasRedirected] = React.useState(false);
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (!authLoading && isAuthenticated && user && !hasRedirected) {
+      console.log('[REGISTER PAGE] User already authenticated, redirecting to dashboard...', user);
+      setHasRedirected(true);
+      navigate('/dashboard', { replace: true });
+    }
+  }, [isAuthenticated, authLoading, user, navigate, hasRedirected]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

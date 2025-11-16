@@ -27,10 +27,7 @@ const LoginPage = () => {
     if (!authLoading && isAuthenticated && user && !hasRedirected) {
       console.log('[LOGIN PAGE] User already authenticated, redirecting to dashboard...', user);
       setHasRedirected(true);
-      // Use setTimeout to prevent immediate re-render issues
-      setTimeout(() => {
-        navigate('/dashboard', { replace: true });
-      }, 100);
+      navigate('/dashboard', { replace: true });
     }
   }, [isAuthenticated, authLoading, user, navigate, hasRedirected]);
 
@@ -142,6 +139,18 @@ const LoginPage = () => {
       setLoading(false);
     }
   };
+
+  // Show loading state while checking authentication
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center px-4">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-400">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (challenge) {
     return (
