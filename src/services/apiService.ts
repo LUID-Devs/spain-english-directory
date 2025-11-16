@@ -145,7 +145,7 @@ class ApiService {
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
 
-    // Get Cognito access token if available
+    // Get Cognito access token and ID token if available
     let authHeader: Record<string, string> = {};
     try {
       const { fetchAuthSession } = await import('aws-amplify/auth');
@@ -153,7 +153,13 @@ class ApiService {
 
       if (session?.tokens?.accessToken) {
         authHeader['Authorization'] = `Bearer ${session.tokens.accessToken}`;
-        console.log('[API SERVICE] Added Authorization header with Cognito token');
+        console.log('[API SERVICE] Added Authorization header with Cognito access token');
+      }
+
+      // Also send ID token which contains email and other user attributes
+      if (session?.tokens?.idToken) {
+        authHeader['X-ID-Token'] = `${session.tokens.idToken}`;
+        console.log('[API SERVICE] Added X-ID-Token header with Cognito ID token');
       }
     } catch (error) {
       // No Cognito session available, continue without token (will use session cookies)

@@ -58,13 +58,18 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 3000);
 
-      // Build headers with Cognito token if available
+      // Build headers with Cognito tokens if available
       const headers: HeadersInit = {
         'Content-Type': 'application/json',
       };
 
       if (cognitoSession?.tokens?.accessToken) {
         headers['Authorization'] = `Bearer ${cognitoSession.tokens.accessToken}`;
+      }
+
+      // Also send ID token which contains email and other user attributes
+      if (cognitoSession?.tokens?.idToken) {
+        headers['X-ID-Token'] = `${cognitoSession.tokens.idToken}`;
       }
 
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/status`, {
