@@ -137,18 +137,34 @@ export interface Team {
 // API Service class
 class ApiService {
   private baseUrl: string;
-  
+
   constructor() {
     this.baseUrl = import.meta.env.VITE_API_BASE_URL || '';
   }
 
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
-    
+
+    // Get Cognito access token if available
+    let authHeader: Record<string, string> = {};
+    try {
+      const { fetchAuthSession } = await import('aws-amplify/auth');
+      const session = await fetchAuthSession();
+
+      if (session?.tokens?.accessToken) {
+        authHeader['Authorization'] = `Bearer ${session.tokens.accessToken}`;
+        console.log('[API SERVICE] Added Authorization header with Cognito token');
+      }
+    } catch (error) {
+      // No Cognito session available, continue without token (will use session cookies)
+      console.log('[API SERVICE] No Cognito session, using session cookies only');
+    }
+
     const config: RequestInit = {
-      credentials: 'include',
+      credentials: 'include', // Still send cookies for traditional auth
       headers: {
         'Content-Type': 'application/json',
+        ...authHeader, // Add Authorization header if available
         ...options.headers,
       },
       ...options,

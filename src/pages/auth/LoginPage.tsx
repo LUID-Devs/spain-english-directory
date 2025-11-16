@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { Hub } from "aws-amplify/utils";
 import { useAuth } from "@/app/authProvider";
+import GoogleSignInButton from "@/components/GoogleSignInButton";
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
@@ -17,7 +19,43 @@ const LoginPage = () => {
   } | null>(null);
   const [mfaCode, setMfaCode] = useState("");
   const navigate = useNavigate();
-  const { refreshAuth } = useAuth();
+  const { refreshAuth, isAuthenticated, isLoading: authLoading, user } = useAuth();
+  const [hasRedirected, setHasRedirected] = React.useState(false);
+
+  // Redirect if already authenticated (only once)
+  useEffect(() => {
+    if (!authLoading && isAuthenticated && user && !hasRedirected) {
+      console.log('[LOGIN PAGE] User already authenticated, redirecting to dashboard...', user);
+      setHasRedirected(true);
+      // Use setTimeout to prevent immediate re-render issues
+      setTimeout(() => {
+        navigate('/dashboard', { replace: true });
+      }, 100);
+    }
+  }, [isAuthenticated, authLoading, user, navigate, hasRedirected]);
+
+  // Listen for OAuth callback
+  useEffect(() => {
+    const hubListenerCancelToken = Hub.listen('auth', async ({ payload }) => {
+      console.log('[LOGIN PAGE] Auth event:', payload.event);
+
+      switch (payload.event) {
+        case 'signInWithRedirect':
+          console.log('[LOGIN PAGE] OAuth sign-in successful!');
+          setLoading(true);
+          await refreshAuth();
+          navigate('/dashboard');
+          break;
+        case 'signInWithRedirect_failure':
+          console.error('[LOGIN PAGE] OAuth sign-in failed:', payload.data);
+          setError(`OAuth sign-in failed: ${payload.data?.message || 'Unknown error'}`);
+          setLoading(false);
+          break;
+      }
+    });
+
+    return () => hubListenerCancelToken();
+  }, [navigate, refreshAuth]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -363,6 +401,22 @@ const LoginPage = () => {
               )}
             </motion.button>
           </form>
+
+          {/* Divider */}
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-700"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="bg-black/60 px-4 text-gray-400">Or continue with</span>
+            </div>
+          </div>
+
+          {/* Google Sign-In Button */}
+          <GoogleSignInButton
+            text="Sign in with Google"
+            onError={(error) => setError(error)}
+          />
 
           <div className="mt-6 text-center text-sm text-gray-400">
             Don&apos;t have an account?{" "}

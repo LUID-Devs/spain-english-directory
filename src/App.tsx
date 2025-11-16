@@ -8,6 +8,7 @@ import DashboardWrapper from '@/app/dashboardWrapper';
 // Auth Components
 import LoginPage from '@/pages/auth/LoginPage';
 import RegisterPage from '@/pages/auth/RegisterPage';
+import OAuthCallbackPage from '@/pages/auth/OAuthCallbackPage';
 
 // Dashboard Components
 import DashboardPage from '@/pages/dashboard/DashboardPage';
@@ -52,6 +53,7 @@ function App() {
         {/* Auth Routes */}
         <Route path="/auth/login" element={<LoginPage />} />
         <Route path="/auth/register" element={<RegisterPage />} />
+        <Route path="/auth/callback" element={<OAuthCallbackPage />} />
         
         {/* Dashboard Routes (Protected) */}
         <Route path="/dashboard/*" element={

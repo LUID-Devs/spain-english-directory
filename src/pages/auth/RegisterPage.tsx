@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import GoogleSignInButton from "@/components/GoogleSignInButton";
 
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
@@ -515,6 +516,22 @@ const RegisterPage = () => {
               )}
             </motion.button>
           </form>
+
+          {/* Divider */}
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-700"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="bg-black/60 px-4 text-gray-400">Or continue with</span>
+            </div>
+          </div>
+
+          {/* Google Sign-Up Button */}
+          <GoogleSignInButton
+            text="Sign up with Google"
+            onError={(error) => setError(error)}
+          />
 
           <div className="mt-6 text-center text-sm text-gray-400">
             Already have an account?{" "}
