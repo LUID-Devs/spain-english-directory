@@ -131,7 +131,8 @@ jobs:
           docker compose pull taskluid-frontend
 
           echo "🛑 Stopping and removing existing frontend container..."
-          docker compose down taskluid-frontend || echo "No existing container to stop"
+          docker compose stop taskluid-frontend || echo "Container not running"
+          docker compose rm -f taskluid-frontend || echo "Container not found"
 
           echo "🔄 Starting frontend container with new image..."
           docker compose up -d taskluid-frontend
