@@ -354,15 +354,9 @@ export const useUpdateProjectMutation = () => {
     const projectId = String(id);
     const loadingToast = toast.loading('Updating project...');
     
-    console.log('🚀 Updating project:', projectId, 'with data:', project);
-    console.log('📋 Current projects in store:', projects.data?.length || 0);
-    
     // Store original project data before optimistic update
     const originalProject = projects.data?.find(p => String(p.id) === String(projectId));
-    console.log('🔍 Project ID to find:', projectId, 'type:', typeof projectId);
-    console.log('🔍 Available project IDs:', projects.data?.map(p => ({ id: p.id, type: typeof p.id })));
-    console.log('🔍 Found original project:', originalProject?.name, originalProject?.description);
-    
+  
     // Optimistic update - immediately update UI
     if (projects.data) {
       const optimisticProjects = projects.data.map(p => 
