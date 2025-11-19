@@ -42,7 +42,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       let cognitoUser = null;
 
       try {
-        console.log('[AUTH] Checking for Cognito session...');
+      
         cognitoSession = await fetchAuthSession({ forceRefresh: false });
 
         if (cognitoSession?.tokens?.accessToken) {
