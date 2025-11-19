@@ -130,8 +130,11 @@ jobs:
           echo "📥 Pulling latest frontend image..."
           docker compose pull taskluid-frontend
 
-          echo "🔄 Recreating frontend container with new image..."
-          docker compose up -d --force-recreate taskluid-frontend
+          echo "🛑 Stopping and removing existing frontend container..."
+          docker compose down taskluid-frontend || echo "No existing container to stop"
+
+          echo "🔄 Starting frontend container with new image..."
+          docker compose up -d taskluid-frontend
 
           echo "🧹 Cleaning up old images..."
           docker image prune -f
