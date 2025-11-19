@@ -128,22 +128,10 @@ jobs:
           echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
           echo "📥 Pulling latest frontend image..."
-          docker pull ghcr.io/${{ github.repository }}:latest || echo "⚠️  Pull from registry failed, building locally..."
+          docker compose pull taskluid-frontend
 
-          echo "🛑 Stopping frontend service..."
-          docker stop taskluid-frontend || echo "Container not running"
-          docker rm taskluid-frontend || echo "Container not found"
-
-          echo "🏗️ Building frontend image..."
-          docker build -t taskluid-frontend .
-
-          echo "🚀 Starting updated frontend service..."
-          docker run -d \
-            --name taskluid-frontend \
-            --restart unless-stopped \
-            -p 3000:80 \
-            --env-file .env.production \
-            taskluid-frontend
+          echo "🔄 Recreating frontend container with new image..."
+          docker compose up -d --force-recreate taskluid-frontend
 
           echo "🧹 Cleaning up old images..."
           docker image prune -f
@@ -152,9 +140,9 @@ jobs:
           sleep 20
 
           echo "🏥 Performing frontend health check..."
-          if ! docker ps | grep -q taskluid-frontend; then
+          if ! docker compose ps taskluid-frontend | grep -q "Up"; then
             echo "❌ Frontend container failed to start!"
-            docker logs taskluid-frontend
+            docker compose logs taskluid-frontend
             exit 1
           fi
 
@@ -173,7 +161,7 @@ jobs:
 
           if [ $attempt -gt $max_attempts ]; then
             echo "❌ Frontend health check failed after $max_attempts attempts!"
-            docker logs taskluid-frontend
+            docker compose logs taskluid-frontend
             exit 1
           fi
 
@@ -186,7 +174,7 @@ jobs:
 
           echo "✅ TaskLuid Frontend deployment completed successfully!"
           echo "📊 Frontend container status:"
-          docker ps | grep taskluid-frontend
+          docker compose ps taskluid-frontend
           EOF
 
           chmod +x deploy-taskluid-frontend.sh

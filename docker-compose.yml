@@ -2,8 +2,9 @@ version: '3.8'
 
 services:
   taskluid-frontend:
-    build: .
+    image: ghcr.io/luid-devs/task-luid-web:latest
     container_name: taskluid-frontend
+    pull_policy: always
     ports:
       - "3000:80"
     environment:
