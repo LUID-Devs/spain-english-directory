@@ -89,6 +89,13 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          build-args: |
+            VITE_API_BASE_URL=https://api.taskluid.com
+            VITE_COGNITO_DOMAIN=https://us-east-1spqxbs7w9.auth.us-east-1.amazoncognito.com
+            VITE_COGNITO_USER_POOL_ID=us-east-1_SpqXBs7w9
+            VITE_COGNITO_CLIENT_ID=73b10s89a1ffbkadivolm6p3db
+            VITE_COGNITO_REDIRECT_URI=https://taskluid.com/auth/callback
+            VITE_COGNITO_REGION=us-east-1
 
   deploy:
     needs: [test, build]
