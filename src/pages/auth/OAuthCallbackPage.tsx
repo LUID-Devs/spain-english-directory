@@ -39,7 +39,7 @@ const OAuthCallbackPage: React.FC = () => {
 
     // Give Amplify time to process the URL params, then check
     const timeoutId = setTimeout(() => {
-      console.log('[OAUTH CALLBACK] Timeout - checking auth status');
+    
       if (!isProcessing) {
         isProcessing = true;
         handleOAuthCallback();
