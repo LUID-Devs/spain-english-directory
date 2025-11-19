@@ -376,8 +376,7 @@ export const useUpdateProjectMutation = () => {
           console.log('🔄 Fetching refreshed project data...');
           // Include userId in the request for proper favorite status
           const refreshedProject = await apiService.getProject(projectId, currentUser?.userId);
-          console.log('📦 Refreshed project data:', refreshedProject);
-          
+       
           if (projects.data) {
             const updatedProjects = projects.data.map(p => 
               String(p.id) === String(projectId) ? { 
