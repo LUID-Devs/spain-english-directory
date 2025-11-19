@@ -131,8 +131,12 @@ jobs:
           docker compose pull taskluid-frontend
 
           echo "🛑 Stopping and removing existing frontend container..."
-          docker compose stop taskluid-frontend || echo "Container not running"
-          docker compose rm -f taskluid-frontend || echo "Container not found"
+          # First try with docker-compose
+          docker compose stop taskluid-frontend 2>/dev/null || echo "Container not managed by docker-compose"
+          docker compose rm -f taskluid-frontend 2>/dev/null || echo "Container not found in docker-compose"
+          # Then try with plain docker to remove any manually created containers
+          docker stop taskluid-frontend 2>/dev/null || echo "Container not running"
+          docker rm -f taskluid-frontend 2>/dev/null || echo "Container already removed"
 
           echo "🔄 Starting frontend container with new image..."
           docker compose up -d taskluid-frontend
