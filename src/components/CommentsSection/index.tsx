@@ -38,11 +38,12 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ taskId }) => {
     if (!newComment.trim() || !currentUserId) return;
 
     try {
-      await createComment({
+      const result = await createComment({
         taskId,
         text: newComment.trim(),
         userId: currentUserId, // Send cognitoId, backend will resolve to database userId
-      }).unwrap();
+      });
+      await result.unwrap();
       setNewComment("");
     } catch (error) {
       console.error("Failed to create comment:", error);
@@ -58,11 +59,12 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ taskId }) => {
     if (!editingText.trim() || !currentUserId) return;
 
     try {
-      await updateComment({
+      const result = await updateComment({
         commentId,
         text: editingText.trim(),
         userId: currentUserId, // Send cognitoId, backend will resolve to database userId
-      }).unwrap();
+      });
+      await result.unwrap();
       setEditingCommentId(null);
       setEditingText("");
     } catch (error) {
@@ -77,10 +79,11 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ taskId }) => {
 
   const handleDeleteComment = async (commentId: number) => {
     if (!currentUserId) return;
-    
+
     if (window.confirm("Are you sure you want to delete this comment?")) {
       try {
-        await deleteComment({ commentId, userId: currentUserId }).unwrap(); // Send cognitoId, backend will resolve to database userId
+        const result = await deleteComment({ commentId, userId: currentUserId }); // Send cognitoId, backend will resolve to database userId
+        await result.unwrap();
       } catch (error) {
         console.error("Failed to delete comment:", error);
       }
