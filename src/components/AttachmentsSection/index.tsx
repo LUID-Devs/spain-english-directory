@@ -28,7 +28,7 @@ interface AttachmentsSectionProps {
 }
 
 const AttachmentsSection: React.FC<AttachmentsSectionProps> = ({ taskId }) => {
-  const { data: attachments, isLoading, error } = useGetTaskAttachmentsQuery(taskId);
+  const { data: attachments, isLoading, error, refetch } = useGetTaskAttachmentsQuery(taskId);
   const [uploadAttachment, { isLoading: isUploading }] = useUploadAttachmentMutation();
   const [deleteAttachment, { isLoading: isDeleting }] = useDeleteAttachmentMutation();
   
@@ -62,6 +62,9 @@ const AttachmentsSection: React.FC<AttachmentsSectionProps> = ({ taskId }) => {
 
       try {
         await uploadAttachment({ taskId, formData }).unwrap();
+
+        // Refetch attachments to update the list
+        refetch();
 
         // Clear progress on success
         setUploadProgress(prev => {
@@ -102,13 +105,16 @@ const AttachmentsSection: React.FC<AttachmentsSectionProps> = ({ taskId }) => {
 
   const handleDeleteAttachment = async (attachment: Attachment) => {
     if (!currentUserId) return;
-    
+
     if (window.confirm(`Are you sure you want to delete "${attachment.fileName}"?`)) {
       try {
-        await deleteAttachment({ 
-          attachmentId: attachment.id, 
-          userId: currentUserId 
+        await deleteAttachment({
+          attachmentId: attachment.id,
+          userId: currentUserId
         }).unwrap();
+
+        // Refetch attachments to update the list
+        refetch();
       } catch (error) {
         console.error("Failed to delete attachment:", error);
         alert("Failed to delete attachment. Please try again.");

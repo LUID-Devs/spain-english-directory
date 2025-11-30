@@ -18,7 +18,7 @@ interface CommentsSectionProps {
 }
 
 const CommentsSection: React.FC<CommentsSectionProps> = ({ taskId }) => {
-  const { data: comments, isLoading, error } = useGetTaskCommentsQuery(taskId);
+  const { data: comments, isLoading, error, refetch } = useGetTaskCommentsQuery(taskId);
   const [createComment, { isLoading: isCreating }] = useCreateCommentMutation();
   const [updateComment, { isLoading: isUpdating }] = useUpdateCommentMutation();
   const [deleteComment, { isLoading: isDeleting }] = useDeleteCommentMutation();
@@ -45,6 +45,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ taskId }) => {
       });
       await result.unwrap();
       setNewComment("");
+      refetch();
     } catch (error) {
       console.error("Failed to create comment:", error);
     }
@@ -67,6 +68,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ taskId }) => {
       await result.unwrap();
       setEditingCommentId(null);
       setEditingText("");
+      refetch();
     } catch (error) {
       console.error("Failed to update comment:", error);
     }
@@ -84,6 +86,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ taskId }) => {
       try {
         const result = await deleteComment({ commentId, userId: currentUserId }); // Send cognitoId, backend will resolve to database userId
         await result.unwrap();
+        refetch();
       } catch (error) {
         console.error("Failed to delete comment:", error);
       }

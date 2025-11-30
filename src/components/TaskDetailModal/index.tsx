@@ -3,10 +3,10 @@ import React, { useState, useEffect } from "react";
 import { useGetTaskQuery, useUpdateTaskMutation, useGetUsersQuery } from "@/hooks/useApi";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { Edit, Save, Calendar, User, Flag, Clock, Paperclip } from "lucide-react";
+import { Edit, Save, Calendar, User, Flag, Clock, Paperclip, Tag, CircleDot } from "lucide-react";
 import CommentsSection from "@/components/CommentsSection";
 import AttachmentsSection from "@/components/AttachmentsSection";
-import { Status, Priority } from "@/hooks/useApi";
+import { Status, Priority, TaskType } from "@/hooks/useApi";
 import {
   Dialog,
   DialogContent,
@@ -45,6 +45,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
     description: "",
     status: Status.ToDo,
     priority: Priority.Medium,
+    taskType: undefined as TaskType | undefined,
     tags: "",
     startDate: "",
     dueDate: "",
@@ -59,6 +60,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
         description: task.description || "",
         status: task.status || Status.ToDo,
         priority: task.priority || Priority.Medium,
+        taskType: task.taskType || undefined,
         tags: task.tags || "",
         startDate: task.startDate ? task.startDate.split('T')[0] : "",
         dueDate: task.dueDate ? task.dueDate.split('T')[0] : "",
@@ -119,6 +121,19 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
         return "bg-green-100 text-green-800 border-green-200";
       case Priority.Backlog:
         return "bg-gray-100 text-gray-800 border-gray-200";
+      default:
+        return "bg-gray-100 text-gray-800 border-gray-200";
+    }
+  };
+
+  const getTaskTypeColor = (taskType: TaskType | undefined) => {
+    switch (taskType) {
+      case TaskType.Feature:
+        return "bg-purple-100 text-purple-800 border-purple-200";
+      case TaskType.Bug:
+        return "bg-red-100 text-red-800 border-red-200";
+      case TaskType.Chore:
+        return "bg-blue-100 text-blue-800 border-blue-200";
       default:
         return "bg-gray-100 text-gray-800 border-gray-200";
     }
@@ -206,10 +221,13 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                 )}
               </div>
 
-              {/* Status and Priority */}
-              <div className="grid grid-cols-2 gap-4">
+              {/* Status, Priority, and Task Type */}
+              <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-foreground font-medium">Status</Label>
+                  <Label className="flex items-center gap-2 text-foreground font-medium">
+                    <CircleDot className="h-4 w-4" />
+                    Status
+                  </Label>
                   {!isEditing ? (
                     <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(task.status!)}`}>
                       {task.status}
@@ -233,7 +251,10 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-foreground font-medium">Priority</Label>
+                  <Label className="flex items-center gap-2 text-foreground font-medium">
+                    <Flag className="h-4 w-4" />
+                    Priority
+                  </Label>
                   {!isEditing ? (
                     <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getPriorityColor(task.priority!)}`}>
                       {task.priority}
@@ -250,6 +271,34 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                         {Object.values(Priority).map((priority) => (
                           <SelectItem key={priority} value={priority}>
                             {priority}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2 text-foreground font-medium">
+                    <Tag className="h-4 w-4" />
+                    Type
+                  </Label>
+                  {!isEditing ? (
+                    <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getTaskTypeColor(task.taskType)}`}>
+                      {task.taskType || "Not set"}
+                    </div>
+                  ) : (
+                    <Select
+                      value={editForm.taskType || "none"}
+                      onValueChange={(value) => setEditForm({ ...editForm, taskType: value === "none" ? undefined : value as TaskType })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">Not set</SelectItem>
+                        {Object.values(TaskType).map((type) => (
+                          <SelectItem key={type} value={type}>
+                            {type}
                           </SelectItem>
                         ))}
                       </SelectContent>

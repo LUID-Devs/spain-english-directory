@@ -589,26 +589,22 @@ export const useDeleteTaskMutation = () => {
 };
 
 export const useUpdateTaskStatusMutation = () => {
-  const updateTaskStatus = useCallback(async ({ taskId, status }: { taskId: number; status: string }) => {
-    try {
-      const result = await apiService.updateTaskStatus(taskId, status);
-      return { unwrap: () => Promise.resolve(result) };
-    } catch (error) {
-      return { unwrap: () => Promise.reject(error) };
-    }
+  const updateTaskStatus = useCallback(({ taskId, status }: { taskId: number; status: string }) => {
+    const promise = apiService.updateTaskStatus(taskId, status);
+    return {
+      unwrap: () => promise,
+    };
   }, []);
 
   return [updateTaskStatus, { isLoading: false }];
 };
 
 export const useCreateCommentMutation = () => {
-  const createComment = useCallback(async ({ taskId, text, userId }: { taskId: number; text: string; userId: number }) => {
-    try {
-      const result = await apiService.createComment(taskId, text, userId);
-      return { unwrap: () => Promise.resolve(result) };
-    } catch (error) {
-      return { unwrap: () => Promise.reject(error) };
-    }
+  const createComment = useCallback(({ taskId, text, userId }: { taskId: number; text: string; userId: number }) => {
+    const promise = apiService.createComment(taskId, text, userId);
+    return {
+      unwrap: () => promise,
+    };
   }, []);
 
   return [createComment, { isLoading: false }];
@@ -1232,26 +1228,22 @@ export const useGetTaskAttachmentsQuery = (taskId: number) => {
 };
 
 export const useUploadAttachmentMutation = () => {
-  const uploadAttachment = useCallback(async ({ taskId, formData }: { taskId: number; formData: FormData }) => {
-    try {
-      const result = await apiService.uploadAttachment(taskId, formData);
-      return { unwrap: () => Promise.resolve(result) };
-    } catch (error) {
-      return { unwrap: () => Promise.reject(error) };
-    }
+  const uploadAttachment = useCallback(({ taskId, formData }: { taskId: number; formData: FormData }) => {
+    const promise = apiService.uploadAttachment(taskId, formData);
+    return {
+      unwrap: () => promise,
+    };
   }, []);
 
   return [uploadAttachment, { isLoading: false }];
 };
 
 export const useDeleteAttachmentMutation = () => {
-  const deleteAttachment = useCallback(async ({ attachmentId, userId }: { attachmentId: number; userId: number }) => {
-    try {
-      const result = await apiService.deleteAttachment(attachmentId, userId);
-      return { unwrap: () => Promise.resolve(result) };
-    } catch (error) {
-      return { unwrap: () => Promise.reject(error) };
-    }
+  const deleteAttachment = useCallback(({ attachmentId, userId }: { attachmentId: number; userId: number }) => {
+    const promise = apiService.deleteAttachment(attachmentId, userId);
+    return {
+      unwrap: () => promise,
+    };
   }, []);
 
   return [deleteAttachment, { isLoading: false }];
@@ -1259,32 +1251,28 @@ export const useDeleteAttachmentMutation = () => {
 
 // Comment mutations
 export const useUpdateCommentMutation = () => {
-  const updateComment = useCallback(async ({ commentId, text, userId }: { commentId: number; text: string; userId: number }) => {
-    try {
-      const result = await apiService.updateComment(commentId, text, userId);
-      return { unwrap: () => Promise.resolve(result) };
-    } catch (error) {
-      return { unwrap: () => Promise.reject(error) };
-    }
+  const updateComment = useCallback(({ commentId, text, userId }: { commentId: number; text: string; userId: number }) => {
+    const promise = apiService.updateComment(commentId, text, userId);
+    return {
+      unwrap: () => promise,
+    };
   }, []);
 
   return [updateComment, { isLoading: false }];
 };
 
 export const useDeleteCommentMutation = () => {
-  const deleteComment = useCallback(async ({ commentId, userId }: { commentId: number; userId: number }) => {
-    try {
-      const result = await apiService.deleteComment(commentId, userId);
-      return { unwrap: () => Promise.resolve(result) };
-    } catch (error) {
-      return { unwrap: () => Promise.reject(error) };
-    }
+  const deleteComment = useCallback(({ commentId, userId }: { commentId: number; userId: number }) => {
+    const promise = apiService.deleteComment(commentId, userId);
+    return {
+      unwrap: () => promise,
+    };
   }, []);
 
   return [deleteComment, { isLoading: false }];
 };
 
 // Export types and enums
-export { Status, Priority } from '@/services/apiService';
+export { Status, Priority, TaskType } from '@/services/apiService';
 export type { Task, Project, User, Comment, Attachment, UserWithStats } from '@/services/apiService';
 

@@ -40,6 +40,12 @@ export enum Priority {
   Backlog = "Backlog",
 }
 
+export enum TaskType {
+  Feature = "Feature",
+  Bug = "Bug",
+  Chore = "Chore",
+}
+
 export interface User {
   userId: number;
   username: string;
@@ -100,6 +106,7 @@ export interface Task {
   description?: string;
   status?: Status;
   priority?: Priority;
+  taskType?: TaskType;
   tags?: string;
   startDate?: string;
   dueDate?: string;
@@ -166,14 +173,24 @@ class ApiService {
       console.log('[API SERVICE] No Cognito session, using session cookies only');
     }
 
+    // Check if body is FormData - don't set Content-Type for FormData
+    // (browser will set it automatically with proper multipart boundary)
+    const isFormData = options.body instanceof FormData;
+
+    const headers: Record<string, string> = {
+      ...authHeader,
+      ...(options.headers as Record<string, string>),
+    };
+
+    // Only set Content-Type for non-FormData requests
+    if (!isFormData) {
+      headers['Content-Type'] = 'application/json';
+    }
+
     const config: RequestInit = {
       credentials: 'include', // Still send cookies for traditional auth
-      headers: {
-        'Content-Type': 'application/json',
-        ...authHeader, // Add Authorization header if available
-        ...options.headers,
-      },
       ...options,
+      headers,
     };
 
     console.log('API Request:', url, config);
@@ -352,7 +369,6 @@ class ApiService {
   async uploadAttachment(taskId: number, formData: FormData): Promise<Attachment> {
     return this.request<Attachment>(`/tasks/${taskId}/attachments`, {
       method: 'POST',
-      headers: {}, // Don't set Content-Type for FormData
       body: formData,
     });
   }
