@@ -301,36 +301,39 @@ export const useCreateProjectMutation = () => {
 
 export const useUpdateTaskMutation = () => {
   const { tasks, setTasks } = useApiStore();
-  
-  const updateTask = useCallback(async ({ taskId, ...updates }: { taskId: number; [key: string]: any }) => {
+
+  const updateTask = useCallback(async ({ taskId, task: taskUpdates, ...directUpdates }: { taskId: number; task?: any; [key: string]: any }) => {
+    // Handle both { taskId, task: {...} } and { taskId, ...updates } formats
+    const updates = taskUpdates || directUpdates;
+
     // Store original task for rollback
-    const originalTask = tasks.data?.find(task => task.id === taskId);
-    
-    // Optimistic update
+    const originalTask = tasks.data?.find(t => t.id === taskId);
+
+    // Optimistic update - immediately update the UI
     if (tasks.data) {
-      const optimisticTasks = tasks.data.map(task => 
-        task.id === taskId ? { ...task, ...updates } : task
+      const optimisticTasks = tasks.data.map(t =>
+        t.id === taskId ? { ...t, ...updates } : t
       );
       setTasks(optimisticTasks);
     }
-    
+
     try {
       const updatedTask = await apiService.updateTask(taskId, updates);
-      
+
       // Update with real data from server
       if (tasks.data) {
-        const updatedTasks = tasks.data.map(task => 
-          task.id === taskId ? updatedTask : task
+        const updatedTasks = tasks.data.map(t =>
+          t.id === taskId ? { ...t, ...updatedTask } : t
         );
         setTasks(updatedTasks);
       }
-      
+
       return updatedTask;
     } catch (error) {
       // Rollback on error
       if (tasks.data && originalTask) {
-        const revertedTasks = tasks.data.map(task => 
-          task.id === taskId ? originalTask : task
+        const revertedTasks = tasks.data.map(t =>
+          t.id === taskId ? originalTask : t
         );
         setTasks(revertedTasks);
       }
@@ -339,7 +342,7 @@ export const useUpdateTaskMutation = () => {
   }, [tasks.data, setTasks]);
 
   // Return the function that returns a mutation object with unwrap method
-  const mutationWrapper = useCallback((args: { taskId: number; [key: string]: any }) => ({
+  const mutationWrapper = useCallback((args: { taskId: number; task?: any; [key: string]: any }) => ({
     unwrap: () => updateTask(args)
   }), [updateTask]);
 
@@ -611,14 +614,53 @@ export const useUpdateTaskStatusMutation = () => {
 };
 
 export const useCreateCommentMutation = () => {
-  const createComment = useCallback(({ taskId, text, userId, imageUrl }: { taskId: number; text: string; userId: number; imageUrl?: string }) => {
-    const promise = apiService.createComment(taskId, text, userId, imageUrl);
-    return {
-      unwrap: () => promise,
-    };
-  }, []);
+  const { taskComments, setTaskComments } = useApiStore();
+  const { currentUser } = useUserStore();
 
-  return [createComment, { isLoading: false }];
+  const createComment = useCallback(async ({ taskId, text, userId, imageUrl }: { taskId: number; text: string; userId: number; imageUrl?: string }) => {
+    const taskIdStr = taskId.toString();
+    const currentComments = taskComments[taskIdStr]?.data || [];
+
+    // Create optimistic comment with temporary ID
+    const optimisticComment = {
+      id: Date.now(), // Temporary ID
+      text,
+      imageUrl,
+      taskId,
+      userId,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      user: {
+        userId: currentUser?.userId || userId,
+        username: currentUser?.username || 'You',
+        email: currentUser?.email || '',
+        profilePictureUrl: currentUser?.profilePictureUrl,
+      },
+    };
+
+    // Optimistically add comment to the list
+    setTaskComments(taskIdStr, [...currentComments, optimisticComment]);
+
+    try {
+      const newComment = await apiService.createComment(taskId, text, userId, imageUrl);
+
+      // Replace optimistic comment with real comment from server
+      const updatedComments = currentComments.filter(c => c.id !== optimisticComment.id);
+      setTaskComments(taskIdStr, [...updatedComments, newComment]);
+
+      return newComment;
+    } catch (error) {
+      // Rollback on error
+      setTaskComments(taskIdStr, currentComments);
+      throw error;
+    }
+  }, [taskComments, setTaskComments, currentUser]);
+
+  const mutationWrapper = useCallback((args: { taskId: number; text: string; userId: number; imageUrl?: string }) => ({
+    unwrap: () => createComment(args)
+  }), [createComment]);
+
+  return [mutationWrapper, { isLoading: false }];
 };
 
 export const useUploadCommentImageMutation = () => {
@@ -1250,48 +1292,149 @@ export const useGetTaskAttachmentsQuery = (taskId: number) => {
 };
 
 export const useUploadAttachmentMutation = () => {
-  const uploadAttachment = useCallback(({ taskId, formData }: { taskId: number; formData: FormData }) => {
-    const promise = apiService.uploadAttachment(taskId, formData);
-    return {
-      unwrap: () => promise,
-    };
-  }, []);
+  const { taskAttachments, setTaskAttachments } = useApiStore();
+  const { currentUser } = useUserStore();
 
-  return [uploadAttachment, { isLoading: false }];
+  const uploadAttachment = useCallback(async ({ taskId, formData }: { taskId: number; formData: FormData }) => {
+    const taskIdStr = taskId.toString();
+    const currentAttachments = taskAttachments[taskIdStr]?.data || [];
+
+    // Get file info from FormData for optimistic update
+    const file = formData.get('file') as File;
+    const optimisticAttachment = {
+      id: Date.now(), // Temporary ID
+      fileURL: '', // Will be updated from server
+      fileName: file?.name || 'Uploading...',
+      taskId,
+      uploadedById: currentUser?.userId || 0,
+      uploadedBy: {
+        userId: currentUser?.userId || 0,
+        username: currentUser?.username || 'You',
+        email: currentUser?.email || '',
+      },
+      _isOptimistic: true, // Flag for UI styling
+    };
+
+    // Optimistically add attachment to the list
+    setTaskAttachments(taskIdStr, [...currentAttachments, optimisticAttachment]);
+
+    try {
+      const newAttachment = await apiService.uploadAttachment(taskId, formData);
+
+      // Replace optimistic attachment with real attachment from server
+      const updatedAttachments = currentAttachments.filter(a => a.id !== optimisticAttachment.id);
+      setTaskAttachments(taskIdStr, [...updatedAttachments, newAttachment]);
+
+      return newAttachment;
+    } catch (error) {
+      // Rollback on error
+      setTaskAttachments(taskIdStr, currentAttachments);
+      throw error;
+    }
+  }, [taskAttachments, setTaskAttachments, currentUser]);
+
+  const mutationWrapper = useCallback((args: { taskId: number; formData: FormData }) => ({
+    unwrap: () => uploadAttachment(args)
+  }), [uploadAttachment]);
+
+  return [mutationWrapper, { isLoading: false }];
 };
 
 export const useDeleteAttachmentMutation = () => {
-  const deleteAttachment = useCallback(({ attachmentId, userId }: { attachmentId: number; userId: number }) => {
-    const promise = apiService.deleteAttachment(attachmentId, userId);
-    return {
-      unwrap: () => promise,
-    };
-  }, []);
+  const { taskAttachments, setTaskAttachments } = useApiStore();
+
+  const deleteAttachment = useCallback(async ({ attachmentId, userId, taskId }: { attachmentId: number; userId: number; taskId: number }) => {
+    const taskIdStr = taskId.toString();
+    const currentAttachments = taskAttachments[taskIdStr]?.data || [];
+
+    // Optimistically remove the attachment
+    const optimisticAttachments = currentAttachments.filter(a => a.id !== attachmentId);
+    setTaskAttachments(taskIdStr, optimisticAttachments);
+
+    try {
+      const result = await apiService.deleteAttachment(attachmentId, userId);
+      return result;
+    } catch (error) {
+      // Rollback on error
+      setTaskAttachments(taskIdStr, currentAttachments);
+      throw error;
+    }
+  }, [taskAttachments, setTaskAttachments]);
+
+  const mutationWrapper = useCallback((args: { attachmentId: number; userId: number; taskId: number }) => ({
+    unwrap: () => deleteAttachment(args)
+  }), [deleteAttachment]);
 
   return [deleteAttachment, { isLoading: false }];
 };
 
 // Comment mutations
 export const useUpdateCommentMutation = () => {
-  const updateComment = useCallback(({ commentId, text, userId }: { commentId: number; text: string; userId: number }) => {
-    const promise = apiService.updateComment(commentId, text, userId);
-    return {
-      unwrap: () => promise,
-    };
-  }, []);
+  const { taskComments, setTaskComments } = useApiStore();
 
-  return [updateComment, { isLoading: false }];
+  const updateComment = useCallback(async ({ commentId, text, userId, taskId }: { commentId: number; text: string; userId: number; taskId: number }) => {
+    const taskIdStr = taskId.toString();
+    const currentComments = taskComments[taskIdStr]?.data || [];
+    const originalComment = currentComments.find(c => c.id === commentId);
+
+    // Optimistically update the comment
+    const optimisticComments = currentComments.map(c =>
+      c.id === commentId ? { ...c, text, updatedAt: new Date().toISOString() } : c
+    );
+    setTaskComments(taskIdStr, optimisticComments);
+
+    try {
+      const updatedComment = await apiService.updateComment(commentId, text, userId);
+
+      // Update with real comment from server
+      const finalComments = currentComments.map(c =>
+        c.id === commentId ? updatedComment : c
+      );
+      setTaskComments(taskIdStr, finalComments);
+
+      return updatedComment;
+    } catch (error) {
+      // Rollback on error
+      if (originalComment) {
+        setTaskComments(taskIdStr, currentComments);
+      }
+      throw error;
+    }
+  }, [taskComments, setTaskComments]);
+
+  const mutationWrapper = useCallback((args: { commentId: number; text: string; userId: number; taskId: number }) => ({
+    unwrap: () => updateComment(args)
+  }), [updateComment]);
+
+  return [mutationWrapper, { isLoading: false }];
 };
 
 export const useDeleteCommentMutation = () => {
-  const deleteComment = useCallback(({ commentId, userId }: { commentId: number; userId: number }) => {
-    const promise = apiService.deleteComment(commentId, userId);
-    return {
-      unwrap: () => promise,
-    };
-  }, []);
+  const { taskComments, setTaskComments } = useApiStore();
 
-  return [deleteComment, { isLoading: false }];
+  const deleteComment = useCallback(async ({ commentId, userId, taskId }: { commentId: number; userId: number; taskId: number }) => {
+    const taskIdStr = taskId.toString();
+    const currentComments = taskComments[taskIdStr]?.data || [];
+
+    // Optimistically remove the comment
+    const optimisticComments = currentComments.filter(c => c.id !== commentId);
+    setTaskComments(taskIdStr, optimisticComments);
+
+    try {
+      const result = await apiService.deleteComment(commentId, userId);
+      return result;
+    } catch (error) {
+      // Rollback on error
+      setTaskComments(taskIdStr, currentComments);
+      throw error;
+    }
+  }, [taskComments, setTaskComments]);
+
+  const mutationWrapper = useCallback((args: { commentId: number; userId: number; taskId: number }) => ({
+    unwrap: () => deleteComment(args)
+  }), [deleteComment]);
+
+  return [mutationWrapper, { isLoading: false }];
 };
 
 // Export types and enums

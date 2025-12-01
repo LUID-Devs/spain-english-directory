@@ -98,9 +98,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
           dueDate: formData.dueDate ? new Date(formData.dueDate).toISOString() : undefined,
         },
       }).unwrap();
-
-      // Dispatch custom event to refresh other task-related views
-      window.dispatchEvent(new CustomEvent('taskUpdated', { detail: { taskId } }));
+      // No event dispatch needed - optimistic update handles state sync
     } catch (error) {
       console.error("Failed to auto-save task:", error);
       toast.error("Failed to save changes");

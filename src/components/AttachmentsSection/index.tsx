@@ -28,7 +28,7 @@ interface AttachmentsSectionProps {
 }
 
 const AttachmentsSection: React.FC<AttachmentsSectionProps> = ({ taskId }) => {
-  const { data: attachments, isLoading, error, refetch } = useGetTaskAttachmentsQuery(taskId);
+  const { data: attachments, isLoading, error } = useGetTaskAttachmentsQuery(taskId);
   const [uploadAttachment, { isLoading: isUploading }] = useUploadAttachmentMutation();
   const [deleteAttachment, { isLoading: isDeleting }] = useDeleteAttachmentMutation();
   
@@ -63,8 +63,7 @@ const AttachmentsSection: React.FC<AttachmentsSectionProps> = ({ taskId }) => {
       try {
         await uploadAttachment({ taskId, formData }).unwrap();
 
-        // Refetch attachments to update the list
-        refetch();
+        // No refetch needed - optimistic update handles this
 
         // Clear progress on success
         setUploadProgress(prev => {
@@ -75,7 +74,7 @@ const AttachmentsSection: React.FC<AttachmentsSectionProps> = ({ taskId }) => {
       } catch (error) {
         console.error("Failed to upload attachment:", error);
         alert(`Failed to upload "${file.name}". Please try again.`);
-        
+
         // Clear progress on error
         setUploadProgress(prev => {
           const newProgress = { ...prev };
@@ -110,11 +109,11 @@ const AttachmentsSection: React.FC<AttachmentsSectionProps> = ({ taskId }) => {
       try {
         await deleteAttachment({
           attachmentId: attachment.id,
-          userId: currentUserId
+          userId: currentUserId,
+          taskId
         }).unwrap();
 
-        // Refetch attachments to update the list
-        refetch();
+        // No refetch needed - optimistic update handles this
       } catch (error) {
         console.error("Failed to delete attachment:", error);
         alert("Failed to delete attachment. Please try again.");

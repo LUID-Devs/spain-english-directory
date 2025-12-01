@@ -23,7 +23,7 @@ interface CommentsSectionProps {
 }
 
 const CommentsSection: React.FC<CommentsSectionProps> = ({ taskId }) => {
-  const { data: comments, isLoading, error, refetch } = useGetTaskCommentsQuery(taskId);
+  const { data: comments, isLoading, error } = useGetTaskCommentsQuery(taskId);
   const [createComment, { isLoading: isCreating }] = useCreateCommentMutation();
   const [updateComment, { isLoading: isUpdating }] = useUpdateCommentMutation();
   const [deleteComment, { isLoading: isDeleting }] = useDeleteCommentMutation();
@@ -74,9 +74,10 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ taskId }) => {
       });
       await result.unwrap();
       setNewComment("");
-      refetch();
+      // No refetch needed - optimistic update handles this
     } catch (error) {
       console.error("Failed to create comment:", error);
+      toast.error("Failed to post comment");
     }
   };
 
@@ -94,13 +95,15 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ taskId }) => {
         commentId,
         text: editingText,
         userId: currentUserId,
+        taskId,
       });
       await result.unwrap();
       setEditingCommentId(null);
       setEditingText("");
-      refetch();
+      // No refetch needed - optimistic update handles this
     } catch (error) {
       console.error("Failed to update comment:", error);
+      toast.error("Failed to update comment");
     }
   };
 
@@ -114,11 +117,12 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ taskId }) => {
 
     if (window.confirm("Are you sure you want to delete this comment?")) {
       try {
-        const result = await deleteComment({ commentId, userId: currentUserId });
+        const result = await deleteComment({ commentId, userId: currentUserId, taskId });
         await result.unwrap();
-        refetch();
+        // No refetch needed - optimistic update handles this
       } catch (error) {
         console.error("Failed to delete comment:", error);
+        toast.error("Failed to delete comment");
       }
     }
   };
