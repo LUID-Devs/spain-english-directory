@@ -192,14 +192,13 @@ const TableView = ({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Task</TableHead>
+                  <TableHead>Title</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Priority</TableHead>
+                  <TableHead>Type</TableHead>
                   <TableHead>Assignee</TableHead>
                   <TableHead>Due Date</TableHead>
-                  <TableHead>Start Date</TableHead>
                   <TableHead>Tags</TableHead>
-                  <TableHead>Points</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -207,18 +206,11 @@ const TableView = ({
                   const priorityBadge = getPriorityBadge(task.priority);
                   const statusVariant = getStatusBadge(task.status || "To Do");
                   const PriorityIcon = priorityBadge.icon;
-                  
+
                   return (
-                    <TableRow key={task.id}>
+                    <TableRow key={task.id} className="cursor-pointer hover:bg-muted/50">
                       <TableCell>
-                        <div className="space-y-1">
-                          <div className="font-medium text-foreground">{task.title}</div>
-                          {task.description && (
-                            <div className="text-sm text-muted-foreground line-clamp-2">
-                              {task.description}
-                            </div>
-                          )}
-                        </div>
+                        <div className="font-medium text-foreground">{task.title}</div>
                       </TableCell>
                       <TableCell>
                         <Badge variant={statusVariant} className="text-xs">
@@ -228,8 +220,16 @@ const TableView = ({
                       <TableCell>
                         {task.priority ? (
                           <Badge variant={priorityBadge.variant} className="text-xs">
-                            <PriorityIcon className="h-3 w-3 mr-1" />
                             {task.priority}
+                          </Badge>
+                        ) : (
+                          <span className="text-muted-foreground">—</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {task.taskType ? (
+                          <Badge variant="outline" className="text-xs">
+                            {task.taskType}
                           </Badge>
                         ) : (
                           <span className="text-muted-foreground">—</span>
@@ -266,20 +266,10 @@ const TableView = ({
                         )}
                       </TableCell>
                       <TableCell>
-                        {task.startDate ? (
-                          <div className="flex items-center space-x-1 text-sm text-foreground">
-                            <Clock className="h-3 w-3" />
-                            <span>{format(new Date(task.startDate), "MMM d, yyyy")}</span>
-                          </div>
-                        ) : (
-                          <span className="text-muted-foreground">—</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
                         {task.tags ? (
                           <div className="flex flex-wrap gap-1">
                             {task.tags.split(",").slice(0, 2).map((tag: string, index: number) => (
-                              <Badge key={index} variant="outline" className="text-xs">
+                              <Badge key={index} variant="secondary" className="text-xs">
                                 {tag.trim()}
                               </Badge>
                             ))}
@@ -287,15 +277,6 @@ const TableView = ({
                               <span className="text-xs text-muted-foreground">+{task.tags.split(",").length - 2}</span>
                             )}
                           </div>
-                        ) : (
-                          <span className="text-muted-foreground">—</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {task.points ? (
-                          <Badge variant="secondary" className="text-xs">
-                            {task.points}
-                          </Badge>
                         ) : (
                           <span className="text-muted-foreground">—</span>
                         )}

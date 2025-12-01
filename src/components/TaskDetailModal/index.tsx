@@ -165,7 +165,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
+      <DialogContent className="max-w-5xl max-h-[90vh] overflow-hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -182,7 +182,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
           </DialogTitle>
         </DialogHeader>
 
-        <div className="overflow-y-auto max-h-[calc(90vh-120px)] space-y-6">
+        <div className="overflow-y-auto max-h-[calc(90vh-120px)]">
           {isLoading ? (
             <div className="space-y-4">
               <div className="h-8 bg-muted rounded animate-pulse" />
@@ -200,22 +200,63 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
               </p>
             </div>
           ) : (
-            <div className="space-y-6">
-              {/* Title */}
-              <div className="space-y-2">
-                <Label htmlFor="title" className="text-foreground font-medium">Title</Label>
-                <Input
-                  id="title"
-                  value={editForm.title}
-                  onChange={(e) => handleFieldChange('title', e.target.value)}
-                  placeholder="Enter task title..."
-                />
-              </div>
+            <div className="flex gap-6">
+              {/* Left Column - Main Content */}
+              <div className="flex-1 space-y-5 min-w-0">
+                {/* Title */}
+                <div className="space-y-2">
+                  <Label htmlFor="title" className="text-foreground font-medium">Title</Label>
+                  <Input
+                    id="title"
+                    value={editForm.title}
+                    onChange={(e) => handleFieldChange('title', e.target.value)}
+                    placeholder="Enter task title..."
+                    className="text-lg"
+                  />
+                </div>
 
-              {/* Status, Priority, and Task Type */}
-              <div className="grid grid-cols-3 gap-4">
+                {/* Description */}
                 <div className="space-y-2">
                   <Label className="flex items-center gap-2 text-foreground font-medium">
+                    Description
+                    <span className="text-xs text-muted-foreground font-normal flex items-center gap-1">
+                      <Image className="h-3 w-3" />
+                      Paste image with Ctrl+V
+                    </span>
+                  </Label>
+                  <RichTextEditor
+                    content={editForm.description}
+                    onChange={(content) => handleFieldChange('description', content)}
+                    onImageUpload={handleImageUpload}
+                    placeholder="Enter task description... (paste an image with Ctrl+V)"
+                  />
+                </div>
+
+                {/* Attachments */}
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2 text-foreground font-medium">
+                    <Paperclip className="h-4 w-4" />
+                    Attachments
+                  </Label>
+                  <div className="border rounded-md p-4">
+                    <AttachmentsSection taskId={taskId} />
+                  </div>
+                </div>
+
+                {/* Comments */}
+                <div className="space-y-2">
+                  <Label className="text-foreground font-medium">Comments</Label>
+                  <div className="border rounded-md p-4">
+                    <CommentsSection taskId={taskId} />
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column - Sidebar Metadata */}
+              <div className="w-64 flex-shrink-0 space-y-4">
+                {/* Status */}
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2 text-foreground font-medium text-sm">
                     <CircleDot className="h-4 w-4" />
                     Status
                   </Label>
@@ -223,7 +264,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                     value={editForm.status}
                     onValueChange={(value) => handleFieldChange('status', value as Status)}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -235,8 +276,10 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                     </SelectContent>
                   </Select>
                 </div>
+
+                {/* Priority */}
                 <div className="space-y-2">
-                  <Label className="flex items-center gap-2 text-foreground font-medium">
+                  <Label className="flex items-center gap-2 text-foreground font-medium text-sm">
                     <Flag className="h-4 w-4" />
                     Priority
                   </Label>
@@ -244,7 +287,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                     value={editForm.priority}
                     onValueChange={(value) => handleFieldChange('priority', value as Priority)}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -256,8 +299,10 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                     </SelectContent>
                   </Select>
                 </div>
+
+                {/* Type */}
                 <div className="space-y-2">
-                  <Label className="flex items-center gap-2 text-foreground font-medium">
+                  <Label className="flex items-center gap-2 text-foreground font-medium text-sm">
                     <Tag className="h-4 w-4" />
                     Type
                   </Label>
@@ -265,7 +310,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                     value={editForm.taskType || "none"}
                     onValueChange={(value) => handleFieldChange('taskType', value === "none" ? undefined : value as TaskType)}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select type" />
                     </SelectTrigger>
                     <SelectContent>
@@ -278,30 +323,10 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                     </SelectContent>
                   </Select>
                 </div>
-              </div>
 
-              {/* Description */}
-              <div className="space-y-2">
-                <Label className="flex items-center gap-2 text-foreground font-medium">
-                  Description
-                  <span className="text-xs text-muted-foreground font-normal flex items-center gap-1">
-                    <Image className="h-3 w-3" />
-                    Paste image with Ctrl+V
-                  </span>
-                </Label>
-                <RichTextEditor
-                  content={editForm.description}
-                  onChange={(content) => handleFieldChange('description', content)}
-                  onImageUpload={handleImageUpload}
-                  placeholder="Enter task description... (paste an image with Ctrl+V)"
-                />
-              </div>
-
-              {/* Task Details Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Assignee */}
                 <div className="space-y-2">
-                  <Label className="flex items-center gap-2 text-foreground font-medium">
+                  <Label className="flex items-center gap-2 text-foreground font-medium text-sm">
                     <User className="h-4 w-4" />
                     Assignee
                   </Label>
@@ -309,7 +334,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                     value={editForm.assignedUserId?.toString() || "unassigned"}
                     onValueChange={(value) => handleFieldChange('assignedUserId', value === "unassigned" ? undefined : parseInt(value))}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select assignee" />
                     </SelectTrigger>
                     <SelectContent>
@@ -323,67 +348,55 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                   </Select>
                 </div>
 
-                {/* Start Date */}
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-2 text-foreground font-medium">
-                    <Calendar className="h-4 w-4" />
-                    Start Date
-                  </Label>
-                  <Input
-                    type="date"
-                    value={editForm.startDate}
-                    onChange={(e) => handleFieldChange('startDate', e.target.value)}
-                  />
-                </div>
+                <div className="border-t pt-4 space-y-4">
+                  {/* Start Date */}
+                  <div className="space-y-2">
+                    <Label className="flex items-center gap-2 text-foreground font-medium text-sm">
+                      <Calendar className="h-4 w-4" />
+                      Start Date
+                    </Label>
+                    <Input
+                      type="date"
+                      value={editForm.startDate}
+                      onChange={(e) => handleFieldChange('startDate', e.target.value)}
+                      className="w-full"
+                    />
+                  </div>
 
-                {/* Due Date */}
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-2 text-foreground font-medium">
-                    <Clock className="h-4 w-4" />
-                    Due Date
-                  </Label>
-                  <Input
-                    type="date"
-                    value={editForm.dueDate}
-                    onChange={(e) => handleFieldChange('dueDate', e.target.value)}
-                  />
-                </div>
-              </div>
-
-              {/* Author and Tags */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">Author</Label>
-                  <div className="text-sm text-foreground p-2 border rounded bg-muted/30">
-                    {task.author?.username || "Unknown"}
+                  {/* Due Date */}
+                  <div className="space-y-2">
+                    <Label className="flex items-center gap-2 text-foreground font-medium text-sm">
+                      <Clock className="h-4 w-4" />
+                      Due Date
+                    </Label>
+                    <Input
+                      type="date"
+                      value={editForm.dueDate}
+                      onChange={(e) => handleFieldChange('dueDate', e.target.value)}
+                      className="w-full"
+                    />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">Tags</Label>
-                  <Input
-                    value={editForm.tags}
-                    onChange={(e) => handleFieldChange('tags', e.target.value)}
-                    placeholder="Enter tags separated by commas"
-                  />
-                </div>
-              </div>
 
-              {/* Attachments */}
-              <div className="space-y-2">
-                <Label className="flex items-center gap-2 text-foreground font-medium">
-                  <Paperclip className="h-4 w-4" />
-                  Attachments
-                </Label>
-                <div className="border rounded-md p-4">
-                  <AttachmentsSection taskId={taskId} />
-                </div>
-              </div>
+                <div className="border-t pt-4 space-y-4">
+                  {/* Tags */}
+                  <div className="space-y-2">
+                    <Label className="text-foreground font-medium text-sm">Tags</Label>
+                    <Input
+                      value={editForm.tags}
+                      onChange={(e) => handleFieldChange('tags', e.target.value)}
+                      placeholder="Comma separated"
+                      className="w-full"
+                    />
+                  </div>
 
-              {/* Comments */}
-              <div className="space-y-2">
-                <Label className="text-foreground font-medium">Comments</Label>
-                <div className="border rounded-md p-4">
-                  <CommentsSection taskId={taskId} />
+                  {/* Author */}
+                  <div className="space-y-2">
+                    <Label className="text-foreground font-medium text-sm">Author</Label>
+                    <div className="text-sm text-muted-foreground p-2 border rounded bg-muted/30">
+                      {task.author?.username || "Unknown"}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

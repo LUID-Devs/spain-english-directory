@@ -410,7 +410,7 @@ const Task = ({ task, onTaskSelect }: TaskProps) => {
           drag(instance);
         }}
         className={cn(
-          "cursor-pointer transition-all duration-300 hover:shadow-md",
+          "cursor-pointer transition-all duration-300 hover:shadow-md group",
           isDragging && "opacity-60 scale-95 rotate-2"
         )}
         onClick={handleCardClick}
@@ -418,148 +418,141 @@ const Task = ({ task, onTaskSelect }: TaskProps) => {
       <CardContent className="p-4 space-y-3">
         {/* Image attachment */}
         {task.attachments && task.attachments.length > 0 && (
-          <div className="relative rounded-md overflow-hidden">
+          <div className="relative rounded-md overflow-hidden -mx-1 -mt-1">
             <img
               src={`https://luid-pm-s3-images.s3.us-east-1.amazonaws.com/${task.attachments[0].fileURL}`}
               alt={task.attachments[0].fileName}
-              className="h-32 w-full object-cover"
+              className="h-28 w-full object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
           </div>
         )}
-          {/* Header with menu */}
-          <div className="flex items-start justify-between">
-            <div className="flex-1 space-y-2">
-              {/* Priority and tags */}
-              <div className="flex items-center gap-2 flex-wrap">
-                {task.priority && (
-                  <Badge variant={priorityConfig.variant} className="text-xs">
-                    <PriorityIcon className="h-3 w-3 mr-1" />
-                    {task.priority}
-                  </Badge>
-                )}
-                {taskTagsSplit.map((tag) => (
-                  <Badge
-                    key={tag}
-                    variant="outline"
-                    className="text-xs"
-                  >
-                    {tag}
-                  </Badge>
-                ))}
-              </div>
-              
-              {/* Title and points */}
-              <div className="flex items-start justify-between">
-                <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 line-clamp-2 leading-tight">
-                  {task.title}
-                </h4>
-                
-              </div>
-            </div>
-            
-            {/* Action menu */}
-            <div className="relative ml-2">
-              <button 
-                onClick={handleMenuClick}
-                className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
-              >
-                <EllipsisVertical size={14} />
-              </button>
-              
-              {showDropdown && (
-                <div className="absolute right-0 top-8 z-30 bg-white dark:bg-dark-secondary border border-gray-200 dark:border-gray-600 rounded-xl shadow-lg py-1 w-36 backdrop-blur-sm">
-                  <button
-                    onClick={(e) => handleMenuAction('view', e)}
-                    className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                  >
-                    <Eye className="h-4 w-4" />
-                    View
-                  </button>
-                  <button
-                    onClick={(e) => handleMenuAction('edit', e)}
-                    className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                  >
-                    <Edit className="h-4 w-4" />
-                    Edit
-                  </button>
-                  <div className="border-t border-gray-100 dark:border-gray-600 my-1" />
-                  <button
-                    onClick={(e) => handleMenuAction('delete', e)}
-                    className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                    Delete
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
 
-          {/* Description */}
-          {task.description && (
-            <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 leading-relaxed">
-              {task.description}
-            </p>
-          )}
+        {/* Title */}
+        <div className="flex items-start justify-between gap-2">
+          <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 line-clamp-2 leading-tight flex-1">
+            {task.title}
+          </h4>
 
-          {/* Dates */}
-          {(formattedStartDate || formattedDueDate) && (
-            <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
-              {formattedStartDate && (
-                <div className="flex items-center gap-1">
-                  <Calendar size={12} />
-                  <span>Start: {formattedStartDate}</span>
-                </div>
-              )}
-              {formattedDueDate && (
-                <div className="flex items-center gap-1">
-                  <Clock size={12} />
-                  <span>Due: {formattedDueDate}</span>
-                </div>
-              )}
-            </div>
-          )}
+          {/* Action menu */}
+          <div className="relative flex-shrink-0">
+            <button
+              onClick={handleMenuClick}
+              className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+            >
+              <EllipsisVertical size={14} />
+            </button>
 
-          {/* Footer */}
-          <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-700/50">
-            {/* Avatars */}
-            <div className="flex items-center space-x-2">
-              {task.assignee && (
-                <div className="flex items-center space-x-1">
-                  <img
-                    src={`https://luid-pm-s3-images.s3.us-east-1.amazonaws.com/${task.assignee.profilePictureUrl!}`}
-                    alt={task.assignee.username}
-                    className="h-6 w-6 rounded-full border border-gray-200 dark:border-gray-600 object-cover"
-                  />
-                  <span className="text-xs text-gray-600 dark:text-gray-400 hidden sm:inline">
-                    {task.assignee.username}
-                  </span>
-                </div>
-              )}
-              {task.author && !task.assignee && (
-                <div className="flex items-center space-x-1">
-                  <img
-                    src={`https://luid-pm-s3-images.s3.us-east-1.amazonaws.com/${task.author.profilePictureUrl!}`}
-                    alt={task.author.username}
-                    className="h-6 w-6 rounded-full border border-gray-200 dark:border-gray-600 object-cover"
-                  />
-                  <span className="text-xs text-gray-600 dark:text-gray-400 hidden sm:inline">
-                    {task.author.username}
-                  </span>
-                </div>
-              )}
-            </div>
-
-            {/* Comments */}
-            {numberOfComments > 0 && (
-              <div className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
-                <MessageSquareMore size={14} />
-                <span className="text-xs">{numberOfComments}</span>
+            {showDropdown && (
+              <div className="absolute right-0 top-6 z-30 bg-white dark:bg-dark-secondary border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg py-1 w-32">
+                <button
+                  onClick={(e) => handleMenuAction('view', e)}
+                  className="flex items-center gap-2 w-full px-3 py-1.5 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                >
+                  <Eye className="h-3 w-3" />
+                  View
+                </button>
+                <button
+                  onClick={(e) => handleMenuAction('edit', e)}
+                  className="flex items-center gap-2 w-full px-3 py-1.5 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                >
+                  <Edit className="h-3 w-3" />
+                  Edit
+                </button>
+                <div className="border-t border-gray-100 dark:border-gray-600 my-1" />
+                <button
+                  onClick={(e) => handleMenuAction('delete', e)}
+                  className="flex items-center gap-2 w-full px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                >
+                  <Trash2 className="h-3 w-3" />
+                  Delete
+                </button>
               </div>
             )}
           </div>
-        </CardContent>
+        </div>
+
+        {/* Priority, Type and Tags row */}
+        <div className="flex items-center gap-1.5 flex-wrap">
+          {task.priority && (
+            <Badge variant={priorityConfig.variant} className="text-[10px] px-1.5 py-0">
+              {task.priority}
+            </Badge>
+          )}
+          {task.taskType && (
+            <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+              {task.taskType}
+            </Badge>
+          )}
+          {taskTagsSplit.slice(0, 2).map((tag) => (
+            <Badge
+              key={tag}
+              variant="secondary"
+              className="text-[10px] px-1.5 py-0"
+            >
+              {tag.trim()}
+            </Badge>
+          ))}
+          {taskTagsSplit.length > 2 && (
+            <span className="text-[10px] text-gray-400">+{taskTagsSplit.length - 2}</span>
+          )}
+        </div>
+
+        {/* Due date warning if applicable */}
+        {dueDateStatus && (
+          <Badge variant={dueDateStatus.variant} className="text-[10px] px-1.5 py-0">
+            <AlertTriangle className="h-2.5 w-2.5 mr-1" />
+            {dueDateStatus.text}
+          </Badge>
+        )}
+
+        {/* Footer - Assignee and metadata */}
+        <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-700/50">
+          {/* Assignee */}
+          <div className="flex items-center gap-1.5">
+            {task.assignee ? (
+              <>
+                <img
+                  src={`https://luid-pm-s3-images.s3.us-east-1.amazonaws.com/${task.assignee.profilePictureUrl!}`}
+                  alt={task.assignee.username}
+                  className="h-5 w-5 rounded-full border border-gray-200 dark:border-gray-600 object-cover"
+                />
+                <span className="text-xs text-gray-600 dark:text-gray-400">
+                  {task.assignee.username}
+                </span>
+              </>
+            ) : task.author ? (
+              <>
+                <img
+                  src={`https://luid-pm-s3-images.s3.us-east-1.amazonaws.com/${task.author.profilePictureUrl!}`}
+                  alt={task.author.username}
+                  className="h-5 w-5 rounded-full border border-gray-200 dark:border-gray-600 object-cover"
+                />
+                <span className="text-xs text-gray-600 dark:text-gray-400">
+                  {task.author.username}
+                </span>
+              </>
+            ) : (
+              <span className="text-xs text-gray-400">Unassigned</span>
+            )}
+          </div>
+
+          {/* Right side - dates and comments */}
+          <div className="flex items-center gap-2 text-gray-400">
+            {formattedDueDate && (
+              <div className="flex items-center gap-1 text-[10px]">
+                <Clock size={10} />
+                <span>{formattedDueDate}</span>
+              </div>
+            )}
+            {numberOfComments > 0 && (
+              <div className="flex items-center gap-0.5 text-[10px]">
+                <MessageSquareMore size={10} />
+                <span>{numberOfComments}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </CardContent>
       </Card>
       
       <DeleteTaskModal
