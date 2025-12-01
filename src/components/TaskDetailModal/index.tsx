@@ -57,6 +57,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
   // Track if form has been initialized from task data
   const isInitializedRef = useRef(false);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Initialize form when task data loads
   useEffect(() => {
@@ -83,6 +84,41 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
       isInitializedRef.current = false;
     }
   }, [isOpen]);
+
+  // Handle keyboard scrolling
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const scrollAmount = 60;
+
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        container.scrollTop += scrollAmount;
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        container.scrollTop -= scrollAmount;
+        break;
+      case 'PageDown':
+        e.preventDefault();
+        container.scrollTop += container.clientHeight * 0.8;
+        break;
+      case 'PageUp':
+        e.preventDefault();
+        container.scrollTop -= container.clientHeight * 0.8;
+        break;
+      case 'Home':
+        e.preventDefault();
+        container.scrollTop = 0;
+        break;
+      case 'End':
+        e.preventDefault();
+        container.scrollTop = container.scrollHeight;
+        break;
+    }
+  }, []);
 
   // Auto-save function
   const autoSave = useCallback(async (formData: typeof editForm) => {
@@ -182,7 +218,12 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
           </DialogTitle>
         </DialogHeader>
 
-        <div className="overflow-y-auto max-h-[calc(90vh-120px)]">
+        <div
+          ref={scrollContainerRef}
+          tabIndex={0}
+          onKeyDown={handleKeyDown}
+          className="overflow-y-scroll max-h-[calc(90vh-120px)] pr-2 focus:outline-none"
+        >
           {isLoading ? (
             <div className="space-y-4">
               <div className="h-8 bg-muted rounded animate-pulse" />
