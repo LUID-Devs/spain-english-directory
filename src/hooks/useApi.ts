@@ -346,6 +346,17 @@ export const useUpdateTaskMutation = () => {
   return [mutationWrapper, { isLoading: false }];
 };
 
+export const useUploadTaskDescriptionImageMutation = () => {
+  const uploadImage = useCallback(({ formData }: { formData: FormData }) => {
+    const promise = apiService.uploadTaskDescriptionImage(formData);
+    return {
+      unwrap: () => promise,
+    };
+  }, []);
+
+  return [uploadImage, { isLoading: false }];
+};
+
 export const useUpdateProjectMutation = () => {
   const { projects, setProjects } = useApiStore();
   const { currentUser } = useUserStore();

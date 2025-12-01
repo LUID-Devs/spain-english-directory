@@ -1,11 +1,11 @@
 
-import React, { useState, useEffect } from "react";
-import { useGetTaskQuery, useUpdateTaskMutation, useGetUsersQuery } from "@/hooks/useApi";
-import { format } from "date-fns";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useGetTaskQuery, useUpdateTaskMutation, useGetUsersQuery, useUploadTaskDescriptionImageMutation } from "@/hooks/useApi";
 import { toast } from "sonner";
-import { Edit, Save, Calendar, User, Flag, Clock, Paperclip, Tag, CircleDot } from "lucide-react";
+import { Calendar, User, Flag, Clock, Paperclip, Tag, CircleDot, Loader2, Image } from "lucide-react";
 import CommentsSection from "@/components/CommentsSection";
 import AttachmentsSection from "@/components/AttachmentsSection";
+import RichTextEditor from "@/components/RichTextEditor";
 import { Status, Priority, TaskType } from "@/hooks/useApi";
 import {
   Dialog,
@@ -13,9 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -32,14 +30,17 @@ interface TaskDetailModalProps {
   editMode?: boolean;
 }
 
-const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, taskId, editMode = false }) => {
+const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, taskId }) => {
   const { data: task, isLoading, error, refetch } = useGetTaskQuery(taskId, { skip: !isOpen });
   const { data: users = [] } = useGetUsersQuery(undefined, {
-    skip: !isOpen, // Only load users when modal is open
+    skip: !isOpen,
   });
-  const [updateTask, { isLoading: isUpdating }] = useUpdateTaskMutation() as any;
-  
-  const [isEditing, setIsEditing] = useState(editMode);
+  const [updateTask] = useUpdateTaskMutation() as any;
+  const [uploadDescriptionImage] = useUploadTaskDescriptionImageMutation();
+
+  const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+
   const [editForm, setEditForm] = useState({
     title: "",
     description: "",
@@ -53,8 +54,13 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
     assignedUserId: undefined as number | undefined,
   });
 
+  // Track if form has been initialized from task data
+  const isInitializedRef = useRef(false);
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Initialize form when task data loads
   useEffect(() => {
-    if (task) {
+    if (task && !isInitializedRef.current) {
       setEditForm({
         title: task.title || "",
         description: task.description || "",
@@ -67,91 +73,96 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
         points: task.points || 0,
         assignedUserId: task.assignedUserId || undefined,
       });
+      isInitializedRef.current = true;
     }
   }, [task]);
 
-  const handleSave = async () => {
+  // Reset initialization flag when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      isInitializedRef.current = false;
+    }
+  }, [isOpen]);
+
+  // Auto-save function
+  const autoSave = useCallback(async (formData: typeof editForm) => {
+    if (!isInitializedRef.current) return;
+
+    setIsSaving(true);
     try {
-      const updatedTask = await updateTask({
+      await updateTask({
         taskId,
         task: {
-          ...editForm,
-          startDate: editForm.startDate ? new Date(editForm.startDate).toISOString() : undefined,
-          dueDate: editForm.dueDate ? new Date(editForm.dueDate).toISOString() : undefined,
+          ...formData,
+          startDate: formData.startDate ? new Date(formData.startDate).toISOString() : undefined,
+          dueDate: formData.dueDate ? new Date(formData.dueDate).toISOString() : undefined,
         },
       }).unwrap();
-      
-      // Exit edit mode first for smoother transition
-      setIsEditing(false);
-      
-      // Silently refetch to update modal data without loading state
-      refetch();
-      
+
       // Dispatch custom event to refresh other task-related views
       window.dispatchEvent(new CustomEvent('taskUpdated', { detail: { taskId } }));
-      
-      toast.success("Task updated successfully!");
     } catch (error) {
-      console.error("Failed to update task:", error);
-      toast.error("Failed to update task. Please try again.");
+      console.error("Failed to auto-save task:", error);
+      toast.error("Failed to save changes");
+    } finally {
+      setIsSaving(false);
     }
-  };
+  }, [taskId, updateTask]);
+
+  // Debounced save - triggers auto-save after 800ms of no changes
+  const debouncedSave = useCallback((formData: typeof editForm) => {
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+    saveTimeoutRef.current = setTimeout(() => {
+      autoSave(formData);
+    }, 800);
+  }, [autoSave]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Handle form field changes with auto-save
+  const handleFieldChange = useCallback((field: keyof typeof editForm, value: any) => {
+    setEditForm(prev => {
+      const newForm = { ...prev, [field]: value };
+      debouncedSave(newForm);
+      return newForm;
+    });
+  }, [debouncedSave]);
+
+  // Handle image upload for rich text editor
+  const handleImageUpload = useCallback(async (file: File): Promise<string> => {
+    setIsUploadingImage(true);
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+      const result = await uploadDescriptionImage({ formData });
+      const response = await result.unwrap();
+      toast.success("Image uploaded");
+      return response.imageUrl;
+    } catch (error) {
+      console.error("Failed to upload image:", error);
+      toast.error("Failed to upload image");
+      throw error;
+    } finally {
+      setIsUploadingImage(false);
+    }
+  }, [uploadDescriptionImage]);
 
   const handleClose = () => {
-    setIsEditing(editMode);
+    // Save any pending changes immediately before closing
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+      autoSave(editForm);
+    }
     onClose();
-  };
-
-  // Update editing state when editMode or modal open state changes
-  useEffect(() => {
-    if (isOpen) {
-      setIsEditing(editMode);
-    }
-  }, [isOpen, editMode]);
-
-  const getPriorityColor = (priority: Priority) => {
-    switch (priority) {
-      case Priority.Urgent:
-        return "bg-red-100 text-red-800 border-red-200";
-      case Priority.High:
-        return "bg-orange-100 text-orange-800 border-orange-200";
-      case Priority.Medium:
-        return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      case Priority.Low:
-        return "bg-green-100 text-green-800 border-green-200";
-      case Priority.Backlog:
-        return "bg-gray-100 text-gray-800 border-gray-200";
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
-    }
-  };
-
-  const getTaskTypeColor = (taskType: TaskType | undefined) => {
-    switch (taskType) {
-      case TaskType.Feature:
-        return "bg-purple-100 text-purple-800 border-purple-200";
-      case TaskType.Bug:
-        return "bg-red-100 text-red-800 border-red-200";
-      case TaskType.Chore:
-        return "bg-blue-100 text-blue-800 border-blue-200";
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
-    }
-  };
-
-  const getStatusColor = (status: Status) => {
-    switch (status) {
-      case Status.ToDo:
-        return "bg-gray-100 text-gray-800 border-gray-200";
-      case Status.WorkInProgress:
-        return "bg-blue-100 text-blue-800 border-blue-200";
-      case Status.UnderReview:
-        return "bg-purple-100 text-purple-800 border-purple-200";
-      case Status.Completed:
-        return "bg-green-100 text-green-800 border-green-200";
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
-    }
   };
 
   return (
@@ -163,23 +174,11 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
               <span className="text-sm font-mono bg-muted text-muted-foreground px-2 py-1 rounded">
                 Task #{taskId}
               </span>
-            </div>
-            <div className="flex items-center gap-2">
-              {!isEditing ? (
-                <Button onClick={() => setIsEditing(true)} variant="outline" size="sm">
-                  <Edit className="h-4 w-4 mr-2" />
-                  Edit
-                </Button>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <Button onClick={handleSave} disabled={isUpdating} size="sm">
-                    <Save className="h-4 w-4 mr-2" />
-                    {isUpdating ? "Saving..." : "Save"}
-                  </Button>
-                  <Button onClick={() => setIsEditing(false)} variant="outline" size="sm">
-                    Cancel
-                  </Button>
-                </div>
+              {(isSaving || isUploadingImage) && (
+                <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                  {isUploadingImage ? "Uploading..." : "Saving..."}
+                </span>
               )}
             </div>
           </DialogTitle>
@@ -206,19 +205,13 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
             <div className="space-y-6">
               {/* Title */}
               <div className="space-y-2">
-                {!isEditing ? (
-                  <h1 className="text-2xl font-bold">{task.title}</h1>
-                ) : (
-                  <div className="space-y-2">
-                    <Label htmlFor="title" className="text-foreground font-medium">Title</Label>
-                    <Input
-                      id="title"
-                      value={editForm.title}
-                      onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
-                      placeholder="Enter task title..."
-                    />
-                  </div>
-                )}
+                <Label htmlFor="title" className="text-foreground font-medium">Title</Label>
+                <Input
+                  id="title"
+                  value={editForm.title}
+                  onChange={(e) => handleFieldChange('title', e.target.value)}
+                  placeholder="Enter task title..."
+                />
               </div>
 
               {/* Status, Priority, and Task Type */}
@@ -228,100 +221,82 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                     <CircleDot className="h-4 w-4" />
                     Status
                   </Label>
-                  {!isEditing ? (
-                    <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(task.status!)}`}>
-                      {task.status}
-                    </div>
-                  ) : (
-                    <Select
-                      value={editForm.status}
-                      onValueChange={(value) => setEditForm({ ...editForm, status: value as Status })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {Object.values(Status).map((status) => (
-                          <SelectItem key={status} value={status}>
-                            {status}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
+                  <Select
+                    value={editForm.status}
+                    onValueChange={(value) => handleFieldChange('status', value as Status)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.values(Status).map((status) => (
+                        <SelectItem key={status} value={status}>
+                          {status}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-2">
                   <Label className="flex items-center gap-2 text-foreground font-medium">
                     <Flag className="h-4 w-4" />
                     Priority
                   </Label>
-                  {!isEditing ? (
-                    <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getPriorityColor(task.priority!)}`}>
-                      {task.priority}
-                    </div>
-                  ) : (
-                    <Select
-                      value={editForm.priority}
-                      onValueChange={(value) => setEditForm({ ...editForm, priority: value as Priority })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {Object.values(Priority).map((priority) => (
-                          <SelectItem key={priority} value={priority}>
-                            {priority}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
+                  <Select
+                    value={editForm.priority}
+                    onValueChange={(value) => handleFieldChange('priority', value as Priority)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.values(Priority).map((priority) => (
+                        <SelectItem key={priority} value={priority}>
+                          {priority}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-2">
                   <Label className="flex items-center gap-2 text-foreground font-medium">
                     <Tag className="h-4 w-4" />
                     Type
                   </Label>
-                  {!isEditing ? (
-                    <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getTaskTypeColor(task.taskType)}`}>
-                      {task.taskType || "Not set"}
-                    </div>
-                  ) : (
-                    <Select
-                      value={editForm.taskType || "none"}
-                      onValueChange={(value) => setEditForm({ ...editForm, taskType: value === "none" ? undefined : value as TaskType })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="none">Not set</SelectItem>
-                        {Object.values(TaskType).map((type) => (
-                          <SelectItem key={type} value={type}>
-                            {type}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
+                  <Select
+                    value={editForm.taskType || "none"}
+                    onValueChange={(value) => handleFieldChange('taskType', value === "none" ? undefined : value as TaskType)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">Not set</SelectItem>
+                      {Object.values(TaskType).map((type) => (
+                        <SelectItem key={type} value={type}>
+                          {type}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
               {/* Description */}
               <div className="space-y-2">
-                <Label className="text-foreground font-medium">Description</Label>
-                {!isEditing ? (
-                  <div className="text-sm text-foreground whitespace-pre-wrap min-h-[60px] p-3 border rounded-md bg-muted/30">
-                    {task.description || "No description provided."}
-                  </div>
-                ) : (
-                  <Textarea
-                    value={editForm.description}
-                    onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
-                    placeholder="Enter task description..."
-                    rows={4}
-                  />
-                )}
+                <Label className="flex items-center gap-2 text-foreground font-medium">
+                  Description
+                  <span className="text-xs text-muted-foreground font-normal flex items-center gap-1">
+                    <Image className="h-3 w-3" />
+                    Paste image with Ctrl+V
+                  </span>
+                </Label>
+                <RichTextEditor
+                  content={editForm.description}
+                  onChange={(content) => handleFieldChange('description', content)}
+                  onImageUpload={handleImageUpload}
+                  placeholder="Enter task description... (paste an image with Ctrl+V)"
+                />
               </div>
 
               {/* Task Details Grid */}
@@ -332,28 +307,22 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                     <User className="h-4 w-4" />
                     Assignee
                   </Label>
-                  {!isEditing ? (
-                    <div className="text-sm text-foreground p-2 border rounded bg-muted/30">
-                      {task.assignee?.username || "Unassigned"}
-                    </div>
-                  ) : (
-                    <Select
-                      value={editForm.assignedUserId?.toString() || "unassigned"}
-                      onValueChange={(value) => setEditForm({ ...editForm, assignedUserId: value === "unassigned" ? undefined : parseInt(value) })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select assignee" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="unassigned">Unassigned</SelectItem>
-                        {users?.map((user) => (
-                          <SelectItem key={user.userId} value={user.userId.toString()}>
-                            {user.username}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
+                  <Select
+                    value={editForm.assignedUserId?.toString() || "unassigned"}
+                    onValueChange={(value) => handleFieldChange('assignedUserId', value === "unassigned" ? undefined : parseInt(value))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select assignee" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="unassigned">Unassigned</SelectItem>
+                      {users?.map((user) => (
+                        <SelectItem key={user.userId} value={user.userId.toString()}>
+                          {user.username}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 {/* Start Date */}
@@ -362,17 +331,11 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                     <Calendar className="h-4 w-4" />
                     Start Date
                   </Label>
-                  {!isEditing ? (
-                    <div className="text-sm text-foreground p-2 border rounded bg-muted/30">
-                      {task.startDate ? format(new Date(task.startDate), "PPP") : "Not set"}
-                    </div>
-                  ) : (
-                    <Input
-                      type="date"
-                      value={editForm.startDate}
-                      onChange={(e) => setEditForm({ ...editForm, startDate: e.target.value })}
-                    />
-                  )}
+                  <Input
+                    type="date"
+                    value={editForm.startDate}
+                    onChange={(e) => handleFieldChange('startDate', e.target.value)}
+                  />
                 </div>
 
                 {/* Due Date */}
@@ -381,17 +344,11 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                     <Clock className="h-4 w-4" />
                     Due Date
                   </Label>
-                  {!isEditing ? (
-                    <div className="text-sm text-foreground p-2 border rounded bg-muted/30">
-                      {task.dueDate ? format(new Date(task.dueDate), "PPP") : "Not set"}
-                    </div>
-                  ) : (
-                    <Input
-                      type="date"
-                      value={editForm.dueDate}
-                      onChange={(e) => setEditForm({ ...editForm, dueDate: e.target.value })}
-                    />
-                  )}
+                  <Input
+                    type="date"
+                    value={editForm.dueDate}
+                    onChange={(e) => handleFieldChange('dueDate', e.target.value)}
+                  />
                 </div>
               </div>
 
@@ -405,27 +362,11 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                 </div>
                 <div className="space-y-2">
                   <Label className="text-foreground font-medium">Tags</Label>
-                  {!isEditing ? (
-                    <div className="min-h-[40px] p-2 border rounded bg-muted/30">
-                      {task.tags ? (
-                        <div className="flex flex-wrap gap-1">
-                          {task.tags.split(',').map((tag: string, index: number) => (
-                            <span key={index} className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-secondary text-secondary-foreground">
-                              {tag.trim()}
-                            </span>
-                          ))}
-                        </div>
-                      ) : (
-                        <span className="text-muted-foreground text-sm">No tags</span>
-                      )}
-                    </div>
-                  ) : (
-                    <Input
-                      value={editForm.tags}
-                      onChange={(e) => setEditForm({ ...editForm, tags: e.target.value })}
-                      placeholder="Enter tags separated by commas"
-                    />
-                  )}
+                  <Input
+                    value={editForm.tags}
+                    onChange={(e) => handleFieldChange('tags', e.target.value)}
+                    placeholder="Enter tags separated by commas"
+                  />
                 </div>
               </div>
 

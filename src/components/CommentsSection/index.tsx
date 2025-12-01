@@ -1,5 +1,5 @@
 
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import {
   useCreateCommentMutation,
   useUpdateCommentMutation,
@@ -12,6 +12,8 @@ import { useCurrentUser } from "@/stores/userStore";
 import { useAuth } from "@/app/authProvider";
 import { format } from "date-fns";
 import { MessageSquare, Send, Edit3, Trash2, X, Check, Image, Loader2 } from "lucide-react";
+import RichTextEditor from "@/components/RichTextEditor";
+import { toast } from "sonner";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
@@ -36,75 +38,42 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ taskId }) => {
   const [newComment, setNewComment] = useState("");
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
   const [editingText, setEditingText] = useState("");
-
-  // Image paste state
-  const [pastedImage, setPastedImage] = useState<{ file: File; preview: string } | null>(null);
-  const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Handle paste event for images
-  const handlePaste = useCallback(async (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
-    const items = e.clipboardData?.items;
-    if (!items) return;
-
-    for (const item of items) {
-      if (item.type.startsWith('image/')) {
-        e.preventDefault();
-        const file = item.getAsFile();
-        if (file) {
-          // Create preview URL
-          const preview = URL.createObjectURL(file);
-          setPastedImage({ file, preview });
-
-          // Upload image immediately
-          setIsUploadingImage(true);
-          try {
-            const formData = new FormData();
-            formData.append('image', file);
-            const result = await uploadCommentImage({ formData });
-            const response = await result.unwrap();
-            setUploadedImageUrl(response.imageUrl);
-          } catch (error) {
-            console.error("Failed to upload image:", error);
-            // Clear preview on error
-            URL.revokeObjectURL(preview);
-            setPastedImage(null);
-          } finally {
-            setIsUploadingImage(false);
-          }
-        }
-        break;
-      }
+  // Handle image upload for rich text editor
+  const handleImageUpload = useCallback(async (file: File): Promise<string> => {
+    setIsUploadingImage(true);
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+      const result = await uploadCommentImage({ formData });
+      const response = await result.unwrap();
+      toast.success("Image uploaded");
+      return response.imageUrl;
+    } catch (error) {
+      console.error("Failed to upload image:", error);
+      toast.error("Failed to upload image");
+      throw error;
+    } finally {
+      setIsUploadingImage(false);
     }
   }, [uploadCommentImage]);
 
-  // Remove pasted image
-  const handleRemoveImage = useCallback(() => {
-    if (pastedImage?.preview) {
-      URL.revokeObjectURL(pastedImage.preview);
-    }
-    setPastedImage(null);
-    setUploadedImageUrl(null);
-  }, [pastedImage]);
-
   const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault();
-    const hasText = newComment.trim().length > 0;
-    const hasImage = uploadedImageUrl !== null;
+    // Check if content has actual text or images (not just empty HTML tags)
+    const hasContent = newComment.trim().length > 0 && newComment !== '<p></p>';
 
-    if ((!hasText && !hasImage) || !currentUserId) return;
+    if (!hasContent || !currentUserId) return;
 
     try {
       const result = await createComment({
         taskId,
-        text: newComment.trim(),
-        userId: currentUserId, // Send cognitoId, backend will resolve to database userId
-        imageUrl: uploadedImageUrl || undefined,
+        text: newComment,
+        userId: currentUserId,
       });
       await result.unwrap();
       setNewComment("");
-      handleRemoveImage();
       refetch();
     } catch (error) {
       console.error("Failed to create comment:", error);
@@ -117,13 +86,14 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ taskId }) => {
   };
 
   const handleSaveEdit = async (commentId: number) => {
-    if (!editingText.trim() || !currentUserId) return;
+    const hasContent = editingText.trim().length > 0 && editingText !== '<p></p>';
+    if (!hasContent || !currentUserId) return;
 
     try {
       const result = await updateComment({
         commentId,
-        text: editingText.trim(),
-        userId: currentUserId, // Send cognitoId, backend will resolve to database userId
+        text: editingText,
+        userId: currentUserId,
       });
       await result.unwrap();
       setEditingCommentId(null);
@@ -144,7 +114,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ taskId }) => {
 
     if (window.confirm("Are you sure you want to delete this comment?")) {
       try {
-        const result = await deleteComment({ commentId, userId: currentUserId }); // Send cognitoId, backend will resolve to database userId
+        const result = await deleteComment({ commentId, userId: currentUserId });
         await result.unwrap();
         refetch();
       } catch (error) {
@@ -173,44 +143,13 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ taskId }) => {
 
       {/* Comment Form */}
       <form onSubmit={handleSubmitComment} className="space-y-3">
-        <div className="relative">
-          <textarea
-            ref={textareaRef}
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-            onPaste={handlePaste}
-            placeholder="Add a comment... (paste an image with Ctrl+V)"
-            rows={3}
-            maxLength={1000}
-            className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark-secondary text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
-          />
-          <div className="absolute bottom-2 right-2 text-xs text-gray-400">
-            {newComment.length}/1000
-          </div>
-        </div>
-
-        {/* Pasted Image Preview */}
-        {pastedImage && (
-          <div className="relative inline-block">
-            <img
-              src={pastedImage.preview}
-              alt="Pasted image preview"
-              className="max-h-40 rounded-lg border border-gray-300 dark:border-gray-600"
-            />
-            {isUploadingImage && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-lg">
-                <Loader2 className="h-6 w-6 text-white animate-spin" />
-              </div>
-            )}
-            <button
-              type="button"
-              onClick={handleRemoveImage}
-              className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          </div>
-        )}
+        <RichTextEditor
+          content={newComment}
+          onChange={setNewComment}
+          onImageUpload={handleImageUpload}
+          placeholder="Add a comment... (paste an image with Ctrl+V)"
+          className="comment-editor"
+        />
 
         <div className="flex justify-between items-center">
           <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
@@ -219,11 +158,15 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ taskId }) => {
           </div>
           <button
             type="submit"
-            disabled={(!newComment.trim() && !uploadedImageUrl) || isCreating || isUploadingImage}
+            disabled={(!newComment.trim() || newComment === '<p></p>') || isCreating || isUploadingImage}
             className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <Send className="h-4 w-4" />
-            {isCreating ? "Posting..." : "Post Comment"}
+            {isUploadingImage ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Send className="h-4 w-4" />
+            )}
+            {isCreating ? "Posting..." : isUploadingImage ? "Uploading..." : "Post Comment"}
           </button>
         </div>
       </form>
@@ -257,6 +200,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ taskId }) => {
               onSaveEdit={() => handleSaveEdit(comment.id)}
               onCancelEdit={handleCancelEdit}
               onDelete={() => handleDeleteComment(comment.id)}
+              onImageUpload={handleImageUpload}
               isUpdating={isUpdating}
               isDeleting={isDeleting}
             />
@@ -269,6 +213,12 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ taskId }) => {
           </div>
         )}
       </div>
+
+      <style>{`
+        .comment-editor .ProseMirror {
+          min-height: 80px;
+        }
+      `}</style>
     </div>
   );
 };
@@ -283,6 +233,7 @@ interface CommentItemProps {
   onSaveEdit: () => void;
   onCancelEdit: () => void;
   onDelete: () => void;
+  onImageUpload: (file: File) => Promise<string>;
   isUpdating: boolean;
   isDeleting: boolean;
 }
@@ -297,11 +248,15 @@ const CommentItem: React.FC<CommentItemProps> = ({
   onSaveEdit,
   onCancelEdit,
   onDelete,
+  onImageUpload,
   isUpdating,
   isDeleting,
 }) => {
   const isOwner = currentUserId === comment.userId;
   const timeAgo = format(new Date(comment.createdAt), "PPp");
+
+  // Check if content is HTML (contains tags) or plain text
+  const isHtmlContent = comment.text.includes('<') && comment.text.includes('>');
 
   return (
     <div className="flex items-start gap-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
@@ -344,17 +299,17 @@ const CommentItem: React.FC<CommentItemProps> = ({
         {/* Comment Text and Image */}
         {isEditing ? (
           <div className="space-y-2">
-            <textarea
-              value={editingText}
-              onChange={(e) => onEditingTextChange(e.target.value)}
-              rows={3}
-              maxLength={1000}
-              className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-dark-secondary text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+            <RichTextEditor
+              content={editingText}
+              onChange={onEditingTextChange}
+              onImageUpload={onImageUpload}
+              placeholder="Edit your comment..."
+              className="comment-edit-editor"
             />
             <div className="flex items-center gap-2">
               <button
                 onClick={onSaveEdit}
-                disabled={!editingText.trim() || isUpdating}
+                disabled={!editingText.trim() || editingText === '<p></p>' || isUpdating}
                 className="flex items-center gap-1 px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 transition-colors disabled:opacity-50 text-sm"
               >
                 <Check className="h-3 w-3" />
@@ -369,14 +324,25 @@ const CommentItem: React.FC<CommentItemProps> = ({
                 Cancel
               </button>
             </div>
+            <style>{`
+              .comment-edit-editor .ProseMirror {
+                min-height: 60px;
+              }
+            `}</style>
           </div>
         ) : (
           <div className="space-y-2">
-            {comment.text && (
+            {isHtmlContent ? (
+              <div
+                className="text-gray-700 dark:text-gray-300 comment-content"
+                dangerouslySetInnerHTML={{ __html: comment.text }}
+              />
+            ) : (
               <div className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
                 {comment.text}
               </div>
             )}
+            {/* Legacy image support for old comments with separate imageUrl */}
             {comment.imageUrl && (
               <a
                 href={`${API_BASE_URL}${comment.imageUrl}`}
@@ -415,6 +381,45 @@ const CommentItem: React.FC<CommentItemProps> = ({
           </div>
         )}
       </div>
+
+      <style>{`
+        .comment-content p {
+          margin: 0 0 8px 0;
+        }
+        .comment-content p:last-child {
+          margin-bottom: 0;
+        }
+        .comment-content img {
+          max-width: 100%;
+          max-height: 300px;
+          border-radius: 8px;
+          margin: 8px 0;
+        }
+        .comment-content ul,
+        .comment-content ol {
+          padding-left: 24px;
+          margin: 8px 0;
+        }
+        .comment-content li {
+          margin: 4px 0;
+        }
+        .comment-content strong {
+          font-weight: 600;
+        }
+        .comment-content em {
+          font-style: italic;
+        }
+        .comment-content code {
+          background: rgba(0, 0, 0, 0.1);
+          padding: 2px 6px;
+          border-radius: 4px;
+          font-family: monospace;
+          font-size: 13px;
+        }
+        .dark .comment-content code {
+          background: rgba(255, 255, 255, 0.1);
+        }
+      `}</style>
     </div>
   );
 };

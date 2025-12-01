@@ -105,6 +105,7 @@ export interface Task {
   id: number;
   title: string;
   description?: string;
+  descriptionImageUrl?: string;
   status?: Status;
   priority?: Priority;
   taskType?: TaskType;
@@ -333,6 +334,13 @@ class ApiService {
     return this.request<Task>(`/tasks/${taskId}/status`, {
       method: 'PATCH',
       body: JSON.stringify({ status }),
+    });
+  }
+
+  async uploadTaskDescriptionImage(formData: FormData): Promise<{ imageUrl: string }> {
+    return this.request<{ imageUrl: string }>('/tasks/upload-description-image', {
+      method: 'POST',
+      body: formData,
     });
   }
 
