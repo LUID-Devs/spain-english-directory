@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useGetTasksQuery, useUpdateTaskStatusMutation, useDeleteTaskMutation } from "@/hooks/useApi";
+import { useGetTasksQuery, useUpdateTaskMutation, useDeleteTaskMutation } from "@/hooks/useApi";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { Task as TaskType } from "@/hooks/useApi";
@@ -70,14 +70,14 @@ const BoardView = ({
   const error = tasksError !== undefined ? tasksError : fetchedError;
   const refetch = refetchTasks || fetchedRefetch;
 
-  const [updateTaskStatus] = useUpdateTaskStatusMutation();
+  const [updateTask] = useUpdateTaskMutation();
   const [selectedTask, setSelectedTask] = React.useState<{ taskId: number; editMode: boolean } | null>(null);
 
   const moveTask = async (taskId: number, toStatus: TaskStatus) => {
     try {
-      await updateTaskStatus({ taskId, status: toStatus });
-      // Refetch tasks to update the board immediately
-      refetch();
+      // Use PUT /tasks/{id} with status update - optimistic update handles UI
+      await updateTask({ taskId, task: { status: toStatus } }).unwrap();
+      // No refetch needed - optimistic update handles this
     } catch (error) {
       console.error('Failed to update task status:', error);
     }

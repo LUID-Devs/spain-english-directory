@@ -603,14 +603,50 @@ export const useDeleteTaskMutation = () => {
 };
 
 export const useUpdateTaskStatusMutation = () => {
-  const updateTaskStatus = useCallback(({ taskId, status }: { taskId: number; status: string }) => {
-    const promise = apiService.updateTaskStatus(taskId, status);
-    return {
-      unwrap: () => promise,
-    };
-  }, []);
+  const { tasks, setTasks } = useApiStore();
 
-  return [updateTaskStatus, { isLoading: false }];
+  const updateTaskStatus = useCallback(async ({ taskId, status }: { taskId: number; status: string }) => {
+    // Store original task for rollback
+    const originalTask = tasks.data?.find(t => t.id === taskId);
+    const originalStatus = originalTask?.status;
+
+    // Optimistic update - immediately move the card
+    if (tasks.data) {
+      const optimisticTasks = tasks.data.map(t =>
+        t.id === taskId ? { ...t, status } : t
+      );
+      setTasks(optimisticTasks);
+    }
+
+    try {
+      const updatedTask = await apiService.updateTaskStatus(taskId, status);
+
+      // Update with real data from server
+      if (tasks.data) {
+        const updatedTasks = tasks.data.map(t =>
+          t.id === taskId ? { ...t, ...updatedTask } : t
+        );
+        setTasks(updatedTasks);
+      }
+
+      return updatedTask;
+    } catch (error) {
+      // Rollback on error - move card back to original column
+      if (tasks.data && originalStatus) {
+        const revertedTasks = tasks.data.map(t =>
+          t.id === taskId ? { ...t, status: originalStatus } : t
+        );
+        setTasks(revertedTasks);
+      }
+      throw error;
+    }
+  }, [tasks.data, setTasks]);
+
+  const mutationWrapper = useCallback((args: { taskId: number; status: string }) => ({
+    unwrap: () => updateTaskStatus(args)
+  }), [updateTaskStatus]);
+
+  return [mutationWrapper, { isLoading: false }];
 };
 
 export const useCreateCommentMutation = () => {

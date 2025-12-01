@@ -84,170 +84,176 @@ const AdvancedSearchModal = ({
             onChange={(e) => handleFilterChange('type', e.target.value)}
             className="w-full rounded-md border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
           >
-            <option value="">All Types</option>
-            <option value="tasks">Tasks Only</option>
-            <option value="projects">Projects Only</option>
-            <option value="users">Users Only</option>
+            <option key="all" value="">All Types</option>
+            <option key="tasks" value="tasks">Tasks Only</option>
+            <option key="projects" value="projects">Projects Only</option>
+            <option key="users" value="users">Users Only</option>
           </select>
         </div>
 
         {/* Task-specific filters */}
         {(!filters.type || filters.type === 'tasks') && (
-          <div className="space-y-4 border-t pt-4">
-            <h3 className="text-sm font-medium text-gray-900 dark:text-white">
-              Task Filters
-            </h3>
-            
-            <div className="grid grid-cols-2 gap-4">
-              {/* Status */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Status
-                </label>
-                <select
-                  value={filters.status || ''}
-                  onChange={(e) => handleFilterChange('status', e.target.value)}
-                  className="w-full rounded-md border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
-                >
-                  <option value="">Any Status</option>
-                  <option value="To Do">To Do</option>
-                  <option value="Work In Progress">Work In Progress</option>
-                  <option value="Under Review">Under Review</option>
-                  <option value="Completed">Completed</option>
-                </select>
+          <React.Fragment key="task-filters">
+            <div className="space-y-4 border-t pt-4">
+              <h3 className="text-sm font-medium text-gray-900 dark:text-white">
+                Task Filters
+              </h3>
+
+              <div className="grid grid-cols-2 gap-4">
+                {/* Status */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Status
+                  </label>
+                  <select
+                    value={filters.status || ''}
+                    onChange={(e) => handleFilterChange('status', e.target.value)}
+                    className="w-full rounded-md border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
+                  >
+                    <option key="any-status" value="">Any Status</option>
+                    <option key="todo" value="To Do">To Do</option>
+                    <option key="wip" value="Work In Progress">Work In Progress</option>
+                    <option key="review" value="Under Review">Under Review</option>
+                    <option key="completed" value="Completed">Completed</option>
+                  </select>
+                </div>
+
+                {/* Priority */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Priority
+                  </label>
+                  <select
+                    value={filters.priority || ''}
+                    onChange={(e) => handleFilterChange('priority', e.target.value)}
+                    className="w-full rounded-md border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
+                  >
+                    <option key="any-priority" value="">Any Priority</option>
+                    <option key="urgent" value="Urgent">Urgent</option>
+                    <option key="high" value="High">High</option>
+                    <option key="medium" value="Medium">Medium</option>
+                    <option key="low" value="Low">Low</option>
+                    <option key="backlog" value="Backlog">Backlog</option>
+                  </select>
+                </div>
               </div>
 
-              {/* Priority */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Priority
-                </label>
-                <select
-                  value={filters.priority || ''}
-                  onChange={(e) => handleFilterChange('priority', e.target.value)}
-                  className="w-full rounded-md border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
-                >
-                  <option value="">Any Priority</option>
-                  <option value="Urgent">Urgent</option>
-                  <option value="High">High</option>
-                  <option value="Medium">Medium</option>
-                  <option value="Low">Low</option>
-                  <option value="Backlog">Backlog</option>
-                </select>
-              </div>
-            </div>
+              <div className="grid grid-cols-2 gap-4">
+                {/* Assignee */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Assigned To
+                  </label>
+                  <select
+                    value={filters.assigneeId || ''}
+                    onChange={(e) => handleFilterChange('assigneeId', e.target.value ? parseInt(e.target.value) : undefined)}
+                    className="w-full rounded-md border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
+                  >
+                    <option key="anyone-assignee" value="">Anyone</option>
+                    {users?.map((user) => (
+                      <option key={`assignee-${user.userId}`} value={user.userId}>
+                        {user.username}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              {/* Assignee */}
+                {/* Author */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Created By
+                  </label>
+                  <select
+                    value={filters.authorId || ''}
+                    onChange={(e) => handleFilterChange('authorId', e.target.value ? parseInt(e.target.value) : undefined)}
+                    className="w-full rounded-md border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
+                  >
+                    <option key="anyone-author" value="">Anyone</option>
+                    {users?.map((user) => (
+                      <option key={`author-${user.userId}`} value={user.userId}>
+                        {user.username}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Project */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Assigned To
+                  Project
                 </label>
                 <select
-                  value={filters.assigneeId || ''}
-                  onChange={(e) => handleFilterChange('assigneeId', e.target.value ? parseInt(e.target.value) : undefined)}
+                  value={filters.projectId || ''}
+                  onChange={(e) => handleFilterChange('projectId', e.target.value ? parseInt(e.target.value) : undefined)}
                   className="w-full rounded-md border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
                 >
-                  <option value="">Anyone</option>
-                  {users?.map((user) => (
-                    <option key={user.userId} value={user.userId}>
-                      {user.username}
+                  <option key="any-project" value="">Any Project</option>
+                  {projects?.map((project) => (
+                    <option key={`project-${project.id}`} value={project.id}>
+                      {project.name}
                     </option>
                   ))}
                 </select>
               </div>
-
-              {/* Author */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Created By
-                </label>
-                <select
-                  value={filters.authorId || ''}
-                  onChange={(e) => handleFilterChange('authorId', e.target.value ? parseInt(e.target.value) : undefined)}
-                  className="w-full rounded-md border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
-                >
-                  <option value="">Anyone</option>
-                  {users?.map((user) => (
-                    <option key={user.userId} value={user.userId}>
-                      {user.username}
-                    </option>
-                  ))}
-                </select>
-              </div>
             </div>
-
-            {/* Project */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Project
-              </label>
-              <select
-                value={filters.projectId || ''}
-                onChange={(e) => handleFilterChange('projectId', e.target.value ? parseInt(e.target.value) : undefined)}
-                className="w-full rounded-md border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
-              >
-                <option value="">Any Project</option>
-                {projects?.map((project) => (
-                  <option key={project.id} value={project.id}>
-                    {project.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
+          </React.Fragment>
         )}
 
         {/* Project-specific filters */}
         {(!filters.type || filters.type === 'projects') && (
-          <div className="space-y-4 border-t pt-4">
-            <h3 className="text-sm font-medium text-gray-900 dark:text-white">
-              Project Filters
-            </h3>
-            
-            {/* Archived */}
-            <div>
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={filters.archived || false}
-                  onChange={(e) => handleFilterChange('archived', e.target.checked ? true : undefined)}
-                  className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                />
-                <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
-                  Include archived projects
-                </span>
-              </label>
+          <React.Fragment key="project-filters">
+            <div className="space-y-4 border-t pt-4">
+              <h3 className="text-sm font-medium text-gray-900 dark:text-white">
+                Project Filters
+              </h3>
+
+              {/* Archived */}
+              <div>
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={filters.archived || false}
+                    onChange={(e) => handleFilterChange('archived', e.target.checked ? true : undefined)}
+                    className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  />
+                  <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
+                    Include archived projects
+                  </span>
+                </label>
+              </div>
             </div>
-          </div>
+          </React.Fragment>
         )}
 
         {/* User-specific filters */}
         {(!filters.type || filters.type === 'users') && (
-          <div className="space-y-4 border-t pt-4">
-            <h3 className="text-sm font-medium text-gray-900 dark:text-white">
-              User Filters
-            </h3>
-            
-            {/* Team */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Team
-              </label>
-              <select
-                value={filters.teamId || ''}
-                onChange={(e) => handleFilterChange('teamId', e.target.value ? parseInt(e.target.value) : undefined)}
-                className="w-full rounded-md border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
-              >
-                <option value="">Any Team</option>
-                {teams?.map((team) => (
-                  <option key={team.teamId} value={team.teamId}>
-                    {team.teamName}
-                  </option>
-                ))}
-              </select>
+          <React.Fragment key="user-filters">
+            <div className="space-y-4 border-t pt-4">
+              <h3 className="text-sm font-medium text-gray-900 dark:text-white">
+                User Filters
+              </h3>
+
+              {/* Team */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Team
+                </label>
+                <select
+                  value={filters.teamId || ''}
+                  onChange={(e) => handleFilterChange('teamId', e.target.value ? parseInt(e.target.value) : undefined)}
+                  className="w-full rounded-md border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
+                >
+                  <option key="any-team" value="">Any Team</option>
+                  {teams?.map((team) => (
+                    <option key={`team-${team.teamId}`} value={team.teamId}>
+                      {team.teamName}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
-          </div>
+          </React.Fragment>
         )}
 
         {/* Date Range */}
