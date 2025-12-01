@@ -300,18 +300,21 @@ export const useCreateProjectMutation = () => {
 };
 
 export const useUpdateTaskMutation = () => {
-  const { tasks, setTasks } = useApiStore();
+  const { setTasks } = useApiStore();
 
   const updateTask = useCallback(async ({ taskId, task: taskUpdates, ...directUpdates }: { taskId: number; task?: any; [key: string]: any }) => {
     // Handle both { taskId, task: {...} } and { taskId, ...updates } formats
     const updates = taskUpdates || directUpdates;
 
+    // Get fresh state to avoid stale closure issues
+    const currentTasks = useApiStore.getState().tasks.data;
+
     // Store original task for rollback
-    const originalTask = tasks.data?.find(t => t.id === taskId);
+    const originalTask = currentTasks?.find(t => t.id === taskId);
 
     // Optimistic update - immediately update the UI
-    if (tasks.data) {
-      const optimisticTasks = tasks.data.map(t =>
+    if (currentTasks) {
+      const optimisticTasks = currentTasks.map(t =>
         t.id === taskId ? { ...t, ...updates } : t
       );
       setTasks(optimisticTasks);
@@ -320,9 +323,10 @@ export const useUpdateTaskMutation = () => {
     try {
       const updatedTask = await apiService.updateTask(taskId, updates);
 
-      // Update with real data from server
-      if (tasks.data) {
-        const updatedTasks = tasks.data.map(t =>
+      // Get fresh state again for server response update
+      const latestTasks = useApiStore.getState().tasks.data;
+      if (latestTasks) {
+        const updatedTasks = latestTasks.map(t =>
           t.id === taskId ? { ...t, ...updatedTask } : t
         );
         setTasks(updatedTasks);
@@ -330,16 +334,17 @@ export const useUpdateTaskMutation = () => {
 
       return updatedTask;
     } catch (error) {
-      // Rollback on error
-      if (tasks.data && originalTask) {
-        const revertedTasks = tasks.data.map(t =>
+      // Rollback on error - get fresh state for rollback
+      const rollbackTasks = useApiStore.getState().tasks.data;
+      if (rollbackTasks && originalTask) {
+        const revertedTasks = rollbackTasks.map(t =>
           t.id === taskId ? originalTask : t
         );
         setTasks(revertedTasks);
       }
       throw error;
     }
-  }, [tasks.data, setTasks]);
+  }, [setTasks]);
 
   // Return the function that returns a mutation object with unwrap method
   const mutationWrapper = useCallback((args: { taskId: number; task?: any; [key: string]: any }) => ({
