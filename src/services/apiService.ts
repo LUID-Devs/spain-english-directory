@@ -88,6 +88,7 @@ export interface Attachment {
 export interface Comment {
   id: number;
   text: string;
+  imageUrl?: string;
   taskId: number;
   userId: number;
   createdAt: string;
@@ -340,10 +341,17 @@ class ApiService {
     return this.request<Comment[]>(`/tasks/${taskId}/comments`);
   }
 
-  async createComment(taskId: number, text: string, userId: number): Promise<Comment> {
+  async createComment(taskId: number, text: string, userId: number, imageUrl?: string): Promise<Comment> {
     return this.request<Comment>(`/tasks/${taskId}/comments`, {
       method: 'POST',
-      body: JSON.stringify({ text, userId }),
+      body: JSON.stringify({ text, userId, imageUrl }),
+    });
+  }
+
+  async uploadCommentImage(formData: FormData): Promise<{ imageUrl: string }> {
+    return this.request<{ imageUrl: string }>('/comments/upload-image', {
+      method: 'POST',
+      body: formData,
     });
   }
 

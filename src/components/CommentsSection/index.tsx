@@ -1,16 +1,19 @@
 
-import React, { useState } from "react";
-import { 
-  useCreateCommentMutation, 
-  useUpdateCommentMutation, 
+import React, { useState, useRef, useCallback } from "react";
+import {
+  useCreateCommentMutation,
+  useUpdateCommentMutation,
   useDeleteCommentMutation,
-  Comment 
+  useUploadCommentImageMutation,
+  Comment
 } from "@/hooks/useApi";
 import { useGetTaskCommentsQuery } from "@/hooks/useApi";
 import { useCurrentUser } from "@/stores/userStore";
 import { useAuth } from "@/app/authProvider";
 import { format } from "date-fns";
-import { MessageSquare, Send, Edit3, Trash2, X, Check } from "lucide-react";
+import { MessageSquare, Send, Edit3, Trash2, X, Check, Image, Loader2 } from "lucide-react";
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 
 interface CommentsSectionProps {
@@ -22,10 +25,11 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ taskId }) => {
   const [createComment, { isLoading: isCreating }] = useCreateCommentMutation();
   const [updateComment, { isLoading: isUpdating }] = useUpdateCommentMutation();
   const [deleteComment, { isLoading: isDeleting }] = useDeleteCommentMutation();
-  
+  const [uploadCommentImage] = useUploadCommentImageMutation();
+
   const auth = useAuth();
   const currentUserId = auth.user?.userId;
-  
+
   // Get current user's database info to compare userId for ownership
   const { currentUser } = useCurrentUser();
 
@@ -33,18 +37,74 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ taskId }) => {
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
   const [editingText, setEditingText] = useState("");
 
+  // Image paste state
+  const [pastedImage, setPastedImage] = useState<{ file: File; preview: string } | null>(null);
+  const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Handle paste event for images
+  const handlePaste = useCallback(async (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+
+    for (const item of items) {
+      if (item.type.startsWith('image/')) {
+        e.preventDefault();
+        const file = item.getAsFile();
+        if (file) {
+          // Create preview URL
+          const preview = URL.createObjectURL(file);
+          setPastedImage({ file, preview });
+
+          // Upload image immediately
+          setIsUploadingImage(true);
+          try {
+            const formData = new FormData();
+            formData.append('image', file);
+            const result = await uploadCommentImage({ formData });
+            const response = await result.unwrap();
+            setUploadedImageUrl(response.imageUrl);
+          } catch (error) {
+            console.error("Failed to upload image:", error);
+            // Clear preview on error
+            URL.revokeObjectURL(preview);
+            setPastedImage(null);
+          } finally {
+            setIsUploadingImage(false);
+          }
+        }
+        break;
+      }
+    }
+  }, [uploadCommentImage]);
+
+  // Remove pasted image
+  const handleRemoveImage = useCallback(() => {
+    if (pastedImage?.preview) {
+      URL.revokeObjectURL(pastedImage.preview);
+    }
+    setPastedImage(null);
+    setUploadedImageUrl(null);
+  }, [pastedImage]);
+
   const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newComment.trim() || !currentUserId) return;
+    const hasText = newComment.trim().length > 0;
+    const hasImage = uploadedImageUrl !== null;
+
+    if ((!hasText && !hasImage) || !currentUserId) return;
 
     try {
       const result = await createComment({
         taskId,
         text: newComment.trim(),
         userId: currentUserId, // Send cognitoId, backend will resolve to database userId
+        imageUrl: uploadedImageUrl || undefined,
       });
       await result.unwrap();
       setNewComment("");
+      handleRemoveImage();
       refetch();
     } catch (error) {
       console.error("Failed to create comment:", error);
@@ -115,9 +175,11 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ taskId }) => {
       <form onSubmit={handleSubmitComment} className="space-y-3">
         <div className="relative">
           <textarea
+            ref={textareaRef}
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
-            placeholder="Add a comment..."
+            onPaste={handlePaste}
+            placeholder="Add a comment... (paste an image with Ctrl+V)"
             rows={3}
             maxLength={1000}
             className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark-secondary text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
@@ -126,13 +188,38 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ taskId }) => {
             {newComment.length}/1000
           </div>
         </div>
+
+        {/* Pasted Image Preview */}
+        {pastedImage && (
+          <div className="relative inline-block">
+            <img
+              src={pastedImage.preview}
+              alt="Pasted image preview"
+              className="max-h-40 rounded-lg border border-gray-300 dark:border-gray-600"
+            />
+            {isUploadingImage && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-lg">
+                <Loader2 className="h-6 w-6 text-white animate-spin" />
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={handleRemoveImage}
+              className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        )}
+
         <div className="flex justify-between items-center">
-          <div className="text-sm text-gray-500 dark:text-gray-400">
-            Press Ctrl+Enter to submit
+          <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
+            <Image className="h-4 w-4" />
+            Paste image with Ctrl+V
           </div>
           <button
             type="submit"
-            disabled={!newComment.trim() || isCreating}
+            disabled={(!newComment.trim() && !uploadedImageUrl) || isCreating || isUploadingImage}
             className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Send className="h-4 w-4" />
@@ -254,7 +341,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
           )}
         </div>
 
-        {/* Comment Text */}
+        {/* Comment Text and Image */}
         {isEditing ? (
           <div className="space-y-2">
             <textarea
@@ -284,8 +371,26 @@ const CommentItem: React.FC<CommentItemProps> = ({
             </div>
           </div>
         ) : (
-          <div className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-            {comment.text}
+          <div className="space-y-2">
+            {comment.text && (
+              <div className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                {comment.text}
+              </div>
+            )}
+            {comment.imageUrl && (
+              <a
+                href={`${API_BASE_URL}${comment.imageUrl}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block"
+              >
+                <img
+                  src={`${API_BASE_URL}${comment.imageUrl}`}
+                  alt="Comment attachment"
+                  className="max-w-full max-h-64 rounded-lg border border-gray-200 dark:border-gray-700 hover:opacity-90 transition-opacity cursor-pointer"
+                />
+              </a>
+            )}
           </div>
         )}
 

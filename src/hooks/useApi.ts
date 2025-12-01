@@ -600,14 +600,25 @@ export const useUpdateTaskStatusMutation = () => {
 };
 
 export const useCreateCommentMutation = () => {
-  const createComment = useCallback(({ taskId, text, userId }: { taskId: number; text: string; userId: number }) => {
-    const promise = apiService.createComment(taskId, text, userId);
+  const createComment = useCallback(({ taskId, text, userId, imageUrl }: { taskId: number; text: string; userId: number; imageUrl?: string }) => {
+    const promise = apiService.createComment(taskId, text, userId, imageUrl);
     return {
       unwrap: () => promise,
     };
   }, []);
 
   return [createComment, { isLoading: false }];
+};
+
+export const useUploadCommentImageMutation = () => {
+  const uploadCommentImage = useCallback(({ formData }: { formData: FormData }) => {
+    const promise = apiService.uploadCommentImage(formData);
+    return {
+      unwrap: () => promise,
+    };
+  }, []);
+
+  return [uploadCommentImage, { isLoading: false }];
 };
 
 export const useDeleteProjectMutation = () => {
