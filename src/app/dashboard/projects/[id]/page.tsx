@@ -39,15 +39,15 @@ const Project = ({ params }: Props) => {
         onClose={() => setIsModalNewTaskOpen(false)}
         id={id}
       />
-      <ProjectHeader 
-        activeTab={activeTab} 
-        setActiveTab={setActiveTab} 
-        projectName={currentProject?.name || "Loading..."} 
+      <ProjectHeader
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        projectName={currentProject?.name || "Loading..."}
+        setIsModalNewTaskOpen={setIsModalNewTaskOpen}
       />
       {activeTab === "Board" && (
-        <Board 
-          id={id} 
-          setIsModalNewTaskOpen={setIsModalNewTaskOpen}
+        <Board
+          id={id}
           tasks={tasks}
           tasksLoading={tasksLoading}
           tasksError={tasksError}
@@ -55,9 +55,8 @@ const Project = ({ params }: Props) => {
         />
       )}
       {activeTab === "List" && (
-        <List 
-          id={id} 
-          setIsModalNewTaskOpen={setIsModalNewTaskOpen}
+        <List
+          id={id}
           tasks={tasks}
           tasksLoading={tasksLoading}
           tasksError={tasksError}
@@ -65,9 +64,8 @@ const Project = ({ params }: Props) => {
         />
       )}
       {activeTab === "Timeline" && (
-        <Timeline 
-          id={id} 
-          setIsModalNewTaskOpen={setIsModalNewTaskOpen}
+        <Timeline
+          id={id}
           tasks={tasks}
           tasksLoading={tasksLoading}
           tasksError={tasksError}
@@ -75,9 +73,8 @@ const Project = ({ params }: Props) => {
         />
       )}
       {activeTab === "Table" && (
-        <Table 
-          id={id} 
-          setIsModalNewTaskOpen={setIsModalNewTaskOpen}
+        <Table
+          id={id}
           tasks={tasks}
           tasksLoading={tasksLoading}
           tasksError={tasksError}

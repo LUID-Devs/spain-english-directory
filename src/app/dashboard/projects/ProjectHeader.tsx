@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Clock,
   Filter,
   Grid3x3,
   List,
-  PlusSquare,
+  Plus,
   Share,
   Table,
   Search,
@@ -14,23 +14,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import ModalNewProject from "./ModalNewProject";
 
 type Props = {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   projectName: string;
+  setIsModalNewTaskOpen: (isOpen: boolean) => void;
 };
 
-const ProjectHeader = ({ activeTab, setActiveTab, projectName }: Props) => {
-  const [isModalNewProjectOpen, setIsModalNewProjectOpen] = useState(false);
+const ProjectHeader = ({ activeTab, setActiveTab, projectName, setIsModalNewTaskOpen }: Props) => {
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <ModalNewProject
-        isOpen={isModalNewProjectOpen}
-        onClose={() => setIsModalNewProjectOpen(false)}
-      />
-      
       {/* Header */}
       <Card>
         <CardHeader>
@@ -42,9 +36,9 @@ const ProjectHeader = ({ activeTab, setActiveTab, projectName }: Props) => {
                 <p className="text-muted-foreground">Project management and task tracking</p>
               </div>
             </div>
-            <Button onClick={() => setIsModalNewProjectOpen(true)}>
-              <PlusSquare className="h-4 w-4 mr-2" />
-              New Boards
+            <Button onClick={() => setIsModalNewTaskOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              New Task
             </Button>
           </div>
         </CardHeader>

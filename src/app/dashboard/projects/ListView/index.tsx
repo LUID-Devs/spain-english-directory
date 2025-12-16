@@ -1,7 +1,7 @@
 import { Task, useGetTasksQuery } from "@/hooks/useApi";
 import React, { useState, useMemo } from "react";
 import TaskCard from "@/components/TaskCard";
-import { Plus, Grid3X3, List, Search, FileText, AlertTriangle } from "lucide-react";
+import { Grid3X3, List, Search, FileText, AlertTriangle } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +10,6 @@ import { cn } from "@/lib/utils";
 
 type Props = {
   id: string;
-  setIsModalNewTaskOpen: (isOpen: boolean) => void;
   tasks?: Task[];
   tasksLoading?: boolean;
   tasksError?: boolean;
@@ -21,13 +20,12 @@ type ViewMode = "grid" | "list";
 type SortOption = "priority" | "dueDate" | "title" | "status";
 type FilterOption = "all" | "To Do" | "Work In Progress" | "Under Review" | "Completed";
 
-const ListView = ({ 
-  id, 
-  setIsModalNewTaskOpen, 
-  tasks: propTasks, 
-  tasksLoading, 
-  tasksError, 
-  refetchTasks 
+const ListView = ({
+  id,
+  tasks: propTasks,
+  tasksLoading,
+  tasksError,
+  refetchTasks
 }: Props) => {
   // Fallback to fetching data if not provided via props
   const { data: fetchedTasks, isLoading: fetchedLoading, error: fetchedError } = useGetTasksQuery(
@@ -132,10 +130,6 @@ const ListView = ({
                 </CardDescription>
               </div>
             </div>
-            <Button onClick={() => setIsModalNewTaskOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Task
-            </Button>
           </div>
         </CardHeader>
       </Card>
@@ -219,12 +213,6 @@ const ListView = ({
                 : "Get started by creating your first task for this project."
               }
             </p>
-            {(!searchQuery && filterBy === "all") && (
-              <Button onClick={() => setIsModalNewTaskOpen(true)} size="lg">
-                <Plus className="h-4 w-4 mr-2" />
-                Create First Task
-              </Button>
-            )}
           </CardContent>
         </Card>
       ) : (

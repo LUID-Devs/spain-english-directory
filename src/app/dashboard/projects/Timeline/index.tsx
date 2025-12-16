@@ -3,14 +3,13 @@ import { useGetTasksQuery } from "@/hooks/useApi";
 import { DisplayOption, Gantt, ViewMode } from "gantt-task-react";
 import "gantt-task-react/dist/index.css";
 import React, { useMemo, useState } from "react";
-import { Plus, Calendar, Filter, BarChart3, Clock, ChevronDown } from "lucide-react";
+import { Calendar, Filter, BarChart3, Clock, ChevronDown } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 type Props = {
   id: string;
-  setIsModalNewTaskOpen: (isOpen: boolean) => void;
   tasks?: any[];
   tasksLoading?: boolean;
   tasksError?: boolean;
@@ -19,13 +18,12 @@ type Props = {
 
 type TaskTypeItems = "task" | "milestone" | "project";
 
-const Timeline = ({ 
-  id, 
-  setIsModalNewTaskOpen, 
-  tasks: propTasks, 
-  tasksLoading, 
-  tasksError, 
-  refetchTasks 
+const Timeline = ({
+  id,
+  tasks: propTasks,
+  tasksLoading,
+  tasksError,
+  refetchTasks
 }: Props) => {
   const isDarkMode = useGlobalStore().isDarkMode;
   
@@ -133,13 +131,6 @@ const Timeline = ({
               )}
             </p>
           </div>
-          <button
-            onClick={() => setIsModalNewTaskOpen(true)}
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-xl shadow-sm hover:shadow-md transition-all duration-200 transform hover:scale-105"
-          >
-            <Plus size={16} />
-            Add Task
-          </button>
         </div>
 
         {/* View Mode Controls */}
@@ -194,13 +185,9 @@ const Timeline = ({
             <h3 className="text-xl font-semibold text-foreground mb-2">
               No scheduled tasks
             </h3>
-            <p className="text-muted-foreground mb-6 max-w-md">
-              Tasks need start and due dates to appear on the timeline. Create or edit tasks to add scheduling information.
+            <p className="text-muted-foreground max-w-md">
+              Tasks need start and due dates to appear on the timeline. Edit tasks to add scheduling information.
             </p>
-            <Button onClick={() => setIsModalNewTaskOpen(true)} size="lg">
-              <Plus className="h-4 w-4 mr-2" />
-              Create Scheduled Task
-            </Button>
           </CardContent>
         </Card>
       ) : (

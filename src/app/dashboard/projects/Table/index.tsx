@@ -1,7 +1,7 @@
 import { useGetTasksQuery } from "@/hooks/useApi";
 import React, { useMemo, useState } from "react";
 import { useGlobalStore } from "@/stores/globalStore";
-import { Plus, Table2, Calendar, Clock, Search, Download, AlertTriangle, Target, Activity, List as ListIcon } from "lucide-react";
+import { Table2, Calendar, Clock, Search, Download, AlertTriangle, Target, Activity, List as ListIcon } from "lucide-react";
 import { format } from "date-fns";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,20 +13,18 @@ import { cn } from "@/lib/utils";
 
 type Props = {
   id: string;
-  setIsModalNewTaskOpen: (isOpen: boolean) => void;
   tasks?: any[];
   tasksLoading?: boolean;
   tasksError?: boolean;
   refetchTasks?: () => void;
 };
 
-const TableView = ({ 
-  id, 
-  setIsModalNewTaskOpen, 
-  tasks: propTasks, 
-  tasksLoading, 
-  tasksError, 
-  refetchTasks 
+const TableView = ({
+  id,
+  tasks: propTasks,
+  tasksLoading,
+  tasksError,
+  refetchTasks
 }: Props) => {
   const isDarkMode = useGlobalStore().isDarkMode;
   
@@ -122,16 +120,10 @@ const TableView = ({
                 </CardDescription>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <Button variant="outline">
-                <Download className="h-4 w-4 mr-2" />
-                Export
-              </Button>
-              <Button onClick={() => setIsModalNewTaskOpen(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Task
-              </Button>
-            </div>
+            <Button variant="outline">
+              <Download className="h-4 w-4 mr-2" />
+              Export
+            </Button>
           </div>
         </CardHeader>
       </Card>
@@ -171,13 +163,9 @@ const TableView = ({
             <h3 className="text-xl font-semibold text-foreground mb-2">
               No tasks yet
             </h3>
-            <p className="text-muted-foreground mb-6 max-w-md">
-              Get started by creating your first task for this project.
+            <p className="text-muted-foreground max-w-md">
+              Get started by creating your first task for this project using the "New Task" button above.
             </p>
-            <Button onClick={() => setIsModalNewTaskOpen(true)} size="lg">
-              <Plus className="h-4 w-4 mr-2" />
-              Create First Task
-            </Button>
           </CardContent>
         </Card>
       ) : (

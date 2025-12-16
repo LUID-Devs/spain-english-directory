@@ -3,15 +3,14 @@ import { useGetTasksQuery, useUpdateTaskMutation, useDeleteTaskMutation } from "
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { Task as TaskType } from "@/hooks/useApi";
-import { 
-  EllipsisVertical, 
-  MessageSquareMore, 
-  Plus, 
-  Edit, 
-  Trash2, 
-  Eye, 
-  Clock, 
-  User, 
+import {
+  EllipsisVertical,
+  MessageSquareMore,
+  Edit,
+  Trash2,
+  Eye,
+  Clock,
+  User,
   Calendar,
   AlertTriangle,
   Target,
@@ -41,7 +40,6 @@ type TaskStatus = "To Do" | "Work In Progress" | "Under Review" | "Completed";
 
 type BoardProps = {
   id: string;
-  setIsModalNewTaskOpen: (isOpen: boolean) => void;
   tasks?: TaskType[];
   tasksLoading?: boolean;
   tasksError?: boolean;
@@ -50,13 +48,12 @@ type BoardProps = {
 
 const taskStatus: TaskStatus[] = ["To Do", "Work In Progress", "Under Review", "Completed"];
 
-const BoardView = ({ 
-  id, 
-  setIsModalNewTaskOpen, 
-  tasks: propTasks, 
-  tasksLoading, 
-  tasksError, 
-  refetchTasks 
+const BoardView = ({
+  id,
+  tasks: propTasks,
+  tasksLoading,
+  tasksError,
+  refetchTasks
 }: BoardProps) => {
   // Fallback to fetching data if not provided via props (for backward compatibility)
   const { data: fetchedTasks, isLoading: fetchedLoading, error: fetchedError, refetch: fetchedRefetch } = useGetTasksQuery(
@@ -143,7 +140,6 @@ const BoardView = ({
               status={status}
               tasks={tasks || []}
               moveTask={moveTask}
-              setIsModalNewTaskOpen={setIsModalNewTaskOpen}
               onTaskSelect={setSelectedTask}
             />
           ))}
@@ -167,7 +163,6 @@ type TaskColumnProps = {
   status: TaskStatus;
   tasks: TaskType[];
   moveTask: (taskId: number, toStatus: TaskStatus) => void;
-  setIsModalNewTaskOpen: (isOpen: boolean) => void;
   onTaskSelect: (task: { taskId: number; editMode: boolean }) => void;
 };
 
@@ -175,7 +170,6 @@ const TaskColumn = ({
   status,
   tasks,
   moveTask,
-  setIsModalNewTaskOpen,
   onTaskSelect,
 }: TaskColumnProps) => {
   const [{ isOver }, drop] = useDrop(() => ({
@@ -237,17 +231,9 @@ const TaskColumn = ({
               {tasksCount}
             </Badge>
           </div>
-          <div className="flex items-center space-x-1">
-            <Button variant="ghost" size="sm">
-              <EllipsisVertical className="h-4 w-4" />
-            </Button>
-            <Button 
-              size="sm"
-              onClick={() => setIsModalNewTaskOpen(true)}
-            >
-              <Plus className="h-4 w-4" />
-            </Button>
-          </div>
+          <Button variant="ghost" size="sm">
+            <EllipsisVertical className="h-4 w-4" />
+          </Button>
         </div>
       </CardHeader>
       

@@ -25,22 +25,23 @@ const ProjectDetailPage = () => {
         onClose={() => setIsModalNewTaskOpen(false)}
         id={id}
       />
-      <ProjectHeader 
-        activeTab={activeTab} 
-        setActiveTab={setActiveTab} 
-        projectName={currentProject?.name || "Loading..."} 
+      <ProjectHeader
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        projectName={currentProject?.name || "Loading..."}
+        setIsModalNewTaskOpen={setIsModalNewTaskOpen}
       />
       {activeTab === "Board" && (
-        <Board id={id || '0'} setIsModalNewTaskOpen={setIsModalNewTaskOpen} />
+        <Board id={id || '0'} />
       )}
       {activeTab === "List" && (
-        <List id={id || '0'} setIsModalNewTaskOpen={setIsModalNewTaskOpen} />
+        <List id={id || '0'} />
       )}
       {activeTab === "Timeline" && (
-        <Timeline id={id || '0'} setIsModalNewTaskOpen={setIsModalNewTaskOpen} />
+        <Timeline id={id || '0'} />
       )}
       {activeTab === "Table" && (
-        <Table id={id || '0'} setIsModalNewTaskOpen={setIsModalNewTaskOpen} />
+        <Table id={id || '0'} />
       )}
     </div>
   );
