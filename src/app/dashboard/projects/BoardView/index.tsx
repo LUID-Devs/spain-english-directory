@@ -3,6 +3,7 @@ import {
   useGetTasksQuery,
   useUpdateTaskMutation,
   useDeleteTaskMutation,
+  useCreateTaskMutation,
   useGetProjectStatusesQuery,
   useCreateStatusMutation,
   useUpdateStatusMutation,
@@ -33,7 +34,8 @@ import {
   Unlock,
   ChevronLeft,
   ChevronRight,
-  GripVertical
+  GripVertical,
+  Copy
 } from "lucide-react";
 import { format, formatDistanceToNow, isAfter, isBefore } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -501,6 +503,7 @@ const Task = ({ task, onTaskSelect }: TaskProps) => {
   const [showDropdown, setShowDropdown] = React.useState(false);
   const [showDeleteModal, setShowDeleteModal] = React.useState(false);
   const [deleteTask, { isLoading: isDeleting }] = useDeleteTaskMutation();
+  const [createTask, { isLoading: isDuplicating }] = useCreateTaskMutation();
   const [{ isDragging }, drag] = useDrag(() => ({
     type: "task",
     item: { id: task.id },
@@ -532,10 +535,10 @@ const Task = ({ task, onTaskSelect }: TaskProps) => {
     setShowDropdown(!showDropdown);
   };
 
-  const handleMenuAction = (action: string, e: React.MouseEvent) => {
+  const handleMenuAction = async (action: string, e: React.MouseEvent) => {
     e.stopPropagation();
     setShowDropdown(false);
-    
+
     switch(action) {
       case 'view':
         onTaskSelect({ taskId: task.id, editMode: false });
@@ -546,6 +549,36 @@ const Task = ({ task, onTaskSelect }: TaskProps) => {
       case 'delete':
         setShowDeleteModal(true);
         break;
+      case 'duplicate':
+        await handleDuplicateTask();
+        break;
+    }
+  };
+
+  const handleDuplicateTask = async () => {
+    try {
+      // Create a duplicate with "(Copy)" appended to the title
+      const duplicatedTask = {
+        title: `${task.title} (Copy)`,
+        description: task.description,
+        status: task.status,
+        priority: task.priority,
+        tags: task.tags,
+        startDate: task.startDate,
+        dueDate: task.dueDate,
+        points: task.points,
+        projectId: task.projectId,
+        authorUserId: task.authorUserId,
+        assignedUserId: task.assignedUserId,
+        taskType: task.taskType,
+      };
+
+      await createTask(duplicatedTask).unwrap();
+      // Dispatch event to refresh the board
+      window.dispatchEvent(new CustomEvent('taskUpdated'));
+    } catch (error: any) {
+      console.error('Failed to duplicate task:', error);
+      alert(error?.data?.message || 'Failed to duplicate task. Please try again.');
     }
   };
 
@@ -674,6 +707,14 @@ const Task = ({ task, onTaskSelect }: TaskProps) => {
                 >
                   <Edit className="h-3 w-3" />
                   Edit
+                </button>
+                <button
+                  onClick={(e) => handleMenuAction('duplicate', e)}
+                  disabled={isDuplicating}
+                  className="flex items-center gap-2 w-full px-3 py-1.5 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+                >
+                  <Copy className="h-3 w-3" />
+                  {isDuplicating ? 'Duplicating...' : 'Duplicate'}
                 </button>
                 <div className="border-t border-gray-100 dark:border-gray-600 my-1" />
                 <button

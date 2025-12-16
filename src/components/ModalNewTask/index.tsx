@@ -1,7 +1,8 @@
-import { Priority, Status, useCreateTaskMutation, useGetUsersQuery, useGetProjectsQuery, useGetProjectStatusesQuery } from "@/hooks/useApi";
+import { Priority, Status, useCreateTaskMutation, useGetUsersQuery, useGetProjectsQuery, useGetProjectStatusesQuery, useUploadTaskDescriptionImageMutation } from "@/hooks/useApi";
 import { useCurrentUser } from "@/stores/userStore";
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { formatISO } from "date-fns";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -10,7 +11,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -19,6 +19,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import RichTextEditor from "@/components/RichTextEditor";
+import { Image } from "lucide-react";
 
 type Props = {
   isOpen: boolean;
@@ -29,6 +31,7 @@ type Props = {
 
 const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) => {
   const [createTask, { isLoading }] = useCreateTaskMutation() as any;
+  const [uploadDescriptionImage] = useUploadTaskDescriptionImageMutation();
   const { currentUser } = useCurrentUser();
   const {data: users} = useGetUsersQuery(undefined, {
     skip: !isOpen, // Only load when modal is open
@@ -47,6 +50,33 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
   const [authorUserId, setAuthorUserId] = useState("");
   const [assignedUserId, setAssignedUserId] = useState("");
   const [projectId, setProjectId] = useState("");
+
+  // Reset form to initial state
+  const resetForm = () => {
+    setTitle("");
+    setDescription("");
+    setStatus(Status.ToDo);
+    setPriority(defaultPriority || Priority.Backlog);
+    setTags("");
+    setStartDate("");
+    setDueDate("");
+    setAssignedUserId("");
+    // Keep authorUserId as the current user
+    if (currentUser?.userId) {
+      setAuthorUserId(currentUser.userId.toString());
+    }
+    // Keep projectId if we're in a specific project context
+    if (id === null) {
+      setProjectId("");
+    }
+  };
+
+  // Reset form when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      resetForm();
+    }
+  }, [isOpen]);
 
   // Determine the effective project ID for fetching statuses
   const effectiveProjectId = id !== null ? Number(id) : (projectId ? Number(projectId) : null);
@@ -78,6 +108,22 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
       setPriority(defaultPriority);
     }
   }, [defaultPriority]);
+
+  // Handle image upload for rich text editor
+  const handleImageUpload = useCallback(async (file: File): Promise<string> => {
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+      const result = await uploadDescriptionImage({ formData });
+      const response = await result.unwrap();
+      toast.success("Image uploaded");
+      return response.imageUrl;
+    } catch (error) {
+      console.error("Failed to upload image:", error);
+      toast.error("Failed to upload image");
+      throw error;
+    }
+  }, [uploadDescriptionImage]);
 
   const handleSubmit = async () => {
     console.log('handleSubmit called', { title, authorUserId, id, projectId });
@@ -149,13 +195,18 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
 
           {/* Description */}
           <div className="space-y-2">
-            <Label htmlFor="description" className="text-foreground font-medium">Description</Label>
-            <Textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
+            <Label className="flex items-center gap-2 text-foreground font-medium">
+              Description
+              <span className="text-xs text-muted-foreground font-normal flex items-center gap-1">
+                <Image className="h-3 w-3" />
+                Paste image with Ctrl+V
+              </span>
+            </Label>
+            <RichTextEditor
+              content={description}
+              onChange={(content) => setDescription(content)}
+              onImageUpload={handleImageUpload}
               placeholder="Provide additional context and requirements..."
-              rows={3}
             />
           </div>
 
