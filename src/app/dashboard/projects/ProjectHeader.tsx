@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Clock,
   Filter,
@@ -9,20 +9,84 @@ import {
   Table,
   Search,
   Folder,
+  X,
+  Check,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Priority } from "@/hooks/useApi";
+
+export type FilterState = {
+  priority: string | null;
+  status: string | null;
+  assigneeId: number | null;
+};
 
 type Props = {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   projectName: string;
   setIsModalNewTaskOpen: (isOpen: boolean) => void;
+  projectId: string;
+  searchQuery: string;
+  onSearchChange: (query: string) => void;
+  filters: FilterState;
+  onFiltersChange: (filters: FilterState) => void;
+  availableStatuses: string[];
+  availableAssignees: { userId: number; username: string }[];
 };
 
-const ProjectHeader = ({ activeTab, setActiveTab, projectName, setIsModalNewTaskOpen }: Props) => {
+const ProjectHeader = ({
+  activeTab,
+  setActiveTab,
+  projectName,
+  setIsModalNewTaskOpen,
+  projectId,
+  searchQuery,
+  onSearchChange,
+  filters,
+  onFiltersChange,
+  availableStatuses,
+  availableAssignees,
+}: Props) => {
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+  const handleShare = () => {
+    const projectUrl = `${window.location.origin}/dashboard/projects/${projectId}`;
+    navigator.clipboard.writeText(projectUrl).then(() => {
+      toast.success("Project link copied to clipboard");
+    }).catch(() => {
+      toast.error("Failed to copy link");
+    });
+  };
+
+  const handleClearFilters = () => {
+    onFiltersChange({
+      priority: null,
+      status: null,
+      assigneeId: null,
+    });
+  };
+
+  const activeFiltersCount = [filters.priority, filters.status, filters.assigneeId].filter(Boolean).length;
+
   return (
     <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
@@ -75,24 +139,192 @@ const ProjectHeader = ({ activeTab, setActiveTab, projectName, setIsModalNewTask
                 setActiveTab={setActiveTab}
               />
             </div>
-            
+
             {/* Controls */}
             <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm">
-                <Filter className="h-4 w-4" />
-              </Button>
-              <Button variant="ghost" size="sm">
+              {/* Filter Popover */}
+              <Popover open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+                <PopoverTrigger asChild>
+                  <Button variant="ghost" size="sm" className="relative">
+                    <Filter className="h-4 w-4" />
+                    {activeFiltersCount > 0 && (
+                      <Badge
+                        variant="destructive"
+                        className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center text-[10px]"
+                      >
+                        {activeFiltersCount}
+                      </Badge>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80" align="end">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-medium">Filter Tasks</h4>
+                      {activeFiltersCount > 0 && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleClearFilters}
+                          className="h-auto p-1 text-xs text-muted-foreground hover:text-foreground"
+                        >
+                          <X className="h-3 w-3 mr-1" />
+                          Clear all
+                        </Button>
+                      )}
+                    </div>
+
+                    {/* Priority Filter */}
+                    <div className="space-y-2">
+                      <Label className="text-sm">Priority</Label>
+                      <Select
+                        value={filters.priority || "all"}
+                        onValueChange={(value) =>
+                          onFiltersChange({ ...filters, priority: value === "all" ? null : value })
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="All priorities" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All priorities</SelectItem>
+                          {Object.values(Priority).map((priority) => (
+                            <SelectItem key={priority} value={priority}>
+                              {priority}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Status Filter */}
+                    <div className="space-y-2">
+                      <Label className="text-sm">Status</Label>
+                      <Select
+                        value={filters.status || "all"}
+                        onValueChange={(value) =>
+                          onFiltersChange({ ...filters, status: value === "all" ? null : value })
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="All statuses" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All statuses</SelectItem>
+                          {availableStatuses.map((status) => (
+                            <SelectItem key={status} value={status}>
+                              {status}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Assignee Filter */}
+                    <div className="space-y-2">
+                      <Label className="text-sm">Assignee</Label>
+                      <Select
+                        value={filters.assigneeId?.toString() || "all"}
+                        onValueChange={(value) =>
+                          onFiltersChange({
+                            ...filters,
+                            assigneeId: value === "all" ? null : parseInt(value),
+                          })
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="All assignees" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All assignees</SelectItem>
+                          <SelectItem value="unassigned">Unassigned</SelectItem>
+                          {availableAssignees?.map((user) => (
+                            <SelectItem key={user.userId} value={user.userId.toString()}>
+                              {user.username}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
+
+              {/* Share Button */}
+              <Button variant="ghost" size="sm" onClick={handleShare}>
                 <Share className="h-4 w-4" />
               </Button>
+
+              {/* Search Input */}
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Search Task"
                   className="pl-10 w-64"
+                  value={searchQuery}
+                  onChange={(e) => onSearchChange(e.target.value)}
                 />
+                {searchQuery && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
+                    onClick={() => onSearchChange("")}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                )}
               </div>
             </div>
           </div>
+
+          {/* Active Filters Display */}
+          {(activeFiltersCount > 0 || searchQuery) && (
+            <div className="flex items-center gap-2 mt-4 pt-4 border-t flex-wrap">
+              <span className="text-sm text-muted-foreground">Active filters:</span>
+              {searchQuery && (
+                <Badge variant="secondary" className="flex items-center gap-1">
+                  Search: "{searchQuery}"
+                  <button onClick={() => onSearchChange("")} className="ml-1 hover:text-foreground">
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
+              {filters.priority && (
+                <Badge variant="secondary" className="flex items-center gap-1">
+                  Priority: {filters.priority}
+                  <button
+                    onClick={() => onFiltersChange({ ...filters, priority: null })}
+                    className="ml-1 hover:text-foreground"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
+              {filters.status && (
+                <Badge variant="secondary" className="flex items-center gap-1">
+                  Status: {filters.status}
+                  <button
+                    onClick={() => onFiltersChange({ ...filters, status: null })}
+                    className="ml-1 hover:text-foreground"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
+              {filters.assigneeId !== null && (
+                <Badge variant="secondary" className="flex items-center gap-1">
+                  Assignee: {filters.assigneeId === 0 ? "Unassigned" : availableAssignees?.find(u => u.userId === filters.assigneeId)?.username || "Unknown"}
+                  <button
+                    onClick={() => onFiltersChange({ ...filters, assigneeId: null })}
+                    className="ml-1 hover:text-foreground"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
