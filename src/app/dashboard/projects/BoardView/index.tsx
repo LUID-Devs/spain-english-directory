@@ -162,10 +162,10 @@ const BoardView = ({
 
   if (isLoading) {
     return (
-      <div className="container mx-auto p-6">
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
+      <div className="container mx-auto p-6 overflow-x-auto">
+        <div className="flex gap-6 min-w-max pb-4">
           {DEFAULT_STATUSES.map((status) => (
-            <Card key={status}>
+            <Card key={status} className="w-80 flex-shrink-0">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-sm font-medium">{status}</CardTitle>
@@ -198,9 +198,9 @@ const BoardView = ({
   }
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="container mx-auto p-6 overflow-x-auto">
       <DndProvider backend={HTML5Backend}>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
+        <div className="flex gap-6 min-w-max pb-4">
           {statusNames.map((status: string) => (
             <TaskColumn
               key={status}
@@ -222,6 +222,7 @@ const BoardView = ({
           isOpen={true}
           onClose={() => setSelectedTask(null)}
           taskId={selectedTask.taskId}
+          projectId={Number(id)}
           editMode={selectedTask.editMode}
         />
       )}
@@ -323,7 +324,7 @@ const TaskColumn = ({
         drop(instance);
       }}
       className={cn(
-        "transition-all duration-300 ease-out",
+        "w-80 flex-shrink-0 transition-all duration-300 ease-out",
         config.className,
         isOver && "ring-2 ring-primary ring-offset-2"
       )}

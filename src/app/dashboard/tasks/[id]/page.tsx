@@ -1,16 +1,16 @@
 
-import React, { useState } from "react";
-import { useGetTaskQuery, useUpdateTaskMutation, useGetUsersQuery } from "@/hooks/useApi";
+import React, { useState, useMemo } from "react";
+import { useGetTaskQuery, useUpdateTaskMutation, useGetUsersQuery, useGetProjectStatusesQuery } from "@/hooks/useApi";
 import { format } from "date-fns";
-import { 
-  ArrowLeft, 
-  Edit, 
-  Save, 
-  X, 
-  Calendar, 
-  User, 
-  Flag, 
-  Clock, 
+import {
+  ArrowLeft,
+  Edit,
+  Save,
+  X,
+  Calendar,
+  User,
+  Flag,
+  Clock,
   MessageSquare,
   Paperclip
 } from "lucide-react";
@@ -24,16 +24,30 @@ type Props = {
 const TaskDetailPage = ({ params }: Props) => {
   const { id } = React.use(params);
   const taskId = parseInt(id);
-  
+
   const { data: task, isLoading, error } = useGetTaskQuery(taskId);
   const { data: users = [] } = useGetUsersQuery();
   const [updateTask, { isLoading: isUpdating }] = useUpdateTaskMutation();
-  
+
+  // Fetch dynamic statuses for the project
+  const { data: statusesData } = useGetProjectStatusesQuery(
+    task?.projectId!,
+    { skip: !task?.projectId }
+  );
+
+  // Get available statuses from API or fall back to defaults
+  const availableStatuses = useMemo(() => {
+    if (statusesData && statusesData.length > 0) {
+      return statusesData.map((s) => s.name);
+    }
+    return Object.values(Status);
+  }, [statusesData]);
+
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({
     title: "",
     description: "",
-    status: Status.ToDo,
+    status: Status.ToDo as string,
     priority: Priority.Medium,
     tags: "",
     startDate: "",
@@ -225,10 +239,10 @@ const TaskDetailPage = ({ params }: Props) => {
             <>
               <select
                 value={editForm.status}
-                onChange={(e) => setEditForm({ ...editForm, status: e.target.value as Status })}
+                onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
                 className="px-3 py-1 rounded-full text-sm font-medium border bg-white dark:bg-dark-secondary dark:border-gray-600 dark:text-white"
               >
-                {Object.values(Status).map((status) => (
+                {availableStatuses.map((status) => (
                   <option key={status} value={status}>{status}</option>
                 ))}
               </select>

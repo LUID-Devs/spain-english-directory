@@ -1,4 +1,4 @@
-import { Task, useGetTasksQuery } from "@/hooks/useApi";
+import { Task, useGetTasksQuery, useGetProjectStatusesQuery, Status } from "@/hooks/useApi";
 import React, { useState, useMemo } from "react";
 import TaskCard from "@/components/TaskCard";
 import { Grid3X3, List, Search, FileText, AlertTriangle } from "lucide-react";
@@ -18,7 +18,6 @@ type Props = {
 
 type ViewMode = "grid" | "list";
 type SortOption = "priority" | "dueDate" | "title" | "status";
-type FilterOption = "all" | "To Do" | "Work In Progress" | "Under Review" | "Completed";
 
 const ListView = ({
   id,
@@ -29,10 +28,21 @@ const ListView = ({
 }: Props) => {
   // Fallback to fetching data if not provided via props
   const { data: fetchedTasks, isLoading: fetchedLoading, error: fetchedError } = useGetTasksQuery(
-    { projectId: Number(id) }, 
+    { projectId: Number(id) },
     { skip: !!propTasks }
   );
-  
+
+  // Fetch dynamic statuses for the project
+  const { data: statusesData } = useGetProjectStatusesQuery(Number(id));
+
+  // Get available statuses from API or fall back to defaults
+  const availableStatuses = useMemo(() => {
+    if (statusesData && statusesData.length > 0) {
+      return statusesData.map((s) => s.name);
+    }
+    return Object.values(Status);
+  }, [statusesData]);
+
   // Use prop data if available, otherwise use fetched data
   const tasks = propTasks || fetchedTasks;
   const isLoading = tasksLoading !== undefined ? tasksLoading : fetchedLoading;
@@ -40,7 +50,7 @@ const ListView = ({
 
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [sortBy, setSortBy] = useState<SortOption>("priority");
-  const [filterBy, setFilterBy] = useState<FilterOption>("all");
+  const [filterBy, setFilterBy] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
 
   const priorityOrder = { "Urgent": 0, "High": 1, "Medium": 2, "Low": 3, "Backlog": 4 };
@@ -151,16 +161,17 @@ const ListView = ({
 
             <div className="flex items-center gap-3">
               {/* Filter */}
-              <Select value={filterBy} onValueChange={(value) => setFilterBy(value as FilterOption)}>
-                <SelectTrigger className="w-[140px]">
+              <Select value={filterBy} onValueChange={(value) => setFilterBy(value)}>
+                <SelectTrigger className="w-[160px]">
                   <SelectValue placeholder="Filter" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="To Do">To Do</SelectItem>
-                  <SelectItem value="Work In Progress">In Progress</SelectItem>
-                  <SelectItem value="Under Review">Under Review</SelectItem>
-                  <SelectItem value="Completed">Completed</SelectItem>
+                  {availableStatuses.map((status) => (
+                    <SelectItem key={status} value={status}>
+                      {status}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
 

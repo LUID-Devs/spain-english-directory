@@ -1,6 +1,6 @@
-import { Priority, Status, useCreateTaskMutation, useGetUsersQuery, useGetProjectsQuery } from "@/hooks/useApi";
+import { Priority, Status, useCreateTaskMutation, useGetUsersQuery, useGetProjectsQuery, useGetProjectStatusesQuery } from "@/hooks/useApi";
 import { useCurrentUser } from "@/stores/userStore";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { formatISO } from "date-fns";
 import {
   Dialog,
@@ -36,10 +36,10 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
   const {data: projects} = useGetProjectsQuery({}, {
     skip: !isOpen, // Only load when modal is open
   });
-  
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [status, setStatus] = useState<Status>(Status.ToDo);
+  const [status, setStatus] = useState<string>(Status.ToDo);
   const [priority, setPriority] = useState<Priority>(defaultPriority || Priority.Backlog);
   const [tags, setTags] = useState("");
   const [startDate, setStartDate] = useState("");
@@ -47,6 +47,23 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
   const [authorUserId, setAuthorUserId] = useState("");
   const [assignedUserId, setAssignedUserId] = useState("");
   const [projectId, setProjectId] = useState("");
+
+  // Determine the effective project ID for fetching statuses
+  const effectiveProjectId = id !== null ? Number(id) : (projectId ? Number(projectId) : null);
+
+  // Fetch dynamic statuses for the selected project
+  const { data: statusesData } = useGetProjectStatusesQuery(
+    effectiveProjectId!,
+    { skip: !isOpen || !effectiveProjectId }
+  );
+
+  // Get available statuses from API or fall back to defaults
+  const availableStatuses = useMemo(() => {
+    if (statusesData && statusesData.length > 0) {
+      return statusesData.map((s) => s.name);
+    }
+    return Object.values(Status);
+  }, [statusesData]);
 
   // Set current user as default author when user data loads
   useEffect(() => {
@@ -148,16 +165,17 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
               <Label className="text-foreground font-medium">Status</Label>
               <Select
                 value={status}
-                onValueChange={(value) => setStatus(Status[value as keyof typeof Status])}
+                onValueChange={(value) => setStatus(value)}
               >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={Status.ToDo}>To Do</SelectItem>
-                  <SelectItem value={Status.WorkInProgress}>Work In Progress</SelectItem>
-                  <SelectItem value={Status.UnderReview}>Under Review</SelectItem>
-                  <SelectItem value={Status.Completed}>Completed</SelectItem>
+                  {availableStatuses.map((statusOption) => (
+                    <SelectItem key={statusOption} value={statusOption}>
+                      {statusOption}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

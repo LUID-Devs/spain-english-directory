@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 import {
   Priority,
   Task,
+  Status,
 } from "@/hooks/useApi";
 import { useCurrentUser } from "@/stores/userStore";
 import { useGetTasksByUserQuery, useGetProjectsQuery } from "@/hooks/useApi";
@@ -61,8 +62,18 @@ const TasksPage = () => {
     isLoading: tasksLoading,
     isError: tasksError,
   } = useGetTasksByUserQuery(userId || 0, { skip: userId === null });
-  
+
   const { data: projects } = useGetProjectsQuery();
+
+  // Get unique statuses from user's tasks (combines default + any custom statuses)
+  const availableStatuses = useMemo(() => {
+    const defaultStatuses = Object.values(Status);
+    if (!tasks || tasks.length === 0) return defaultStatuses;
+
+    const taskStatuses = tasks.map(t => t.status).filter(Boolean) as string[];
+    const allStatuses = [...new Set([...defaultStatuses, ...taskStatuses])];
+    return allStatuses;
+  }, [tasks]);
 
   // Filter and sort tasks
   const filteredAndSortedTasks = useMemo(() => {
@@ -177,10 +188,11 @@ const TasksPage = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="TODO">To Do</SelectItem>
-                  <SelectItem value="Work In Progress">In Progress</SelectItem>
-                  <SelectItem value="Under Review">Under Review</SelectItem>
-                  <SelectItem value="Completed">Completed</SelectItem>
+                  {availableStatuses.map((status) => (
+                    <SelectItem key={status} value={status}>
+                      {status}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               

@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import Modal from "@/components/Modal";
-import { useGetUsersQuery, useGetProjectsQuery, useGetTeamsQuery } from "@/hooks/useApi";
+import { useGetUsersQuery, useGetProjectsQuery, useGetTeamsQuery, useGetProjectStatusesQuery, Status } from "@/hooks/useApi";
 
 interface AdvancedSearchModalProps {
   isOpen: boolean;
@@ -40,6 +40,20 @@ const AdvancedSearchModal = ({
   const { data: teams } = useGetTeamsQuery(undefined, {
     skip: !isOpen, // Only load when modal is open
   });
+
+  // Fetch dynamic statuses when a project is selected
+  const { data: statusesData } = useGetProjectStatusesQuery(
+    filters.projectId!,
+    { skip: !isOpen || !filters.projectId }
+  );
+
+  // Get available statuses - use project-specific if project selected, otherwise defaults
+  const availableStatuses = useMemo(() => {
+    if (statusesData && statusesData.length > 0) {
+      return statusesData.map((s) => s.name);
+    }
+    return Object.values(Status);
+  }, [statusesData]);
 
   const handleFilterChange = (key: keyof SearchFilters, value: any) => {
     setFilters(prev => ({
@@ -111,10 +125,9 @@ const AdvancedSearchModal = ({
                     className="w-full rounded-md border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
                   >
                     <option key="any-status" value="">Any Status</option>
-                    <option key="todo" value="To Do">To Do</option>
-                    <option key="wip" value="Work In Progress">Work In Progress</option>
-                    <option key="review" value="Under Review">Under Review</option>
-                    <option key="completed" value="Completed">Completed</option>
+                    {availableStatuses.map((status) => (
+                      <option key={status} value={status}>{status}</option>
+                    ))}
                   </select>
                 </div>
 

@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { useGetTaskQuery, useUpdateTaskMutation, useGetUsersQuery, useUploadTaskDescriptionImageMutation } from "@/hooks/useApi";
+import { useGetTaskQuery, useUpdateTaskMutation, useGetUsersQuery, useUploadTaskDescriptionImageMutation, useGetProjectStatusesQuery } from "@/hooks/useApi";
 import { toast } from "sonner";
 import { Calendar, User, Flag, Clock, Paperclip, Tag, CircleDot, Loader2, Image } from "lucide-react";
 import CommentsSection from "@/components/CommentsSection";
@@ -27,14 +27,30 @@ interface TaskDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
   taskId: number;
+  projectId?: number;
   editMode?: boolean;
 }
 
-const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, taskId }) => {
+const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, taskId, projectId }) => {
   const { data: task, isLoading, error, refetch } = useGetTaskQuery(taskId, { skip: !isOpen });
   const { data: users = [] } = useGetUsersQuery(undefined, {
     skip: !isOpen,
   });
+
+  // Fetch dynamic statuses for the project
+  const effectiveProjectId = projectId || task?.projectId;
+  const { data: statusesData } = useGetProjectStatusesQuery(
+    effectiveProjectId!,
+    { skip: !isOpen || !effectiveProjectId }
+  );
+
+  // Get status names from API data or fall back to enum values
+  const availableStatuses = React.useMemo(() => {
+    if (statusesData && statusesData.length > 0) {
+      return statusesData.map((s) => s.name);
+    }
+    return Object.values(Status);
+  }, [statusesData]);
   const [updateTask] = useUpdateTaskMutation() as any;
   const [uploadDescriptionImage] = useUploadTaskDescriptionImageMutation();
 
@@ -44,7 +60,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
   const [editForm, setEditForm] = useState({
     title: "",
     description: "",
-    status: Status.ToDo,
+    status: Status.ToDo as string,
     priority: Priority.Medium,
     taskType: undefined as TaskType | undefined,
     tags: "",
@@ -303,13 +319,13 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                   </Label>
                   <Select
                     value={editForm.status}
-                    onValueChange={(value) => handleFieldChange('status', value as Status)}
+                    onValueChange={(value) => handleFieldChange('status', value)}
                   >
                     <SelectTrigger className="w-full">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {Object.values(Status).map((status) => (
+                      {availableStatuses.map((status) => (
                         <SelectItem key={status} value={status}>
                           {status}
                         </SelectItem>
