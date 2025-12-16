@@ -1478,7 +1478,115 @@ export const useDeleteCommentMutation = () => {
   return [mutationWrapper, { isLoading: false }];
 };
 
+// Task Status hooks
+export const useGetProjectStatusesQuery = (projectId: number, options: { skip?: boolean } = {}) => {
+  const [statuses, setStatuses] = useState<any[] | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setStatusError] = useState<string | null>(null);
+  const hasFetchedRef = useRef(false);
+  const projectIdRef = useRef(projectId);
+  const skipRef = useRef(options.skip);
+
+  const fetchStatuses = useCallback(async () => {
+    if (skipRef.current || !projectIdRef.current) return;
+
+    try {
+      setIsLoading(true);
+      setStatusError(null);
+      const statusesData = await apiService.getProjectStatuses(projectIdRef.current);
+      setStatuses(statusesData);
+      return statusesData;
+    } catch (error) {
+      console.error('Failed to fetch statuses:', error);
+      setStatusError(error instanceof Error ? error.message : 'Failed to fetch statuses');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    projectIdRef.current = projectId;
+    skipRef.current = options.skip;
+
+    if (!options.skip && projectId) {
+      hasFetchedRef.current = true;
+      fetchStatuses();
+    }
+  }, [projectId, options.skip, fetchStatuses]);
+
+  return {
+    data: statuses,
+    isLoading,
+    isError: !!error,
+    error: error ? new Error(error) : null,
+    refetch: fetchStatuses,
+  };
+};
+
+export const useCreateStatusMutation = () => {
+  const createStatus = useCallback(async ({ projectId, name, color }: { projectId: number; name: string; color?: string }) => {
+    const loadingToast = toast.loading('Creating status...');
+
+    try {
+      const result = await apiService.createStatus(projectId, { name, color });
+      toast.success('Status created successfully!', { id: loadingToast });
+      return result;
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to create status', { id: loadingToast });
+      throw error;
+    }
+  }, []);
+
+  const mutationWrapper = useCallback((args: { projectId: number; name: string; color?: string }) => ({
+    unwrap: () => createStatus(args)
+  }), [createStatus]);
+
+  return [mutationWrapper, { isLoading: false }];
+};
+
+export const useUpdateStatusMutation = () => {
+  const updateStatus = useCallback(async ({ projectId, statusId, name, color }: { projectId: number; statusId: number; name?: string; color?: string }) => {
+    const loadingToast = toast.loading('Updating status...');
+
+    try {
+      const result = await apiService.updateStatus(projectId, statusId, { name, color });
+      toast.success('Status updated successfully!', { id: loadingToast });
+      return result;
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to update status', { id: loadingToast });
+      throw error;
+    }
+  }, []);
+
+  const mutationWrapper = useCallback((args: { projectId: number; statusId: number; name?: string; color?: string }) => ({
+    unwrap: () => updateStatus(args)
+  }), [updateStatus]);
+
+  return [mutationWrapper, { isLoading: false }];
+};
+
+export const useDeleteStatusMutation = () => {
+  const deleteStatus = useCallback(async ({ projectId, statusId, moveTasksTo }: { projectId: number; statusId: number; moveTasksTo?: string }) => {
+    const loadingToast = toast.loading('Deleting status...');
+
+    try {
+      const result = await apiService.deleteStatus(projectId, statusId, moveTasksTo);
+      toast.success(`Status deleted! ${result.tasksMovedCount > 0 ? `${result.tasksMovedCount} tasks moved.` : ''}`, { id: loadingToast });
+      return result;
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to delete status', { id: loadingToast });
+      throw error;
+    }
+  }, []);
+
+  const mutationWrapper = useCallback((args: { projectId: number; statusId: number; moveTasksTo?: string }) => ({
+    unwrap: () => deleteStatus(args)
+  }), [deleteStatus]);
+
+  return [mutationWrapper, { isLoading: false }];
+};
+
 // Export types and enums
 export { Status, Priority, TaskType } from '@/services/apiService';
-export type { Task, Project, User, Comment, Attachment, UserWithStats } from '@/services/apiService';
+export type { Task, Project, User, Comment, Attachment, UserWithStats, TaskStatus } from '@/services/apiService';
 

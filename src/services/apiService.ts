@@ -32,6 +32,17 @@ export enum Status {
   Completed = "Completed",
 }
 
+export interface TaskStatus {
+  id: number;
+  name: string;
+  color?: string;
+  order: number;
+  isDefault: boolean;
+  projectId: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export enum Priority {
   Urgent = "Urgent",
   High = "High",
@@ -294,6 +305,39 @@ class ApiService {
     return this.request<{ message: string }>(`/projects/${id}/favorite`, {
       method: 'DELETE',
       body: JSON.stringify({ userId }),
+    });
+  }
+
+  // Task Statuses
+  async getProjectStatuses(projectId: number): Promise<TaskStatus[]> {
+    return this.request<TaskStatus[]>(`/projects/${projectId}/statuses`);
+  }
+
+  async createStatus(projectId: number, data: { name: string; color?: string }): Promise<TaskStatus> {
+    return this.request<TaskStatus>(`/projects/${projectId}/statuses`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateStatus(projectId: number, statusId: number, data: { name?: string; color?: string; order?: number }): Promise<TaskStatus> {
+    return this.request<TaskStatus>(`/projects/${projectId}/statuses/${statusId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteStatus(projectId: number, statusId: number, moveTasksTo?: string): Promise<{ message: string; tasksMovedCount: number }> {
+    return this.request<{ message: string; tasksMovedCount: number }>(`/projects/${projectId}/statuses/${statusId}`, {
+      method: 'DELETE',
+      body: JSON.stringify({ moveTasksTo }),
+    });
+  }
+
+  async reorderStatuses(projectId: number, statusIds: number[]): Promise<TaskStatus[]> {
+    return this.request<TaskStatus[]>(`/projects/${projectId}/statuses/reorder`, {
+      method: 'PATCH',
+      body: JSON.stringify({ statusIds }),
     });
   }
 

@@ -1,5 +1,14 @@
 import React, { useEffect } from "react";
-import { useGetTasksQuery, useUpdateTaskMutation, useDeleteTaskMutation } from "@/hooks/useApi";
+import {
+  useGetTasksQuery,
+  useUpdateTaskMutation,
+  useDeleteTaskMutation,
+  useGetProjectStatusesQuery,
+  useCreateStatusMutation,
+  useUpdateStatusMutation,
+  useDeleteStatusMutation,
+  TaskStatus as TaskStatusType
+} from "@/hooks/useApi";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { Task as TaskType } from "@/hooks/useApi";
@@ -16,7 +25,9 @@ import {
   Target,
   Activity,
   List as ListIcon,
-  CheckCircle2
+  CheckCircle2,
+  Plus,
+  Pencil
 } from "lucide-react";
 import { format, formatDistanceToNow, isAfter, isBefore } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -34,9 +45,16 @@ import { cn } from "@/lib/utils";
 import TaskDetailModal from "@/components/TaskDetailModal";
 import DeleteTaskModal from "@/components/DeleteTaskModal";
 import type { DropTargetMonitor, DragSourceMonitor } from 'react-dnd';
-
-// Literal type for status values
-type TaskStatus = "To Do" | "Work In Progress" | "Under Review" | "Completed";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 type BoardProps = {
   id: string;
@@ -46,7 +64,8 @@ type BoardProps = {
   refetchTasks?: () => void;
 };
 
-const taskStatus: TaskStatus[] = ["To Do", "Work In Progress", "Under Review", "Completed"];
+// Default statuses (fallback if API fails)
+const DEFAULT_STATUSES = ["To Do", "Work In Progress", "Under Review", "Completed"];
 
 const BoardView = ({
   id,
@@ -55,22 +74,42 @@ const BoardView = ({
   tasksError,
   refetchTasks
 }: BoardProps) => {
+  // Fetch statuses from API
+  const { data: statusesData, isLoading: statusesLoading, refetch: refetchStatuses } = useGetProjectStatusesQuery(
+    Number(id)
+  );
+
+  // Get status names from API data or use defaults
+  const statusNames = React.useMemo(() => {
+    if (statusesData && statusesData.length > 0) {
+      return statusesData.map((s: TaskStatusType) => s.name);
+    }
+    return DEFAULT_STATUSES;
+  }, [statusesData]);
+
   // Fallback to fetching data if not provided via props (for backward compatibility)
   const { data: fetchedTasks, isLoading: fetchedLoading, error: fetchedError, refetch: fetchedRefetch } = useGetTasksQuery(
-    { projectId: Number(id) }, 
+    { projectId: Number(id) },
     { skip: !!propTasks }
   );
-  
+
   // Use prop data if available, otherwise use fetched data
   const tasks = propTasks || fetchedTasks;
-  const isLoading = tasksLoading !== undefined ? tasksLoading : fetchedLoading;
+  const isLoading = (tasksLoading !== undefined ? tasksLoading : fetchedLoading) || statusesLoading;
   const error = tasksError !== undefined ? tasksError : fetchedError;
   const refetch = refetchTasks || fetchedRefetch;
 
   const [updateTask] = useUpdateTaskMutation();
   const [selectedTask, setSelectedTask] = React.useState<{ taskId: number; editMode: boolean } | null>(null);
 
-  const moveTask = async (taskId: number, toStatus: TaskStatus) => {
+  // Status management state
+  const [isStatusModalOpen, setIsStatusModalOpen] = React.useState(false);
+  const [editingStatus, setEditingStatus] = React.useState<TaskStatusType | null>(null);
+  const [statusModalMode, setStatusModalMode] = React.useState<'add' | 'edit'>('add');
+  const [isDeleteStatusModalOpen, setIsDeleteStatusModalOpen] = React.useState(false);
+  const [statusToDelete, setStatusToDelete] = React.useState<TaskStatusType | null>(null);
+
+  const moveTask = async (taskId: number, toStatus: string) => {
     try {
       // Use PUT /tasks/{id} with status update - optimistic update handles UI
       await updateTask({ taskId, task: { status: toStatus } }).unwrap();
@@ -87,17 +126,45 @@ const BoardView = ({
     };
 
     window.addEventListener('taskUpdated', handleTaskUpdated);
-    
+
     return () => {
       window.removeEventListener('taskUpdated', handleTaskUpdated);
     };
   }, [refetch]);
 
+  // Status management handlers
+  const handleAddStatus = () => {
+    setStatusModalMode('add');
+    setEditingStatus(null);
+    setIsStatusModalOpen(true);
+  };
+
+  const handleEditStatus = (statusName: string) => {
+    // Find the status object from API data
+    const statusObj = statusesData?.find((s: TaskStatusType) => s.name === statusName);
+    setStatusModalMode('edit');
+    setEditingStatus(statusObj || null);
+    setIsStatusModalOpen(true);
+  };
+
+  const handleDeleteStatus = (statusName: string) => {
+    // Find the status object from API data
+    const statusObj = statusesData?.find((s: TaskStatusType) => s.name === statusName);
+    setStatusToDelete(statusObj || null);
+    setIsDeleteStatusModalOpen(true);
+  };
+
+  // Callback to refresh statuses after CRUD operations
+  const handleStatusChange = () => {
+    refetchStatuses();
+    refetch(); // Also refetch tasks in case status names changed
+  };
+
   if (isLoading) {
     return (
       <div className="container mx-auto p-6">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
-          {taskStatus.map((status) => (
+          {DEFAULT_STATUSES.map((status) => (
             <Card key={status}>
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
@@ -134,19 +201,22 @@ const BoardView = ({
     <div className="container mx-auto p-6">
       <DndProvider backend={HTML5Backend}>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
-          {taskStatus.map((status) => (
+          {statusNames.map((status: string) => (
             <TaskColumn
               key={status}
               status={status}
               tasks={tasks || []}
               moveTask={moveTask}
               onTaskSelect={setSelectedTask}
+              onAddStatus={handleAddStatus}
+              onEditStatus={handleEditStatus}
+              onDeleteStatus={handleDeleteStatus}
             />
           ))}
         </div>
       </DndProvider>
       
-      {/* Modal rendered at page level */}
+      {/* Task Detail Modal */}
       {selectedTask && (
         <TaskDetailModal
           isOpen={true}
@@ -155,15 +225,43 @@ const BoardView = ({
           editMode={selectedTask.editMode}
         />
       )}
+
+      {/* Status Management Modal */}
+      <StatusManagementModal
+        isOpen={isStatusModalOpen}
+        onClose={() => {
+          setIsStatusModalOpen(false);
+          setEditingStatus(null);
+        }}
+        mode={statusModalMode}
+        editingStatus={editingStatus}
+        projectId={id}
+        onSuccess={handleStatusChange}
+      />
+
+      {/* Delete Status Confirmation Modal */}
+      <DeleteStatusModal
+        isOpen={isDeleteStatusModalOpen}
+        onClose={() => {
+          setIsDeleteStatusModalOpen(false);
+          setStatusToDelete(null);
+        }}
+        status={statusToDelete}
+        projectId={id}
+        onSuccess={handleStatusChange}
+      />
     </div>
   );
 };
 
 type TaskColumnProps = {
-  status: TaskStatus;
+  status: string;
   tasks: TaskType[];
-  moveTask: (taskId: number, toStatus: TaskStatus) => void;
+  moveTask: (taskId: number, toStatus: string) => void;
   onTaskSelect: (task: { taskId: number; editMode: boolean }) => void;
+  onEditStatus: (status: string) => void;
+  onDeleteStatus: (status: string) => void;
+  onAddStatus: () => void;
 };
 
 const TaskColumn = ({
@@ -171,6 +269,9 @@ const TaskColumn = ({
   tasks,
   moveTask,
   onTaskSelect,
+  onEditStatus,
+  onDeleteStatus,
+  onAddStatus,
 }: TaskColumnProps) => {
   const [{ isOver }, drop] = useDrop(() => ({
     accept: "task",
@@ -182,30 +283,35 @@ const TaskColumn = ({
 
   const tasksCount = tasks.filter((task) => (task.status || "To Do") === status).length;
 
-  const getStatusConfig = (status: TaskStatus) => {
-    const configs = {
+  const getStatusConfig = (status: string) => {
+    const configs: Record<string, { variant: "outline" | "secondary" | "default"; icon: any; className: string }> = {
       "To Do": {
-        variant: "outline" as const,
+        variant: "outline",
         icon: ListIcon,
         className: "border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950"
       },
       "Work In Progress": {
-        variant: "secondary" as const,
+        variant: "secondary",
         icon: Activity,
         className: "border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-950"
       },
       "Under Review": {
-        variant: "outline" as const,
+        variant: "outline",
         icon: Eye,
         className: "border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-950"
       },
       "Completed": {
-        variant: "default" as const,
+        variant: "default",
         icon: CheckCircle2,
         className: "border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950"
       },
     };
-    return configs[status];
+    // Return default config for custom statuses
+    return configs[status] || {
+      variant: "outline" as const,
+      icon: Target,
+      className: "border-purple-200 bg-purple-50 dark:border-purple-800 dark:bg-purple-950"
+    };
   };
 
   const config = getStatusConfig(status);
@@ -231,9 +337,31 @@ const TaskColumn = ({
               {tasksCount}
             </Badge>
           </div>
-          <Button variant="ghost" size="sm">
-            <EllipsisVertical className="h-4 w-4" />
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm">
+                <EllipsisVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem onClick={() => onAddStatus()}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Status
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onEditStatus(status)}>
+                <Pencil className="h-4 w-4 mr-2" />
+                Edit Status
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => onDeleteStatus(status)}
+                className="text-destructive focus:text-destructive"
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete Status
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </CardHeader>
       
@@ -549,6 +677,179 @@ const Task = ({ task, onTaskSelect }: TaskProps) => {
         isDeleting={isDeleting}
       />
     </>
+  );
+};
+
+// Status Management Modal Component
+type StatusManagementModalProps = {
+  isOpen: boolean;
+  onClose: () => void;
+  mode: 'add' | 'edit';
+  editingStatus: TaskStatusType | null;
+  projectId: string;
+  onSuccess: () => void;
+};
+
+const StatusManagementModal = ({
+  isOpen,
+  onClose,
+  mode,
+  editingStatus,
+  projectId,
+  onSuccess,
+}: StatusManagementModalProps) => {
+  const [statusName, setStatusName] = React.useState('');
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [createStatus] = useCreateStatusMutation();
+  const [updateStatus] = useUpdateStatusMutation();
+
+  React.useEffect(() => {
+    if (editingStatus) {
+      setStatusName(editingStatus.name);
+    } else {
+      setStatusName('');
+    }
+  }, [editingStatus, isOpen]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!statusName.trim()) return;
+
+    setIsLoading(true);
+    try {
+      if (mode === 'add') {
+        await createStatus({
+          projectId: Number(projectId),
+          name: statusName.trim(),
+        }).unwrap();
+      } else if (editingStatus) {
+        await updateStatus({
+          projectId: Number(projectId),
+          statusId: editingStatus.id,
+          name: statusName.trim(),
+        }).unwrap();
+      }
+      onSuccess();
+      onClose();
+    } catch (error) {
+      console.error('Failed to save status:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>
+            {mode === 'add' ? 'Add New Status' : 'Edit Status'}
+          </DialogTitle>
+          <DialogDescription>
+            {mode === 'add'
+              ? 'Create a new status column for your board.'
+              : 'Update the status name.'}
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleSubmit}>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="statusName">Status Name</Label>
+              <Input
+                id="statusName"
+                value={statusName}
+                onChange={(e) => setStatusName(e.target.value)}
+                placeholder="e.g., In Review, Testing, Blocked"
+                autoFocus
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={!statusName.trim() || isLoading}>
+              {isLoading ? 'Saving...' : mode === 'add' ? 'Add Status' : 'Save Changes'}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+// Delete Status Confirmation Modal
+type DeleteStatusModalProps = {
+  isOpen: boolean;
+  onClose: () => void;
+  status: TaskStatusType | null;
+  projectId: string;
+  onSuccess: () => void;
+};
+
+const DeleteStatusModal = ({
+  isOpen,
+  onClose,
+  status,
+  projectId,
+  onSuccess,
+}: DeleteStatusModalProps) => {
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [deleteStatus] = useDeleteStatusMutation();
+
+  const handleDelete = async () => {
+    if (!status) return;
+
+    setIsLoading(true);
+    try {
+      await deleteStatus({
+        projectId: Number(projectId),
+        statusId: status.id,
+        moveTasksTo: 'To Do',
+      }).unwrap();
+      onSuccess();
+      onClose();
+    } catch (error) {
+      console.error('Failed to delete status:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Delete Status</DialogTitle>
+          <DialogDescription>
+            Are you sure you want to delete the "{status?.name}" status?
+            {status?.isDefault && (
+              <span className="block mt-2 text-destructive font-medium">
+                Warning: This is a default status and cannot be deleted.
+              </span>
+            )}
+            {!status?.isDefault && (
+              <span className="block mt-2">
+                All tasks with this status will be moved to "To Do".
+              </span>
+            )}
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button type="button" variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button
+            type="button"
+            variant="destructive"
+            onClick={handleDelete}
+            disabled={isLoading || status?.isDefault}
+          >
+            {isLoading ? 'Deleting...' : 'Delete Status'}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
 
