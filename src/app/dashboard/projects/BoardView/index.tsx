@@ -7,6 +7,7 @@ import {
   useCreateStatusMutation,
   useUpdateStatusMutation,
   useDeleteStatusMutation,
+  useReorderStatusesMutation,
   TaskStatus as TaskStatusType
 } from "@/hooks/useApi";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
@@ -27,7 +28,12 @@ import {
   List as ListIcon,
   CheckCircle2,
   Plus,
-  Pencil
+  Pencil,
+  Lock,
+  Unlock,
+  ChevronLeft,
+  ChevronRight,
+  GripVertical
 } from "lucide-react";
 import { format, formatDistanceToNow, isAfter, isBefore } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -100,6 +106,7 @@ const BoardView = ({
   const refetch = refetchTasks || fetchedRefetch;
 
   const [updateTask] = useUpdateTaskMutation();
+  const [reorderStatuses] = useReorderStatusesMutation();
   const [selectedTask, setSelectedTask] = React.useState<{ taskId: number; editMode: boolean } | null>(null);
 
   // Status management state
@@ -108,6 +115,9 @@ const BoardView = ({
   const [statusModalMode, setStatusModalMode] = React.useState<'add' | 'edit'>('add');
   const [isDeleteStatusModalOpen, setIsDeleteStatusModalOpen] = React.useState(false);
   const [statusToDelete, setStatusToDelete] = React.useState<TaskStatusType | null>(null);
+
+  // Lock state for column reordering
+  const [isColumnsLocked, setIsColumnsLocked] = React.useState(true);
 
   const moveTask = async (taskId: number, toStatus: string) => {
     try {
@@ -158,6 +168,41 @@ const BoardView = ({
   const handleStatusChange = () => {
     refetchStatuses();
     refetch(); // Also refetch tasks in case status names changed
+  };
+
+  // Move column left or right
+  const handleMoveColumn = async (statusName: string, direction: 'left' | 'right') => {
+    if (!statusesData || statusesData.length === 0) return;
+
+    const currentIndex = statusesData.findIndex((s: TaskStatusType) => s.name === statusName);
+    if (currentIndex === -1) return;
+
+    const newIndex = direction === 'left' ? currentIndex - 1 : currentIndex + 1;
+    if (newIndex < 0 || newIndex >= statusesData.length) return;
+
+    // Create new order by swapping
+    const newStatusIds = statusesData.map((s: TaskStatusType) => s.id);
+    [newStatusIds[currentIndex], newStatusIds[newIndex]] = [newStatusIds[newIndex], newStatusIds[currentIndex]];
+
+    try {
+      await (reorderStatuses as any)({ projectId: Number(id), statusIds: newStatusIds }).unwrap();
+      refetchStatuses();
+    } catch (error) {
+      console.error('Failed to reorder statuses:', error);
+    }
+  };
+
+  // Check if column can move left/right
+  const canMoveLeft = (statusName: string) => {
+    if (!statusesData) return false;
+    const index = statusesData.findIndex((s: TaskStatusType) => s.name === statusName);
+    return index > 0;
+  };
+
+  const canMoveRight = (statusName: string) => {
+    if (!statusesData) return false;
+    const index = statusesData.findIndex((s: TaskStatusType) => s.name === statusName);
+    return index < statusesData.length - 1;
   };
 
   if (isLoading) {
@@ -211,6 +256,12 @@ const BoardView = ({
               onAddStatus={handleAddStatus}
               onEditStatus={handleEditStatus}
               onDeleteStatus={handleDeleteStatus}
+              isLocked={isColumnsLocked}
+              onToggleLock={() => setIsColumnsLocked(!isColumnsLocked)}
+              onMoveLeft={() => handleMoveColumn(status, 'left')}
+              onMoveRight={() => handleMoveColumn(status, 'right')}
+              canMoveLeft={canMoveLeft(status)}
+              canMoveRight={canMoveRight(status)}
             />
           ))}
         </div>
@@ -263,6 +314,12 @@ type TaskColumnProps = {
   onEditStatus: (status: string) => void;
   onDeleteStatus: (status: string) => void;
   onAddStatus: () => void;
+  isLocked: boolean;
+  onToggleLock: () => void;
+  onMoveLeft: () => void;
+  onMoveRight: () => void;
+  canMoveLeft: boolean;
+  canMoveRight: boolean;
 };
 
 const TaskColumn = ({
@@ -273,6 +330,12 @@ const TaskColumn = ({
   onEditStatus,
   onDeleteStatus,
   onAddStatus,
+  isLocked,
+  onToggleLock,
+  onMoveLeft,
+  onMoveRight,
+  canMoveLeft,
+  canMoveRight,
 }: TaskColumnProps) => {
   const [{ isOver }, drop] = useDrop(() => ({
     accept: "task",
@@ -345,6 +408,45 @@ const TaskColumn = ({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
+              {/* Lock/Unlock toggle */}
+              <DropdownMenuItem onClick={onToggleLock}>
+                {isLocked ? (
+                  <>
+                    <Unlock className="h-4 w-4 mr-2" />
+                    Unlock Columns
+                  </>
+                ) : (
+                  <>
+                    <Lock className="h-4 w-4 mr-2" />
+                    Lock Columns
+                  </>
+                )}
+              </DropdownMenuItem>
+
+              {/* Move options - only show when unlocked */}
+              {!isLocked && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={onMoveLeft}
+                    disabled={!canMoveLeft}
+                    className={!canMoveLeft ? "opacity-50 cursor-not-allowed" : ""}
+                  >
+                    <ChevronLeft className="h-4 w-4 mr-2" />
+                    Move Left
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={onMoveRight}
+                    disabled={!canMoveRight}
+                    className={!canMoveRight ? "opacity-50 cursor-not-allowed" : ""}
+                  >
+                    <ChevronRight className="h-4 w-4 mr-2" />
+                    Move Right
+                  </DropdownMenuItem>
+                </>
+              )}
+
+              <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => onAddStatus()}>
                 <Plus className="h-4 w-4 mr-2" />
                 Add Status

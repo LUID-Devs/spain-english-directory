@@ -1586,6 +1586,27 @@ export const useDeleteStatusMutation = () => {
   return [mutationWrapper, { isLoading: false }];
 };
 
+export const useReorderStatusesMutation = () => {
+  const reorderStatuses = useCallback(async ({ projectId, statusIds }: { projectId: number; statusIds: number[] }) => {
+    const loadingToast = toast.loading('Reordering statuses...');
+
+    try {
+      const result = await apiService.reorderStatuses(projectId, statusIds);
+      toast.success('Statuses reordered successfully!', { id: loadingToast });
+      return result;
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to reorder statuses', { id: loadingToast });
+      throw error;
+    }
+  }, []);
+
+  const mutationWrapper = useCallback((args: { projectId: number; statusIds: number[] }) => ({
+    unwrap: () => reorderStatuses(args)
+  }), [reorderStatuses]);
+
+  return [mutationWrapper, { isLoading: false }];
+};
+
 // Export types and enums
 export { Status, Priority, TaskType } from '@/services/apiService';
 export type { Task, Project, User, Comment, Attachment, UserWithStats, TaskStatus } from '@/services/apiService';
