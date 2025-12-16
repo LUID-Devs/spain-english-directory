@@ -35,8 +35,10 @@ import {
   ChevronLeft,
   ChevronRight,
   GripVertical,
-  Copy
+  Copy,
+  Share2
 } from "lucide-react";
+import { toast } from "sonner";
 import { format, formatDistanceToNow, isAfter, isBefore } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -552,7 +554,19 @@ const Task = ({ task, onTaskSelect }: TaskProps) => {
       case 'duplicate':
         await handleDuplicateTask();
         break;
+      case 'share':
+        handleShareTask();
+        break;
     }
+  };
+
+  const handleShareTask = () => {
+    const taskUrl = `${window.location.origin}/dashboard/tasks/${task.id}`;
+    navigator.clipboard.writeText(taskUrl).then(() => {
+      toast.success("Link copied to clipboard");
+    }).catch(() => {
+      toast.error("Failed to copy link");
+    });
   };
 
   const handleDuplicateTask = async () => {
@@ -715,6 +729,13 @@ const Task = ({ task, onTaskSelect }: TaskProps) => {
                 >
                   <Copy className="h-3 w-3" />
                   {isDuplicating ? 'Duplicating...' : 'Duplicate'}
+                </button>
+                <button
+                  onClick={(e) => handleMenuAction('share', e)}
+                  className="flex items-center gap-2 w-full px-3 py-1.5 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                >
+                  <Share2 className="h-3 w-3" />
+                  Share
                 </button>
                 <div className="border-t border-gray-100 dark:border-gray-600 my-1" />
                 <button
