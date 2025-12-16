@@ -52,8 +52,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
-import TaskDetailModal from "@/components/TaskDetailModal";
 import DeleteTaskModal from "@/components/DeleteTaskModal";
+import { useTaskModal } from "@/contexts/TaskModalContext";
 import type { DropTargetMonitor, DragSourceMonitor } from 'react-dnd';
 import {
   Dialog,
@@ -111,7 +111,12 @@ const BoardView = ({
 
   const [updateTask] = useUpdateTaskMutation();
   const [reorderStatuses] = useReorderStatusesMutation();
-  const [selectedTask, setSelectedTask] = React.useState<{ taskId: number; editMode: boolean } | null>(null);
+  const { openTaskModal } = useTaskModal();
+
+  // Handle task selection - use context to open modal with URL change
+  const handleTaskSelect = (task: { taskId: number; editMode: boolean }) => {
+    openTaskModal(task.taskId, Number(id), task.editMode);
+  };
 
   // Status management state
   const [isStatusModalOpen, setIsStatusModalOpen] = React.useState(false);
@@ -256,7 +261,7 @@ const BoardView = ({
               status={status}
               tasks={tasks || []}
               moveTask={moveTask}
-              onTaskSelect={setSelectedTask}
+              onTaskSelect={handleTaskSelect}
               onAddStatus={handleAddStatus}
               onEditStatus={handleEditStatus}
               onDeleteStatus={handleDeleteStatus}
@@ -270,17 +275,6 @@ const BoardView = ({
           ))}
         </div>
       </DndProvider>
-      
-      {/* Task Detail Modal */}
-      {selectedTask && (
-        <TaskDetailModal
-          isOpen={true}
-          onClose={() => setSelectedTask(null)}
-          taskId={selectedTask.taskId}
-          projectId={Number(id)}
-          editMode={selectedTask.editMode}
-        />
-      )}
 
       {/* Status Management Modal */}
       <StatusManagementModal
