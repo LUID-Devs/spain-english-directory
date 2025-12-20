@@ -3,16 +3,29 @@ import { subscribeWithSelector } from 'zustand/middleware';
 import { subscriptionApi, type SubscriptionData, type SubscriptionPlan } from '@/lib/subscription-api';
 import { SUBSCRIPTION_PLANS } from '@/lib/stripe';
 
+// LuidHub API URL for subscription status
+const LUIDHUB_API_URL = process.env.NEXT_PUBLIC_LUIDHUB_API_URL || 'https://api.luidhub.com/api';
+
+interface LuidHubSubscription {
+  planType: string;
+  status: string;
+  currentPeriodEnd?: string;
+}
+
 interface SubscriptionState {
   subscriptionData: SubscriptionData | null;
   loading: boolean;
   error: string | null;
-  
+
+  // LuidHub subscription state
+  luidHubSubscription: LuidHubSubscription | null;
+  isPro: boolean;
+
   // Computed getters
   isSubscribed: boolean;
   isPremium: boolean;
   currentPlan: SubscriptionPlan | null;
-  
+
   // Actions
   setSubscriptionData: (data: SubscriptionData | null) => void;
   setLoading: (loading: boolean) => void;
@@ -20,6 +33,7 @@ interface SubscriptionState {
   refreshSubscription: () => Promise<void>;
   canCreateTask: () => Promise<{ canCreate: boolean; reason?: string; upgradeRequired?: boolean }>;
   initializeSubscription: () => Promise<void>;
+  fetchLuidHubSubscription: () => Promise<LuidHubSubscription | null>;
 }
 
 export const useSubscriptionStore = create<SubscriptionState>()(
@@ -28,6 +42,8 @@ export const useSubscriptionStore = create<SubscriptionState>()(
     subscriptionData: null,
     loading: true,
     error: null,
+    luidHubSubscription: null,
+    isPro: false,
     
     // Computed getters
     get isSubscribed() {
@@ -36,9 +52,13 @@ export const useSubscriptionStore = create<SubscriptionState>()(
     },
     
     get isPremium() {
+      // Check LuidHub Pro status first
+      const isPro = get().isPro;
+      if (isPro) return true;
+
       const data = get().subscriptionData;
       const isSubscribed = get().isSubscribed;
-      return isSubscribed && 
+      return isSubscribed &&
              (data?.subscription?.name === 'Pro' || data?.subscription?.name === 'Enterprise');
     },
     
@@ -94,7 +114,7 @@ export const useSubscriptionStore = create<SubscriptionState>()(
       } catch (err) {
         const subEnd = Date.now();
         console.error('[SUBSCRIPTION] Subscription fetch failed after:', subEnd - subStart, 'ms', err);
-        set({ 
+        set({
           error: 'Failed to load subscription data',
           loading: false,
           subscriptionData: {
@@ -109,22 +129,65 @@ export const useSubscriptionStore = create<SubscriptionState>()(
         });
       }
     },
+
+    // Fetch subscription status from LuidHub
+    fetchLuidHubSubscription: async () => {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      if (!token) {
+        set({ luidHubSubscription: null, isPro: false });
+        return null;
+      }
+
+      try {
+        const response = await fetch(`${LUIDHUB_API_URL}/subscription/status`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch subscription status');
+        }
+
+        const data = await response.json();
+        const isPro = data.planType === 'pro' && data.status === 'active';
+
+        set({
+          luidHubSubscription: data,
+          isPro,
+        });
+
+        return data;
+      } catch (error) {
+        console.error('Error fetching LuidHub subscription:', error);
+        set({
+          luidHubSubscription: null,
+          isPro: false,
+        });
+        return null;
+      }
+    },
   }))
 );
 
 // Helper hooks for subscription data
 export const useSubscription = () => {
-  const { 
-    subscriptionData, 
-    loading, 
-    error, 
-    isSubscribed, 
-    isPremium, 
+  const {
+    subscriptionData,
+    loading,
+    error,
+    isSubscribed,
+    isPremium,
     currentPlan,
     refreshSubscription,
-    canCreateTask 
+    canCreateTask,
+    isPro,
+    luidHubSubscription,
+    fetchLuidHubSubscription,
   } = useSubscriptionStore();
-  
+
   return {
     subscriptionData,
     loading,
@@ -133,7 +196,10 @@ export const useSubscription = () => {
     isPremium,
     currentPlan,
     refreshSubscription,
-    canCreateTask
+    canCreateTask,
+    isPro,
+    luidHubSubscription,
+    fetchLuidHubSubscription,
   };
 };
 
