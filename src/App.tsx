@@ -31,6 +31,7 @@ import BacklogPriorityPage from '@/pages/dashboard/priority/BacklogPriorityPage'
 // Other Pages
 import LandingPage from '@/pages/landing/LandingPage';
 import PricingPage from '@/pages/pricing/PricingPage';
+import InviteAcceptPage from '@/pages/organizations/invite/InviteAcceptPage';
 
 function App() {
   const { isDarkMode } = useGlobalStore();
@@ -54,6 +55,9 @@ function App() {
         <Route path="/auth/login" element={<LoginPage />} />
         <Route path="/auth/register" element={<RegisterPage />} />
         <Route path="/auth/callback" element={<OAuthCallbackPage />} />
+
+        {/* Organization Routes */}
+        <Route path="/organizations/invite/:token" element={<InviteAcceptPage />} />
         
         {/* Dashboard Routes (Protected) */}
         <Route path="/dashboard/*" element={

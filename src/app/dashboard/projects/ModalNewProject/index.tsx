@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Loader2, FolderPlus, Calendar, FileText } from "lucide-react";
 
 type Props = {
   isOpen: boolean;
@@ -55,78 +55,132 @@ const ModalNewProject = ({ isOpen, onClose }: Props) => {
     }
   };
 
+  const handleClose = () => {
+    setProjectName("");
+    setDescription("");
+    setStartDate("");
+    setEndDate("");
+    setError("");
+    onClose();
+  };
+
   const isFormValid = () => {
-    return projectName && description && startDate && endDate;
+    return projectName && startDate && endDate;
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} name="Create New Project">
+    <Modal isOpen={isOpen} onClose={handleClose} name="Create New Project">
       <form
-        className="mt-4 space-y-6"
+        className="space-y-5"
         onSubmit={(e) => {
           e.preventDefault();
           handleSubmit();
         }}
       >
-        <div className="space-y-2">
-          <Label htmlFor="projectName">Project Name</Label>
-          <Input
-            id="projectName"
-            type="text"
-            placeholder="Project Name"
-            value={projectName}
-            onChange={(e) => setProjectName(e.target.value)}
-          />
-        </div>
+        {/* Header description */}
+        <p className="text-sm text-muted-foreground">
+          Create a new project to organize your tasks and collaborate with your team.
+        </p>
 
-        <div className="space-y-2">
-          <Label htmlFor="description">Description</Label>
-          <Textarea
-            id="description"
-            placeholder="Description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows={3}
-          />
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div className="space-y-2">
-            <Label htmlFor="startDate">Start Date</Label>
-            <Input
-              id="startDate"
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="endDate">End Date</Label>
-            <Input
-              id="endDate"
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-            />
-          </div>
-        </div>
-        
         {error && (
           <Alert variant="destructive">
             <AlertTriangle className="h-4 w-4" />
-            <AlertDescription>
-              {error}
-            </AlertDescription>
+            <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
 
-        <Button
-          type="submit"
-          className="w-full"
-          disabled={!isFormValid() || isLoading}
-        >
-          {isLoading ? "Creating..." : "Create Project"}
-        </Button>
+        {/* Project Name */}
+        <div className="space-y-2">
+          <Label htmlFor="projectName" className="flex items-center gap-2">
+            <FolderPlus className="h-4 w-4 text-muted-foreground" />
+            Project Name *
+          </Label>
+          <Input
+            id="projectName"
+            type="text"
+            placeholder="e.g., Website Redesign"
+            value={projectName}
+            onChange={(e) => setProjectName(e.target.value)}
+            className="h-11"
+            autoFocus
+          />
+        </div>
+
+        {/* Description */}
+        <div className="space-y-2">
+          <Label htmlFor="description" className="flex items-center gap-2">
+            <FileText className="h-4 w-4 text-muted-foreground" />
+            Description
+          </Label>
+          <Textarea
+            id="description"
+            placeholder="What is this project about? (optional)"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={3}
+            className="resize-none"
+          />
+        </div>
+
+        {/* Date Range */}
+        <div className="space-y-2">
+          <Label className="flex items-center gap-2">
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+            Project Timeline *
+          </Label>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <span className="text-xs text-muted-foreground">Start Date</span>
+              <Input
+                id="startDate"
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="h-11"
+              />
+            </div>
+            <div className="space-y-1">
+              <span className="text-xs text-muted-foreground">End Date</span>
+              <Input
+                id="endDate"
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="h-11"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex gap-3 pt-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleClose}
+            disabled={isLoading}
+            className="flex-1 h-11"
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            className="flex-1 h-11 bg-primary hover:bg-primary/90"
+            disabled={!isFormValid() || isLoading}
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Creating...
+              </>
+            ) : (
+              <>
+                <FolderPlus className="w-4 h-4 mr-2" />
+                Create Project
+              </>
+            )}
+          </Button>
+        </div>
       </form>
     </Modal>
   );

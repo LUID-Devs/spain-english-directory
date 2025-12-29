@@ -441,7 +441,15 @@ const SettingsPage = () => {
         <CardHeader>
           <CardTitle className="text-2xl font-semibold">Subscription & Billing</CardTitle>
           <CardDescription>
-            Manage your subscription plan and billing information
+            Manage your subscription plan and billing information. All billing is handled through{' '}
+            <a
+              href="https://luidhub.com/account"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:underline"
+            >
+              LuidHub
+            </a>.
           </CardDescription>
         </CardHeader>
         <CardContent>

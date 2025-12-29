@@ -28,8 +28,10 @@ import {
   Archive,
   Zap,
   CheckSquare,
-  ClipboardList
+  ClipboardList,
+  UserPlus
 } from "lucide-react";
+import InviteToWorkspaceModal from "@/components/InviteToWorkspaceModal";
 import { useLocation, Link } from "react-router-dom";
 import { useGlobalStore } from "@/stores/globalStore";
 import { useGetProjectsQuery, useGetTeamsQuery } from "@/hooks/useApi";
@@ -42,6 +44,7 @@ import { cn } from "@/lib/utils";
 const Sidebar = () => {
   const [showProjects, setShowProjects] = useState(false);
   const [showPriority, setShowPriority] = useState(false);
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
 
   const { isSidebarCollapsed, toggleSidebar } = useGlobalStore();
 
@@ -193,9 +196,25 @@ const Sidebar = () => {
           <nav className="space-y-1">
             <SidebarLink href="/dashboard/teams" icon={Users} label="All Teams" />
             <SidebarLink href="/dashboard/users" icon={User} label="Members" />
+            {/* Invite Members - only for team workspaces */}
+            {!auth.activeOrganization?.settings?.isPersonal && (
+              <button
+                onClick={() => setIsInviteModalOpen(true)}
+                className="flex w-full items-center gap-3 px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors"
+              >
+                <UserPlus className="h-4 w-4" />
+                <span>Invite Members</span>
+              </button>
+            )}
           </nav>
         </div>
       </div>
+
+      {/* Invite Modal */}
+      <InviteToWorkspaceModal
+        isOpen={isInviteModalOpen}
+        onClose={() => setIsInviteModalOpen(false)}
+      />
 
       {/* USER PROFILE (Mobile) */}
       <div className="z-10 flex w-full flex-col items-center gap-4 bg-background px-6 py-4 border-t border-border md:hidden">

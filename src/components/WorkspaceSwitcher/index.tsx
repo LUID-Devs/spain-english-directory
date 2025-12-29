@@ -1,13 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../app/authProvider';
-import { ChevronDown, Check, Building2, User, Plus } from 'lucide-react';
+import { ChevronDown, Check, Building2, User, Plus, UserPlus, Settings } from 'lucide-react';
 import CreateWorkspaceModal from '../CreateWorkspaceModal';
+import InviteToWorkspaceModal from '../InviteToWorkspaceModal';
 
 const WorkspaceSwitcher: React.FC = () => {
   const { organizations, activeOrganization, switchWorkspace } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown when clicking outside
@@ -134,6 +136,19 @@ const WorkspaceSwitcher: React.FC = () => {
 
           {/* Footer Actions */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-1">
+            {/* Invite Members - only show for non-personal workspaces where user is admin/owner */}
+            {!activeOrganization.settings?.isPersonal && (
+              <button
+                onClick={() => {
+                  setIsOpen(false);
+                  setIsInviteModalOpen(true);
+                }}
+                className="w-full flex items-center gap-3 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-600 dark:text-gray-400"
+              >
+                <UserPlus className="w-5 h-5" />
+                <span>Invite Members</span>
+              </button>
+            )}
             <button
               onClick={() => {
                 setIsOpen(false);
@@ -152,6 +167,12 @@ const WorkspaceSwitcher: React.FC = () => {
       <CreateWorkspaceModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
+      />
+
+      {/* Invite to Workspace Modal */}
+      <InviteToWorkspaceModal
+        isOpen={isInviteModalOpen}
+        onClose={() => setIsInviteModalOpen(false)}
       />
 
       {/* Loading Overlay */}

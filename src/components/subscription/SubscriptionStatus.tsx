@@ -76,7 +76,7 @@ export function SubscriptionStatus({
           <Button
             size="sm"
             variant="outline"
-            onClick={() => navigate('/pricing')}
+            onClick={() => window.open('https://luidhub.com/pricing', '_blank')}
           >
             <ArrowUp size={14} className="mr-1" />
             Upgrade
@@ -145,7 +145,7 @@ export function SubscriptionStatus({
               }
             </p>
             <Button
-              onClick={() => navigate('/pricing')}
+              onClick={() => window.open('https://luidhub.com/pricing', '_blank')}
               size="sm"
             >
               <ArrowUp size={14} className="mr-2" />
@@ -158,7 +158,7 @@ export function SubscriptionStatus({
           <div className="mt-4">
             <Button
               variant="outline"
-              onClick={() => navigate('/pricing')}
+              onClick={() => window.open('https://luidhub.com/pricing', '_blank')}
               size="sm"
             >
               <ArrowUp size={14} className="mr-2" />

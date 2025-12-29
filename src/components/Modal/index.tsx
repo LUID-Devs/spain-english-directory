@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
-import Header from "../Header";
 import { X } from "lucide-react";
 
 type Props = {
@@ -69,19 +68,18 @@ const Modal = ({ children, isOpen, onClose, name }: Props) => {
         }`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="sticky top-0 z-10 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md rounded-t-2xl border-b border-gray-200/50 dark:border-gray-700/50">
-          <Header
-            name={name}
-            buttonComponent={
-              <button
-                className="flex h-8 w-8 items-center justify-center rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
-                onClick={onClose}
-              >
-                <X size={18} />
-              </button>
-            }
-            isSmallText
-          />
+        <div className="sticky top-0 z-10 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md rounded-t-2xl border-b border-gray-200/50 dark:border-gray-700/50 px-6 py-4">
+          <div className="flex w-full items-center justify-between">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+              {name}
+            </h2>
+            <button
+              className="flex h-8 w-8 items-center justify-center rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+              onClick={onClose}
+            >
+              <X size={18} />
+            </button>
+          </div>
         </div>
         <div className="p-6">
           {children}
