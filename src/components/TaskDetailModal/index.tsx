@@ -271,7 +271,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
           ) : error || !task ? (
             <div className="text-center py-8">
               <h3 className="text-lg font-semibold mb-2">Task Not Found</h3>
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className="text-muted-foreground">
                 The task you're looking for doesn't exist or has been deleted.
               </p>
             </div>

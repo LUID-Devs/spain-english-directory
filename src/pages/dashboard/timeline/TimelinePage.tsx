@@ -214,12 +214,12 @@ const TimelinePage = () => {
   // Show loading while authenticating or fetching data
   if (authLoading || tasksLoading || projectsLoading) {
     return (
-      <div className="container h-full w-[100%] bg-gray-100 bg-transparent p-8">
+      <div className="container h-full w-[100%] bg-background p-8">
         <Header name="Timeline" />
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-            <p className="text-gray-600">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground">
               {authLoading ? "Authenticating..." : "Loading activity timeline..."}
             </p>
           </div>
@@ -231,14 +231,14 @@ const TimelinePage = () => {
   // Redirect to login if not authenticated
   if (!isAuthenticated || !user) {
     return (
-      <div className="container h-full w-[100%] bg-gray-100 bg-transparent p-8">
+      <div className="container h-full w-[100%] bg-background p-8">
         <Header name="Timeline" />
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
-            <p className="text-red-600 mb-4">Authentication required</p>
-            <button 
-              onClick={() => window.location.href = '/auth/login'} 
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            <p className="text-destructive mb-4">Authentication required</p>
+            <button
+              onClick={() => window.location.href = '/auth/login'}
+              className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90"
             >
               Go to Login
             </button>
@@ -250,20 +250,20 @@ const TimelinePage = () => {
 
 
   return (
-    <div className="container h-full w-[100%] bg-gray-100 bg-transparent p-8">
+    <div className="container h-full w-[100%] bg-background p-8">
       <Header name="Activity Timeline" />
-      
+
       {/* Welcome Section with Stats */}
-      <div className="mb-6 bg-white dark:bg-dark-secondary rounded-lg p-6 shadow">
+      <div className="mb-6 bg-card border border-border rounded-lg p-6 shadow">
         <div className="flex flex-col lg:flex-row gap-6 items-start lg:items-center justify-between">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <Activity className="h-6 w-6 text-blue-600" />
-              <h2 className="text-xl font-semibold dark:text-white">
+              <Activity className="h-6 w-6 text-primary" />
+              <h2 className="text-xl font-semibold text-foreground">
                 Activity Timeline
               </h2>
             </div>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-muted-foreground">
               Track all activities across your projects and tasks
             </p>
           </div>
@@ -291,25 +291,25 @@ const TimelinePage = () => {
       </div>
       
       {/* Search and Filters */}
-      <div className="mb-6 bg-white dark:bg-dark-secondary rounded-lg p-4 shadow">
+      <div className="mb-6 bg-card border border-border rounded-lg p-4 shadow">
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
           {/* Search */}
           <div className="relative flex-1">
-            <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
             <input
               type="text"
               placeholder="Search activities..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+              className="w-full pl-10 pr-4 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary bg-background text-foreground"
             />
           </div>
-          
+
           {/* Filter */}
           <select
             value={filterType}
             onChange={(e) => setFilterType(e.target.value as ActivityType | 'all')}
-            className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+            className="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary bg-background text-foreground"
           >
             <option value="all">All Activities</option>
             <option value="task_created">Task Created</option>
@@ -342,13 +342,13 @@ const TimelinePage = () => {
       {/* Timeline Activities */}
       <div className="space-y-6">
         {Object.entries(groupedActivities).length === 0 ? (
-          <div className="bg-white dark:bg-dark-secondary rounded-lg p-12 shadow text-center">
-            <Sparkles className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+          <div className="bg-card border border-border rounded-lg p-12 shadow text-center">
+            <Sparkles className="h-16 w-16 text-muted-foreground/50 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-foreground mb-2">
               No Recent Activity
             </h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
-              {searchQuery ? 
+            <p className="text-muted-foreground mb-6">
+              {searchQuery ?
                 `No activities found matching "${searchQuery}"` :
                 "Start creating tasks and projects to see your activity timeline."
               }
@@ -356,7 +356,7 @@ const TimelinePage = () => {
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
               >
                 Clear Search
               </button>
@@ -364,22 +364,22 @@ const TimelinePage = () => {
           </div>
         ) : (
           Object.entries(groupedActivities).map(([dateGroup, activities]) => (
-            <div key={dateGroup} className="bg-white dark:bg-dark-secondary rounded-lg shadow">
+            <div key={dateGroup} className="bg-card border border-border rounded-lg shadow">
               {/* Date Header */}
-              <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+              <div className="px-6 py-4 border-b border-border">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  <h3 className="text-lg font-semibold text-foreground">
                     {dateGroup}
                   </h3>
-                  <span className="text-sm text-gray-500 dark:text-gray-400 flex items-center">
+                  <span className="text-sm text-muted-foreground flex items-center">
                     <TrendingUp className="h-4 w-4 mr-1" />
                     {activities.length} {activities.length === 1 ? 'activity' : 'activities'}
                   </span>
                 </div>
               </div>
-              
+
               {/* Activities List */}
-              <div className="divide-y divide-gray-200 dark:divide-gray-700">
+              <div className="divide-y divide-border">
                 {activities.map((activity) => (
                   <ActivityCard key={activity.id} activity={activity} />
                 ))}
@@ -388,11 +388,11 @@ const TimelinePage = () => {
           ))
         )}
       </div>
-      
+
       {/* Show more activities hint */}
       {timelineActivities.length > 0 && (
         <div className="mt-8 text-center">
-          <p className="text-gray-500 dark:text-gray-400 text-sm">
+          <p className="text-muted-foreground text-sm">
             Showing {timelineActivities.length} recent activities
           </p>
         </div>

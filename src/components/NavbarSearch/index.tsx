@@ -251,7 +251,7 @@ const NavbarSearch: React.FC<NavbarSearchProps> = ({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.15 }}
-              className="absolute top-full left-0 right-0 z-[9999] mt-1 bg-white dark:bg-gray-900 border border-border rounded-lg shadow-xl max-h-[70vh] overflow-y-auto backdrop-blur-sm"
+              className="absolute top-full left-0 right-0 z-[9999] mt-1 bg-background border border-border rounded-lg shadow-xl max-h-[70vh] overflow-y-auto"
             >
               {isLoading && (
                 <div key="loading" className="flex items-center justify-center py-8">

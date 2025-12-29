@@ -1,20 +1,52 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "@/app/authProvider";
+import { fetchAuthSession } from 'aws-amplify/auth';
 import { SubscriptionDashboard } from "@/components/subscription/SubscriptionDashboard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Edit, Key, Shield, User, Mail, Users, Settings as SettingsIcon } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Edit, Key, Shield, User, Mail, Users, Settings as SettingsIcon, Building2, Crown, UserMinus, Loader2, AlertTriangle, LogOut, UserPlus } from "lucide-react";
 import { cn } from "@/lib/utils";
+import InviteToWorkspaceModal from "@/components/InviteToWorkspaceModal";
+
+// Types for workspace data
+interface WorkspaceMember {
+  odId: number;
+  odUserId: number;
+  organizationId: number;
+  userId: number;
+  role: string;
+  status: string;
+  joinedAt: string;
+  user: {
+    userId: number;
+    username: string;
+    email: string;
+    profilePictureUrl?: string;
+  };
+}
+
+interface WorkspaceData {
+  id: number;
+  name: string;
+  description?: string;
+  slug: string;
+  logoUrl?: string;
+  settings?: {
+    isPersonal?: boolean;
+  };
+}
 
 const SettingsPage = () => {
-  const { user } = useAuth();
+  const { user, activeOrganization, refreshAuth } = useAuth();
 
   // Check if user is authenticated via Google OAuth
   const isGoogleAuth = user?.sub?.includes('-') || false; // Cognito IDs have hyphens
@@ -42,6 +74,186 @@ const SettingsPage = () => {
   const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
   const [isPasswordLoading, setIsPasswordLoading] = useState(false);
   const [isProfileLoading, setIsProfileLoading] = useState(false);
+
+  // Workspace state
+  const [workspaceData, setWorkspaceData] = useState<WorkspaceData | null>(null);
+  const [workspaceMembers, setWorkspaceMembers] = useState<WorkspaceMember[]>([]);
+  const [isWorkspaceLoading, setIsWorkspaceLoading] = useState(true);
+  const [workspaceError, setWorkspaceError] = useState<string | null>(null);
+  const [isEditWorkspaceOpen, setIsEditWorkspaceOpen] = useState(false);
+  const [isLeaveDialogOpen, setIsLeaveDialogOpen] = useState(false);
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const [workspaceForm, setWorkspaceForm] = useState({ name: '', description: '' });
+  const [isSavingWorkspace, setIsSavingWorkspace] = useState(false);
+  const [isLeavingWorkspace, setIsLeavingWorkspace] = useState(false);
+  const [currentUserRole, setCurrentUserRole] = useState<string>('member');
+
+  // Get auth headers helper
+  const getAuthHeaders = async (): Promise<HeadersInit> => {
+    const headers: HeadersInit = { 'Content-Type': 'application/json' };
+    try {
+      const session = await fetchAuthSession();
+      if (session?.tokens?.accessToken) {
+        headers['Authorization'] = `Bearer ${session.tokens.accessToken}`;
+      }
+      if (session?.tokens?.idToken) {
+        headers['X-ID-Token'] = `${session.tokens.idToken}`;
+      }
+    } catch (e) {
+      console.log('No Cognito session');
+    }
+    return headers;
+  };
+
+  // Fetch workspace data and members
+  useEffect(() => {
+    const fetchWorkspaceData = async () => {
+      if (!activeOrganization?.id) {
+        setIsWorkspaceLoading(false);
+        return;
+      }
+
+      setIsWorkspaceLoading(true);
+      setWorkspaceError(null);
+
+      try {
+        const headers = await getAuthHeaders();
+        const orgId = activeOrganization.id;
+
+        // Fetch workspace details and members in parallel
+        const [orgResponse, membersResponse] = await Promise.all([
+          fetch(`${import.meta.env.VITE_API_BASE_URL}/organizations/${orgId}`, {
+            credentials: 'include',
+            headers,
+          }),
+          fetch(`${import.meta.env.VITE_API_BASE_URL}/organizations/${orgId}/members`, {
+            credentials: 'include',
+            headers,
+          }),
+        ]);
+
+        if (orgResponse.ok) {
+          const orgData = await orgResponse.json();
+          if (orgData.success) {
+            setWorkspaceData(orgData.data);
+            setWorkspaceForm({
+              name: orgData.data.name || '',
+              description: orgData.data.description || '',
+            });
+          }
+        }
+
+        if (membersResponse.ok) {
+          const membersData = await membersResponse.json();
+          if (membersData.success) {
+            setWorkspaceMembers(membersData.data || []);
+            // Find current user's role
+            const currentMember = membersData.data?.find(
+              (m: WorkspaceMember) => m.user?.email?.toLowerCase() === user?.email?.toLowerCase()
+            );
+            if (currentMember) {
+              setCurrentUserRole(currentMember.role);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching workspace data:', error);
+        setWorkspaceError('Failed to load workspace data');
+      } finally {
+        setIsWorkspaceLoading(false);
+      }
+    };
+
+    fetchWorkspaceData();
+  }, [activeOrganization?.id, user?.email]);
+
+  // Handle workspace update
+  const handleWorkspaceUpdate = async () => {
+    if (!activeOrganization?.id || !workspaceForm.name.trim()) return;
+
+    setIsSavingWorkspace(true);
+
+    try {
+      const headers = await getAuthHeaders();
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/organizations/${activeOrganization.id}`,
+        {
+          method: 'PUT',
+          credentials: 'include',
+          headers,
+          body: JSON.stringify({
+            name: workspaceForm.name.trim(),
+            description: workspaceForm.description.trim() || null,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setWorkspaceData(data.data);
+        setIsEditWorkspaceOpen(false);
+        await refreshAuth();
+      } else {
+        setWorkspaceError(data.message || 'Failed to update workspace');
+      }
+    } catch (error) {
+      console.error('Error updating workspace:', error);
+      setWorkspaceError('Failed to update workspace');
+    } finally {
+      setIsSavingWorkspace(false);
+    }
+  };
+
+  // Handle leave workspace
+  const handleLeaveWorkspace = async () => {
+    if (!activeOrganization?.id) return;
+
+    setIsLeavingWorkspace(true);
+
+    try {
+      const headers = await getAuthHeaders();
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/organizations/${activeOrganization.id}/leave`,
+        {
+          method: 'POST',
+          credentials: 'include',
+          headers,
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setIsLeaveDialogOpen(false);
+        await refreshAuth();
+        window.location.href = '/dashboard';
+      } else {
+        setWorkspaceError(data.message || 'Failed to leave workspace');
+      }
+    } catch (error) {
+      console.error('Error leaving workspace:', error);
+      setWorkspaceError('Failed to leave workspace');
+    } finally {
+      setIsLeavingWorkspace(false);
+    }
+  };
+
+  // Get role badge variant
+  const getRoleBadge = (role: string) => {
+    switch (role) {
+      case 'owner':
+        return <Badge className="bg-yellow-500 hover:bg-yellow-600"><Crown className="h-3 w-3 mr-1" />Owner</Badge>;
+      case 'admin':
+        return <Badge className="bg-blue-500 hover:bg-blue-600"><Shield className="h-3 w-3 mr-1" />Admin</Badge>;
+      default:
+        return <Badge variant="secondary"><User className="h-3 w-3 mr-1" />Member</Badge>;
+    }
+  };
+
+  const isPersonalWorkspace = activeOrganization?.settings?.isPersonal;
+  const canEditWorkspace = currentUserRole === 'owner' || currentUserRole === 'admin';
+  const canInviteMembers = (currentUserRole === 'owner' || currentUserRole === 'admin') && !isPersonalWorkspace;
 
   const handlePasswordChange = async () => {
     setPasswordErrors([]);
@@ -435,6 +647,215 @@ const SettingsPage = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Workspace Settings */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Building2 className="h-5 w-5" />
+            Workspace Settings
+          </CardTitle>
+          <CardDescription>
+            Manage your current workspace settings and members
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {isWorkspaceLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : workspaceError ? (
+            <Alert variant="destructive">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription>{workspaceError}</AlertDescription>
+            </Alert>
+          ) : (
+            <>
+              {/* Workspace Info */}
+              <div className="space-y-4">
+                <div className="flex items-start justify-between">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-lg font-semibold">{workspaceData?.name || activeOrganization?.name}</h3>
+                      {isPersonalWorkspace && (
+                        <Badge variant="outline">Personal</Badge>
+                      )}
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      {workspaceData?.description || 'No description'}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Your role: {getRoleBadge(currentUserRole)}
+                    </p>
+                  </div>
+                  {canEditWorkspace && !isPersonalWorkspace && (
+                    <Dialog open={isEditWorkspaceOpen} onOpenChange={setIsEditWorkspaceOpen}>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" size="sm" className="gap-2">
+                          <Edit className="h-4 w-4" />
+                          Edit
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Edit Workspace</DialogTitle>
+                          <DialogDescription>
+                            Update your workspace name and description
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="workspace-name">Workspace Name</Label>
+                            <Input
+                              id="workspace-name"
+                              value={workspaceForm.name}
+                              onChange={(e) => setWorkspaceForm(prev => ({ ...prev, name: e.target.value }))}
+                              placeholder="Enter workspace name"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="workspace-description">Description</Label>
+                            <Textarea
+                              id="workspace-description"
+                              value={workspaceForm.description}
+                              onChange={(e) => setWorkspaceForm(prev => ({ ...prev, description: e.target.value }))}
+                              placeholder="Enter workspace description (optional)"
+                              rows={3}
+                            />
+                          </div>
+                        </div>
+                        <DialogFooter>
+                          <Button variant="outline" onClick={() => setIsEditWorkspaceOpen(false)}>
+                            Cancel
+                          </Button>
+                          <Button onClick={handleWorkspaceUpdate} disabled={isSavingWorkspace || !workspaceForm.name.trim()}>
+                            {isSavingWorkspace ? (
+                              <>
+                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                Saving...
+                              </>
+                            ) : (
+                              'Save Changes'
+                            )}
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                  )}
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Members Section */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="text-sm font-medium">Members</h4>
+                    <p className="text-xs text-muted-foreground">
+                      {workspaceMembers.length} member{workspaceMembers.length !== 1 ? 's' : ''} in this workspace
+                    </p>
+                  </div>
+                  {canInviteMembers && (
+                    <Button variant="outline" size="sm" className="gap-2" onClick={() => setIsInviteModalOpen(true)}>
+                      <UserPlus className="h-4 w-4" />
+                      Invite
+                    </Button>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  {workspaceMembers.map((member) => (
+                    <div
+                      key={member.odId || member.userId}
+                      className="flex items-center justify-between p-3 rounded-lg border bg-card"
+                    >
+                      <div className="flex items-center gap-3">
+                        {member.user?.profilePictureUrl ? (
+                          <img
+                            src={`https://pm-s3-images.s3.us-east-1.amazonaws.com/${member.user.profilePictureUrl}`}
+                            alt={member.user.username}
+                            className="h-9 w-9 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="h-9 w-9 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                            <span className="text-white text-sm font-medium">
+                              {member.user?.username?.charAt(0).toUpperCase() || '?'}
+                            </span>
+                          </div>
+                        )}
+                        <div>
+                          <p className="text-sm font-medium">{member.user?.username || 'Unknown'}</p>
+                          <p className="text-xs text-muted-foreground">{member.user?.email}</p>
+                        </div>
+                      </div>
+                      {getRoleBadge(member.role)}
+                    </div>
+                  ))}
+
+                  {workspaceMembers.length === 0 && (
+                    <p className="text-sm text-muted-foreground text-center py-4">
+                      No members found
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Leave Workspace Section - Only show for non-personal workspaces and non-owners */}
+              {!isPersonalWorkspace && currentUserRole !== 'owner' && (
+                <>
+                  <Separator />
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="text-sm font-medium text-destructive">Danger Zone</h4>
+                      <p className="text-xs text-muted-foreground">
+                        Leave this workspace. You'll lose access to all projects and tasks.
+                      </p>
+                    </div>
+                    <Dialog open={isLeaveDialogOpen} onOpenChange={setIsLeaveDialogOpen}>
+                      <DialogTrigger asChild>
+                        <Button variant="destructive" size="sm" className="gap-2">
+                          <LogOut className="h-4 w-4" />
+                          Leave Workspace
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Leave Workspace</DialogTitle>
+                          <DialogDescription>
+                            Are you sure you want to leave "{workspaceData?.name}"? You'll lose access to all projects and tasks in this workspace.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <DialogFooter>
+                          <Button variant="outline" onClick={() => setIsLeaveDialogOpen(false)}>
+                            Cancel
+                          </Button>
+                          <Button variant="destructive" onClick={handleLeaveWorkspace} disabled={isLeavingWorkspace}>
+                            {isLeavingWorkspace ? (
+                              <>
+                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                Leaving...
+                              </>
+                            ) : (
+                              'Leave Workspace'
+                            )}
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                </>
+              )}
+            </>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Invite Modal */}
+      <InviteToWorkspaceModal
+        isOpen={isInviteModalOpen}
+        onClose={() => setIsInviteModalOpen(false)}
+      />
 
       {/* Subscription Settings */}
       <Card>

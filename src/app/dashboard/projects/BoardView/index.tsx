@@ -687,7 +687,7 @@ const Task = ({ task, onTaskSelect }: TaskProps) => {
 
         {/* Title */}
         <div className="flex items-start justify-between gap-2">
-          <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 line-clamp-2 leading-tight flex-1">
+          <h4 className="text-sm font-semibold text-foreground line-clamp-2 leading-tight flex-1">
             {task.title}
           </h4>
 
@@ -695,23 +695,23 @@ const Task = ({ task, onTaskSelect }: TaskProps) => {
           <div className="relative flex-shrink-0">
             <button
               onClick={handleMenuClick}
-              className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+              className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-accent transition-all duration-200 text-muted-foreground hover:text-foreground"
             >
               <EllipsisVertical size={14} />
             </button>
 
             {showDropdown && (
-              <div className="absolute right-0 top-6 z-30 bg-white dark:bg-dark-secondary border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg py-1 w-32">
+              <div className="absolute right-0 top-6 z-30 bg-background border border-border rounded-lg shadow-lg py-1 w-32">
                 <button
                   onClick={(e) => handleMenuAction('view', e)}
-                  className="flex items-center gap-2 w-full px-3 py-1.5 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                  className="flex items-center gap-2 w-full px-3 py-1.5 text-xs text-foreground hover:bg-accent transition-colors"
                 >
                   <Eye className="h-3 w-3" />
                   View
                 </button>
                 <button
                   onClick={(e) => handleMenuAction('edit', e)}
-                  className="flex items-center gap-2 w-full px-3 py-1.5 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                  className="flex items-center gap-2 w-full px-3 py-1.5 text-xs text-foreground hover:bg-accent transition-colors"
                 >
                   <Edit className="h-3 w-3" />
                   Edit
@@ -719,22 +719,22 @@ const Task = ({ task, onTaskSelect }: TaskProps) => {
                 <button
                   onClick={(e) => handleMenuAction('duplicate', e)}
                   disabled={isDuplicating}
-                  className="flex items-center gap-2 w-full px-3 py-1.5 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+                  className="flex items-center gap-2 w-full px-3 py-1.5 text-xs text-foreground hover:bg-accent transition-colors disabled:opacity-50"
                 >
                   <Copy className="h-3 w-3" />
                   {isDuplicating ? 'Duplicating...' : 'Duplicate'}
                 </button>
                 <button
                   onClick={(e) => handleMenuAction('share', e)}
-                  className="flex items-center gap-2 w-full px-3 py-1.5 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                  className="flex items-center gap-2 w-full px-3 py-1.5 text-xs text-foreground hover:bg-accent transition-colors"
                 >
                   <Share2 className="h-3 w-3" />
                   Share
                 </button>
-                <div className="border-t border-gray-100 dark:border-gray-600 my-1" />
+                <div className="border-t border-border my-1" />
                 <button
                   onClick={(e) => handleMenuAction('delete', e)}
-                  className="flex items-center gap-2 w-full px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                  className="flex items-center gap-2 w-full px-3 py-1.5 text-xs text-destructive hover:bg-destructive/10 transition-colors"
                 >
                   <Trash2 className="h-3 w-3" />
                   Delete
@@ -766,7 +766,7 @@ const Task = ({ task, onTaskSelect }: TaskProps) => {
             </Badge>
           ))}
           {taskTagsSplit.length > 2 && (
-            <span className="text-[10px] text-gray-400">+{taskTagsSplit.length - 2}</span>
+            <span className="text-[10px] text-muted-foreground">+{taskTagsSplit.length - 2}</span>
           )}
         </div>
 
@@ -779,7 +779,7 @@ const Task = ({ task, onTaskSelect }: TaskProps) => {
         )}
 
         {/* Footer - Assignee and metadata */}
-        <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-700/50">
+        <div className="flex items-center justify-between pt-2 border-t border-border">
           {/* Assignee */}
           <div className="flex items-center gap-1.5">
             {task.assignee ? (
@@ -787,9 +787,9 @@ const Task = ({ task, onTaskSelect }: TaskProps) => {
                 <img
                   src={`https://luid-pm-s3-images.s3.us-east-1.amazonaws.com/${task.assignee.profilePictureUrl!}`}
                   alt={task.assignee.username}
-                  className="h-5 w-5 rounded-full border border-gray-200 dark:border-gray-600 object-cover"
+                  className="h-5 w-5 rounded-full border border-border object-cover"
                 />
-                <span className="text-xs text-gray-600 dark:text-gray-400">
+                <span className="text-xs text-muted-foreground">
                   {task.assignee.username}
                 </span>
               </>
@@ -798,19 +798,19 @@ const Task = ({ task, onTaskSelect }: TaskProps) => {
                 <img
                   src={`https://luid-pm-s3-images.s3.us-east-1.amazonaws.com/${task.author.profilePictureUrl!}`}
                   alt={task.author.username}
-                  className="h-5 w-5 rounded-full border border-gray-200 dark:border-gray-600 object-cover"
+                  className="h-5 w-5 rounded-full border border-border object-cover"
                 />
-                <span className="text-xs text-gray-600 dark:text-gray-400">
+                <span className="text-xs text-muted-foreground">
                   {task.author.username}
                 </span>
               </>
             ) : (
-              <span className="text-xs text-gray-400">Unassigned</span>
+              <span className="text-xs text-muted-foreground">Unassigned</span>
             )}
           </div>
 
           {/* Right side - dates and comments */}
-          <div className="flex items-center gap-2 text-gray-400">
+          <div className="flex items-center gap-2 text-muted-foreground">
             {formattedDueDate && (
               <div className="flex items-center gap-1 text-[10px]">
                 <Clock size={10} />

@@ -77,31 +77,31 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ activity }) => {
   };
 
   return (
-    <div className="p-6 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+    <div className="p-6 hover:bg-accent transition-colors">
       <div className="flex items-start space-x-4">
         {/* Activity Icon */}
         <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${getActivityColor(activity.type)}`}>
           {getActivityIcon(activity.type)}
         </div>
-        
+
         {/* Activity Content */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between">
             <div>
-              <h4 className="text-sm font-medium text-gray-900 dark:text-white">
+              <h4 className="text-sm font-medium text-foreground">
                 {activity.title}
               </h4>
-              <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+              <p className="text-sm text-muted-foreground mt-1">
                 {activity.description}
               </p>
             </div>
-            <time className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap ml-4">
+            <time className="text-xs text-muted-foreground whitespace-nowrap ml-4">
               {format(activity.timestamp, 'HH:mm')}
             </time>
           </div>
-          
+
           {/* Metadata */}
-          <div className="mt-2 flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-400">
+          <div className="mt-2 flex items-center space-x-4 text-xs text-muted-foreground">
             <span className="flex items-center">
               <Users className="h-3 w-3 mr-1" />
               {activity.user.name}

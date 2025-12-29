@@ -7,15 +7,15 @@ interface SearchSuggestionsProps {
   loading?: boolean;
 }
 
-const SearchSuggestions = ({ 
-  suggestions, 
-  onSuggestionClick, 
-  loading = false 
+const SearchSuggestions = ({
+  suggestions,
+  onSuggestionClick,
+  loading = false
 }: SearchSuggestionsProps) => {
   if (loading) {
     return (
-      <div className="absolute top-full left-0 right-0 bg-white border border-gray-300 rounded-md shadow-lg z-50 dark:bg-gray-800 dark:border-gray-600">
-        <div className="p-4 text-center text-gray-500 dark:text-gray-400">
+      <div className="bg-background border border-border rounded-md shadow-lg z-50">
+        <div className="p-4 text-center text-muted-foreground">
           Loading suggestions...
         </div>
       </div>
@@ -65,35 +65,35 @@ const SearchSuggestions = ({
   };
 
   return (
-    <div className="absolute top-full left-0 right-0 bg-white border border-gray-300 rounded-md shadow-lg z-50 max-h-80 overflow-y-auto dark:bg-gray-800 dark:border-gray-600">
+    <div className="bg-background border border-border rounded-md shadow-lg z-50 max-h-80 overflow-y-auto">
       {suggestions.map((suggestion, index) => (
         <div
           key={`${suggestion.type}-${suggestion.id}-${index}`}
           onClick={() => onSuggestionClick(suggestion)}
-          className="flex items-center space-x-3 px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0 dark:hover:bg-gray-700 dark:border-gray-600"
+          className="flex items-center space-x-3 px-4 py-3 hover:bg-accent cursor-pointer border-b border-border last:border-b-0"
         >
           <div className="flex-shrink-0">
             {getTypeIcon(suggestion.type)}
           </div>
-          
+
           <div className="flex-1 min-w-0">
             <div className="flex items-center space-x-2">
-              <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+              <p className="text-sm font-medium text-foreground truncate">
                 {suggestion.title}
               </p>
-              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">
+              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-muted text-muted-foreground">
                 {getTypeLabel(suggestion.type)}
               </span>
             </div>
             {suggestion.subtitle && (
-              <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
+              <p className="text-sm text-muted-foreground truncate">
                 {suggestion.subtitle}
               </p>
             )}
           </div>
-          
+
           <div className="flex-shrink-0">
-            <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </div>

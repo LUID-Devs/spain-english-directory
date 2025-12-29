@@ -1,27 +1,28 @@
 
 import React, { useState, useRef } from "react";
-import { 
-  useGetTaskAttachmentsQuery, 
-  useUploadAttachmentMutation, 
+import {
+  useGetTaskAttachmentsQuery,
+  useUploadAttachmentMutation,
   useDeleteAttachmentMutation,
-  Attachment 
+  Attachment
 } from "@/hooks/useApi";
 import { useCurrentUser } from "@/stores/userStore";
 import { useAuth } from "@/app/authProvider";
 import { format } from "date-fns";
-import { 
-  Paperclip, 
-  Upload, 
-  Download, 
-  Trash2, 
-  File, 
-  Image, 
+import {
+  Paperclip,
+  Upload,
+  Download,
+  Trash2,
+  File,
+  Image,
   FileText,
   FileAudio,
   FileVideo,
   Archive,
   X
 } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
 
 interface AttachmentsSectionProps {
   taskId: number;
@@ -31,13 +32,13 @@ const AttachmentsSection: React.FC<AttachmentsSectionProps> = ({ taskId }) => {
   const { data: attachments, isLoading, error } = useGetTaskAttachmentsQuery(taskId);
   const [uploadAttachment, { isLoading: isUploading }] = useUploadAttachmentMutation();
   const [deleteAttachment, { isLoading: isDeleting }] = useDeleteAttachmentMutation();
-  
+
   const auth = useAuth();
   const currentUserId = auth.user?.userId;
-  
+
   // Get current user's database info to compare userId for ownership
   const { currentUser } = useCurrentUser();
-  
+
   const [isDragging, setIsDragging] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<{ [key: string]: number }>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -88,7 +89,7 @@ const AttachmentsSection: React.FC<AttachmentsSectionProps> = ({ taskId }) => {
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
-    
+
     if (e.dataTransfer.files) {
       handleFileUpload(e.dataTransfer.files);
     }
@@ -131,14 +132,14 @@ const AttachmentsSection: React.FC<AttachmentsSectionProps> = ({ taskId }) => {
 
   const getFileIcon = (fileName: string) => {
     const extension = fileName?.toLowerCase().split('.').pop();
-    
+
     switch (extension) {
       case 'jpg':
       case 'jpeg':
       case 'png':
       case 'gif':
       case 'webp':
-        return <img className="h-4 w-4" />;
+        return <Image className="h-4 w-4" />;
       case 'pdf':
         return <FileText className="h-4 w-4" />;
       case 'mp3':
@@ -168,8 +169,8 @@ const AttachmentsSection: React.FC<AttachmentsSectionProps> = ({ taskId }) => {
 
   if (error) {
     return (
-      <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-        <p className="text-red-800 dark:text-red-200">Failed to load attachments</p>
+      <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-4">
+        <p className="text-destructive">Failed to load attachments</p>
       </div>
     );
   }
@@ -178,8 +179,8 @@ const AttachmentsSection: React.FC<AttachmentsSectionProps> = ({ taskId }) => {
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center gap-2">
-        <Paperclip className="h-5 w-5 text-gray-400" />
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+        <Paperclip className="h-5 w-5 text-muted-foreground" />
+        <h3 className="text-lg font-semibold text-foreground">
           Attachments ({attachments?.length || 0})
         </h3>
       </div>
@@ -188,8 +189,8 @@ const AttachmentsSection: React.FC<AttachmentsSectionProps> = ({ taskId }) => {
       <div
         className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors cursor-pointer ${
           isDragging
-            ? "border-blue-400 bg-blue-50 dark:bg-blue-900/20"
-            : "border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500"
+            ? "border-primary bg-primary/10"
+            : "border-border hover:border-primary/50"
         }`}
         onDrop={handleDrop}
         onDragOver={(e) => e.preventDefault()}
@@ -198,14 +199,14 @@ const AttachmentsSection: React.FC<AttachmentsSectionProps> = ({ taskId }) => {
         onClick={() => fileInputRef.current?.click()}
       >
         <div className="flex items-center justify-center gap-2">
-          <Upload className="h-5 w-5 text-gray-400" />
-          <p className="text-sm text-gray-600 dark:text-gray-400">
+          <Upload className="h-5 w-5 text-muted-foreground" />
+          <p className="text-sm text-muted-foreground">
             Drop files or{" "}
-            <span className="text-blue-500 hover:text-blue-600">browse</span>
+            <span className="text-primary hover:underline">browse</span>
             {" "}(max 10MB)
           </p>
         </div>
-        
+
         <input
           ref={fileInputRef}
           type="file"
@@ -220,21 +221,16 @@ const AttachmentsSection: React.FC<AttachmentsSectionProps> = ({ taskId }) => {
       {Object.keys(uploadProgress).length > 0 && (
         <div className="space-y-2">
           {Object.entries(uploadProgress).map(([key, progress]) => (
-            <div key={key} className="bg-gray-100 dark:bg-gray-800 rounded-lg p-3">
+            <div key={key} className="bg-muted rounded-lg p-3">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                <span className="text-sm font-medium text-foreground">
                   Uploading...
                 </span>
-                <span className="text-sm text-gray-500">
+                <span className="text-sm text-muted-foreground">
                   {Math.round(progress)}%
                 </span>
               </div>
-              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                <div
-                  className="bg-blue-500 h-2 rounded-full transition-all duration-300"
-                  style={{ width: `${progress}%` }}
-                />
-              </div>
+              <Progress value={progress} className="h-2" />
             </div>
           ))}
         </div>
@@ -246,11 +242,11 @@ const AttachmentsSection: React.FC<AttachmentsSectionProps> = ({ taskId }) => {
           <div className="space-y-2">
             {[1, 2, 3].map((i) => (
               <div key={i} className="animate-pulse">
-                <div className="flex items-center gap-3 p-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
-                  <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
+                  <div className="w-8 h-8 bg-muted-foreground/20 rounded"></div>
                   <div className="flex-1 space-y-1">
-                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
-                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                    <div className="h-4 bg-muted-foreground/20 rounded w-3/4"></div>
+                    <div className="h-3 bg-muted-foreground/20 rounded w-1/2"></div>
                   </div>
                 </div>
               </div>
@@ -270,9 +266,9 @@ const AttachmentsSection: React.FC<AttachmentsSectionProps> = ({ taskId }) => {
           ))
         ) : (
           <div className="text-center py-8">
-            <Paperclip className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
-            <p className="text-gray-500 dark:text-gray-400">No attachments yet</p>
-            <p className="text-sm text-gray-400 dark:text-gray-500">
+            <Paperclip className="h-12 w-12 text-muted-foreground/50 mx-auto mb-3" />
+            <p className="text-muted-foreground">No attachments yet</p>
+            <p className="text-sm text-muted-foreground/70">
               Upload files to share with your team
             </p>
           </div>
@@ -302,20 +298,20 @@ const AttachmentItem: React.FC<AttachmentItemProps> = ({
   const isOwner = currentUserId && attachment.uploadedBy.userId === currentUserId;
 
   return (
-    <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+    <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg hover:bg-accent transition-colors">
       {/* File Icon */}
-      <div className="flex-shrink-0 p-2 bg-white dark:bg-gray-700 rounded-lg">
+      <div className="flex-shrink-0 p-2 bg-background rounded-lg">
         {getFileIcon(attachment.fileName)}
       </div>
 
       {/* File Info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
-          <p className="font-medium text-gray-900 dark:text-white truncate">
+          <p className="font-medium text-foreground truncate">
             {attachment.fileName}
           </p>
         </div>
-        <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <span>Uploaded by {attachment.uploadedBy.username}</span>
           {/* Add timestamp if available */}
         </div>
@@ -325,17 +321,17 @@ const AttachmentItem: React.FC<AttachmentItemProps> = ({
       <div className="flex items-center gap-1">
         <button
           onClick={onDownload}
-          className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+          className="p-2 text-muted-foreground hover:text-foreground rounded-lg hover:bg-accent transition-colors"
           title="Download"
         >
           <Download className="h-4 w-4" />
         </button>
-        
+
         {isOwner && (
           <button
             onClick={onDelete}
             disabled={isDeleting}
-            className="p-2 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-200 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50"
+            className="p-2 text-destructive hover:text-destructive/80 rounded-lg hover:bg-destructive/10 transition-colors disabled:opacity-50"
             title="Delete"
           >
             <Trash2 className="h-4 w-4" />

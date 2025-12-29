@@ -91,13 +91,6 @@ export default {
           950: "#1C1C1E",
         },
         
-        // System background colors
-        background: {
-          primary: "var(--color-background)",
-          secondary: "var(--color-background-secondary)",
-          tertiary: "var(--color-background-tertiary)",
-        },
-        
         // Label colors
         label: {
           primary: "var(--color-label)",
@@ -132,8 +125,6 @@ export default {
         "dark-tertiary": "#3b3d40",
         "blue-primary": "#007AFF",
         "stroke-dark": "#2d3135",
-        background: "var(--background)",
-        foreground: "var(--foreground)",
       },
       
       spacing: {

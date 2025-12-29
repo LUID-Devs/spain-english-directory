@@ -26,8 +26,8 @@ const Navbar = () => {
   const currentUserDetails = currentUser?.userDetails;
   console.log('Navbar - Auth & User Data:', auth.user?.sub, currentUser, currentUserDetails);
   return (
-    <motion.div 
-      className="flex items-center justify-between bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 py-3 border-b border-border sticky top-0 z-40"
+    <motion.div
+      className="flex items-center justify-between bg-background px-4 py-3 border-b border-border sticky top-0 z-40"
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}

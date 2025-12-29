@@ -88,23 +88,23 @@ const WorkspaceSwitcher: React.FC = () => {
       <button
         onClick={() => setIsOpen(!isOpen)}
         disabled={isLoading}
-        className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors min-w-[180px]"
+        className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-accent transition-colors min-w-[180px]"
       >
         {getWorkspaceIcon(activeOrganization)}
-        <span className="font-medium text-gray-900 dark:text-white truncate max-w-[140px]">
+        <span className="font-medium text-foreground truncate max-w-[140px]">
           {activeOrganization.settings?.isPersonal
             ? 'Personal'
             : activeOrganization.name}
         </span>
-        <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {/* Dropdown */}
       {isOpen && (
-        <div className="absolute top-full left-0 mt-1 w-64 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50">
+        <div className="absolute top-full left-0 mt-1 w-64 bg-background rounded-lg shadow-lg border border-border py-1 z-50">
           {/* Header */}
-          <div className="px-3 py-2 border-b border-gray-200 dark:border-gray-700">
-            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+          <div className="px-3 py-2 border-b border-border">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
               Workspaces
             </p>
           </div>
@@ -116,14 +116,14 @@ const WorkspaceSwitcher: React.FC = () => {
                 key={org.id}
                 onClick={() => handleSwitch(org.id)}
                 disabled={isLoading}
-                className="w-full flex items-center gap-3 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                className="w-full flex items-center gap-3 px-3 py-2 hover:bg-accent transition-colors"
               >
                 {getWorkspaceIcon(org)}
                 <div className="flex-1 text-left">
-                  <p className="font-medium text-gray-900 dark:text-white truncate">
+                  <p className="font-medium text-foreground truncate">
                     {org.settings?.isPersonal ? 'Personal Workspace' : org.name}
                   </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">
+                  <p className="text-xs text-muted-foreground capitalize">
                     {org.role || 'member'}
                   </p>
                 </div>
@@ -135,7 +135,7 @@ const WorkspaceSwitcher: React.FC = () => {
           </div>
 
           {/* Footer Actions */}
-          <div className="border-t border-gray-200 dark:border-gray-700 pt-1">
+          <div className="border-t border-border pt-1">
             {/* Invite Members - only show for non-personal workspaces where user is admin/owner */}
             {!activeOrganization.settings?.isPersonal && (
               <button
@@ -143,7 +143,7 @@ const WorkspaceSwitcher: React.FC = () => {
                   setIsOpen(false);
                   setIsInviteModalOpen(true);
                 }}
-                className="w-full flex items-center gap-3 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-600 dark:text-gray-400"
+                className="w-full flex items-center gap-3 px-3 py-2 hover:bg-accent transition-colors text-muted-foreground"
               >
                 <UserPlus className="w-5 h-5" />
                 <span>Invite Members</span>
@@ -154,7 +154,7 @@ const WorkspaceSwitcher: React.FC = () => {
                 setIsOpen(false);
                 setIsCreateModalOpen(true);
               }}
-              className="w-full flex items-center gap-3 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-600 dark:text-gray-400"
+              className="w-full flex items-center gap-3 px-3 py-2 hover:bg-accent transition-colors text-muted-foreground"
             >
               <Plus className="w-5 h-5" />
               <span>Create Workspace</span>
@@ -177,8 +177,8 @@ const WorkspaceSwitcher: React.FC = () => {
 
       {/* Loading Overlay */}
       {isLoading && (
-        <div className="absolute inset-0 bg-white/50 dark:bg-gray-900/50 flex items-center justify-center rounded-lg">
-          <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+        <div className="absolute inset-0 bg-background/80 flex items-center justify-center rounded-lg">
+          <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
         </div>
       )}
     </div>

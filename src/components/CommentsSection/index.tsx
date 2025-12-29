@@ -14,6 +14,7 @@ import { format } from "date-fns";
 import { MessageSquare, Send, Edit3, Trash2, X, Check, Image, Loader2 } from "lucide-react";
 import RichTextEditor from "@/components/RichTextEditor";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
@@ -129,8 +130,8 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ taskId }) => {
 
   if (error) {
     return (
-      <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-        <p className="text-red-800 dark:text-red-200">Failed to load comments</p>
+      <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-4">
+        <p className="text-destructive">Failed to load comments</p>
       </div>
     );
   }
@@ -139,8 +140,8 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ taskId }) => {
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center gap-2">
-        <MessageSquare className="h-5 w-5 text-gray-400" />
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+        <MessageSquare className="h-5 w-5 text-muted-foreground" />
+        <h3 className="text-lg font-semibold text-foreground">
           Comments ({comments?.length || 0})
         </h3>
       </div>
@@ -156,22 +157,21 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ taskId }) => {
         />
 
         <div className="flex justify-between items-center">
-          <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
+          <div className="text-sm text-muted-foreground flex items-center gap-2">
             <Image className="h-4 w-4" />
             Paste image with Ctrl+V
           </div>
-          <button
+          <Button
             type="submit"
             disabled={(!newComment.trim() || newComment === '<p></p>') || isCreating || isUploadingImage}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isUploadingImage ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />
             ) : (
-              <Send className="h-4 w-4" />
+              <Send className="h-4 w-4 mr-2" />
             )}
             {isCreating ? "Posting..." : isUploadingImage ? "Uploading..." : "Post Comment"}
-          </button>
+          </Button>
         </div>
       </form>
 
@@ -182,10 +182,10 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ taskId }) => {
             {[1, 2, 3].map((i) => (
               <div key={i} className="animate-pulse">
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+                  <div className="w-8 h-8 bg-muted rounded-full"></div>
                   <div className="flex-1 space-y-2">
-                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4"></div>
-                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+                    <div className="h-4 bg-muted rounded w-1/4"></div>
+                    <div className="h-4 bg-muted rounded w-3/4"></div>
                   </div>
                 </div>
               </div>
@@ -211,9 +211,9 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ taskId }) => {
           ))
         ) : (
           <div className="text-center py-8">
-            <MessageSquare className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
-            <p className="text-gray-500 dark:text-gray-400">No comments yet</p>
-            <p className="text-sm text-gray-400 dark:text-gray-500">Be the first to add a comment!</p>
+            <MessageSquare className="h-12 w-12 text-muted-foreground/50 mx-auto mb-3" />
+            <p className="text-muted-foreground">No comments yet</p>
+            <p className="text-sm text-muted-foreground/70">Be the first to add a comment!</p>
           </div>
         )}
       </div>
@@ -263,7 +263,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
   const isHtmlContent = comment.text.includes('<') && comment.text.includes('>');
 
   return (
-    <div className="flex items-start gap-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+    <div className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg">
       {/* Avatar */}
       <div className="flex-shrink-0">
         {comment.user.profilePictureUrl ? (
@@ -275,8 +275,8 @@ const CommentItem: React.FC<CommentItemProps> = ({
             className="w-8 h-8 rounded-full object-cover"
           />
         ) : (
-          <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-            <span className="text-white text-sm font-medium">
+          <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+            <span className="text-primary-foreground text-sm font-medium">
               {comment.user.username.charAt(0).toUpperCase()}
             </span>
           </div>
@@ -287,14 +287,14 @@ const CommentItem: React.FC<CommentItemProps> = ({
       <div className="flex-1 min-w-0">
         {/* Header */}
         <div className="flex items-center gap-2 mb-1">
-          <span className="font-medium text-gray-900 dark:text-white">
+          <span className="font-medium text-foreground">
             {comment.user.username}
           </span>
-          <span className="text-xs text-gray-500 dark:text-gray-400">
+          <span className="text-xs text-muted-foreground">
             {timeAgo}
           </span>
           {comment.createdAt !== comment.updatedAt && (
-            <span className="text-xs text-gray-400 dark:text-gray-500">
+            <span className="text-xs text-muted-foreground/70">
               (edited)
             </span>
           )}
@@ -311,22 +311,23 @@ const CommentItem: React.FC<CommentItemProps> = ({
               className="comment-edit-editor"
             />
             <div className="flex items-center gap-2">
-              <button
+              <Button
+                size="sm"
                 onClick={onSaveEdit}
                 disabled={!editingText.trim() || editingText === '<p></p>' || isUpdating}
-                className="flex items-center gap-1 px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 transition-colors disabled:opacity-50 text-sm"
               >
-                <Check className="h-3 w-3" />
+                <Check className="h-3 w-3 mr-1" />
                 {isUpdating ? "Saving..." : "Save"}
-              </button>
-              <button
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
                 onClick={onCancelEdit}
                 disabled={isUpdating}
-                className="flex items-center gap-1 px-3 py-1 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors disabled:opacity-50 text-sm"
               >
-                <X className="h-3 w-3" />
+                <X className="h-3 w-3 mr-1" />
                 Cancel
-              </button>
+              </Button>
             </div>
             <style>{`
               .comment-edit-editor .ProseMirror {
@@ -338,11 +339,11 @@ const CommentItem: React.FC<CommentItemProps> = ({
           <div className="space-y-2">
             {isHtmlContent ? (
               <div
-                className="text-gray-700 dark:text-gray-300 comment-content"
+                className="text-foreground/80 comment-content"
                 dangerouslySetInnerHTML={{ __html: comment.text }}
               />
             ) : (
-              <div className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+              <div className="text-foreground/80 whitespace-pre-wrap">
                 {comment.text}
               </div>
             )}
@@ -357,7 +358,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
                 <img
                   src={`${API_BASE_URL}${comment.imageUrl}`}
                   alt="Comment attachment"
-                  className="max-w-full max-h-64 rounded-lg border border-gray-200 dark:border-gray-700 hover:opacity-90 transition-opacity cursor-pointer"
+                  className="max-w-full max-h-64 rounded-lg border border-border hover:opacity-90 transition-opacity cursor-pointer"
                 />
               </a>
             )}
@@ -369,7 +370,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
           <div className="flex items-center gap-2 mt-2">
             <button
               onClick={onEdit}
-              className="flex items-center gap-1 px-2 py-1 text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+              className="flex items-center gap-1 px-2 py-1 text-xs text-muted-foreground hover:text-foreground rounded hover:bg-accent transition-colors"
             >
               <Edit3 className="h-3 w-3" />
               Edit
@@ -377,7 +378,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
             <button
               onClick={onDelete}
               disabled={isDeleting}
-              className="flex items-center gap-1 px-2 py-1 text-xs text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-200 rounded hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50"
+              className="flex items-center gap-1 px-2 py-1 text-xs text-destructive hover:text-destructive/80 rounded hover:bg-destructive/10 transition-colors disabled:opacity-50"
             >
               <Trash2 className="h-3 w-3" />
               {isDeleting ? "Deleting..." : "Delete"}
@@ -414,14 +415,11 @@ const CommentItem: React.FC<CommentItemProps> = ({
           font-style: italic;
         }
         .comment-content code {
-          background: rgba(0, 0, 0, 0.1);
+          background: hsl(var(--muted));
           padding: 2px 6px;
           border-radius: 4px;
           font-family: monospace;
           font-size: 13px;
-        }
-        .dark .comment-content code {
-          background: rgba(255, 255, 255, 0.1);
         }
       `}</style>
     </div>

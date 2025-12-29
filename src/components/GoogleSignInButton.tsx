@@ -37,7 +37,7 @@ const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({
   return (
     <button
       onClick={handleGoogleSignIn}
-      className="flex items-center justify-center w-full px-4 py-3 border border-gray-600 rounded-lg shadow-sm bg-gray-800 hover:bg-gray-700 transition-all duration-200 hover:border-blue-500 group"
+      className="flex items-center justify-center w-full px-4 py-3 border border-border rounded-lg shadow-sm bg-muted hover:bg-accent transition-all duration-200 hover:border-primary group"
     >
       <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
         <path
@@ -57,7 +57,7 @@ const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({
           d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
         />
       </svg>
-      <span className="text-sm font-medium text-gray-100 group-hover:text-white transition-colors">
+      <span className="text-sm font-medium text-foreground transition-colors">
         {text}
       </span>
     </button>

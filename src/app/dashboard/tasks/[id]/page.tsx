@@ -124,12 +124,12 @@ const TaskDetailPage = ({ params }: Props) => {
     return (
       <div className="p-8 max-w-4xl mx-auto">
         <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
-          <div className="h-12 bg-gray-200 rounded w-3/4 mb-6"></div>
+          <div className="h-8 bg-muted rounded w-1/4 mb-4"></div>
+          <div className="h-12 bg-muted rounded w-3/4 mb-6"></div>
           <div className="space-y-3">
-            <div className="h-4 bg-gray-200 rounded w-full"></div>
-            <div className="h-4 bg-gray-200 rounded w-5/6"></div>
-            <div className="h-4 bg-gray-200 rounded w-4/6"></div>
+            <div className="h-4 bg-muted rounded w-full"></div>
+            <div className="h-4 bg-muted rounded w-5/6"></div>
+            <div className="h-4 bg-muted rounded w-4/6"></div>
           </div>
         </div>
       </div>
@@ -140,15 +140,15 @@ const TaskDetailPage = ({ params }: Props) => {
     return (
       <div className="p-8 max-w-4xl mx-auto">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+          <h1 className="text-2xl font-bold text-foreground mb-4">
             Task Not Found
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
+          <p className="text-muted-foreground mb-6">
             The task you're looking for doesn't exist or has been deleted.
           </p>
-          <Link 
+          <Link
             href="/dashboard/projects"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Projects
@@ -163,22 +163,22 @@ const TaskDetailPage = ({ params }: Props) => {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
-          <Link 
+          <Link
             href={`/dashboard/projects/${task.projectId}`}
-            className="flex items-center gap-2 px-3 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+            className="flex items-center gap-2 px-3 py-2 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-accent"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Project
           </Link>
-          <div className="h-6 w-px bg-gray-300 dark:bg-gray-600"></div>
-          <span className="text-sm text-gray-500 dark:text-gray-400">Task #{task.id}</span>
+          <div className="h-6 w-px bg-border"></div>
+          <span className="text-sm text-muted-foreground">Task #{task.id}</span>
         </div>
         
         <div className="flex items-center gap-2">
           {!isEditing ? (
             <button
               onClick={() => setIsEditing(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
             >
               <Edit className="h-4 w-4" />
               Edit Task
@@ -188,14 +188,14 @@ const TaskDetailPage = ({ params }: Props) => {
               <button
                 onClick={handleSave}
                 disabled={isUpdating}
-                className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50"
+                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
               >
                 <Save className="h-4 w-4" />
                 {isUpdating ? "Saving..." : "Save"}
               </button>
               <button
                 onClick={() => setIsEditing(false)}
-                className="flex items-center gap-2 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 bg-muted text-foreground rounded-lg hover:bg-accent transition-colors"
               >
                 <X className="h-4 w-4" />
                 Cancel
@@ -206,11 +206,11 @@ const TaskDetailPage = ({ params }: Props) => {
       </div>
 
       {/* Main Content */}
-      <div className="bg-white dark:bg-dark-secondary rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+      <div className="bg-card rounded-lg shadow-sm border border-border p-6">
         {/* Title */}
         <div className="mb-6">
           {!isEditing ? (
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+            <h1 className="text-3xl font-bold text-foreground mb-2">
               {task.title}
             </h1>
           ) : (
@@ -218,7 +218,7 @@ const TaskDetailPage = ({ params }: Props) => {
               type="text"
               value={editForm.title}
               onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
-              className="text-3xl font-bold w-full bg-transparent border-none outline-none text-gray-900 dark:text-white mb-2 focus:ring-2 focus:ring-blue-500 rounded p-2"
+              className="text-3xl font-bold w-full bg-transparent border-none outline-none text-foreground mb-2 focus:ring-2 focus:ring-primary rounded p-2"
               placeholder="Task title..."
             />
           )}
@@ -240,7 +240,7 @@ const TaskDetailPage = ({ params }: Props) => {
               <select
                 value={editForm.status}
                 onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
-                className="px-3 py-1 rounded-full text-sm font-medium border bg-white dark:bg-dark-secondary dark:border-gray-600 dark:text-white"
+                className="px-3 py-1 rounded-full text-sm font-medium border border-border bg-background text-foreground"
               >
                 {availableStatuses.map((status) => (
                   <option key={status} value={status}>{status}</option>
@@ -249,7 +249,7 @@ const TaskDetailPage = ({ params }: Props) => {
               <select
                 value={editForm.priority}
                 onChange={(e) => setEditForm({ ...editForm, priority: e.target.value as Priority })}
-                className="px-3 py-1 rounded-full text-sm font-medium border bg-white dark:bg-dark-secondary dark:border-gray-600 dark:text-white"
+                className="px-3 py-1 rounded-full text-sm font-medium border border-border bg-background text-foreground"
               >
                 {Object.values(Priority).map((priority) => (
                   <option key={priority} value={priority}>{priority}</option>
@@ -261,9 +261,9 @@ const TaskDetailPage = ({ params }: Props) => {
 
         {/* Description */}
         <div className="mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Description</h3>
+          <h3 className="text-lg font-semibold text-foreground mb-3">Description</h3>
           {!isEditing ? (
-            <div className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+            <div className="text-muted-foreground whitespace-pre-wrap">
               {task.description || "No description provided."}
             </div>
           ) : (
@@ -271,7 +271,7 @@ const TaskDetailPage = ({ params }: Props) => {
               value={editForm.description}
               onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
               rows={6}
-              className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark-secondary text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+              className="w-full p-3 border border-border rounded-lg bg-background text-foreground focus:ring-2 focus:ring-primary"
               placeholder="Task description..."
             />
           )}
@@ -281,18 +281,18 @@ const TaskDetailPage = ({ params }: Props) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           {/* Assignee */}
           <div className="flex items-center gap-3">
-            <User className="h-5 w-5 text-gray-400" />
+            <User className="h-5 w-5 text-muted-foreground" />
             <div>
-              <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Assignee</label>
+              <label className="text-sm font-medium text-muted-foreground">Assignee</label>
               {!isEditing ? (
-                <div className="text-gray-900 dark:text-white">
+                <div className="text-foreground">
                   {task.assignee ? task.assignee.username : "Unassigned"}
                 </div>
               ) : (
                 <select
                   value={editForm.assignedUserId || ""}
                   onChange={(e) => setEditForm({ ...editForm, assignedUserId: e.target.value ? parseInt(e.target.value) : undefined })}
-                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-dark-secondary text-gray-900 dark:text-white"
+                  className="w-full p-2 border border-border rounded bg-background text-foreground"
                 >
                   <option value="">Unassigned</option>
                   {users.map((user) => (
@@ -305,10 +305,10 @@ const TaskDetailPage = ({ params }: Props) => {
 
           {/* Author */}
           <div className="flex items-center gap-3">
-            <User className="h-5 w-5 text-gray-400" />
+            <User className="h-5 w-5 text-muted-foreground" />
             <div>
-              <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Author</label>
-              <div className="text-gray-900 dark:text-white">
+              <label className="text-sm font-medium text-muted-foreground">Author</label>
+              <div className="text-foreground">
                 {task.author ? task.author.username : "Unknown"}
               </div>
             </div>
@@ -316,11 +316,11 @@ const TaskDetailPage = ({ params }: Props) => {
 
           {/* Start Date */}
           <div className="flex items-center gap-3">
-            <Calendar className="h-5 w-5 text-gray-400" />
+            <Calendar className="h-5 w-5 text-muted-foreground" />
             <div>
-              <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Start Date</label>
+              <label className="text-sm font-medium text-muted-foreground">Start Date</label>
               {!isEditing ? (
-                <div className="text-gray-900 dark:text-white">
+                <div className="text-foreground">
                   {task.startDate ? format(new Date(task.startDate), "PPP") : "Not set"}
                 </div>
               ) : (
@@ -328,7 +328,7 @@ const TaskDetailPage = ({ params }: Props) => {
                   type="date"
                   value={editForm.startDate}
                   onChange={(e) => setEditForm({ ...editForm, startDate: e.target.value })}
-                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-dark-secondary text-gray-900 dark:text-white"
+                  className="w-full p-2 border border-border rounded bg-background text-foreground"
                 />
               )}
             </div>
@@ -336,11 +336,11 @@ const TaskDetailPage = ({ params }: Props) => {
 
           {/* Due Date */}
           <div className="flex items-center gap-3">
-            <Clock className="h-5 w-5 text-gray-400" />
+            <Clock className="h-5 w-5 text-muted-foreground" />
             <div>
-              <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Due Date</label>
+              <label className="text-sm font-medium text-muted-foreground">Due Date</label>
               {!isEditing ? (
-                <div className="text-gray-900 dark:text-white">
+                <div className="text-foreground">
                   {task.dueDate ? format(new Date(task.dueDate), "PPP") : "Not set"}
                 </div>
               ) : (
@@ -348,7 +348,7 @@ const TaskDetailPage = ({ params }: Props) => {
                   type="date"
                   value={editForm.dueDate}
                   onChange={(e) => setEditForm({ ...editForm, dueDate: e.target.value })}
-                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-dark-secondary text-gray-900 dark:text-white"
+                  className="w-full p-2 border border-border rounded bg-background text-foreground"
                 />
               )}
             </div>
@@ -356,11 +356,11 @@ const TaskDetailPage = ({ params }: Props) => {
 
           {/* Points */}
           <div className="flex items-center gap-3">
-            <Flag className="h-5 w-5 text-gray-400" />
+            <Flag className="h-5 w-5 text-muted-foreground" />
             <div>
-              <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Story Points</label>
+              <label className="text-sm font-medium text-muted-foreground">Story Points</label>
               {!isEditing ? (
-                <div className="text-gray-900 dark:text-white">
+                <div className="text-foreground">
                   {task.points || 0} points
                 </div>
               ) : (
@@ -369,7 +369,7 @@ const TaskDetailPage = ({ params }: Props) => {
                   value={editForm.points}
                   onChange={(e) => setEditForm({ ...editForm, points: parseInt(e.target.value) || 0 })}
                   min="0"
-                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-dark-secondary text-gray-900 dark:text-white"
+                  className="w-full p-2 border border-border rounded bg-background text-foreground"
                 />
               )}
             </div>
@@ -379,9 +379,9 @@ const TaskDetailPage = ({ params }: Props) => {
           <div className="flex items-center gap-3">
             <span className="h-5 w-5 flex items-center justify-center">🏷️</span>
             <div>
-              <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Tags</label>
+              <label className="text-sm font-medium text-muted-foreground">Tags</label>
               {!isEditing ? (
-                <div className="text-gray-900 dark:text-white">
+                <div className="text-foreground">
                   {task.tags || "No tags"}
                 </div>
               ) : (
@@ -390,7 +390,7 @@ const TaskDetailPage = ({ params }: Props) => {
                   value={editForm.tags}
                   onChange={(e) => setEditForm({ ...editForm, tags: e.target.value })}
                   placeholder="Enter tags separated by commas"
-                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-dark-secondary text-gray-900 dark:text-white"
+                  className="w-full p-2 border border-border rounded bg-background text-foreground"
                 />
               )}
             </div>
@@ -399,25 +399,25 @@ const TaskDetailPage = ({ params }: Props) => {
 
         {/* Comments Section */}
         {task.comments && task.comments.length > 0 && (
-          <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+          <div className="border-t border-border pt-6">
             <div className="flex items-center gap-2 mb-4">
-              <MessageSquare className="h-5 w-5 text-gray-400" />
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              <MessageSquare className="h-5 w-5 text-muted-foreground" />
+              <h3 className="text-lg font-semibold text-foreground">
                 Comments ({task.comments.length})
               </h3>
             </div>
             <div className="space-y-4">
               {task.comments.map((comment) => (
-                <div key={comment.id} className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                <div key={comment.id} className="bg-muted rounded-lg p-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="font-medium text-gray-900 dark:text-white">
+                    <span className="font-medium text-foreground">
                       {comment.user?.username || "Unknown User"}
                     </span>
-                    <span className="text-sm text-gray-500 dark:text-gray-400">
+                    <span className="text-sm text-muted-foreground">
                       {comment.createdAt && format(new Date(comment.createdAt), "PPP 'at' p")}
                     </span>
                   </div>
-                  <div className="text-gray-700 dark:text-gray-300">
+                  <div className="text-muted-foreground">
                     {comment.text}
                   </div>
                 </div>
@@ -428,20 +428,20 @@ const TaskDetailPage = ({ params }: Props) => {
 
         {/* Attachments Section */}
         {task.attachments && task.attachments.length > 0 && (
-          <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
+          <div className="border-t border-border pt-6 mt-6">
             <div className="flex items-center gap-2 mb-4">
-              <Paperclip className="h-5 w-5 text-gray-400" />
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              <Paperclip className="h-5 w-5 text-muted-foreground" />
+              <h3 className="text-lg font-semibold text-foreground">
                 Attachments ({task.attachments.length})
               </h3>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {task.attachments.map((attachment) => (
-                <div key={attachment.id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                  <div className="text-sm font-medium text-gray-900 dark:text-white mb-1">
+                <div key={attachment.id} className="border border-border rounded-lg p-4">
+                  <div className="text-sm font-medium text-foreground mb-1">
                     {attachment.fileName}
                   </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                  <div className="text-xs text-muted-foreground">
                     {attachment.fileURL}
                   </div>
                 </div>

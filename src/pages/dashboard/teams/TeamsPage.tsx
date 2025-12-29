@@ -1,299 +1,179 @@
-import React, { useState, useMemo } from "react";
-import { useGetTeamsQuery, useGetUsersWithStatsQuery, useGetProjectsQuery } from "@/hooks/useApi";
+import React, { useState, useEffect } from "react";
+import { useAuth } from "@/app/authProvider";
+import { fetchAuthSession } from 'aws-amplify/auth';
 import {
   Users,
   Search,
-  Plus,
-  MoreVertical,
-  Mail,
-  Settings,
   UserPlus,
   Crown,
   Shield,
-  Activity,
-  Award,
-  Target,
-  Grid3X3,
-  List
+  User,
+  Mail,
+  MoreVertical,
+  Loader2,
+  Building2,
+  AlertTriangle,
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { cn } from "@/lib/utils";
+import InviteToWorkspaceModal from "@/components/InviteToWorkspaceModal";
 
-interface TeamCardProps {
-  team: {
-    teamId: number;
-    teamName: string;
-    productOwnerUserId?: number;
-    projectManagerUserId?: number;
+interface WorkspaceMember {
+  odId: number;
+  odUserId: number;
+  organizationId: number;
+  userId: number;
+  role: string;
+  status: string;
+  joinedAt: string;
+  user: {
+    userId: number;
+    username: string;
+    email: string;
+    profilePictureUrl?: string;
   };
-  users: any[];
-  projects: any[];
 }
 
-const TeamCard: React.FC<TeamCardProps> = ({ team, users = [], projects = [] }) => {
-  const [showDropdown, setShowDropdown] = useState(false);
-  
-  // Find team members
-  const teamMembers = users.filter(user => user.teamId === team.teamId);
-  const productOwner = users.find(user => user.userId === team.productOwnerUserId);
-  const projectManager = users.find(user => user.userId === team.projectManagerUserId);
-  
-  // Calculate team stats
-  const stats = {
-    memberCount: teamMembers.length,
-    projectCount: projects.filter(project => 
-      project.teamMembers?.some((member: any) => 
-        teamMembers.some(teamMember => teamMember.userId === member.userId)
-      )
-    ).length,
-    totalTasks: teamMembers.reduce((sum, member) => 
-      sum + (member.taskStats?.authored || 0) + (member.taskStats?.assigned || 0), 0),
-    completedTasks: teamMembers.reduce((sum, member) => 
-      sum + (member.taskStats?.completed || 0), 0)
-  };
-  
-  const completionRate = stats.totalTasks > 0 ? Math.round((stats.completedTasks / stats.totalTasks) * 100) : 0;
-
-  return (
-    <Card className="hover:shadow-md transition-shadow">
-      <CardHeader className="pb-4">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/70 rounded-lg flex items-center justify-center">
-              <Users className="h-6 w-6 text-primary-foreground" />
-            </div>
-            <div>
-              <CardTitle className="text-lg font-semibold">
-                {team.teamName}
-              </CardTitle>
-              <CardDescription>
-                Team ID: {team.teamId}
-              </CardDescription>
-            </div>
-          </div>
-          
-          <div className="relative">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowDropdown(!showDropdown)}
-              className="h-8 w-8 p-0"
-            >
-              <MoreVertical className="h-4 w-4" />
-            </Button>
-            
-            {showDropdown && (
-              <div className="absolute right-0 top-9 z-10 bg-background border border-border rounded-lg shadow-lg py-1 w-48 animate-in fade-in-0 zoom-in-95 duration-100">
-                <button className="flex items-center space-x-2 w-full px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors">
-                  <UserPlus className="h-4 w-4" />
-                  <span>Add Member</span>
-                </button>
-                <button className="flex items-center space-x-2 w-full px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors">
-                  <Settings className="h-4 w-4" />
-                  <span>Team Settings</span>
-                </button>
-                <button className="flex items-center space-x-2 w-full px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors">
-                  <Mail className="h-4 w-4" />
-                  <span>Send Invitation</span>
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </CardHeader>
-
-      <CardContent className="space-y-6">
-        {/* Team Stats */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="text-center bg-muted rounded-lg p-3">
-            <div className="text-2xl font-bold text-primary">
-              {stats.memberCount}
-            </div>
-            <div className="text-xs text-muted-foreground">Members</div>
-          </div>
-          <div className="text-center bg-muted rounded-lg p-3">
-            <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-              {stats.projectCount}
-            </div>
-            <div className="text-xs text-muted-foreground">Projects</div>
-          </div>
-          <div className="text-center bg-muted rounded-lg p-3">
-            <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-              {stats.totalTasks}
-            </div>
-            <div className="text-xs text-muted-foreground">Tasks</div>
-          </div>
-          <div className="text-center bg-muted rounded-lg p-3">
-            <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
-              {completionRate}%
-            </div>
-            <div className="text-xs text-muted-foreground">Complete</div>
-          </div>
-        </div>
-
-        {/* Team Roles */}
-        <div className="space-y-3">
-          {productOwner && (
-            <div className="flex items-center space-x-3">
-              <Crown className="h-4 w-4 text-yellow-500" />
-              <span className="text-sm text-muted-foreground">Product Owner:</span>
-              <Badge variant="secondary" className="text-xs">
-                {productOwner.username}
-              </Badge>
-            </div>
-          )}
-          {projectManager && (
-            <div className="flex items-center space-x-3">
-              <Shield className="h-4 w-4 text-blue-500" />
-              <span className="text-sm text-muted-foreground">Project Manager:</span>
-              <Badge variant="secondary" className="text-xs">
-                {projectManager.username}
-              </Badge>
-            </div>
-          )}
-        </div>
-
-        {/* Team Members Preview */}
-        {teamMembers.length > 0 && (
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-sm font-medium text-foreground">
-                Team Members
-              </span>
-              <Badge variant="outline" className="text-xs">
-                {teamMembers.length} member{teamMembers.length !== 1 ? 's' : ''}
-              </Badge>
-            </div>
-            <div className="flex -space-x-2">
-              {teamMembers.slice(0, 6).map((member) => (
-                <div
-                  key={member.userId}
-                  className="w-8 h-8 bg-gradient-to-br from-primary/20 to-primary/40 rounded-full border-2 border-background flex items-center justify-center text-xs font-medium text-foreground"
-                  title={member.username}
-                >
-                  {member.username.charAt(0).toUpperCase()}
-                </div>
-              ))}
-              {teamMembers.length > 6 && (
-                <div className="w-8 h-8 bg-muted rounded-full border-2 border-background flex items-center justify-center text-xs font-medium text-muted-foreground">
-                  +{teamMembers.length - 6}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Performance Indicator */}
-        <div className="border-t border-border pt-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Activity className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">Performance</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              {completionRate >= 80 ? (
-                <Award className="h-4 w-4 text-green-500" />
-              ) : completionRate >= 60 ? (
-                <Target className="h-4 w-4 text-yellow-500" />
-              ) : (
-                <Activity className="h-4 w-4 text-red-500" />
-              )}
-              <Badge 
-                variant={completionRate >= 80 ? "default" : completionRate >= 60 ? "secondary" : "destructive"}
-                className="text-xs"
-              >
-                {completionRate >= 80 ? 'Excellent' :
-                 completionRate >= 60 ? 'Good' : 'Needs Focus'}
-              </Badge>
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
-
 const TeamsPage = () => {
+  const { activeOrganization, user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [members, setMembers] = useState<WorkspaceMember[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const [currentUserRole, setCurrentUserRole] = useState<string>('member');
 
-  // Get data with error handling
-  const { data: teams, isLoading: teamsLoading, isError: teamsError } = useGetTeamsQuery();
-  const { data: users = [], isLoading: usersLoading } = useGetUsersWithStatsQuery();
-  const { data: projects = [], isLoading: projectsLoading } = useGetProjectsQuery();
+  const isPersonalWorkspace = activeOrganization?.settings?.isPersonal;
 
-  const filteredTeams = useMemo(() => {
-    if (!teams) return [];
-    
-    return teams.filter(team => {
-      return team.teamName.toLowerCase().includes(searchQuery.toLowerCase());
-    });
-  }, [teams, searchQuery]);
+  // Get auth headers helper
+  const getAuthHeaders = async (): Promise<HeadersInit> => {
+    const headers: HeadersInit = { 'Content-Type': 'application/json' };
+    try {
+      const session = await fetchAuthSession();
+      if (session?.tokens?.accessToken) {
+        headers['Authorization'] = `Bearer ${session.tokens.accessToken}`;
+      }
+      if (session?.tokens?.idToken) {
+        headers['X-ID-Token'] = `${session.tokens.idToken}`;
+      }
+    } catch (e) {
+      console.log('No Cognito session');
+    }
+    return headers;
+  };
 
-  const isLoading = teamsLoading || usersLoading || projectsLoading;
+  // Fetch workspace members
+  useEffect(() => {
+    const fetchMembers = async () => {
+      if (!activeOrganization?.id) {
+        setIsLoading(false);
+        return;
+      }
 
-  // Calculate overall stats
-  const overallStats = useMemo(() => {
-    const totalMembers = users?.length || 0;
-    const totalProjects = projects?.length || 0;
-    const activeTeams = teams?.length || 0;
-    const averageTeamSize = totalMembers > 0 && activeTeams > 0 ? Math.round(totalMembers / activeTeams) : 0;
-    
-    return {
-      totalMembers,
-      totalProjects,
-      activeTeams,
-      averageTeamSize
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const headers = await getAuthHeaders();
+        const response = await fetch(
+          `${import.meta.env.VITE_API_BASE_URL}/organizations/${activeOrganization.id}/members`,
+          {
+            credentials: 'include',
+            headers,
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success) {
+            setMembers(data.data || []);
+            // Find current user's role
+            const currentMember = data.data?.find(
+              (m: WorkspaceMember) => m.user?.email?.toLowerCase() === user?.email?.toLowerCase()
+            );
+            if (currentMember) {
+              setCurrentUserRole(currentMember.role);
+            }
+          }
+        } else {
+          setError('Failed to load members');
+        }
+      } catch (err) {
+        console.error('Error fetching members:', err);
+        setError('Failed to load members');
+      } finally {
+        setIsLoading(false);
+      }
     };
-  }, [teams, users, projects]);
+
+    fetchMembers();
+  }, [activeOrganization?.id, user?.email]);
+
+  // Filter members by search query
+  const filteredMembers = members.filter(member => {
+    const searchLower = searchQuery.toLowerCase();
+    return (
+      member.user?.username?.toLowerCase().includes(searchLower) ||
+      member.user?.email?.toLowerCase().includes(searchLower) ||
+      member.role?.toLowerCase().includes(searchLower)
+    );
+  });
+
+  // Get role badge
+  const getRoleBadge = (role: string) => {
+    switch (role) {
+      case 'owner':
+        return (
+          <Badge className="bg-yellow-500 hover:bg-yellow-600 gap-1">
+            <Crown className="h-3 w-3" />
+            Owner
+          </Badge>
+        );
+      case 'admin':
+        return (
+          <Badge className="bg-blue-500 hover:bg-blue-600 gap-1">
+            <Shield className="h-3 w-3" />
+            Admin
+          </Badge>
+        );
+      default:
+        return (
+          <Badge variant="secondary" className="gap-1">
+            <User className="h-3 w-3" />
+            Member
+          </Badge>
+        );
+    }
+  };
+
+  // Stats
+  const stats = {
+    total: members.length,
+    owners: members.filter(m => m.role === 'owner').length,
+    admins: members.filter(m => m.role === 'admin').length,
+    members: members.filter(m => m.role === 'member').length,
+  };
+
+  const canInvite = (currentUserRole === 'owner' || currentUserRole === 'admin') && !isPersonalWorkspace;
 
   if (isLoading) {
     return (
       <div className="container mx-auto p-6 space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Teams</h1>
-            <p className="text-muted-foreground">Manage and organize your teams</p>
-          </div>
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Team Members</h1>
+          <p className="text-muted-foreground">Manage your workspace team</p>
         </div>
         <Card>
           <CardContent className="flex items-center justify-center h-64">
             <div className="text-center space-y-4">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-              <p className="text-muted-foreground">Loading teams...</p>
+              <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
+              <p className="text-muted-foreground">Loading members...</p>
             </div>
           </CardContent>
         </Card>
-      </div>
-    );
-  }
-
-  if (teamsError || !teams) {
-    return (
-      <div className="container mx-auto p-6 space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Teams</h1>
-            <p className="text-muted-foreground">Manage and organize your teams</p>
-          </div>
-        </div>
-        <Alert variant="destructive">
-          <AlertDescription>
-            Error loading teams. Please try again.
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => window.location.reload()}
-              className="ml-4"
-            >
-              Retry
-            </Button>
-          </AlertDescription>
-        </Alert>
       </div>
     );
   }
@@ -303,151 +183,168 @@ const TeamsPage = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Team Management</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Team Members</h1>
           <p className="text-muted-foreground">
-            Manage teams, members, and track performance across your organization
+            {isPersonalWorkspace
+              ? "Personal workspace - only you have access"
+              : `Manage members of ${activeOrganization?.name || 'your workspace'}`
+            }
           </p>
         </div>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          New Team
-        </Button>
+        {canInvite && (
+          <Button onClick={() => setIsInviteModalOpen(true)} className="gap-2">
+            <UserPlus className="h-4 w-4" />
+            Invite Member
+          </Button>
+        )}
       </div>
-      
-      {/* Header Section with Stats */}
+
+      {/* Error Alert */}
+      {error && (
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
+      {/* Stats Overview */}
       <Card>
-        <CardHeader>
+        <CardHeader className="pb-3">
           <div className="flex items-center gap-2">
-            <Users className="h-6 w-6 text-primary" />
-            <CardTitle className="text-xl">Team Overview</CardTitle>
+            <Building2 className="h-5 w-5 text-primary" />
+            <CardTitle className="text-lg">Team Overview</CardTitle>
           </div>
           <CardDescription>
-            Overview of your organization's team statistics
+            {activeOrganization?.name || 'Workspace'} membership summary
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {/* Quick Stats */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 text-center">
-            <div className="bg-primary/10 rounded-lg p-4">
-              <div className="text-2xl font-bold text-primary">
-                {overallStats.activeTeams}
-              </div>
-              <div className="text-xs text-muted-foreground">Active Teams</div>
-            </div>
-            <div className="bg-green-100 dark:bg-green-900/20 rounded-lg p-4">
-              <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                {overallStats.totalMembers}
-              </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="text-center bg-primary/10 rounded-lg p-4">
+              <div className="text-2xl font-bold text-primary">{stats.total}</div>
               <div className="text-xs text-muted-foreground">Total Members</div>
             </div>
-            <div className="bg-purple-100 dark:bg-purple-900/20 rounded-lg p-4">
-              <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                {overallStats.totalProjects}
-              </div>
-              <div className="text-xs text-muted-foreground">Projects</div>
+            <div className="text-center bg-yellow-100 dark:bg-yellow-900/20 rounded-lg p-4">
+              <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{stats.owners}</div>
+              <div className="text-xs text-muted-foreground">Owners</div>
             </div>
-            <div className="bg-orange-100 dark:bg-orange-900/20 rounded-lg p-4">
-              <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
-                {overallStats.averageTeamSize}
-              </div>
-              <div className="text-xs text-muted-foreground">Avg Size</div>
+            <div className="text-center bg-blue-100 dark:bg-blue-900/20 rounded-lg p-4">
+              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{stats.admins}</div>
+              <div className="text-xs text-muted-foreground">Admins</div>
+            </div>
+            <div className="text-center bg-muted rounded-lg p-4">
+              <div className="text-2xl font-bold text-muted-foreground">{stats.members}</div>
+              <div className="text-xs text-muted-foreground">Members</div>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Search and Filter Bar */}
+      {/* Search */}
       <Card>
-        <CardContent className="p-6">
-          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search teams..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            
-            {/* View Mode Toggle */}
-            <div className="flex items-center gap-2">
-              <Button
-                variant={viewMode === "grid" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setViewMode("grid")}
-              >
-                <Grid3X3 className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={viewMode === "list" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setViewMode("list")}
-              >
-                <List className="h-4 w-4" />
-              </Button>
-            </div>
+        <CardContent className="p-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search members by name, email, or role..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
           </div>
         </CardContent>
       </Card>
 
-      {/* Teams Display */}
-      {filteredTeams.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center h-64 text-center p-6">
-            <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
-              <Users className="h-8 w-8 text-muted-foreground" />
+      {/* Members List */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Users className="h-5 w-5" />
+            Members
+          </CardTitle>
+          <CardDescription>
+            {filteredMembers.length} member{filteredMembers.length !== 1 ? 's' : ''}
+            {searchQuery && ` matching "${searchQuery}"`}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {filteredMembers.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                <Users className="h-8 w-8 text-muted-foreground" />
+              </div>
+              <h3 className="text-lg font-medium mb-2">
+                {searchQuery ? 'No members found' : 'No team members yet'}
+              </h3>
+              <p className="text-muted-foreground mb-4 max-w-sm mx-auto">
+                {searchQuery
+                  ? `No members match "${searchQuery}"`
+                  : isPersonalWorkspace
+                    ? "This is your personal workspace"
+                    : "Invite team members to collaborate on projects"
+                }
+              </p>
+              {!searchQuery && canInvite && (
+                <Button onClick={() => setIsInviteModalOpen(true)} className="gap-2">
+                  <UserPlus className="h-4 w-4" />
+                  Invite Your First Member
+                </Button>
+              )}
+              {searchQuery && (
+                <Button variant="outline" onClick={() => setSearchQuery('')}>
+                  Clear Search
+                </Button>
+              )}
             </div>
-            <h3 className="text-lg font-medium mb-2">
-              No Teams Found
-            </h3>
-            <p className="text-muted-foreground mb-4 max-w-sm">
-              {searchQuery ? 
-                `No teams found matching "${searchQuery}"` :
-                "Create your first team to get started with project collaboration."
-              }
-            </p>
-            {searchQuery ? (
-              <Button
-                onClick={() => setSearchQuery('')}
-                variant="outline"
-              >
-                Clear Search
-              </Button>
-            ) : (
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Create Your First Team
-              </Button>
-            )}
-          </CardContent>
-        </Card>
-      ) : (
-        <div className={cn(
-          "gap-6",
-          viewMode === "grid" 
-            ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3" 
-            : "flex flex-col"
-        )}>
-          {filteredTeams.map((team) => (
-            <TeamCard
-              key={team.teamId}
-              team={team}
-              users={users || []}
-              projects={projects || []}
-            />
-          ))}
-        </div>
-      )}
-      
-      {/* Results Count */}
-      {filteredTeams.length > 0 && (
-        <div className="text-center">
-          <p className="text-muted-foreground text-sm">
-            Showing {filteredTeams.length} of {teams.length} teams
-          </p>
-        </div>
-      )}
+          ) : (
+            <div className="space-y-3">
+              {filteredMembers.map((member) => (
+                <div
+                  key={member.odId || member.userId}
+                  className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
+                >
+                  <div className="flex items-center gap-4">
+                    {member.user?.profilePictureUrl ? (
+                      <img
+                        src={`https://pm-s3-images.s3.us-east-1.amazonaws.com/${member.user.profilePictureUrl}`}
+                        alt={member.user.username}
+                        className="h-11 w-11 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="h-11 w-11 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                        <span className="text-white text-lg font-medium">
+                          {member.user?.username?.charAt(0).toUpperCase() || '?'}
+                        </span>
+                      </div>
+                    )}
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium">{member.user?.username || 'Unknown'}</p>
+                        {member.user?.email?.toLowerCase() === user?.email?.toLowerCase() && (
+                          <Badge variant="outline" className="text-xs">You</Badge>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                        <Mail className="h-3 w-3" />
+                        {member.user?.email}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    {getRoleBadge(member.role)}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Invite Modal */}
+      <InviteToWorkspaceModal
+        isOpen={isInviteModalOpen}
+        onClose={() => setIsInviteModalOpen(false)}
+      />
     </div>
   );
 };

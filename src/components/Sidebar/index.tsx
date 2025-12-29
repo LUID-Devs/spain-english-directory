@@ -191,11 +191,10 @@ const Sidebar = () => {
         {/* TEAMS SECTION */}
         <div className="px-6 py-3">
           <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-            TEAMS
+            TEAM
           </h4>
           <nav className="space-y-1">
-            <SidebarLink href="/dashboard/teams" icon={Users} label="All Teams" />
-            <SidebarLink href="/dashboard/users" icon={User} label="Members" />
+            <SidebarLink href="/dashboard/teams" icon={Users} label="Members" />
             {/* Invite Members - only for team workspaces */}
             {!auth.activeOrganization?.settings?.isPersonal && (
               <button

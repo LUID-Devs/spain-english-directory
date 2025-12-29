@@ -91,12 +91,12 @@ const DashboardPage = () => {
   // Show loading while authenticating or fetching data
   if (authLoading || tasksLoading || isProjectsLoading) {
     return (
-      <div className="container h-full w-[100%] bg-gray-100 bg-transparent p-8">
+      <div className="container h-full w-[100%] bg-background p-8">
         <Header name="Project Management Dashboard" />
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-            <p className="text-gray-600">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground">
               {authLoading ? "Authenticating..." : "Loading dashboard data..."}
             </p>
           </div>
@@ -112,12 +112,12 @@ const DashboardPage = () => {
     // Don't redirect immediately if still loading
     if (authLoading) {
       return (
-        <div className="container h-full w-[100%] bg-gray-100 bg-transparent p-8">
+        <div className="container h-full w-[100%] bg-background p-8">
           <Header name="Project Management Dashboard" />
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-              <p className="text-gray-600">Verifying authentication...</p>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-muted-foreground">Verifying authentication...</p>
             </div>
           </div>
         </div>
@@ -126,14 +126,14 @@ const DashboardPage = () => {
 
     console.log('[DASHBOARD] User not authenticated, redirecting to login...');
     return (
-      <div className="container h-full w-[100%] bg-gray-100 bg-transparent p-8">
+      <div className="container h-full w-[100%] bg-background p-8">
         <Header name="Project Management Dashboard" />
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
-            <p className="text-red-600 mb-4">Authentication required</p>
+            <p className="text-destructive mb-4">Authentication required</p>
             <button
               onClick={() => window.location.href = '/auth/login'}
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90"
             >
               Go to Login
             </button>
@@ -146,22 +146,22 @@ const DashboardPage = () => {
   // Handle critical errors - but don't block dashboard if only one data source fails
   if (tasksError && projectsError) {
     return (
-      <div className="container h-full w-[100%] bg-gray-100 bg-transparent p-8">
+      <div className="container h-full w-[100%] bg-background p-8">
         <Header name="Project Management Dashboard" />
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
-            <p className="text-red-600 mb-2">Unable to load dashboard data</p>
-            <p className="text-gray-600 mb-4 text-sm">This may be a temporary network issue</p>
+            <p className="text-destructive mb-2">Unable to load dashboard data</p>
+            <p className="text-muted-foreground mb-4 text-sm">This may be a temporary network issue</p>
             <div className="space-x-2">
-              <button 
-                onClick={() => window.location.reload()} 
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              <button
+                onClick={() => window.location.reload()}
+                className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90"
               >
                 Retry
               </button>
-              <button 
-                onClick={() => window.location.href = '/auth/logout'} 
-                className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+              <button
+                onClick={() => window.location.href = '/auth/logout'}
+                className="px-4 py-2 bg-muted text-foreground rounded hover:bg-accent"
               >
                 Sign Out
               </button>
@@ -217,16 +217,16 @@ const DashboardPage = () => {
       };
 
   return (
-    <div className="container h-full w-[100%] bg-gray-100 bg-transparent p-8">
+    <div className="container h-full w-[100%] bg-background p-8">
       <Header name="Project Management Dashboard" />
-      
+
       {/* Welcome Section */}
       <div className="mb-6">
-        <div className="bg-white dark:bg-dark-secondary rounded-lg p-4 shadow">
-          <h2 className="text-xl font-semibold dark:text-white mb-2">
+        <div className="bg-card rounded-lg p-4 shadow border border-border">
+          <h2 className="text-xl font-semibold text-foreground mb-2">
             Welcome back, {user?.preferred_username || user?.username || 'User'}!
           </h2>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-muted-foreground">
             Here's your project overview and recent activity.
           </p>
         </div>
@@ -433,7 +433,7 @@ const DashboardPage = () => {
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <div className="flex items-center justify-center h-64 text-gray-500 dark:text-gray-400">
+            <div className="flex items-center justify-center h-64 text-muted-foreground">
               <div className="text-center">
                 <p>No tasks assigned to you yet</p>
                 <p className="text-sm mt-1">Start by creating your first task!</p>
@@ -466,7 +466,7 @@ const DashboardPage = () => {
               </PieChart>
             </ResponsiveContainer>
           ) : (
-            <div className="flex items-center justify-center h-64 text-gray-500 dark:text-gray-400">
+            <div className="flex items-center justify-center h-64 text-muted-foreground">
               <div className="text-center">
                 <p>No projects available</p>
                 <p className="text-sm mt-1">Create your first project to get started!</p>

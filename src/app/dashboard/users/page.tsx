@@ -92,14 +92,14 @@ const Users = () => {
       <div className="mb-6 flex items-center justify-between">
         <Header name="Team Members" />
         <div className="flex items-center gap-4">
-          <div className="flex rounded-lg border border-gray-300 dark:border-gray-600">
+          <div className="flex rounded-lg border border-border">
             <button
               onClick={() => setViewMode('cards')}
               className={`px-4 py-2 text-sm font-medium ${
                 viewMode === 'cards'
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-white text-gray-700 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
-              } rounded-l-lg border-r border-gray-300 dark:border-gray-600`}
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-background text-foreground hover:bg-accent'
+              } rounded-l-lg border-r border-border`}
             >
               Cards
             </button>
@@ -107,16 +107,16 @@ const Users = () => {
               onClick={() => setViewMode('table')}
               className={`px-4 py-2 text-sm font-medium ${
                 viewMode === 'table'
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-white text-gray-700 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-background text-foreground hover:bg-accent'
               } rounded-r-lg`}
             >
               Table
             </button>
           </div>
-          <button 
+          <button
             onClick={() => setIsInviteModalOpen(true)}
-            className="rounded-lg bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+            className="rounded-lg bg-primary px-4 py-2 text-primary-foreground hover:bg-primary/90"
           >
             Invite User
           </button>

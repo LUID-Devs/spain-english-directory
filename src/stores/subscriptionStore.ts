@@ -94,28 +94,37 @@ export const useSubscriptionStore = create<SubscriptionState>()(
     initializeSubscription: async () => {
       const subStart = Date.now();
       console.log('[SUBSCRIPTION] Starting subscription fetch at:', subStart);
-      
+
+      // Set loading but keep any existing data visible
+      set({ loading: true, error: null });
+
       try {
-        set({ loading: true, error: null });
-        
-        // Add timeout to prevent blocking
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Subscription fetch timeout')), 5000)
+        // Reduced timeout for better UX (3 seconds instead of 5)
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Subscription fetch timeout')), 3000)
         );
-        
+
         const data = await Promise.race([
           subscriptionApi.getCurrentSubscription(),
           timeoutPromise
         ]) as SubscriptionData;
-        
+
         const subEnd = Date.now();
         console.log('[SUBSCRIPTION] Subscription request completed in:', subEnd - subStart, 'ms');
-        set({ subscriptionData: data, loading: false });
+
+        // Atomically set data and loading state together
+        set({
+          subscriptionData: data,
+          loading: false,
+          error: null
+        });
       } catch (err) {
         const subEnd = Date.now();
         console.error('[SUBSCRIPTION] Subscription fetch failed after:', subEnd - subStart, 'ms', err);
+
+        // Always set loading to false, provide fallback data
         set({
-          error: 'Failed to load subscription data',
+          error: null, // Don't show error, just use fallback silently
           loading: false,
           subscriptionData: {
             subscription: SUBSCRIPTION_PLANS.FREE,

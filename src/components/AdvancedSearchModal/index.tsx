@@ -76,7 +76,7 @@ const AdvancedSearchModal = ({
       <div className="space-y-6">
         {/* Search Query */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-foreground mb-2">
             Search Term
           </label>
           <input
@@ -84,19 +84,19 @@ const AdvancedSearchModal = ({
             value={filters.query || ''}
             onChange={(e) => handleFilterChange('query', e.target.value)}
             placeholder="Enter keywords..."
-            className="w-full rounded-md border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
+            className="w-full rounded-md border border-border bg-background text-foreground px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary sm:text-sm"
           />
         </div>
 
         {/* Search Type */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-foreground mb-2">
             Search In
           </label>
           <select
             value={filters.type || ''}
             onChange={(e) => handleFilterChange('type', e.target.value)}
-            className="w-full rounded-md border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
+            className="w-full rounded-md border border-border bg-background text-foreground px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary sm:text-sm"
           >
             <option key="all" value="">All Types</option>
             <option key="tasks" value="tasks">Tasks Only</option>
@@ -108,21 +108,21 @@ const AdvancedSearchModal = ({
         {/* Task-specific filters */}
         {(!filters.type || filters.type === 'tasks') && (
           <React.Fragment key="task-filters">
-            <div className="space-y-4 border-t pt-4">
-              <h3 className="text-sm font-medium text-gray-900 dark:text-white">
+            <div className="space-y-4 border-t border-border pt-4">
+              <h3 className="text-sm font-medium text-foreground">
                 Task Filters
               </h3>
 
               <div className="grid grid-cols-2 gap-4">
                 {/* Status */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label className="block text-sm font-medium text-muted-foreground mb-1">
                     Status
                   </label>
                   <select
                     value={filters.status || ''}
                     onChange={(e) => handleFilterChange('status', e.target.value)}
-                    className="w-full rounded-md border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
+                    className="w-full rounded-md border border-border bg-background text-foreground px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary sm:text-sm"
                   >
                     <option key="any-status" value="">Any Status</option>
                     {availableStatuses.map((status) => (
@@ -133,13 +133,13 @@ const AdvancedSearchModal = ({
 
                 {/* Priority */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label className="block text-sm font-medium text-muted-foreground mb-1">
                     Priority
                   </label>
                   <select
                     value={filters.priority || ''}
                     onChange={(e) => handleFilterChange('priority', e.target.value)}
-                    className="w-full rounded-md border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
+                    className="w-full rounded-md border border-border bg-background text-foreground px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary sm:text-sm"
                   >
                     <option key="any-priority" value="">Any Priority</option>
                     <option key="urgent" value="Urgent">Urgent</option>
@@ -154,13 +154,13 @@ const AdvancedSearchModal = ({
               <div className="grid grid-cols-2 gap-4">
                 {/* Assignee */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label className="block text-sm font-medium text-muted-foreground mb-1">
                     Assigned To
                   </label>
                   <select
                     value={filters.assigneeId || ''}
                     onChange={(e) => handleFilterChange('assigneeId', e.target.value ? parseInt(e.target.value) : undefined)}
-                    className="w-full rounded-md border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
+                    className="w-full rounded-md border border-border bg-background text-foreground px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary sm:text-sm"
                   >
                     <option key="anyone-assignee" value="">Anyone</option>
                     {users?.map((user) => (
@@ -173,13 +173,13 @@ const AdvancedSearchModal = ({
 
                 {/* Author */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label className="block text-sm font-medium text-muted-foreground mb-1">
                     Created By
                   </label>
                   <select
                     value={filters.authorId || ''}
                     onChange={(e) => handleFilterChange('authorId', e.target.value ? parseInt(e.target.value) : undefined)}
-                    className="w-full rounded-md border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
+                    className="w-full rounded-md border border-border bg-background text-foreground px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary sm:text-sm"
                   >
                     <option key="anyone-author" value="">Anyone</option>
                     {users?.map((user) => (
@@ -193,13 +193,13 @@ const AdvancedSearchModal = ({
 
               {/* Project */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label className="block text-sm font-medium text-muted-foreground mb-1">
                   Project
                 </label>
                 <select
                   value={filters.projectId || ''}
                   onChange={(e) => handleFilterChange('projectId', e.target.value ? parseInt(e.target.value) : undefined)}
-                  className="w-full rounded-md border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
+                  className="w-full rounded-md border border-border bg-background text-foreground px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary sm:text-sm"
                 >
                   <option key="any-project" value="">Any Project</option>
                   {projects?.map((project) => (
@@ -216,8 +216,8 @@ const AdvancedSearchModal = ({
         {/* Project-specific filters */}
         {(!filters.type || filters.type === 'projects') && (
           <React.Fragment key="project-filters">
-            <div className="space-y-4 border-t pt-4">
-              <h3 className="text-sm font-medium text-gray-900 dark:text-white">
+            <div className="space-y-4 border-t border-border pt-4">
+              <h3 className="text-sm font-medium text-foreground">
                 Project Filters
               </h3>
 
@@ -228,9 +228,9 @@ const AdvancedSearchModal = ({
                     type="checkbox"
                     checked={filters.archived || false}
                     onChange={(e) => handleFilterChange('archived', e.target.checked ? true : undefined)}
-                    className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    className="rounded border-border text-primary shadow-sm focus:border-primary focus:ring-primary"
                   />
-                  <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
+                  <span className="ml-2 text-sm text-muted-foreground">
                     Include archived projects
                   </span>
                 </label>
@@ -242,20 +242,20 @@ const AdvancedSearchModal = ({
         {/* User-specific filters */}
         {(!filters.type || filters.type === 'users') && (
           <React.Fragment key="user-filters">
-            <div className="space-y-4 border-t pt-4">
-              <h3 className="text-sm font-medium text-gray-900 dark:text-white">
+            <div className="space-y-4 border-t border-border pt-4">
+              <h3 className="text-sm font-medium text-foreground">
                 User Filters
               </h3>
 
               {/* Team */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label className="block text-sm font-medium text-muted-foreground mb-1">
                   Team
                 </label>
                 <select
                   value={filters.teamId || ''}
                   onChange={(e) => handleFilterChange('teamId', e.target.value ? parseInt(e.target.value) : undefined)}
-                  className="w-full rounded-md border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
+                  className="w-full rounded-md border border-border bg-background text-foreground px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary sm:text-sm"
                 >
                   <option key="any-team" value="">Any Team</option>
                   {teams?.map((team) => (
@@ -270,33 +270,33 @@ const AdvancedSearchModal = ({
         )}
 
         {/* Date Range */}
-        <div className="space-y-4 border-t pt-4">
-          <h3 className="text-sm font-medium text-gray-900 dark:text-white">
+        <div className="space-y-4 border-t border-border pt-4">
+          <h3 className="text-sm font-medium text-foreground">
             Date Range
           </h3>
-          
+
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-muted-foreground mb-1">
                 From
               </label>
               <input
                 type="date"
                 value={filters.dateFrom || ''}
                 onChange={(e) => handleFilterChange('dateFrom', e.target.value)}
-                className="w-full rounded-md border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
+                className="w-full rounded-md border border-border bg-background text-foreground px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary sm:text-sm"
               />
             </div>
-            
+
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-muted-foreground mb-1">
                 To
               </label>
               <input
                 type="date"
                 value={filters.dateTo || ''}
                 onChange={(e) => handleFilterChange('dateTo', e.target.value)}
-                className="w-full rounded-md border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
+                className="w-full rounded-md border border-border bg-background text-foreground px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary sm:text-sm"
               />
             </div>
           </div>
@@ -307,21 +307,21 @@ const AdvancedSearchModal = ({
           <button
             type="button"
             onClick={handleReset}
-            className="flex-1 rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+            className="flex-1 rounded-md border border-border bg-background px-4 py-2 text-sm font-medium text-foreground shadow-sm hover:bg-accent focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
           >
             Reset
           </button>
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+            className="flex-1 rounded-md border border-border bg-background px-4 py-2 text-sm font-medium text-foreground shadow-sm hover:bg-accent focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
           >
             Cancel
           </button>
           <button
             type="button"
             onClick={handleSearch}
-            className="flex-1 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="flex-1 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
           >
             Search
           </button>

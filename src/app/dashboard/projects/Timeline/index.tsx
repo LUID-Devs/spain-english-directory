@@ -96,16 +96,16 @@ const Timeline = ({
   if (isLoading) return (
     <div className="flex items-center justify-center h-64">
       <div className="text-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
-        <p className="text-gray-600 dark:text-gray-400">Loading timeline...</p>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+        <p className="text-muted-foreground">Loading timeline...</p>
       </div>
     </div>
   );
-  
+
   if (error || !tasks) return (
     <div className="flex items-center justify-center h-64">
       <div className="text-center">
-        <p className="text-red-600 dark:text-red-400">An error occurred while fetching tasks</p>
+        <p className="text-destructive">An error occurred while fetching tasks</p>
       </div>
     </div>
   );
@@ -117,12 +117,12 @@ const Timeline = ({
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <BarChart3 className="text-blue-500" size={24} />
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
+              <BarChart3 className="text-primary" size={24} />
+              <h1 className="text-2xl font-bold text-foreground tracking-tight">
                 Project Timeline
               </h1>
             </div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm text-muted-foreground">
               {tasksWithDates.length} task{tasksWithDates.length !== 1 ? 's' : ''} scheduled
               {tasksWithoutDates.length > 0 && (
                 <span className="text-orange-600 dark:text-orange-400">
@@ -136,16 +136,16 @@ const Timeline = ({
         {/* View Mode Controls */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center gap-3">
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">View:</span>
-            <div className="flex items-center border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden bg-white dark:bg-dark-secondary">
+            <span className="text-sm font-medium text-foreground">View:</span>
+            <div className="flex items-center border border-border rounded-xl overflow-hidden bg-background">
               {[ViewMode.Day, ViewMode.Week, ViewMode.Month].map((mode) => (
                 <button
                   key={mode}
                   onClick={() => handleViewModeChange(mode)}
                   className={`px-4 py-2 text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
                     displayOptions.viewMode === mode
-                      ? "bg-blue-500 text-white"
-                      : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700"
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:bg-accent"
                   }`}
                 >
                   <Calendar className="h-4 w-4 mr-2" />
@@ -159,19 +159,19 @@ const Timeline = ({
           <div className="flex items-center gap-4 text-xs">
             <div className="flex items-center gap-1">
               <div className="w-3 h-3 rounded bg-red-500"></div>
-              <span className="text-gray-600 dark:text-gray-400">Urgent</span>
+              <span className="text-muted-foreground">Urgent</span>
             </div>
             <div className="flex items-center gap-1">
               <div className="w-3 h-3 rounded bg-orange-500"></div>
-              <span className="text-gray-600 dark:text-gray-400">High</span>
+              <span className="text-muted-foreground">High</span>
             </div>
             <div className="flex items-center gap-1">
               <div className="w-3 h-3 rounded bg-blue-500"></div>
-              <span className="text-gray-600 dark:text-gray-400">Medium</span>
+              <span className="text-muted-foreground">Medium</span>
             </div>
             <div className="flex items-center gap-1">
               <div className="w-3 h-3 rounded bg-green-500"></div>
-              <span className="text-gray-600 dark:text-gray-400">Low</span>
+              <span className="text-muted-foreground">Low</span>
             </div>
           </div>
         </div>

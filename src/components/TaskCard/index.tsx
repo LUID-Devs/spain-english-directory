@@ -133,7 +133,7 @@ const TaskCard = ({ task }: Props) => {
             </Badge>
           ))}
           {taskTagsSplit.length > 2 && (
-            <span className="text-[10px] text-gray-400">+{taskTagsSplit.length - 2}</span>
+            <span className="text-[10px] text-muted-foreground">+{taskTagsSplit.length - 2}</span>
           )}
         </div>
 
@@ -152,7 +152,7 @@ const TaskCard = ({ task }: Props) => {
         </div>
 
         {/* Footer - Assignee and metadata */}
-        <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-700/50">
+        <div className="flex items-center justify-between pt-2 border-t border-border">
           {/* Assignee */}
           <div className="flex items-center gap-1.5">
             {task.assignee ? (
@@ -186,12 +186,12 @@ const TaskCard = ({ task }: Props) => {
                 </span>
               </>
             ) : (
-              <span className="text-xs text-gray-400">Unassigned</span>
+              <span className="text-xs text-muted-foreground">Unassigned</span>
             )}
           </div>
 
           {/* Right side - dates and comments */}
-          <div className="flex items-center gap-2 text-gray-400">
+          <div className="flex items-center gap-2 text-muted-foreground">
             {task.dueDate && (
               <div className="flex items-center gap-1 text-[10px]">
                 <Clock size={10} />

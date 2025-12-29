@@ -135,7 +135,7 @@ const InviteAcceptPage: React.FC = () => {
   // Loading state
   if (isLoading || authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <Card className="w-full max-w-md">
           <CardContent className="flex flex-col items-center justify-center py-12">
             <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
@@ -149,7 +149,7 @@ const InviteAcceptPage: React.FC = () => {
   // Error state
   if (error && !invite) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
         <Card className="w-full max-w-md">
           <CardContent className="flex flex-col items-center justify-center py-12">
             <XCircle className="h-12 w-12 text-destructive mb-4" />
@@ -167,7 +167,7 @@ const InviteAcceptPage: React.FC = () => {
   // Success state
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
         <Card className="w-full max-w-md">
           <CardContent className="flex flex-col items-center justify-center py-12">
             <CheckCircle className="h-12 w-12 text-green-500 mb-4" />
@@ -184,7 +184,7 @@ const InviteAcceptPage: React.FC = () => {
 
   // Invite details
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
@@ -246,7 +246,7 @@ const InviteAcceptPage: React.FC = () => {
               ) : (
                 // Email doesn't match
                 <div className="space-y-3">
-                  <div className="bg-yellow-50 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200 text-sm p-3 rounded-md">
+                  <div className="bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200 text-sm p-3 rounded-md">
                     This invite was sent to <strong>{invite?.email}</strong>, but you're logged in as <strong>{user?.email}</strong>.
                   </div>
                   <Button
