@@ -3,7 +3,8 @@ import React, { useState, useEffect } from "react";
 import { useGetProjectsQuery } from "@/hooks/useApi";
 import { useProjects } from "@/stores/apiStore";
 import { useCurrentUser } from "@/stores/userStore";
-import { Plus, Search, Grid3X3, List, Archive, Star, Filter, SortAsc, FolderPlus } from "lucide-react";
+import { useAuth } from "@/app/authProvider";
+import { Plus, Search, Grid3X3, List, Archive, Star, Filter, SortAsc, FolderPlus, Lock, Building2 } from "lucide-react";
 import ModalNewProject from "@/app/dashboard/projects/ModalNewProject";
 import ProjectCard from "@/components/ProjectCard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,8 +22,9 @@ const ProjectsPage = () => {
   const [sortBy, setSortBy] = useState<"name" | "date" | "progress">("name");
   const [activeTab, setActiveTab] = useState<"all" | "favorites" | "archived">("all");
   const [statusFilter, setStatusFilter] = useState<string>("");
-  
+
   const { currentUser } = useCurrentUser();
+  const { activeOrganization } = useAuth();
 
   const getTabTitle = () => {
     switch (activeTab) {
@@ -127,12 +129,28 @@ const ProjectsPage = () => {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
+      {/* Workspace Indicator */}
+      {activeOrganization && (
+        <div className="flex items-center gap-2 px-4 py-2 bg-muted/50 rounded-lg border border-border">
+          <Lock className="h-4 w-4 text-muted-foreground" />
+          <span className="text-sm text-muted-foreground">
+            Projects in{' '}
+            <span className="font-medium text-foreground">
+              {activeOrganization.settings?.isPersonal
+                ? 'Personal Workspace'
+                : activeOrganization.name}
+            </span>
+            {' '}are private to workspace members
+          </span>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">{getTabTitle()}</h1>
           <p className="text-muted-foreground">
-            {sortedProjects.length} project{sortedProjects.length !== 1 ? 's' : ''} 
+            {sortedProjects.length} project{sortedProjects.length !== 1 ? 's' : ''}
             {statusFilter && ` with ${statusFilter.toLowerCase()} status`}
           </p>
         </div>

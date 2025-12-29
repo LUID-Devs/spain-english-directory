@@ -1,5 +1,6 @@
 import Modal from "@/components/Modal";
 import { useUpdateProjectMutation, Project } from "@/hooks/useApi";
+import { useAuth } from "@/app/authProvider";
 import React, { useState, useEffect } from "react";
 import { formatISO, format } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -7,7 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertTriangle } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { AlertTriangle, Building2 } from "lucide-react";
 
 type Props = {
   isOpen: boolean;
@@ -17,10 +19,12 @@ type Props = {
 
 const EditProjectModal = ({ isOpen, onClose, project }: Props) => {
   const [updateProject, { isLoading }] = useUpdateProjectMutation();
+  const { organizations } = useAuth();
   const [projectName, setProjectName] = useState("");
   const [description, setDescription] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [selectedWorkspaceId, setSelectedWorkspaceId] = useState<string>("");
   const [error, setError] = useState<string>("");
 
   // Populate form with project data when modal opens
@@ -30,6 +34,7 @@ const EditProjectModal = ({ isOpen, onClose, project }: Props) => {
       setDescription(project.description || "");
       setStartDate(project.startDate ? format(new Date(project.startDate), "yyyy-MM-dd") : "");
       setEndDate(project.endDate ? format(new Date(project.endDate), "yyyy-MM-dd") : "");
+      setSelectedWorkspaceId(project.organizationId?.toString() || "");
       setError("");
     }
   }, [isOpen, project]);
@@ -57,6 +62,7 @@ const EditProjectModal = ({ isOpen, onClose, project }: Props) => {
           description,
           startDate: formattedStartDate,
           endDate: formattedEndDate,
+          organizationId: selectedWorkspaceId ? parseInt(selectedWorkspaceId) : undefined,
         },
       }).unwrap();
 
@@ -126,6 +132,34 @@ const EditProjectModal = ({ isOpen, onClose, project }: Props) => {
             />
           </div>
         </div>
+
+        {/* Workspace Selection */}
+        {organizations.length > 1 && (
+          <div className="space-y-2">
+            <Label htmlFor="workspace">Workspace</Label>
+            <Select
+              value={selectedWorkspaceId}
+              onValueChange={setSelectedWorkspaceId}
+            >
+              <SelectTrigger>
+                <div className="flex items-center gap-2">
+                  <Building2 className="h-4 w-4 text-muted-foreground" />
+                  <SelectValue placeholder="Select workspace" />
+                </div>
+              </SelectTrigger>
+              <SelectContent>
+                {organizations.map((org) => (
+                  <SelectItem key={org.id} value={org.id.toString()}>
+                    {org.settings?.isPersonal ? 'Personal Workspace' : org.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              Move this project to a different workspace
+            </p>
+          </div>
+        )}
         
         {error && (
           <Alert variant="destructive">

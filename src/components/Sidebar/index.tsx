@@ -94,16 +94,20 @@ const Sidebar = () => {
           )}
         </div>
 
-        {/* TEAM INFO */}
+        {/* WORKSPACE INFO */}
         <div className="flex items-center gap-5 border-y border-border px-8 py-4">
           <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
             <span className="text-white font-bold text-sm">
-              {(userTeam?.teamName || 'My Team').charAt(0).toUpperCase()}
+              {auth.activeOrganization?.settings?.isPersonal
+                ? (currentUser?.username?.charAt(0) || 'P').toUpperCase()
+                : (auth.activeOrganization?.name?.charAt(0) || 'W').toUpperCase()}
             </span>
           </div>
           <div>
             <h3 className="text-md font-bold tracking-wide text-foreground">
-              {userTeam?.teamName || 'My Team'}
+              {auth.activeOrganization?.settings?.isPersonal
+                ? 'Personal Workspace'
+                : auth.activeOrganization?.name || 'My Workspace'}
             </h3>
             <div className="mt-1 flex items-start gap-2">
               <LockIcon className="mt-[0.1rem] h-3 w-3 text-muted-foreground" />

@@ -6,6 +6,7 @@ import { useGlobalStore } from "@/stores/globalStore";
 import { useCurrentUser } from "@/stores/userStore";
 import { useAuth } from "@/app/authProvider";
 import NavbarSearch from "@/components/NavbarSearch";
+import WorkspaceSwitcher from "@/components/WorkspaceSwitcher";
 import { Button } from "@/components/ui/button";
 
 const Navbar = () => {
@@ -31,8 +32,14 @@ const Navbar = () => {
       animate={{ y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
     >
-      {/* Left Section - Menu & Search */}
-      <div className="flex items-center gap-6">
+      {/* Left Section - Workspace, Menu & Search */}
+      <div className="flex items-center gap-4">
+        {/* Workspace Switcher */}
+        <WorkspaceSwitcher />
+
+        {/* Divider */}
+        <div className="hidden md:block h-8 w-[1px] bg-border"></div>
+
         {/* Menu Toggle */}
         {isSidebarCollapsed && (
           <Button
@@ -44,10 +51,10 @@ const Navbar = () => {
             <Menu className="h-5 w-5" />
           </Button>
         )}
-        
+
         {/* Search Bar */}
         <div className="flex h-min w-[200px] md:w-[300px] lg:w-[400px]">
-          <NavbarSearch 
+          <NavbarSearch
             className="w-full"
             placeholder="Search projects, tasks, users..."
           />

@@ -57,10 +57,14 @@ export const useGetAuthUserQuery = (userIdentifier: string, options: { skip?: bo
 // Hook to replace useGetProjectsQuery
 export const useGetProjectsQuery = (filters: any = {}, options: { skip?: boolean } = {}) => {
   const { projects, setProjects, setLoading, setError } = useApiStore();
-  
+  // Track organization ID for cache invalidation when workspace changes
+  const [activeOrgId, setActiveOrgId] = useState(() =>
+    typeof window !== 'undefined' ? localStorage.getItem('activeOrganizationId') : null
+  );
+
   const fetchProjects = useCallback(async (filtersToUse = filters) => {
     if (options.skip) return;
-    
+
     try {
       setLoading('projects', true);
       const projectsData = await apiService.getProjects(filtersToUse);
@@ -75,12 +79,24 @@ export const useGetProjectsQuery = (filters: any = {}, options: { skip?: boolean
     }
   }, [options.skip, setProjects, setLoading, setError]);
 
-  // Fetch when filters change
+  // Listen for storage changes (workspace switches)
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const newOrgId = localStorage.getItem('activeOrganizationId');
+      if (newOrgId !== activeOrgId) {
+        setActiveOrgId(newOrgId);
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [activeOrgId]);
+
+  // Fetch when filters or organization changes
   useEffect(() => {
     if (!options.skip) {
       fetchProjects(filters);
     }
-  }, [JSON.stringify(filters), options.skip]);
+  }, [JSON.stringify(filters), options.skip, activeOrgId]);
 
   // Listen for project deletion events to force refetch
   useEffect(() => {
@@ -106,23 +122,26 @@ export const useGetProjectsQuery = (filters: any = {}, options: { skip?: boolean
 // Hook to replace useGetTasksByUserQuery
 export const useGetTasksByUserQuery = (userId: number | null, options: { skip?: boolean } = {}) => {
   const { tasks, setTasks, setLoading, setError } = useApiStore();
-  const hasFetchedRef = useRef(false);
   const userIdRef = useRef(userId);
   const skipRef = useRef(options.skip);
-  
+  // Track organization ID for cache invalidation when workspace changes
+  const [activeOrgId, setActiveOrgId] = useState(() =>
+    typeof window !== 'undefined' ? localStorage.getItem('activeOrganizationId') : null
+  );
+
   const fetchTasks = useCallback(async () => {
     if (skipRef.current || userIdRef.current === null || userIdRef.current === undefined) {
       console.log('Skipping task fetch:', { skip: skipRef.current, userId: userIdRef.current });
       return;
     }
-    
+
     // Validate userId is a valid number
     if (isNaN(userIdRef.current) || userIdRef.current <= 0) {
       console.error('Invalid userId for task fetch:', userIdRef.current);
       setError('tasks', 'Invalid user ID');
       return;
     }
-    
+
     try {
       setLoading('tasks', true);
       console.log('Fetching tasks for userId:', userIdRef.current);
@@ -138,17 +157,28 @@ export const useGetTasksByUserQuery = (userId: number | null, options: { skip?: 
     }
   }, [setTasks, setLoading, setError]);
 
+  // Listen for storage changes (workspace switches)
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const newOrgId = localStorage.getItem('activeOrganizationId');
+      if (newOrgId !== activeOrgId) {
+        setActiveOrgId(newOrgId);
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [activeOrgId]);
+
   useEffect(() => {
     // Update refs
     userIdRef.current = userId;
     skipRef.current = options.skip;
-    
-    // Only fetch once on mount unless userId or skip changes
-    if (!hasFetchedRef.current && !options.skip && userId !== null && userId !== undefined) {
-      hasFetchedRef.current = true;
+
+    // Fetch when userId, skip, or organization changes
+    if (!options.skip && userId !== null && userId !== undefined) {
       fetchTasks();
     }
-  }, [userId, options.skip, fetchTasks]);
+  }, [userId, options.skip, fetchTasks, activeOrgId]);
 
   return {
     data: tasks.data,

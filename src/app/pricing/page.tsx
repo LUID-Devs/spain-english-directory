@@ -36,7 +36,7 @@ const plans = [
       "Unlimited projects",
       "AI-powered features",
       "Team collaboration",
-      "Access to FileConvertPro Pro",
+      "Access to LuidKit Pro",
       "Access to ResumeLuid Pro",
       "Priority support",
     ],
@@ -72,10 +72,10 @@ const includedApps = [
     current: true,
   },
   {
-    name: "FileConvertPro",
+    name: "LuidKit",
     description: "File conversion & processing",
     icon: "🔄",
-    url: "https://fileconvertpro.com",
+    url: "https://luidkit.com",
     current: false,
   },
   {
@@ -90,7 +90,7 @@ const includedApps = [
 const faqs = [
   {
     question: "Does one subscription unlock all apps?",
-    answer: "Yes! A single LuidHub Pro subscription gives you full access to all apps - TaskLuid, FileConvertPro, ResumeLuid, and any future apps we build.",
+    answer: "Yes! A single LuidHub Pro subscription gives you full access to all apps - TaskLuid, LuidKit, ResumeLuid, and any future apps we build.",
   },
   {
     question: "Can I cancel my subscription at any time?",

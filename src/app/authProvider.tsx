@@ -6,16 +6,30 @@ interface User {
   sub: string;
   email: string;
   preferred_username?: string;
+  userId?: number;
+  username?: string;
   [key: string]: string | number | boolean | undefined;
+}
+
+interface Organization {
+  id: number;
+  name: string;
+  slug: string;
+  logoUrl?: string;
+  settings?: { isPersonal?: boolean };
+  role?: string;
 }
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  organizations: Organization[];
+  activeOrganization: Organization | null;
   login: () => void;
   logout: () => void;
   refreshAuth: () => Promise<void>;
+  switchWorkspace: (organizationId: number) => Promise<void>;
 }
 
 const AuthContext = React.createContext<AuthContextType | null>(null);
@@ -23,6 +37,8 @@ const AuthContext = React.createContext<AuthContextType | null>(null);
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [organizations, setOrganizations] = useState<Organization[]>([]);
+  const [activeOrganization, setActiveOrganization] = useState<Organization | null>(null);
   const navigate = useNavigate();
 
   // Debug timing
@@ -54,9 +70,9 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         console.log('[AUTH] No Cognito session found');
       }
 
-      // Add timeout to prevent hanging
+      // Add timeout to prevent hanging (increased to 10s for slow backend responses)
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 3000);
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
 
       // Build headers with Cognito tokens if available
       const headers: HeadersInit = {
@@ -90,6 +106,16 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (data.user && data.isAuthenticated) {
           setUser(data.user);
           console.log('[AUTH] User authenticated from backend:', data.user.username || data.user.email || data.user.sub);
+
+          // Set organizations and active organization
+          if (data.organizations) {
+            setOrganizations(data.organizations);
+            console.log('[AUTH] Organizations loaded:', data.organizations.length);
+          }
+          if (data.activeOrganization) {
+            setActiveOrganization(data.activeOrganization);
+            console.log('[AUTH] Active organization:', data.activeOrganization.name);
+          }
         } else if (cognitoUser) {
           // Fallback to Cognito user data if backend doesn't return user
           console.log('[AUTH] Using Cognito user data as fallback');
@@ -101,6 +127,8 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           });
         } else {
           setUser(null);
+          setOrganizations([]);
+          setActiveOrganization(null);
           console.log('[AUTH] No user data available');
         }
       } else if (cognitoUser) {
@@ -114,6 +142,8 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         });
       } else {
         setUser(null);
+        setOrganizations([]);
+        setActiveOrganization(null);
         console.log('[AUTH] User not authenticated');
       }
     } catch (error) {
@@ -157,7 +187,51 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } finally {
       // Always clear user state and redirect, regardless of API call result
       setUser(null);
+      setOrganizations([]);
+      setActiveOrganization(null);
       navigate('/auth/login');
+    }
+  };
+
+  const switchWorkspace = async (organizationId: number) => {
+    try {
+      console.log('[AUTH] Switching workspace to:', organizationId);
+
+      // Get Cognito tokens for auth header
+      let headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      };
+
+      try {
+        const session = await fetchAuthSession();
+        if (session?.tokens?.accessToken) {
+          headers['Authorization'] = `Bearer ${session.tokens.accessToken}`;
+        }
+        if (session?.tokens?.idToken) {
+          headers['X-ID-Token'] = `${session.tokens.idToken}`;
+        }
+      } catch (e) {
+        console.log('[AUTH] No Cognito session for workspace switch');
+      }
+
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/organizations/switch`, {
+        method: 'POST',
+        credentials: 'include',
+        headers,
+        body: JSON.stringify({ organizationId }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.data?.activeOrganization) {
+          setActiveOrganization(data.data.activeOrganization);
+          console.log('[AUTH] Workspace switched to:', data.data.activeOrganization.name);
+        }
+      } else {
+        console.error('[AUTH] Failed to switch workspace');
+      }
+    } catch (error) {
+      console.error('[AUTH] Workspace switch error:', error);
     }
   };
 
@@ -165,9 +239,12 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     user,
     isAuthenticated: !!user,
     isLoading,
+    organizations,
+    activeOrganization,
     login,
     logout,
-    refreshAuth: checkAuthStatus
+    refreshAuth: checkAuthStatus,
+    switchWorkspace,
   };
 
   // Always render children - let individual pages handle auth requirements

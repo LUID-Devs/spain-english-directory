@@ -4,7 +4,7 @@ import { subscriptionApi, type SubscriptionData, type SubscriptionPlan } from '@
 import { SUBSCRIPTION_PLANS } from '@/lib/stripe';
 
 // LuidHub API URL for subscription status
-const LUIDHUB_API_URL = process.env.NEXT_PUBLIC_LUIDHUB_API_URL || 'https://api.luidhub.com/api';
+const LUIDHUB_API_URL = import.meta.env.VITE_LUIDHUB_API_URL || 'https://api.luidhub.com/api';
 
 interface LuidHubSubscription {
   planType: string;

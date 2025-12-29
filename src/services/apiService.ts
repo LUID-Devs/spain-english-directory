@@ -200,6 +200,12 @@ class ApiService {
       headers['Content-Type'] = 'application/json';
     }
 
+    // Add organization context header if available in localStorage (set by workspace switcher)
+    const activeOrgId = localStorage.getItem('activeOrganizationId');
+    if (activeOrgId) {
+      headers['X-Organization-Id'] = activeOrgId;
+    }
+
     const config: RequestInit = {
       credentials: 'include', // Still send cookies for traditional auth
       ...options,
