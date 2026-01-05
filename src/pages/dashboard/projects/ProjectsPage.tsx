@@ -1,12 +1,14 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useGetProjectsQuery } from "@/hooks/useApi";
 import { useProjects } from "@/stores/apiStore";
 import { useCurrentUser } from "@/stores/userStore";
 import { useAuth } from "@/app/authProvider";
-import { Plus, Search, Grid3X3, List, Archive, Star, Filter, SortAsc, FolderPlus, Lock, Building2 } from "lucide-react";
+import { useSubscription } from "@/stores/subscriptionStore";
+import { Plus, Search, Grid3X3, List, Archive, Star, Filter, SortAsc, FolderPlus, Lock, Building2, Crown } from "lucide-react";
 import ModalNewProject from "@/app/dashboard/projects/ModalNewProject";
 import ProjectCard from "@/components/ProjectCard";
+import { UpgradeModal } from "@/components/subscription/UpgradeModal";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,8 +17,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { cn } from "@/lib/utils";
 
+// Free tier project limit
+const FREE_PROJECT_LIMIT = 1;
+
 const ProjectsPage = () => {
   const [isNewProjectModalOpen, setIsNewProjectModalOpen] = useState(false);
+  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [sortBy, setSortBy] = useState<"name" | "date" | "progress">("name");
@@ -25,6 +31,30 @@ const ProjectsPage = () => {
 
   const { currentUser } = useCurrentUser();
   const { activeOrganization } = useAuth();
+  const { isPro } = useSubscription();
+
+  /**
+   * Check if user can create a new project
+   * Free users are limited to FREE_PROJECT_LIMIT projects
+   * Pro users have unlimited projects
+   */
+  const canCreateProject = (currentProjectCount: number): boolean => {
+    if (isPro) return true;
+    return currentProjectCount < FREE_PROJECT_LIMIT;
+  };
+
+  /**
+   * Handle new project button click
+   * Shows upgrade modal if user has reached their project limit
+   */
+  const handleNewProjectClick = () => {
+    const totalProjects = allProjects?.length ?? 0;
+    if (canCreateProject(totalProjects)) {
+      setIsNewProjectModalOpen(true);
+    } else {
+      setIsUpgradeModalOpen(true);
+    }
+  };
 
   const getTabTitle = () => {
     switch (activeTab) {
@@ -155,9 +185,12 @@ const ProjectsPage = () => {
           </p>
         </div>
         {activeTab === "all" && (
-          <Button onClick={() => setIsNewProjectModalOpen(true)}>
+          <Button onClick={handleNewProjectClick}>
             <Plus className="h-4 w-4 mr-2" />
             New Project
+            {!isPro && (allProjects?.length ?? 0) >= FREE_PROJECT_LIMIT && (
+              <Crown className="h-4 w-4 ml-2 text-amber-400" />
+            )}
           </Button>
         )}
       </div>
@@ -272,7 +305,7 @@ const ProjectsPage = () => {
               }
             </p>
             {allProjects?.length === 0 && activeTab === "all" && (
-              <Button onClick={() => setIsNewProjectModalOpen(true)}>
+              <Button onClick={handleNewProjectClick}>
                 <Plus className="h-4 w-4 mr-2" />
                 Create Your First Project
               </Button>
@@ -300,6 +333,22 @@ const ProjectsPage = () => {
       <ModalNewProject
         isOpen={isNewProjectModalOpen}
         onClose={() => setIsNewProjectModalOpen(false)}
+      />
+
+      {/* Upgrade to Pro Modal */}
+      <UpgradeModal
+        isOpen={isUpgradeModalOpen}
+        onClose={() => setIsUpgradeModalOpen(false)}
+        title="Unlock Unlimited Projects"
+        message="Free users are limited to 1 project. Upgrade to Pro to create unlimited projects and unlock all premium features."
+        features={[
+          'Unlimited projects',
+          'Unlimited tasks per project',
+          'AI-powered task suggestions',
+          'Advanced analytics and reporting',
+          'Priority support',
+          'Access to all LUID apps',
+        ]}
       />
     </div>
   );

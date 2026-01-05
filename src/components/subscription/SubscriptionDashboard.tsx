@@ -3,53 +3,39 @@
 import React from 'react';
 import {
   Zap,
-  AlertCircle,
   ExternalLink,
   Crown,
   Check,
+  Coins,
+  CreditCard,
 } from 'lucide-react';
 import { useSubscription } from '@/stores/subscriptionStore';
-import { formatPrice } from '@/lib/stripe';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { cn } from '@/lib/utils';
 
-const LUIDHUB_PRICING_URL = 'https://luidhub.com/pricing';
-const LUIDHUB_ACCOUNT_URL = 'https://luidhub.com/account';
+const LUIDHUB_PRICING_URL = import.meta.env.VITE_LUIDHUB_URL
+  ? `${import.meta.env.VITE_LUIDHUB_URL}/pricing`
+  : 'https://luidhub.com/pricing';
+const LUIDHUB_ACCOUNT_URL = import.meta.env.VITE_LUIDHUB_URL
+  ? `${import.meta.env.VITE_LUIDHUB_URL}/account`
+  : 'https://luidhub.com/account';
 
 export function SubscriptionDashboard() {
-  const { subscriptionData, loading: subscriptionLoading } = useSubscription();
+  const {
+    loading,
+    isPro,
+    planType,
+    totalCredits,
+    subscriptionCredits,
+    purchasedCredits,
+  } = useSubscription();
 
-  // Provide fallback data
-  const defaultSubscriptionData = {
-    subscription: {
-      name: 'Free',
-      price: 0,
-      taskLimit: 5,
-      features: ['Up to 5 tasks', 'Basic project management', 'Email support'],
-      status: 'active'
-    },
-    usage: {
-      tasksCreated: 0,
-      taskLimit: 5,
-      remaining: 5
-    },
-    paymentMethods: []
-  };
-
-  const dataToUse = subscriptionData || defaultSubscriptionData;
-  const { subscription, usage } = dataToUse;
-  const usagePercentage = usage.taskLimit === 999999
-    ? 0
-    : (usage.tasksCreated / usage.taskLimit) * 100;
-
-  const isFree = subscription.name === 'Free';
+  const isFree = planType === 'free';
 
   // Skeleton loading state
-  if (subscriptionLoading && !subscriptionData) {
+  if (loading) {
     return (
       <div className="space-y-6">
         <div className="grid gap-6 md:grid-cols-2">
@@ -68,7 +54,7 @@ export function SubscriptionDashboard() {
         <AlertDescription className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <span className="text-sm">
             Your TaskLuid subscription is managed through <strong>LuidHub</strong>.
-            Upgrade to Pro for unlimited tasks and premium features across all LUID apps.
+            {isFree && ' Upgrade to Pro for unlimited access and premium features across all LUID apps.'}
           </span>
           {isFree && (
             <Button
@@ -96,14 +82,16 @@ export function SubscriptionDashboard() {
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="text-2xl font-bold text-primary">
-                  {subscription.name}
+                  {isPro ? 'Pro' : 'Free'}
                 </h3>
-                {!isFree && (
+                {isPro && (
                   <Badge className="bg-green-500">Active</Badge>
                 )}
               </div>
-              <p className="text-lg text-muted-foreground">
-                {formatPrice(subscription.price)}/month
+              <p className="text-sm text-muted-foreground mt-1">
+                {isPro
+                  ? 'Full access to all LUID apps and premium features'
+                  : 'Basic access with limited credits'}
               </p>
             </div>
 
@@ -123,61 +111,50 @@ export function SubscriptionDashboard() {
                   className="gap-2"
                 >
                   <ExternalLink className="h-4 w-4" />
-                  Manage in LuidHub
+                  Manage Subscription
                 </Button>
               )}
             </div>
           </CardContent>
         </Card>
 
-        {/* Usage */}
+        {/* Credit Balance */}
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2">
-              <AlertCircle className="h-5 w-5" />
-              Usage
+              <Coins className="h-5 w-5" />
+              Credit Balance
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <p className="text-sm text-muted-foreground mb-2">
-                Tasks Created
-              </p>
-              <div className="flex items-center gap-3">
-                <Progress
-                  value={Math.min(usagePercentage, 100)}
-                  className={cn(
-                    "flex-1 h-2",
-                    usagePercentage >= 100 ? "[&>div]:bg-destructive" :
-                    usagePercentage >= 80 ? "[&>div]:bg-yellow-500" : "[&>div]:bg-primary"
-                  )}
-                />
-                <span className="text-sm font-medium">
-                  {usage.tasksCreated}/{usage.taskLimit === 999999 ? '∞' : usage.taskLimit}
-                </span>
+              <div className="flex items-center gap-2">
+                <h3 className="text-3xl font-bold text-primary">
+                  {totalCredits.toLocaleString()}
+                </h3>
+                <span className="text-sm text-muted-foreground">credits</span>
               </div>
             </div>
 
-            {usagePercentage >= 80 && usage.taskLimit !== 999999 && (
-              <Alert variant="destructive" className="py-2">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription className="text-sm">
-                  {usagePercentage >= 100
-                    ? "You've reached your task limit. Upgrade to continue."
-                    : "You're approaching your task limit."}
-                </AlertDescription>
-              </Alert>
-            )}
-
-            <div className="space-y-2 pt-2">
-              <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Plan Features</p>
-              {subscription.features?.slice(0, 3).map((feature, index) => (
-                <div key={index} className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-green-500 shrink-0" />
-                  <span className="text-sm">{feature}</span>
-                </div>
-              ))}
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Subscription Credits</span>
+                <span className="font-medium">{subscriptionCredits.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Purchased Credits</span>
+                <span className="font-medium">{purchasedCredits.toLocaleString()}</span>
+              </div>
             </div>
+
+            <Button
+              variant="outline"
+              onClick={() => window.open(LUIDHUB_ACCOUNT_URL, '_blank')}
+              className="gap-2 w-full"
+            >
+              <CreditCard className="h-4 w-4" />
+              Buy More Credits
+            </Button>
           </CardContent>
         </Card>
       </div>
@@ -196,11 +173,11 @@ export function SubscriptionDashboard() {
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-green-500" />
-                  <span className="text-sm">Unlimited tasks</span>
+                  <span className="text-sm">Unlimited tasks and projects</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-green-500" />
-                  <span className="text-sm">Unlimited projects</span>
+                  <span className="text-sm">Monthly credit allowance</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-green-500" />

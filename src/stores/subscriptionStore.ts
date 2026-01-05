@@ -1,217 +1,272 @@
 import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
-import { subscriptionApi, type SubscriptionData, type SubscriptionPlan } from '@/lib/subscription-api';
-import { SUBSCRIPTION_PLANS } from '@/lib/stripe';
+import {
+  creditsApi,
+  type CreditBalance,
+  type SubscriptionStatus,
+} from '@/lib/credits-api';
 
 // LuidHub API URL for subscription status
 const LUIDHUB_API_URL = import.meta.env.VITE_LUIDHUB_API_URL || 'https://api.luidhub.com/api';
 
-interface LuidHubSubscription {
-  planType: string;
-  status: string;
-  currentPeriodEnd?: string;
+/**
+ * Get the authentication token from Cognito
+ * Uses dynamic import to ensure Amplify is fully initialized
+ * This matches the pattern used in apiService.ts which works correctly
+ * @returns The access token or null if not authenticated
+ */
+const getAuthToken = async (): Promise<string | null> => {
+  try {
+    // Use dynamic import like apiService.ts does - this ensures Amplify is configured
+    const { fetchAuthSession } = await import('aws-amplify/auth');
+    const session = await fetchAuthSession();
+    const token = session.tokens?.accessToken?.toString();
+    return token || null;
+  } catch (error) {
+    return null;
+  }
+};
+
+// Credits state interface
+interface CreditsState {
+  totalCredits: number;
+  subscriptionCredits: number;
+  purchasedCredits: number;
 }
 
+// Subscription state interface
 interface SubscriptionState {
-  subscriptionData: SubscriptionData | null;
+  planType: 'free' | 'pro';
+  status: 'active' | 'inactive' | 'cancelled' | 'past_due';
+  currentPeriodEnd?: string;
+  cancelAtPeriodEnd?: boolean;
+}
+
+interface LuidHubSubscriptionStore {
+  // Credits state
+  credits: CreditsState;
+
+  // Subscription state
+  subscription: SubscriptionState;
+
+  // Loading and error states
   loading: boolean;
   error: string | null;
 
-  // LuidHub subscription state
-  luidHubSubscription: LuidHubSubscription | null;
+  // Computed properties
   isPro: boolean;
 
-  // Computed getters
-  isSubscribed: boolean;
-  isPremium: boolean;
-  currentPlan: SubscriptionPlan | null;
-
   // Actions
-  setSubscriptionData: (data: SubscriptionData | null) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
-  refreshSubscription: () => Promise<void>;
-  canCreateTask: () => Promise<{ canCreate: boolean; reason?: string; upgradeRequired?: boolean }>;
-  initializeSubscription: () => Promise<void>;
-  fetchLuidHubSubscription: () => Promise<LuidHubSubscription | null>;
+  clearError: () => void;
+
+  // LuidHub API actions
+  fetchLuidHubSubscription: () => Promise<{
+    subscription: SubscriptionStatus | null;
+    credits: CreditBalance | null;
+  } | null>;
+  fetchCredits: () => Promise<CreditBalance | null>;
+
+  // Utility functions
+  isProUser: () => boolean;
+  canAffordOperation: (amount: number) => boolean;
+
+  // Reset store
+  reset: () => void;
 }
 
-export const useSubscriptionStore = create<SubscriptionState>()(
+const initialCreditsState: CreditsState = {
+  totalCredits: 0,
+  subscriptionCredits: 0,
+  purchasedCredits: 0,
+};
+
+const initialSubscriptionState: SubscriptionState = {
+  planType: 'free',
+  status: 'active',
+};
+
+export const useSubscriptionStore = create<LuidHubSubscriptionStore>()(
   subscribeWithSelector((set, get) => ({
     // Initial state
-    subscriptionData: null,
-    loading: true,
+    credits: initialCreditsState,
+    subscription: initialSubscriptionState,
+    loading: false,
     error: null,
-    luidHubSubscription: null,
     isPro: false,
-    
-    // Computed getters
-    get isSubscribed() {
-      const data = get().subscriptionData;
-      return data?.subscription?.name !== 'Free' && data?.subscription?.status === 'active';
-    },
-    
-    get isPremium() {
-      // Check LuidHub Pro status first
-      const isPro = get().isPro;
-      if (isPro) return true;
 
-      const data = get().subscriptionData;
-      const isSubscribed = get().isSubscribed;
-      return isSubscribed &&
-             (data?.subscription?.name === 'Pro' || data?.subscription?.name === 'Enterprise');
-    },
-    
-    get currentPlan() {
-      return get().subscriptionData?.subscription || null;
-    },
-    
     // Actions
-    setSubscriptionData: (data) => 
-      set({ subscriptionData: data, error: null }),
-    
-    setLoading: (loading) => 
-      set({ loading }),
-    
-    setError: (error) => 
-      set({ error, loading: false }),
-    
-    refreshSubscription: async () => {
-      const { initializeSubscription } = get();
-      await initializeSubscription();
-    },
-    
-    canCreateTask: async () => {
-      try {
-        const result = await subscriptionApi.checkTaskCreation();
-        return result;
-      } catch (err) {
-        console.error('Error checking task creation ability:', err);
-        return { canCreate: true };
-      }
-    },
-    
-    initializeSubscription: async () => {
-      const subStart = Date.now();
-      console.log('[SUBSCRIPTION] Starting subscription fetch at:', subStart);
+    setLoading: (loading) => set({ loading }),
+    setError: (error) => set({ error }),
+    clearError: () => set({ error: null }),
 
-      // Set loading but keep any existing data visible
+    /**
+     * Fetch subscription status and credits from LuidHub
+     * This is the main initialization function
+     */
+    fetchLuidHubSubscription: async () => {
+      const token = await getAuthToken();
+
+      if (!token) {
+        set({
+          credits: initialCreditsState,
+          subscription: initialSubscriptionState,
+          isPro: false,
+          loading: false,
+        });
+        return null;
+      }
+
       set({ loading: true, error: null });
 
       try {
-        // Reduced timeout for better UX (3 seconds instead of 5)
-        const timeoutPromise = new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('Subscription fetch timeout')), 3000)
-        );
+        const { subscription, credits } = await creditsApi.fetchLuidHubData(token);
 
-        const data = await Promise.race([
-          subscriptionApi.getCurrentSubscription(),
-          timeoutPromise
-        ]) as SubscriptionData;
+        const isPro = subscription?.planType === 'pro' && subscription?.status === 'active';
 
-        const subEnd = Date.now();
-        console.log('[SUBSCRIPTION] Subscription request completed in:', subEnd - subStart, 'ms');
+        const newCreditsState = credits ? {
+          totalCredits: credits.total_credits,
+          subscriptionCredits: credits.subscription_credits,
+          purchasedCredits: credits.purchased_credits,
+        } : initialCreditsState;
 
-        // Atomically set data and loading state together
         set({
-          subscriptionData: data,
+          subscription: subscription || initialSubscriptionState,
+          credits: newCreditsState,
+          isPro,
           loading: false,
-          error: null
+          error: null,
         });
-      } catch (err) {
-        const subEnd = Date.now();
-        console.error('[SUBSCRIPTION] Subscription fetch failed after:', subEnd - subStart, 'ms', err);
 
-        // Always set loading to false, provide fallback data
+        return { subscription, credits };
+      } catch (error) {
         set({
-          error: null, // Don't show error, just use fallback silently
+          error: error instanceof Error ? error.message : 'Failed to fetch subscription',
           loading: false,
-          subscriptionData: {
-            subscription: SUBSCRIPTION_PLANS.FREE,
-            usage: {
-              tasksCreated: 0,
-              taskLimit: 5,
-              remaining: 5,
-            },
-            paymentMethods: [],
-          }
         });
+        return null;
       }
     },
 
-    // Fetch subscription status from LuidHub
-    fetchLuidHubSubscription: async () => {
-      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    /**
+     * Fetch only credits from LuidHub (for refreshing after operations)
+     */
+    fetchCredits: async () => {
+      const token = await getAuthToken();
+
       if (!token) {
-        set({ luidHubSubscription: null, isPro: false });
+        set({ credits: initialCreditsState });
         return null;
       }
 
       try {
-        const response = await fetch(`${LUIDHUB_API_URL}/subscription/status`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
+        const credits = await creditsApi.getBalance(token);
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch subscription status');
+        if (credits) {
+          const newCreditsState = {
+            totalCredits: credits.total_credits,
+            subscriptionCredits: credits.subscription_credits,
+            purchasedCredits: credits.purchased_credits,
+          };
+          set({
+            credits: newCreditsState,
+          });
         }
 
-        const data = await response.json();
-        const isPro = data.planType === 'pro' && data.status === 'active';
-
-        set({
-          luidHubSubscription: data,
-          isPro,
-        });
-
-        return data;
+        return credits;
       } catch (error) {
-        console.error('Error fetching LuidHub subscription:', error);
-        set({
-          luidHubSubscription: null,
-          isPro: false,
-        });
         return null;
       }
     },
+
+    /**
+     * Check if user is a Pro subscriber
+     */
+    isProUser: () => {
+      const { subscription, isPro } = get();
+      return isPro || (subscription.planType === 'pro' && subscription.status === 'active');
+    },
+
+    /**
+     * Check if user can afford an operation
+     * @param amount - The number of credits required
+     */
+    canAffordOperation: (amount: number) => {
+      const { credits } = get();
+      return credits.totalCredits >= amount;
+    },
+
+    /**
+     * Reset store to initial state
+     */
+    reset: () => set({
+      credits: initialCreditsState,
+      subscription: initialSubscriptionState,
+      loading: false,
+      error: null,
+      isPro: false,
+    }),
   }))
 );
 
 // Helper hooks for subscription data
 export const useSubscription = () => {
   const {
-    subscriptionData,
+    credits,
+    subscription,
     loading,
     error,
-    isSubscribed,
-    isPremium,
-    currentPlan,
-    refreshSubscription,
-    canCreateTask,
     isPro,
-    luidHubSubscription,
     fetchLuidHubSubscription,
+    fetchCredits,
+    isProUser,
+    canAffordOperation,
+    reset,
   } = useSubscriptionStore();
 
   return {
-    subscriptionData,
+    // Credits
+    credits,
+    totalCredits: credits.totalCredits,
+    subscriptionCredits: credits.subscriptionCredits,
+    purchasedCredits: credits.purchasedCredits,
+
+    // Subscription
+    subscription,
+    planType: subscription.planType,
+    subscriptionStatus: subscription.status,
+
+    // State
     loading,
     error,
-    isSubscribed,
-    isPremium,
-    currentPlan,
-    refreshSubscription,
-    canCreateTask,
     isPro,
-    luidHubSubscription,
+
+    // Actions
     fetchLuidHubSubscription,
+    fetchCredits,
+    refreshSubscription: fetchLuidHubSubscription,
+
+    // Utilities
+    isProUser,
+    canAffordOperation,
+    reset,
+
+    // Computed - for backwards compatibility
+    isSubscribed: subscription.planType !== 'free' && subscription.status === 'active',
+    isPremium: isPro,
+    currentPlan: {
+      name: subscription.planType === 'pro' ? 'Pro' : 'Free',
+      planType: subscription.planType,
+      status: subscription.status,
+    },
   };
 };
 
-export const useSubscriptionData = () => useSubscriptionStore((state) => state.subscriptionData);
+// Selector hooks for specific data
+export const useCredits = () => useSubscriptionStore((state) => state.credits);
+export const useIsPro = () => useSubscriptionStore((state) => state.isPro);
 export const useSubscriptionLoading = () => useSubscriptionStore((state) => state.loading);
 export const useSubscriptionError = () => useSubscriptionStore((state) => state.error);
+
+export default useSubscriptionStore;

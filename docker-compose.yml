@@ -4,6 +4,7 @@ services:
   taskluid-frontend:
     image: ghcr.io/luid-devs/task-luid-web:latest
     container_name: taskluid-frontend
+    init: true
     pull_policy: always
     ports:
       - "3000:80"

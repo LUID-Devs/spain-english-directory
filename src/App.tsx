@@ -4,6 +4,7 @@ import { Toaster } from 'sonner';
 import { useGlobalStore } from '@/stores/globalStore';
 import AuthProvider from '@/app/authProvider';
 import DashboardWrapper from '@/app/dashboardWrapper';
+import { SubscriptionProvider } from '@/components/SubscriptionProvider';
 
 // Auth Components
 import LoginPage from '@/pages/auth/LoginPage';
@@ -61,8 +62,9 @@ function App() {
         
         {/* Dashboard Routes (Protected) */}
         <Route path="/dashboard/*" element={
-          <DashboardWrapper>
-            <Routes>
+          <SubscriptionProvider>
+            <DashboardWrapper>
+              <Routes>
               <Route index element={<DashboardPage />} />
               <Route path="projects" element={<ProjectsPage />} />
               <Route path="projects/:id" element={<ProjectDetailPage />} />
@@ -79,8 +81,9 @@ function App() {
               <Route path="priority/medium" element={<MediumPriorityPage />} />
               <Route path="priority/low" element={<LowPriorityPage />} />
               <Route path="priority/backlog" element={<BacklogPriorityPage />} />
-            </Routes>
-          </DashboardWrapper>
+              </Routes>
+            </DashboardWrapper>
+          </SubscriptionProvider>
         } />
         
         {/* Default redirects */}
