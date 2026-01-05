@@ -1,5 +1,7 @@
 import { Priority, Status, useCreateTaskMutation, useGetUsersQuery, useGetProjectsQuery, useGetProjectStatusesQuery, useUploadTaskDescriptionImageMutation } from "@/hooks/useApi";
 import { useCurrentUser } from "@/stores/userStore";
+import { useSubscription } from "@/stores/subscriptionStore";
+import { apiService, ParsedTaskData } from "@/services/apiService";
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { formatISO } from "date-fns";
 import { toast } from "sonner";
@@ -12,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -20,7 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import RichTextEditor from "@/components/RichTextEditor";
-import { Image } from "lucide-react";
+import { Image, Sparkles, Loader2, ChevronDown, ChevronUp, Coins } from "lucide-react";
 
 type Props = {
   isOpen: boolean;
@@ -33,6 +36,7 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
   const [createTask, { isLoading }] = useCreateTaskMutation() as any;
   const [uploadDescriptionImage] = useUploadTaskDescriptionImageMutation();
   const { currentUser } = useCurrentUser();
+  const { totalCredits, fetchCredits } = useSubscription();
   const {data: users} = useGetUsersQuery(undefined, {
     skip: !isOpen, // Only load when modal is open
   });
@@ -51,6 +55,12 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
   const [assignedUserId, setAssignedUserId] = useState("");
   const [projectId, setProjectId] = useState("");
 
+  // AI Quick Input state
+  const [aiInput, setAiInput] = useState("");
+  const [isAiParsing, setIsAiParsing] = useState(false);
+  const [showAiInput, setShowAiInput] = useState(true);
+  const AI_CREDIT_COST = 1;
+
   // Reset form to initial state
   const resetForm = () => {
     setTitle("");
@@ -61,6 +71,8 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
     setStartDate("");
     setDueDate("");
     setAssignedUserId("");
+    setAiInput("");
+    setShowAiInput(true);
     // Keep authorUserId as the current user
     if (currentUser?.userId) {
       setAuthorUserId(currentUser.userId.toString());
@@ -68,6 +80,83 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
     // Keep projectId if we're in a specific project context
     if (id === null) {
       setProjectId("");
+    }
+  };
+
+  // AI Parse Task function
+  const handleAiParse = async () => {
+    if (!aiInput.trim()) {
+      toast.error("Please enter a task description");
+      return;
+    }
+
+    if (totalCredits < AI_CREDIT_COST) {
+      toast.error("Insufficient credits. Please purchase more credits to use AI features.");
+      return;
+    }
+
+    setIsAiParsing(true);
+
+    try {
+      // Get team member names for assignee matching
+      const teamMemberNames = users?.map(u => u.username) || [];
+
+      const response = await apiService.parseTaskWithAI(aiInput.trim(), teamMemberNames);
+
+      if (response.success && response.data) {
+        const parsed = response.data;
+
+        // Apply parsed data to form fields
+        if (parsed.title) {
+          setTitle(parsed.title);
+        }
+        if (parsed.description) {
+          setDescription(parsed.description);
+        }
+        if (parsed.priority) {
+          setPriority(Priority[parsed.priority as keyof typeof Priority]);
+        }
+        if (parsed.dueDate) {
+          setDueDate(parsed.dueDate);
+        }
+        if (parsed.tags) {
+          setTags(parsed.tags);
+        }
+
+        // Handle assignee - if AI found a match, use it; otherwise assign to creator
+        if (parsed.assignee && users) {
+          const matchedUser = users.find(
+            u => u.username.toLowerCase() === parsed.assignee?.toLowerCase()
+          );
+          if (matchedUser) {
+            setAssignedUserId(matchedUser.userId.toString());
+          } else if (currentUser?.userId) {
+            // No match found, assign to creator
+            setAssignedUserId(currentUser.userId.toString());
+          }
+        } else if (currentUser?.userId) {
+          // No assignee specified by AI, assign to creator
+          setAssignedUserId(currentUser.userId.toString());
+        }
+
+        // Collapse AI input and show success
+        setShowAiInput(false);
+        toast.success(`Task parsed! Used ${response.creditsUsed || AI_CREDIT_COST} credit.`);
+
+        // Refresh credits to show updated balance
+        fetchCredits();
+      } else {
+        const errorMsg = response.error?.message || "Failed to parse task";
+        if (response.error?.code === 'INSUFFICIENT_CREDITS') {
+          toast.error(`Insufficient credits. You need ${response.error.required} credits but have ${response.error.available}.`);
+        } else {
+          toast.error(errorMsg);
+        }
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Failed to parse task with AI");
+    } finally {
+      setIsAiParsing(false);
     }
   };
 
@@ -126,9 +215,7 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
   }, [uploadDescriptionImage]);
 
   const handleSubmit = async () => {
-    console.log('handleSubmit called', { title, authorUserId, id, projectId });
     if (!title || !authorUserId || !((id !== null) || projectId)) {
-      console.log('Validation failed', { title, authorUserId, id, projectId });
       return;
     }
 
@@ -146,11 +233,10 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
         projectId: id !== null ? Number(id) : Number(projectId),
       };
 
-      console.log('Creating task with data:', taskData);
       await createTask(taskData).unwrap();
       onClose();
     } catch (error) {
-      console.error("Failed to create task:", error);
+      toast.error("Failed to create task");
     }
   };
 
@@ -179,6 +265,76 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
             handleSubmit();
           }}
         >
+          {/* AI Quick Input Section */}
+          <div className="rounded-lg border border-primary/20 bg-primary/5 p-4">
+            <button
+              type="button"
+              onClick={() => setShowAiInput(!showAiInput)}
+              className="flex items-center justify-between w-full text-left"
+            >
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-primary" />
+                <span className="font-medium text-sm">Quick Create with AI</span>
+                <span className="text-xs text-muted-foreground flex items-center gap-1">
+                  <Coins className="h-3 w-3" />
+                  {AI_CREDIT_COST} credit
+                </span>
+              </div>
+              {showAiInput ? (
+                <ChevronUp className="h-4 w-4 text-muted-foreground" />
+              ) : (
+                <ChevronDown className="h-4 w-4 text-muted-foreground" />
+              )}
+            </button>
+
+            {showAiInput && (
+              <div className="mt-3 space-y-3">
+                <Textarea
+                  value={aiInput}
+                  onChange={(e) => setAiInput(e.target.value)}
+                  placeholder='Type naturally: "Fix login bug by Friday, assign to John, high priority"'
+                  className="min-h-[80px] text-sm resize-none"
+                  disabled={isAiParsing}
+                />
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground">
+                    Credits: {totalCredits}
+                  </span>
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={handleAiParse}
+                    disabled={isAiParsing || !aiInput.trim() || totalCredits < AI_CREDIT_COST}
+                    className="gap-2"
+                  >
+                    {isAiParsing ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Parsing...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="h-4 w-4" />
+                        Parse with AI
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">
+                or fill manually
+              </span>
+            </div>
+          </div>
+
           {/* Title */}
           <div className="space-y-2">
             <Label htmlFor="title" className="text-foreground font-medium">

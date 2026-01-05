@@ -154,6 +154,52 @@ export interface Team {
   projectManagerUserId?: number;
 }
 
+// AI Task Parsing Types
+export interface ParsedTaskData {
+  title: string;
+  description: string | null;
+  priority: 'Urgent' | 'High' | 'Medium' | 'Low' | 'Backlog' | null;
+  dueDate: string | null;
+  assignee: string | null;
+  tags: string | null;
+  confidence: {
+    title: number;
+    priority: number;
+    dueDate: number;
+    assignee: number;
+    tags: number;
+  };
+}
+
+export interface AIParseTaskResponse {
+  success: boolean;
+  data?: ParsedTaskData;
+  error?: {
+    message: string;
+    code: string;
+    required?: number;
+    available?: number;
+  };
+  creditsUsed?: number;
+  remainingCredits?: number;
+  processingTime?: number;
+}
+
+export interface AIStatusResponse {
+  success: boolean;
+  data?: {
+    available: boolean;
+    features: {
+      parseTask: {
+        available: boolean;
+        creditCost: number;
+        description: string;
+        maxInputLength: number;
+      };
+    };
+  };
+}
+
 // API Service class
 class ApiService {
   private baseUrl: string;
@@ -512,7 +558,7 @@ class ApiService {
   }
 
   async getSearchSuggestions(query: string, type?: string): Promise<{ suggestions: SearchSuggestion[] }> {
-    const params = new URLSearchParams({ 
+    const params = new URLSearchParams({
       query,
       _t: Date.now().toString() // Cache busting
     });
@@ -524,6 +570,18 @@ class ApiService {
         'Expires': '0'
       }
     });
+  }
+
+  // AI Task Parsing
+  async parseTaskWithAI(text: string, teamMembers: string[]): Promise<AIParseTaskResponse> {
+    return this.request<AIParseTaskResponse>('/api/ai/parse-task', {
+      method: 'POST',
+      body: JSON.stringify({ text, teamMembers }),
+    });
+  }
+
+  async getAIStatus(): Promise<AIStatusResponse> {
+    return this.request<AIStatusResponse>('/api/ai/status');
   }
 }
 
