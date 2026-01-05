@@ -30,7 +30,9 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
-        heading: false,
+        heading: {
+          levels: [3, 4], // Support h3 and h4 for task descriptions
+        },
         codeBlock: false,
       }),
       Image.configure({
@@ -218,6 +220,26 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           padding-left: 12px;
           margin: 8px 0;
           color: hsl(var(--muted-foreground));
+        }
+
+        .rich-text-editor .ProseMirror h3 {
+          font-size: 16px;
+          font-weight: 600;
+          margin: 16px 0 8px 0;
+          color: hsl(var(--foreground));
+          border-bottom: 1px solid hsl(var(--border));
+          padding-bottom: 4px;
+        }
+
+        .rich-text-editor .ProseMirror h3:first-child {
+          margin-top: 0;
+        }
+
+        .rich-text-editor .ProseMirror h4 {
+          font-size: 14px;
+          font-weight: 600;
+          margin: 12px 0 6px 0;
+          color: hsl(var(--foreground));
         }
 
         /* Dark mode adjustments */

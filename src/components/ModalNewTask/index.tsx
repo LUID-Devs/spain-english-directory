@@ -5,6 +5,7 @@ import { apiService, ParsedTaskData } from "@/services/apiService";
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { formatISO } from "date-fns";
 import { toast } from "sonner";
+import { marked } from "marked";
 import {
   Dialog,
   DialogContent,
@@ -24,6 +25,12 @@ import {
 } from "@/components/ui/select";
 import RichTextEditor from "@/components/RichTextEditor";
 import { Image, Sparkles, Loader2, ChevronDown, ChevronUp, Coins } from "lucide-react";
+
+// Configure marked for safe HTML output
+marked.setOptions({
+  gfm: true, // GitHub flavored markdown
+  breaks: true, // Convert line breaks to <br>
+});
 
 type Props = {
   isOpen: boolean;
@@ -111,7 +118,9 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
           setTitle(parsed.title);
         }
         if (parsed.description) {
-          setDescription(parsed.description);
+          // Convert Markdown to HTML for the rich text editor
+          const htmlContent = marked.parse(parsed.description) as string;
+          setDescription(htmlContent);
         }
         if (parsed.priority) {
           setPriority(Priority[parsed.priority as keyof typeof Priority]);
