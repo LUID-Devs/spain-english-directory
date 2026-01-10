@@ -34,6 +34,11 @@ import LandingPage from '@/pages/landing/LandingPage';
 import PricingPage from '@/pages/pricing/PricingPage';
 import InviteAcceptPage from '@/pages/organizations/invite/InviteAcceptPage';
 
+// Legal Pages
+import PrivacyPolicy from '@/pages/legal/PrivacyPolicy';
+import TermsOfService from '@/pages/legal/TermsOfService';
+import CookiePolicy from '@/pages/legal/CookiePolicy';
+
 function App() {
   const { isDarkMode } = useGlobalStore();
 
@@ -51,6 +56,11 @@ function App() {
         {/* Public Routes */}
         <Route path="/landing" element={<LandingPage />} />
         <Route path="/pricing" element={<PricingPage />} />
+
+        {/* Legal Routes */}
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<TermsOfService />} />
+        <Route path="/cookies" element={<CookiePolicy />} />
         
         {/* Auth Routes */}
         <Route path="/auth/login" element={<LoginPage />} />

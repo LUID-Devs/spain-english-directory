@@ -3,22 +3,6 @@ import { Link } from "react-router-dom";
 import FadeInWhenVisible from "@/components/ui/fade-in-when-visible";
 import { motion } from "framer-motion";
 
-function StatCard({ number, label }: { number: string; label: string }) {
-  return (
-    <motion.div
-      className="p-6 rounded-lg bg-blue-600/10 border border-blue-500/20 text-center"
-      whileHover={{ scale: 1.05 }}
-    >
-      <motion.h3
-        className="text-4xl font-bold text-blue-500 mb-2"
-        whileHover={{ scale: 1.1 }}
-      >
-        {number}
-      </motion.h3>
-      <p className="text-neutral-400">{label}</p>
-    </motion.div>
-  );
-}
 
 function FeatureCard({ feature, index }: { feature: { icon: React.ElementType; title: string; description: string }; index: number }) {
   return (
@@ -93,7 +77,7 @@ const LandingPage = () => {
                 </span>
               </h2>
               <p className="text-xl text-neutral-400 mb-12 max-w-2xl mx-auto">
-                Join thousands of teams who&apos;ve revolutionized their productivity with our AI-powered project management platform. Organize, track, and complete projects efficiently.
+                A modern project management platform designed to help you organize, track, and complete projects efficiently. Part of the Luid Suite.
               </p>
               
               {/* CTA Buttons */}
@@ -239,14 +223,40 @@ const LandingPage = () => {
         <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
       </div>
 
-      {/* Stats Section */}
+      {/* Community Section */}
       <div className="py-32 bg-gradient-to-b from-black to-neutral-900">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <StatCard number="50K+" label="Active Users" />
-            <StatCard number="1M+" label="Tasks Completed" />
-            <StatCard number="99.9%" label="Uptime" />
-            <StatCard number="24/7" label="Support" />
+          <div className="text-center max-w-3xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white">
+              Join Our Growing Community
+            </h2>
+            <p className="text-xl text-neutral-400 mb-8">
+              TaskLuid is part of Luid Suite - integrated productivity apps built by an independent developer.
+              Early adopters welcome!
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <motion.div
+                className="p-6 rounded-lg bg-blue-600/10 border border-blue-500/20 text-center"
+                whileHover={{ scale: 1.05 }}
+              >
+                <h3 className="text-2xl font-bold text-blue-500 mb-2">Open Beta</h3>
+                <p className="text-neutral-400">Free to try</p>
+              </motion.div>
+              <motion.div
+                className="p-6 rounded-lg bg-blue-600/10 border border-blue-500/20 text-center"
+                whileHover={{ scale: 1.05 }}
+              >
+                <h3 className="text-2xl font-bold text-blue-500 mb-2">Active Development</h3>
+                <p className="text-neutral-400">Regular updates</p>
+              </motion.div>
+              <motion.div
+                className="p-6 rounded-lg bg-blue-600/10 border border-blue-500/20 text-center"
+                whileHover={{ scale: 1.05 }}
+              >
+                <h3 className="text-2xl font-bold text-blue-500 mb-2">Direct Support</h3>
+                <p className="text-neutral-400">Developer feedback</p>
+              </motion.div>
+            </div>
           </div>
         </div>
       </div>
@@ -320,83 +330,6 @@ const LandingPage = () => {
         </div>
       </div>
 
-      {/* Testimonials Section */}
-      <div className="py-32 bg-gradient-to-b from-black via-neutral-900 to-black">
-        <div className="container mx-auto px-4">
-          <FadeInWhenVisible>
-            <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-5xl font-bold mb-4 text-white">
-                Trusted by Teams Worldwide
-              </h2>
-              <p className="text-neutral-400 text-xl max-w-3xl mx-auto">
-                Join thousands of teams who&apos;ve transformed their productivity with TaskLuid
-              </p>
-            </div>
-          </FadeInWhenVisible>
-
-          {/* Testimonials Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-            {testimonials.map((testimonial, index) => (
-              <FadeInWhenVisible key={index} delay={index * 0.1}>
-                <motion.div
-                  className="p-6 rounded-xl bg-gradient-to-br from-neutral-800/50 to-neutral-900/50 border border-neutral-700/50 hover:border-blue-500/30 transition-all duration-300 group"
-                  whileHover={{ y: -5 }}
-                >
-                  <div className="flex items-center mb-4">
-                    <div className="flex space-x-1">
-                      {[...Array(5)].map((_, i) => (
-                        <svg
-                          key={i}
-                          className="w-4 h-4 text-yellow-400 fill-current"
-                          viewBox="0 0 20 20"
-                        >
-                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                        </svg>
-                      ))}
-                    </div>
-                  </div>
-                  <p className="text-neutral-300 mb-4 italic">&quot;{testimonial.quote}&quot;</p>
-                  <div className="flex items-center">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center mr-3">
-                      <span className="text-white font-bold text-sm">
-                        {testimonial.name.split(' ').map((n: string) => n[0]).join('')}
-                      </span>
-                    </div>
-                    <div>
-                      <p className="text-white font-medium">{testimonial.name}</p>
-                      <p className="text-neutral-400 text-sm">{testimonial.role}</p>
-                    </div>
-                  </div>
-                </motion.div>
-              </FadeInWhenVisible>
-            ))}
-          </div>
-
-          {/* Trust Indicators */}
-          <FadeInWhenVisible delay={0.3}>
-            <div className="text-center">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-blue-400 mb-2">15K+</div>
-                  <p className="text-neutral-400 text-sm">Active Teams</p>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-green-400 mb-2">2M+</div>
-                  <p className="text-neutral-400 text-sm">Tasks Managed</p>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-purple-400 mb-2">99.9%</div>
-                  <p className="text-neutral-400 text-sm">Uptime</p>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-orange-400 mb-2">24/7</div>
-                  <p className="text-neutral-400 text-sm">Support</p>
-                </div>
-              </div>
-            </div>
-          </FadeInWhenVisible>
-        </div>
-      </div>
 
       {/* Features Section */}
       <div className="py-32 bg-gradient-to-b from-black to-neutral-900">
@@ -423,7 +356,7 @@ const LandingPage = () => {
           <div className="py-12 md:py-16">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12">
               {/* Brand Column */}
-              <motion.div 
+              <motion.div
                 className="space-y-4"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -440,166 +373,133 @@ const LandingPage = () => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </motion.div>
-                  <h3 className="font-bold text-xl bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                    TaskLuid
-                  </h3>
+                  <div>
+                    <h3 className="font-bold text-xl bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                      Luid Suite
+                    </h3>
+                    <p className="text-xs text-neutral-500">Integrated productivity apps</p>
+                  </div>
                 </div>
                 <p className="text-gray-300 text-sm max-w-xs leading-relaxed">
-                  Streamline your workflow and boost productivity with our comprehensive AI-powered task management platform.
+                  TaskLuid is part of Luid Suite - productivity apps built by an independent developer.
                 </p>
-                
-                {/* Social Links */}
-                <div className="flex space-x-4 pt-2">
-                  <motion.a 
-                    href="https://twitter.com" 
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-blue-500/20 text-blue-400 hover:text-blue-300 hover:border-blue-400/40 transition-all duration-300"
-                    whileHover={{ scale: 1.1, y: -2 }}
-                    whileTap={{ scale: 0.95 }}
-                    aria-label="Follow us on Twitter"
-                  >
-                    <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
-                    </svg>
-                  </motion.a>
-                  <motion.a 
-                    href="https://linkedin.com" 
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-blue-500/20 text-blue-400 hover:text-blue-300 hover:border-blue-400/40 transition-all duration-300"
-                    whileHover={{ scale: 1.1, y: -2 }}
-                    whileTap={{ scale: 0.95 }}
-                    aria-label="Connect with us on LinkedIn"
-                  >
-                    <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
-                    </svg>
-                  </motion.a>
-                  <motion.a 
-                    href="mailto:support@taskluid.com"
-                    className="p-2 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-blue-500/20 text-blue-400 hover:text-blue-300 hover:border-blue-400/40 transition-all duration-300"
-                    whileHover={{ scale: 1.1, y: -2 }}
-                    whileTap={{ scale: 0.95 }}
-                    aria-label="Send us an email"
-                  >
-                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                    </svg>
-                  </motion.a>
-                </div>
+                <p className="text-gray-400 text-xs">
+                  Contact: <a href="mailto:alaindimabuyo@luiddevelopers.com" className="text-blue-400 hover:text-blue-300">alaindimabuyo@luiddevelopers.com</a>
+                </p>
               </motion.div>
 
-              {/* Products Column */}
-              <motion.div 
+              {/* Apps Column */}
+              <motion.div
                 className="space-y-4"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
                 viewport={{ once: true }}
               >
-                <h4 className="font-semibold text-white text-lg mb-4">Products</h4>
+                <h4 className="font-semibold text-white text-lg mb-4">Apps</h4>
                 <ul className="space-y-3">
                   <li>
-                    <Link href="#features" className="text-gray-300 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center group">
+                    <a href="https://taskluid.com" className="text-gray-300 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center group">
                       <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-3 group-hover:bg-blue-300 transition-colors"></span>
-                      Task Management
-                    </Link>
+                      TaskLuid
+                    </a>
                   </li>
                   <li>
-                    <motion.a 
-                      href="/dashboard" 
-                      className="text-gray-300 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center group"
-                      whileHover={{ x: 4 }}
-                    >
+                    <a href="https://resumeluid.com" className="text-gray-300 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center group">
                       <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-3 group-hover:bg-blue-300 transition-colors"></span>
-                      Project Dashboard
-                    </motion.a>
+                      ResumeLuid
+                    </a>
                   </li>
                   <li>
-                    <Link href="#" className="text-gray-300 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center group">
+                    <a href="https://luidkit.com" className="text-gray-300 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center group">
                       <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-3 group-hover:bg-blue-300 transition-colors"></span>
-                      Team Collaboration
-                    </Link>
+                      LuidKit
+                    </a>
                   </li>
                   <li>
-                    <Link href="/auth/login" className="text-gray-300 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center group">
-                      <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-3 group-hover:bg-blue-300 transition-colors"></span>
-                      Sign In
-                    </Link>
+                    <span className="text-gray-500 text-sm flex items-center group">
+                      <span className="w-1.5 h-1.5 bg-gray-600 rounded-full mr-3"></span>
+                      RoomLuid <span className="ml-2 text-xs bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded">Coming Soon</span>
+                    </span>
+                  </li>
+                  <li>
+                    <span className="text-gray-500 text-sm flex items-center group">
+                      <span className="w-1.5 h-1.5 bg-gray-600 rounded-full mr-3"></span>
+                      LuidGPT <span className="ml-2 text-xs bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded">Coming Soon</span>
+                    </span>
+                  </li>
+                  <li>
+                    <span className="text-gray-500 text-sm flex items-center group">
+                      <span className="w-1.5 h-1.5 bg-gray-600 rounded-full mr-3"></span>
+                      LuidSpeak <span className="ml-2 text-xs bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded">Coming Soon</span>
+                    </span>
                   </li>
                 </ul>
               </motion.div>
 
-              {/* Resources Column */}
-              <motion.div 
+              {/* Support Column */}
+              <motion.div
                 className="space-y-4"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.3 }}
                 viewport={{ once: true }}
               >
-                <h4 className="font-semibold text-white text-lg mb-4">Resources</h4>
+                <h4 className="font-semibold text-white text-lg mb-4">Support</h4>
                 <ul className="space-y-3">
                   <li>
-                    <Link href="#about" className="text-gray-300 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center group">
+                    <a href="mailto:alaindimabuyo@luiddevelopers.com?subject=Help Request" className="text-gray-300 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center group">
                       <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-3 group-hover:bg-blue-300 transition-colors"></span>
-                      About Us
-                    </Link>
+                      Help Center
+                    </a>
                   </li>
                   <li>
-                    <Link href="#" className="text-gray-300 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center group">
+                    <a href="mailto:alaindimabuyo@luiddevelopers.com?subject=Contact" className="text-gray-300 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center group">
                       <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-3 group-hover:bg-blue-300 transition-colors"></span>
-                      Project Templates
-                    </Link>
+                      Contact
+                    </a>
                   </li>
                   <li>
-                    <Link href="#" className="text-gray-300 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center group">
+                    <a href="mailto:alaindimabuyo@luiddevelopers.com?subject=Feedback" className="text-gray-300 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center group">
                       <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-3 group-hover:bg-blue-300 transition-colors"></span>
-                      Best Practices
-                    </Link>
+                      Send Feedback
+                    </a>
                   </li>
                   <li>
-                    <Link href="#" className="text-gray-300 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center group">
+                    <a href="mailto:alaindimabuyo@luiddevelopers.com?subject=Bug Report" className="text-gray-300 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center group">
                       <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-3 group-hover:bg-blue-300 transition-colors"></span>
-                      API Documentation
-                    </Link>
+                      Report Bug
+                    </a>
                   </li>
                 </ul>
               </motion.div>
 
-              {/* Support Column */}
-              <motion.div 
+              {/* Legal Column */}
+              <motion.div
                 className="space-y-4"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.4 }}
                 viewport={{ once: true }}
               >
-                <h4 className="font-semibold text-white text-lg mb-4">Support</h4>
+                <h4 className="font-semibold text-white text-lg mb-4">Legal</h4>
                 <ul className="space-y-3">
                   <li>
-                    <Link href="#" className="text-gray-300 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center group">
-                      <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-3 group-hover:bg-blue-300 transition-colors"></span>
-                      Help Center
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="#" className="text-gray-300 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center group">
-                      <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-3 group-hover:bg-blue-300 transition-colors"></span>
-                      Documentation
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="#" className="text-gray-300 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center group">
-                      <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-3 group-hover:bg-blue-300 transition-colors"></span>
-                      Contact Us
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="#" className="text-gray-300 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center group">
+                    <Link href="/privacy" className="text-gray-300 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center group">
                       <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-3 group-hover:bg-blue-300 transition-colors"></span>
                       Privacy Policy
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/terms" className="text-gray-300 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center group">
+                      <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-3 group-hover:bg-blue-300 transition-colors"></span>
+                      Terms of Service
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/cookies" className="text-gray-300 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center group">
+                      <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-3 group-hover:bg-blue-300 transition-colors"></span>
+                      Cookie Policy
                     </Link>
                   </li>
                 </ul>
@@ -607,7 +507,7 @@ const LandingPage = () => {
             </div>
 
             {/* Bottom Bar */}
-            <motion.div 
+            <motion.div
               className="border-t border-blue-500/20 mt-12 pt-8"
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
@@ -616,23 +516,23 @@ const LandingPage = () => {
             >
               <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
                 <p className="text-sm text-gray-400">
-                  © 2025 TaskLuid. All rights reserved.
+                  © {new Date().getFullYear()} Luid Suite. Built by an independent developer.
                 </p>
                 <div className="flex items-center gap-6 text-sm">
                   <Link
-                    href="#"
+                    href="/privacy"
                     className="text-gray-400 hover:text-blue-400 transition-colors duration-300"
                   >
                     Privacy Policy
                   </Link>
                   <Link
-                    href="#"
+                    href="/terms"
                     className="text-gray-400 hover:text-blue-400 transition-colors duration-300"
                   >
                     Terms of Service
                   </Link>
                   <Link
-                    href="#"
+                    href="/cookies"
                     className="text-gray-400 hover:text-blue-400 transition-colors duration-300"
                   >
                     Cookie Policy
@@ -884,37 +784,5 @@ const popularFeatures = [
   }
 ];
 
-const testimonials = [
-  {
-    name: "Sarah Johnson",
-    role: "Project Manager at TechCorp",
-    quote: "TaskLuid has completely transformed how our team manages projects. The AI-powered task prioritization saves us hours every week, and the real-time collaboration features keep everyone on the same page."
-  },
-  {
-    name: "Michael Chen",
-    role: "Startup Founder",
-    quote: "As a growing startup, we needed a project management solution that could scale with us. TaskLuid's intuitive interface and powerful analytics have been game-changing for our productivity."
-  },
-  {
-    name: "Emily Rodriguez",
-    role: "Marketing Director",
-    quote: "The timeline and Gantt chart features in TaskLuid are exceptional. We can now visualize our entire marketing campaigns from start to finish and never miss a deadline."
-  },
-  {
-    name: "David Park",
-    role: "Software Team Lead",
-    quote: "TaskLuid's integration capabilities and user management features make it perfect for our development team. The search functionality helps us find information instantly."
-  },
-  {
-    name: "Lisa Thompson",
-    role: "Operations Manager",
-    quote: "The analytics and reporting features provide incredible insights into our team's productivity. We've improved our project delivery times by 40% since switching to TaskLuid."
-  },
-  {
-    name: "James Wilson",
-    role: "Creative Director",
-    quote: "TaskLuid strikes the perfect balance between powerful features and ease of use. Our creative team adopted it immediately, and collaboration has never been smoother."
-  }
-];
 
 export default LandingPage;
