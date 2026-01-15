@@ -82,8 +82,13 @@ const Sidebar = () => {
       <div className="flex h-[100%] w-full flex-col justify-start">
         {/* TOP LOGO */}
         <div className="z-50 flex min-h-[56px] w-64 items-center justify-between bg-background px-6 pt-3">
-          <div className="text-xl font-bold text-foreground">
-            TaskLuid
+          <div className="flex items-center gap-2">
+            <img
+              src="/logo.png"
+              alt="LUID"
+              className="h-8 w-8 rounded"
+            />
+            <span className="text-xl font-bold text-foreground">TaskLuid</span>
           </div>
           {isSidebarCollapsed ? null : (
             <Button

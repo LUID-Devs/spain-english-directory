@@ -167,16 +167,16 @@ const RegisterPage = () => {
           {/* Header */}
           <div className="text-center mb-8">
             <Link href="/" className="inline-block">
-              <motion.div 
+              <motion.div
                 className="flex items-center justify-center gap-3 mb-4"
                 whileHover={{ scale: 1.05 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
               >
-                <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-blue-500 rounded-lg flex items-center justify-center">
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                </div>
+                <img
+                  src="/logo.png"
+                  alt="LUID"
+                  className="w-10 h-10 rounded-lg"
+                />
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
                   TaskLuid
                 </h1>
@@ -381,16 +381,16 @@ const RegisterPage = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-block">
-            <motion.div 
+            <motion.div
               className="flex items-center justify-center gap-3 mb-4"
               whileHover={{ scale: 1.05 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
             >
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-              </div>
+              <img
+                src="/logo.png"
+                alt="LUID"
+                className="w-10 h-10 rounded-lg"
+              />
               <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
                 TaskLuid
               </h1>
