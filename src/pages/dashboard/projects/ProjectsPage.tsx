@@ -158,34 +158,34 @@ const ProjectsPage = () => {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto px-4 py-4 sm:p-6 space-y-4 sm:space-y-6 overflow-x-hidden">
       {/* Workspace Indicator */}
       {activeOrganization && (
-        <div className="flex items-center gap-2 px-4 py-2 bg-muted/50 rounded-lg border border-border">
-          <Lock className="h-4 w-4 text-muted-foreground" />
-          <span className="text-sm text-muted-foreground">
+        <div className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-muted/50 rounded-lg border border-border">
+          <Lock className="h-4 w-4 text-muted-foreground shrink-0" />
+          <span className="text-xs sm:text-sm text-muted-foreground">
             Projects in{' '}
             <span className="font-medium text-foreground">
               {activeOrganization.settings?.isPersonal
                 ? 'Personal Workspace'
                 : activeOrganization.name}
             </span>
-            {' '}are private to workspace members
+            {' '}are private
           </span>
         </div>
       )}
 
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">{getTabTitle()}</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{getTabTitle()}</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
             {sortedProjects.length} project{sortedProjects.length !== 1 ? 's' : ''}
             {statusFilter && ` with ${statusFilter.toLowerCase()} status`}
           </p>
         </div>
         {activeTab === "all" && (
-          <Button onClick={handleNewProjectClick}>
+          <Button onClick={handleNewProjectClick} className="w-full sm:w-auto">
             <Plus className="h-4 w-4 mr-2" />
             New Project
             {!isPro && (allProjects?.length ?? 0) >= FREE_PROJECT_LIMIT && (
@@ -196,33 +196,36 @@ const ProjectsPage = () => {
       </div>
 
       {/* Tab Navigation */}
-      <div className="flex items-center justify-between">
-        <div className="flex gap-1 p-1 bg-muted rounded-lg">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex gap-1 p-1 bg-muted rounded-lg overflow-x-auto">
           <Button
             variant={activeTab === "all" ? "default" : "ghost"}
             size="sm"
             onClick={() => setActiveTab("all")}
+            className="shrink-0"
           >
-            All Projects
+            All
           </Button>
           <Button
             variant={activeTab === "favorites" ? "default" : "ghost"}
             size="sm"
             onClick={() => setActiveTab("favorites")}
+            className="shrink-0"
           >
-            <Star className="h-4 w-4 mr-2" />
-            Favorites
+            <Star className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Favorites</span>
           </Button>
           <Button
             variant={activeTab === "archived" ? "default" : "ghost"}
             size="sm"
             onClick={() => setActiveTab("archived")}
+            className="shrink-0"
           >
-            <Archive className="h-4 w-4 mr-2" />
-            Archived
+            <Archive className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Archived</span>
           </Button>
         </div>
-        
+
         {/* View Mode Toggle */}
         <div className="flex items-center gap-2">
           <Button
@@ -244,9 +247,9 @@ const ProjectsPage = () => {
 
       {/* Search and Filter Bar */}
       <Card>
-        <CardContent className="p-6">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="relative flex-1">
+        <CardContent className="p-4 sm:p-6">
+          <div className="flex flex-col gap-3 sm:gap-4">
+            <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search projects..."
@@ -255,11 +258,11 @@ const ProjectsPage = () => {
                 className="pl-10"
               />
             </div>
-            
-            <div className="flex gap-2">
+
+            <div className="flex flex-wrap gap-2">
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-40">
-                  <SortAsc className="h-4 w-4 mr-2" />
+                <SelectTrigger className="w-full sm:w-40">
+                  <SortAsc className="h-4 w-4 mr-2 shrink-0" />
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -268,11 +271,11 @@ const ProjectsPage = () => {
                   <SelectItem value="progress">Sort by Progress</SelectItem>
                 </SelectContent>
               </Select>
-              
+
               {activeTab !== "archived" && (
                 <Select value={statusFilter || "all"} onValueChange={(value) => setStatusFilter(value === "all" ? "" : value)}>
-                  <SelectTrigger className="w-32">
-                    <Filter className="h-4 w-4 mr-2" />
+                  <SelectTrigger className="w-full sm:w-32">
+                    <Filter className="h-4 w-4 mr-2 shrink-0" />
                     <SelectValue placeholder="Status" />
                   </SelectTrigger>
                   <SelectContent>

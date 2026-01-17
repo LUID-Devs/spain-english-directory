@@ -126,19 +126,17 @@ const ListView = ({
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto px-4 py-4 sm:p-6 space-y-4 sm:space-y-6 overflow-x-hidden">
       {/* Header */}
       <Card>
-        <CardHeader>
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="flex items-center space-x-3">
-              <FileText className="h-8 w-8 text-primary" />
-              <div>
-                <CardTitle className="text-2xl">Task List</CardTitle>
-                <CardDescription>
-                  {filteredAndSortedTasks.length} task{filteredAndSortedTasks.length !== 1 ? 's' : ''} found
-                </CardDescription>
-              </div>
+        <CardHeader className="p-4 sm:p-6">
+          <div className="flex items-center space-x-3">
+            <FileText className="h-6 w-6 sm:h-8 sm:w-8 text-primary shrink-0" />
+            <div>
+              <CardTitle className="text-xl sm:text-2xl">Task List</CardTitle>
+              <CardDescription>
+                {filteredAndSortedTasks.length} task{filteredAndSortedTasks.length !== 1 ? 's' : ''} found
+              </CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -146,10 +144,10 @@ const ListView = ({
 
       {/* Controls */}
       <Card>
-        <CardContent className="p-6">
-          <div className="flex flex-col lg:flex-row gap-4">
+        <CardContent className="p-4 sm:p-6">
+          <div className="flex flex-col gap-3 sm:gap-4">
             {/* Search */}
-            <div className="relative flex-1 max-w-md">
+            <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search tasks..."
@@ -159,10 +157,10 @@ const ListView = ({
               />
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-2">
               {/* Filter */}
               <Select value={filterBy} onValueChange={(value) => setFilterBy(value)}>
-                <SelectTrigger className="w-[160px]">
+                <SelectTrigger className="w-full sm:w-[140px]">
                   <SelectValue placeholder="Filter" />
                 </SelectTrigger>
                 <SelectContent>
@@ -177,19 +175,19 @@ const ListView = ({
 
               {/* Sort */}
               <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortOption)}>
-                <SelectTrigger className="w-[160px]">
+                <SelectTrigger className="w-full sm:w-[140px]">
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="priority">Sort by Priority</SelectItem>
-                  <SelectItem value="dueDate">Sort by Due Date</SelectItem>
-                  <SelectItem value="title">Sort by Title</SelectItem>
-                  <SelectItem value="status">Sort by Status</SelectItem>
+                  <SelectItem value="priority">Priority</SelectItem>
+                  <SelectItem value="dueDate">Due Date</SelectItem>
+                  <SelectItem value="title">Title</SelectItem>
+                  <SelectItem value="status">Status</SelectItem>
                 </SelectContent>
               </Select>
 
               {/* View Mode Toggle */}
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 ml-auto">
                 <Button
                   variant={viewMode === "grid" ? "default" : "outline"}
                   size="sm"

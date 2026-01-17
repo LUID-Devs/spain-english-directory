@@ -176,105 +176,153 @@ const TableView = ({
               Detailed view of all project tasks
             </CardDescription>
           </CardHeader>
-          <CardContent className="p-0 sm:p-6">
-            <div className="overflow-x-auto">
-            <Table className="min-w-[800px]">
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="min-w-[200px]">Title</TableHead>
-                  <TableHead className="min-w-[100px]">Status</TableHead>
-                  <TableHead className="min-w-[100px]">Priority</TableHead>
-                  <TableHead className="min-w-[80px] hidden md:table-cell">Type</TableHead>
-                  <TableHead className="min-w-[120px]">Assignee</TableHead>
-                  <TableHead className="min-w-[100px] hidden sm:table-cell">Due Date</TableHead>
-                  <TableHead className="min-w-[100px] hidden lg:table-cell">Tags</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredTasks.map((task) => {
-                  const priorityBadge = getPriorityBadge(task.priority);
-                  const statusVariant = getStatusBadge(task.status || "To Do");
-                  const PriorityIcon = priorityBadge.icon;
+          <CardContent className="p-0 sm:p-6 sm:pt-0">
+            {/* Mobile: Card-based layout */}
+            <div className="sm:hidden divide-y divide-border">
+              {filteredTasks.map((task) => {
+                const priorityBadge = getPriorityBadge(task.priority);
+                const statusVariant = getStatusBadge(task.status || "To Do");
 
-                  return (
-                    <TableRow key={task.id} className="cursor-pointer hover:bg-muted/50">
-                      <TableCell>
-                        <div className="font-medium text-foreground">{task.title}</div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={statusVariant} className="text-xs">
-                          {task.status || "To Do"}
+                return (
+                  <div key={task.id} className="p-4 hover:bg-muted/50">
+                    <div className="font-medium text-foreground mb-2">{task.title}</div>
+                    <div className="flex items-center gap-2 flex-wrap mb-2">
+                      <Badge variant={statusVariant} className="text-xs">
+                        {task.status || "To Do"}
+                      </Badge>
+                      {task.priority && (
+                        <Badge variant={priorityBadge.variant} className="text-xs">
+                          {task.priority}
                         </Badge>
-                      </TableCell>
-                      <TableCell>
-                        {task.priority ? (
-                          <Badge variant={priorityBadge.variant} className="text-xs">
-                            {task.priority}
+                      )}
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      {task.assignee ? (
+                        <div className="flex items-center space-x-2">
+                          <Avatar className="h-5 w-5">
+                            <AvatarImage
+                              src={`https://luid-pm-s3-images.s3.us-east-1.amazonaws.com/${task.assignee.profilePictureUrl}`}
+                              alt={task.assignee.username}
+                            />
+                            <AvatarFallback className="text-xs">
+                              {task.assignee.username.charAt(0).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <span className="text-muted-foreground">{task.assignee.username}</span>
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground text-xs">Unassigned</span>
+                      )}
+                      {task.dueDate && (
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <Calendar className="h-3 w-3" />
+                          <span>{format(new Date(task.dueDate), "MMM d")}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Desktop: Table layout */}
+            <div className="hidden sm:block overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Title</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Priority</TableHead>
+                    <TableHead className="hidden md:table-cell">Type</TableHead>
+                    <TableHead>Assignee</TableHead>
+                    <TableHead className="hidden lg:table-cell">Due Date</TableHead>
+                    <TableHead className="hidden xl:table-cell">Tags</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredTasks.map((task) => {
+                    const priorityBadge = getPriorityBadge(task.priority);
+                    const statusVariant = getStatusBadge(task.status || "To Do");
+
+                    return (
+                      <TableRow key={task.id} className="cursor-pointer hover:bg-muted/50">
+                        <TableCell>
+                          <div className="font-medium text-foreground">{task.title}</div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant={statusVariant} className="text-xs">
+                            {task.status || "To Do"}
                           </Badge>
-                        ) : (
-                          <span className="text-muted-foreground">—</span>
-                        )}
-                      </TableCell>
-                      <TableCell className="hidden md:table-cell">
-                        {task.taskType ? (
-                          <Badge variant="outline" className="text-xs">
-                            {task.taskType}
-                          </Badge>
-                        ) : (
-                          <span className="text-muted-foreground">—</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {task.assignee ? (
-                          <div className="flex items-center space-x-2">
-                            <Avatar className="h-6 w-6">
-                              <AvatarImage
-                                src={`https://luid-pm-s3-images.s3.us-east-1.amazonaws.com/${task.assignee.profilePictureUrl}`}
-                                alt={task.assignee.username}
-                              />
-                              <AvatarFallback className="text-xs">
-                                {task.assignee.username.charAt(0).toUpperCase()}
-                              </AvatarFallback>
-                            </Avatar>
-                            <span className="text-sm text-foreground">
-                              {task.assignee.username}
-                            </span>
-                          </div>
-                        ) : (
-                          <span className="text-muted-foreground text-sm">Unassigned</span>
-                        )}
-                      </TableCell>
-                      <TableCell className="hidden sm:table-cell">
-                        {task.dueDate ? (
-                          <div className="flex items-center space-x-1 text-sm text-foreground">
-                            <Calendar className="h-3 w-3" />
-                            <span>{format(new Date(task.dueDate), "MMM d, yyyy")}</span>
-                          </div>
-                        ) : (
-                          <span className="text-muted-foreground">—</span>
-                        )}
-                      </TableCell>
-                      <TableCell className="hidden lg:table-cell">
-                        {task.tags ? (
-                          <div className="flex flex-wrap gap-1">
-                            {task.tags.split(",").slice(0, 2).map((tag: string, index: number) => (
-                              <Badge key={index} variant="secondary" className="text-xs">
-                                {tag.trim()}
-                              </Badge>
-                            ))}
-                            {task.tags.split(",").length > 2 && (
-                              <span className="text-xs text-muted-foreground">+{task.tags.split(",").length - 2}</span>
-                            )}
-                          </div>
-                        ) : (
-                          <span className="text-muted-foreground">—</span>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
+                        </TableCell>
+                        <TableCell>
+                          {task.priority ? (
+                            <Badge variant={priorityBadge.variant} className="text-xs">
+                              {task.priority}
+                            </Badge>
+                          ) : (
+                            <span className="text-muted-foreground">—</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell">
+                          {task.taskType ? (
+                            <Badge variant="outline" className="text-xs">
+                              {task.taskType}
+                            </Badge>
+                          ) : (
+                            <span className="text-muted-foreground">—</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {task.assignee ? (
+                            <div className="flex items-center space-x-2">
+                              <Avatar className="h-6 w-6">
+                                <AvatarImage
+                                  src={`https://luid-pm-s3-images.s3.us-east-1.amazonaws.com/${task.assignee.profilePictureUrl}`}
+                                  alt={task.assignee.username}
+                                />
+                                <AvatarFallback className="text-xs">
+                                  {task.assignee.username.charAt(0).toUpperCase()}
+                                </AvatarFallback>
+                              </Avatar>
+                              <span className="text-sm text-foreground">
+                                {task.assignee.username}
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="text-muted-foreground text-sm">Unassigned</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="hidden lg:table-cell">
+                          {task.dueDate ? (
+                            <div className="flex items-center space-x-1 text-sm text-foreground">
+                              <Calendar className="h-3 w-3" />
+                              <span>{format(new Date(task.dueDate), "MMM d, yyyy")}</span>
+                            </div>
+                          ) : (
+                            <span className="text-muted-foreground">—</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="hidden xl:table-cell">
+                          {task.tags ? (
+                            <div className="flex flex-wrap gap-1">
+                              {task.tags.split(",").slice(0, 2).map((tag: string, index: number) => (
+                                <Badge key={index} variant="secondary" className="text-xs">
+                                  {tag.trim()}
+                                </Badge>
+                              ))}
+                              {task.tags.split(",").length > 2 && (
+                                <span className="text-xs text-muted-foreground">+{task.tags.split(",").length - 2}</span>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-muted-foreground">—</span>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
             </div>
           </CardContent>
         </Card>
