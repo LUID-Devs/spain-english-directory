@@ -24,6 +24,10 @@ const DeleteTaskModal: React.FC<DeleteTaskModalProps> = ({
       <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onClose}
+        onKeyDown={(e) => e.key === 'Escape' && onClose()}
+        role="button"
+        tabIndex={-1}
+        aria-label="Close modal"
       />
 
       {/* Modal */}
@@ -73,7 +77,7 @@ const DeleteTaskModal: React.FC<DeleteTaskModalProps> = ({
             disabled={isDeleting}
             className="w-full sm:w-auto px-4 py-2.5 sm:py-2 bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            {isDeleting ? "Deleting..." : "Delete Task"}
+            {isDeleting ? "Deleting…" : "Delete Task"}
           </button>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Settings, Menu, Moon, Sun, User, LogOut, X, Search } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -12,7 +12,20 @@ import { Button } from "@/components/ui/button";
 const Navbar = () => {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const { isSidebarCollapsed, isDarkMode, toggleSidebar, toggleDarkMode } = useGlobalStore();
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setPrefersReducedMotion(mediaQuery.matches);
+
+    const handleChange = (event: MediaQueryListEvent) => {
+      setPrefersReducedMotion(event.matches);
+    };
+
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
 
   const auth = useAuth();
   const { currentUser } = useCurrentUser();
@@ -30,9 +43,9 @@ const Navbar = () => {
     <>
     <motion.div
       className="flex items-center justify-between bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-3 sm:px-4 py-2 sm:py-3 border-b border-border sticky top-0 z-30"
-      initial={{ y: -100 }}
+      initial={{ y: prefersReducedMotion ? 0 : -100 }}
       animate={{ y: 0 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
+      transition={{ duration: prefersReducedMotion ? 0 : 0.6, ease: "easeOut" }}
     >
       {/* Left Section - Menu, Workspace & Search */}
       <div className="flex items-center gap-2 sm:gap-4">
@@ -68,7 +81,7 @@ const Navbar = () => {
         <div className="hidden sm:flex h-min w-[180px] sm:w-[220px] md:w-[280px] lg:w-[350px]">
           <NavbarSearch
             className="w-full"
-            placeholder="Search..."
+            placeholder="Search\u2026"
           />
         </div>
       </div>
@@ -92,14 +105,15 @@ const Navbar = () => {
           size="sm"
           onClick={toggleDarkMode}
           className="min-h-[44px] min-w-[44px] p-2"
+          aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
         >
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={isDarkMode ? "moon" : "sun"}
-              initial={{ rotate: -180, opacity: 0 }}
+              initial={{ rotate: prefersReducedMotion ? 0 : -180, opacity: prefersReducedMotion ? 1 : 0 }}
               animate={{ rotate: 0, opacity: 1 }}
-              exit={{ rotate: 180, opacity: 0 }}
-              transition={{ duration: 0.3 }}
+              exit={{ rotate: prefersReducedMotion ? 0 : 180, opacity: prefersReducedMotion ? 1 : 0 }}
+              transition={{ duration: prefersReducedMotion ? 0 : 0.3 }}
             >
               {isDarkMode ? (
                 <Moon className="h-5 w-5" />
@@ -111,7 +125,7 @@ const Navbar = () => {
         </Button>
 
         {/* Settings Link */}
-        <Button variant="ghost" size="sm" asChild className="hidden sm:flex min-h-[44px] min-w-[44px] p-2">
+        <Button variant="ghost" size="sm" asChild className="hidden sm:flex min-h-[44px] min-w-[44px] p-2" aria-label="Settings">
           <Link to="/dashboard/settings">
             <Settings className="h-5 w-5" />
           </Link>
@@ -160,7 +174,7 @@ const Navbar = () => {
               viewBox="0 0 24 24"
               stroke="currentColor"
               animate={{ rotate: showProfileMenu ? 180 : 0 }}
-              transition={{ duration: 0.2 }}
+              transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
             >
               <path
                 strokeLinecap="round"
@@ -176,10 +190,10 @@ const Navbar = () => {
             {showProfileMenu && (
               <motion.div
                 className="absolute right-0 mt-2 w-56 py-2 bg-background border border-border rounded-lg shadow-lg z-50"
-                initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                initial={{ opacity: prefersReducedMotion ? 1 : 0, scale: prefersReducedMotion ? 1 : 0.95, y: prefersReducedMotion ? 0 : -10 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                transition={{ duration: 0.15, ease: "easeOut" }}
+                exit={{ opacity: prefersReducedMotion ? 1 : 0, scale: prefersReducedMotion ? 1 : 0.95, y: prefersReducedMotion ? 0 : -10 }}
+                transition={{ duration: prefersReducedMotion ? 0 : 0.15, ease: "easeOut" }}
               >
                 {/* User Info Section */}
                 <div className="px-4 py-3 border-b border-border">
@@ -238,10 +252,10 @@ const Navbar = () => {
         {showMobileSearch && (
           <motion.div
             className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm sm:hidden"
-            initial={{ opacity: 0 }}
+            initial={{ opacity: prefersReducedMotion ? 1 : 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            exit={{ opacity: prefersReducedMotion ? 1 : 0 }}
+            transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
           >
             <div className="flex flex-col h-full">
               {/* Header */}
@@ -262,7 +276,7 @@ const Navbar = () => {
               <div className="p-4">
                 <NavbarSearch
                   className="w-full"
-                  placeholder="Search tasks, projects..."
+                  placeholder="Search tasks, projects\u2026"
                   autoFocus
                   onResultClick={() => setShowMobileSearch(false)}
                 />

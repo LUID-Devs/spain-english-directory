@@ -145,12 +145,12 @@ const TaskCard = React.memo(({ task }: Props) => {
         {/* Status and due date warning */}
         <div className="flex items-center gap-1.5 flex-wrap">
           <Badge variant={statusConfig.variant} className="text-[10px] px-1.5 py-0">
-            <StatusIcon className="h-2.5 w-2.5 mr-1" />
+            <StatusIcon className="h-2.5 w-2.5 mr-1" aria-hidden="true" />
             {task.status || "To Do"}
           </Badge>
           {dueDateStatus && (
             <Badge variant={dueDateStatus.variant} className="text-[10px] px-1.5 py-0">
-              <AlertTriangle className="h-2.5 w-2.5 mr-1" />
+              <AlertTriangle className="h-2.5 w-2.5 mr-1" aria-hidden="true" />
               {dueDateStatus.text}
             </Badge>
           )}
@@ -199,13 +199,13 @@ const TaskCard = React.memo(({ task }: Props) => {
           <div className="flex items-center gap-2 text-muted-foreground">
             {task.dueDate && (
               <div className="flex items-center gap-1 text-[10px]">
-                <Clock size={10} />
+                <Clock size={10} aria-hidden="true" />
                 <span>{format(new Date(task.dueDate), "P")}</span>
               </div>
             )}
             {numberOfComments > 0 && (
               <div className="flex items-center gap-0.5 text-[10px]">
-                <MessageSquareMore size={10} />
+                <MessageSquareMore size={10} aria-hidden="true" />
                 <span>{numberOfComments}</span>
               </div>
             )}

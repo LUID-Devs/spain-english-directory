@@ -237,7 +237,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
               {(isSaving || isUploadingImage) && (
                 <span className="flex items-center gap-1 text-xs text-muted-foreground">
                   <Loader2 className="h-3 w-3 animate-spin" />
-                  {isUploadingImage ? "Uploading..." : "Saving..."}
+                  {isUploadingImage ? "Uploading…" : "Saving…"}
                 </span>
               )}
             </div>
@@ -246,6 +246,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
               size="sm"
               onClick={handleShare}
               className="flex items-center gap-2 self-start sm:self-auto"
+              aria-label="Share task"
             >
               <Share2 className="h-4 w-4" />
               <span className="hidden sm:inline">Share</span>
@@ -257,7 +258,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
           ref={scrollContainerRef}
           tabIndex={0}
           onKeyDown={handleKeyDown}
-          className="overflow-y-scroll max-h-[calc(90vh-120px)] pr-2 focus:outline-none"
+          className="overflow-y-scroll max-h-[calc(90vh-120px)] pr-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
           {isLoading ? (
             <div className="space-y-4">
@@ -286,8 +287,9 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                     id="title"
                     value={editForm.title}
                     onChange={(e) => handleFieldChange('title', e.target.value)}
-                    placeholder="Enter task title..."
+                    placeholder="Enter task title…"
                     className="text-lg"
+                    autoComplete="off"
                   />
                 </div>
 
@@ -460,7 +462,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                     <Input
                       value={editForm.tags}
                       onChange={(e) => handleFieldChange('tags', e.target.value)}
-                      placeholder="Comma separated"
+                      placeholder="Comma separated…"
                       className="w-full h-9 lg:h-10"
                     />
                   </div>

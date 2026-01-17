@@ -89,6 +89,8 @@ const Sidebar = () => {
             <img
               src="/logo.png"
               alt="LUID"
+              width={32}
+              height={32}
               className="h-8 w-8 rounded"
             />
             <span className="text-xl font-bold text-foreground">TaskLuid</span>
@@ -99,6 +101,7 @@ const Sidebar = () => {
               size="sm"
               onClick={toggleSidebar}
               className="p-2"
+              aria-label="Close sidebar"
             >
               <X className="h-5 w-5" />
             </Button>
@@ -274,7 +277,7 @@ const SidebarLink = ({ href, icon: Icon, label, isCompact = false, isSubItem = f
           isActive ? "text-primary" : ""
         )} />
         <span className={cn(
-          "font-medium flex-1",
+          "font-medium flex-1 truncate",
           isActive ? "text-foreground" : ""
         )}>
           {label}

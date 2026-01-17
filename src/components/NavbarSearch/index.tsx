@@ -24,7 +24,7 @@ interface NavbarSearchProps {
 
 const NavbarSearch: React.FC<NavbarSearchProps> = ({
   className = "",
-  placeholder = "Search projects, tasks, users...",
+  placeholder = "Search projects, tasks, users…",
   autoFocus = false,
   onResultClick,
 }) => {
@@ -216,6 +216,7 @@ const NavbarSearch: React.FC<NavbarSearchProps> = ({
             className="w-full pl-10 pr-20 text-sm focus-visible:ring-1"
             onChange={handleInputChange}
             onFocus={handleInputFocus}
+            autoComplete="off"
           />
           
           {/* Action Buttons */}
@@ -277,7 +278,7 @@ const NavbarSearch: React.FC<NavbarSearchProps> = ({
               {isLoading && (
                 <div key="loading" className="flex items-center justify-center py-8">
                   <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-                  <span className="ml-2 text-sm text-muted-foreground">Searching...</span>
+                  <span className="ml-2 text-sm text-muted-foreground">Searching…</span>
                 </div>
               )}
               
