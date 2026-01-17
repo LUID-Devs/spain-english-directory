@@ -7,9 +7,17 @@ import { UserProvider } from "@/components/UserProvider";
 import { useAuth } from "@/app/authProvider";
 import { TaskModalProvider } from "@/contexts/TaskModalContext";
 import { cn } from "@/lib/utils";
+import { useSidebarSwipe } from "@/hooks/useSwipeGesture";
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
-  const { isSidebarCollapsed, isDarkMode, toggleSidebar } = useGlobalStore();
+  const { isSidebarCollapsed, isDarkMode, toggleSidebar, setIsSidebarCollapsed } = useGlobalStore();
+
+  // Swipe gesture for opening/closing sidebar on mobile
+  const swipeRef = useSidebarSwipe(
+    !isSidebarCollapsed, // isOpen (sidebar is open when NOT collapsed)
+    () => setIsSidebarCollapsed(false), // onOpen - set collapsed to false to open
+    () => setIsSidebarCollapsed(true) // onClose - set collapsed to true to close
+  );
 
   useEffect(() => {
     if (isDarkMode) {
@@ -34,7 +42,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <UserProvider>
       <TaskModalProvider>
-        <div className="flex min-h-screen w-full bg-background text-foreground">
+        <div ref={swipeRef} className="flex min-h-screen w-full bg-background text-foreground">
           {/* Mobile Backdrop Overlay */}
           <div
             className={cn(
