@@ -85,7 +85,7 @@ export function SubscriptionDashboard() {
                   {isPro ? 'Pro' : 'Free'}
                 </h3>
                 {isPro && (
-                  <Badge className="bg-green-500">Active</Badge>
+                  <Badge className="bg-gray-500">Active</Badge>
                 )}
               </div>
               <p className="text-sm text-muted-foreground mt-1">
@@ -161,10 +161,10 @@ export function SubscriptionDashboard() {
 
       {/* Pro Benefits - Show only for free users */}
       {isFree && (
-        <Card className="border-primary/30 bg-gradient-to-r from-primary/5 to-purple-500/5">
+        <Card className="border-primary/30 bg-gradient-to-r from-primary/5 to-gray-500/5">
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2">
-              <Crown className="h-5 w-5 text-yellow-500" />
+              <Crown className="h-5 w-5 text-gray-500" />
               Upgrade to LuidHub Pro
             </CardTitle>
           </CardHeader>
@@ -172,29 +172,29 @@ export function SubscriptionDashboard() {
             <div className="grid sm:grid-cols-2 gap-4 mb-4">
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-green-500" />
+                  <Check className="h-4 w-4 text-gray-500" />
                   <span className="text-sm">Unlimited tasks and projects</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-green-500" />
+                  <Check className="h-4 w-4 text-gray-500" />
                   <span className="text-sm">Monthly credit allowance</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-green-500" />
+                  <Check className="h-4 w-4 text-gray-500" />
                   <span className="text-sm">Team collaboration</span>
                 </div>
               </div>
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-green-500" />
+                  <Check className="h-4 w-4 text-gray-500" />
                   <span className="text-sm">Access to all LUID apps</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-green-500" />
+                  <Check className="h-4 w-4 text-gray-500" />
                   <span className="text-sm">Priority support</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-green-500" />
+                  <Check className="h-4 w-4 text-gray-500" />
                   <span className="text-sm">AI-powered features</span>
                 </div>
               </div>

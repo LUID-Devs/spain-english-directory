@@ -39,9 +39,9 @@ type Props = {
 
 const getStatusBadge = (status: string) => {
   const variants = {
-    "Completed": { variant: "default" as const, className: "bg-green-100 text-green-800 hover:bg-green-100 dark:bg-green-500/10 dark:text-green-300" },
-    "Work In Progress": { variant: "secondary" as const, className: "bg-blue-100 text-blue-800 hover:bg-blue-100 dark:bg-blue-500/10 dark:text-blue-300" },
-    "Under Review": { variant: "outline" as const, className: "bg-yellow-100 text-yellow-800 hover:bg-yellow-100 dark:bg-yellow-500/10 dark:text-yellow-300" },
+    "Completed": { variant: "default" as const, className: "bg-gray-300 text-gray-800 hover:bg-gray-300 border-gray-500 dark:bg-gray-700 dark:text-gray-100 dark:border-gray-500" },
+    "Work In Progress": { variant: "secondary" as const, className: "bg-gray-100 text-gray-800 hover:bg-gray-100 border-gray-300 dark:bg-gray-900 dark:text-gray-100 dark:border-gray-700" },
+    "Under Review": { variant: "outline" as const, className: "bg-gray-200 text-gray-800 hover:bg-gray-200 border-gray-400 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600" },
   };
   return variants[status as keyof typeof variants] || { variant: "outline" as const, className: "" };
 };
@@ -70,11 +70,11 @@ const getPriorityIcon = (priority: Priority) => {
 
 const getPriorityColors = (priority: Priority) => {
   const colors = {
-    "Urgent": { bg: "bg-red-50 dark:bg-red-950", border: "border-red-200 dark:border-red-800", text: "text-red-600 dark:text-red-400" },
-    "High": { bg: "bg-orange-50 dark:bg-orange-950", border: "border-orange-200 dark:border-orange-800", text: "text-orange-600 dark:text-orange-400" },
-    "Medium": { bg: "bg-yellow-50 dark:bg-yellow-950", border: "border-yellow-200 dark:border-yellow-800", text: "text-yellow-600 dark:text-yellow-400" },
-    "Low": { bg: "bg-blue-50 dark:bg-blue-950", border: "border-blue-200 dark:border-blue-800", text: "text-blue-600 dark:text-blue-400" },
-    "Backlog": { bg: "bg-gray-50 dark:bg-gray-950", border: "border-gray-200 dark:border-gray-800", text: "text-gray-600 dark:text-gray-400" },
+    "Urgent": { bg: "bg-gray-900 dark:bg-gray-900", border: "border-gray-800 dark:border-gray-800", text: "text-gray-100 dark:text-gray-100" },
+    "High": { bg: "bg-gray-700 dark:bg-gray-700", border: "border-gray-600 dark:border-gray-600", text: "text-gray-100 dark:text-gray-100" },
+    "Medium": { bg: "bg-gray-500 dark:bg-gray-500", border: "border-gray-400 dark:border-gray-400", text: "text-white dark:text-white" },
+    "Low": { bg: "bg-gray-300 dark:bg-gray-300", border: "border-gray-200 dark:border-gray-200", text: "text-gray-800 dark:text-gray-800" },
+    "Backlog": { bg: "bg-gray-100 dark:bg-gray-100", border: "border-gray-100 dark:border-gray-100", text: "text-gray-600 dark:text-gray-600" },
   };
   return colors[priority] || colors["Medium"];
 };

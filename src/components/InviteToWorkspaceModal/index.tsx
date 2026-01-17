@@ -142,9 +142,9 @@ const InviteToWorkspaceModal: React.FC<InviteToWorkspaceModalProps> = ({
 
         {success ? (
           <div className="space-y-4">
-            <Alert className="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800">
-              <Check className="h-4 w-4 text-green-600" aria-hidden="true" />
-              <AlertDescription className="text-green-800 dark:text-green-200">
+            <Alert className="bg-gray-50 dark:bg-gray-900/20 border-gray-200 dark:border-gray-800">
+              <Check className="h-4 w-4 text-gray-600" aria-hidden="true" />
+              <AlertDescription className="text-gray-800 dark:text-gray-200">
                 Invitation sent to <span className="font-medium">{success.invite?.email}</span>
               </AlertDescription>
             </Alert>
@@ -165,7 +165,7 @@ const InviteToWorkspaceModal: React.FC<InviteToWorkspaceModalProps> = ({
                     onClick={copyInviteLink}
                   >
                     {copied ? (
-                      <Check className="h-4 w-4 text-green-600" aria-hidden="true" />
+                      <Check className="h-4 w-4 text-gray-600" aria-hidden="true" />
                     ) : (
                       <Copy className="h-4 w-4" aria-hidden="true" />
                     )}

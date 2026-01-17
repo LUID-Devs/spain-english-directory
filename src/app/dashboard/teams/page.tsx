@@ -34,7 +34,7 @@ const TeamCard = ({ team }: { team: any }) => (
   <Card className="mb-3">
     <CardContent className="p-4">
       <div className="flex items-start gap-3">
-        <div className="h-10 w-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
+        <div className="h-10 w-10 bg-gradient-to-br from-gray-500 to-gray-600 rounded-lg flex items-center justify-center flex-shrink-0">
           <span className="text-white font-bold text-sm">
             {team.teamName?.charAt(0)?.toUpperCase() || 'T'}
           </span>
@@ -51,7 +51,7 @@ const TeamCard = ({ team }: { team: any }) => (
             <Badge variant="outline" className="text-[10px] px-1.5 py-0">Owner</Badge>
             <div className="flex items-center gap-1.5">
               <Avatar className="h-5 w-5">
-                <AvatarFallback className="text-[10px] bg-blue-100 text-blue-700">
+                <AvatarFallback className="text-[10px] bg-gray-100 text-gray-700">
                   {team.productOwnerUsername?.charAt(0)?.toUpperCase() || 'P'}
                 </AvatarFallback>
               </Avatar>
@@ -64,7 +64,7 @@ const TeamCard = ({ team }: { team: any }) => (
             <Badge variant="outline" className="text-[10px] px-1.5 py-0">Manager</Badge>
             <div className="flex items-center gap-1.5">
               <Avatar className="h-5 w-5">
-                <AvatarFallback className="text-[10px] bg-green-100 text-green-700">
+                <AvatarFallback className="text-[10px] bg-gray-100 text-gray-700">
                   {team.projectManagerUsername?.charAt(0)?.toUpperCase() || 'M'}
                 </AvatarFallback>
               </Avatar>
@@ -87,7 +87,7 @@ const Teams = () => {
         <Card>
           <CardHeader className="p-4 sm:p-6">
             <div className="flex items-center gap-3">
-              <Users className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600 flex-shrink-0" />
+              <Users className="h-6 w-6 sm:h-8 sm:w-8 text-gray-600 flex-shrink-0" />
               <div>
                 <CardTitle className="text-xl sm:text-2xl md:text-3xl">Teams</CardTitle>
                 <CardDescription className="text-xs sm:text-sm">Loading team members...</CardDescription>
@@ -113,7 +113,7 @@ const Teams = () => {
         <Card>
           <CardHeader className="p-4 sm:p-6">
             <div className="flex items-center gap-3">
-              <Users className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600 flex-shrink-0" />
+              <Users className="h-6 w-6 sm:h-8 sm:w-8 text-gray-600 flex-shrink-0" />
               <div>
                 <CardTitle className="text-xl sm:text-2xl md:text-3xl">Teams</CardTitle>
                 <CardDescription className="text-xs sm:text-sm">Error loading teams</CardDescription>
@@ -146,7 +146,7 @@ const Teams = () => {
       <Card>
         <CardHeader className="p-4 sm:p-6">
           <div className="flex items-center gap-3">
-            <Users className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600 flex-shrink-0" />
+            <Users className="h-6 w-6 sm:h-8 sm:w-8 text-gray-600 flex-shrink-0" />
             <div>
               <CardTitle className="text-xl sm:text-2xl md:text-3xl">Teams</CardTitle>
               <CardDescription className="text-xs sm:text-sm">
@@ -161,12 +161,12 @@ const Teams = () => {
       <Card>
         <CardContent className="p-4 sm:p-6">
           <div className="flex items-center gap-3 sm:gap-4">
-            <div className="p-2 sm:p-3 rounded-full bg-blue-100 dark:bg-blue-900/20 flex-shrink-0">
-              <Users className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 dark:text-blue-400" />
+            <div className="p-2 sm:p-3 rounded-full bg-gray-100 dark:bg-gray-900/20 flex-shrink-0">
+              <Users className="h-5 w-5 sm:h-6 sm:w-6 text-gray-600 dark:text-gray-400" />
             </div>
             <div>
               <p className="text-xs sm:text-sm font-medium text-muted-foreground">Total Teams</p>
-              <p className="text-2xl sm:text-3xl font-bold text-blue-600 dark:text-blue-400">
+              <p className="text-2xl sm:text-3xl font-bold text-gray-600 dark:text-gray-400">
                 {teams.length}
               </p>
             </div>

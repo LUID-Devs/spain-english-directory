@@ -63,8 +63,8 @@ const DeleteConfirmationModal = ({ isOpen, onClose, project }: Props) => {
         </div>
 
         {taskCount > 0 && !project.archived && (
-          <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3 mb-4">
-            <p className="text-sm text-yellow-800 dark:text-yellow-200">
+          <div className="bg-gray-50 dark:bg-gray-900/20 border border-gray-200 dark:border-gray-800 rounded-lg p-3 mb-4">
+            <p className="text-sm text-gray-800 dark:text-gray-200">
               <strong>Alternative:</strong> Consider archiving this project instead to preserve the task history
               while removing it from active use. You can delete archived projects later if needed.
             </p>
@@ -72,8 +72,8 @@ const DeleteConfirmationModal = ({ isOpen, onClose, project }: Props) => {
         )}
 
         {project.archived && taskCount > 0 && (
-          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 mb-4">
-            <p className="text-sm text-blue-800 dark:text-blue-200">
+          <div className="bg-gray-50 dark:bg-gray-900/20 border border-gray-200 dark:border-gray-800 rounded-lg p-3 mb-4">
+            <p className="text-sm text-gray-800 dark:text-gray-200">
               <strong>Archived Project:</strong> This project is archived, so it can be safely deleted.
               All associated data will be permanently removed.
             </p>

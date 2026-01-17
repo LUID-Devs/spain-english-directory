@@ -91,32 +91,32 @@ const TaskDetailPage = ({ params }: Props) => {
   const getPriorityColor = (priority: Priority) => {
     switch (priority) {
       case Priority.Urgent:
-        return "bg-red-100 text-red-800 border-red-200";
+        return "bg-gray-900 text-gray-100 border-gray-800";
       case Priority.High:
-        return "bg-orange-100 text-orange-800 border-orange-200";
+        return "bg-gray-700 text-gray-100 border-gray-600";
       case Priority.Medium:
-        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+        return "bg-gray-500 text-white border-gray-400";
       case Priority.Low:
-        return "bg-green-100 text-green-800 border-green-200";
+        return "bg-gray-300 text-gray-800 border-gray-200";
       case Priority.Backlog:
-        return "bg-gray-100 text-gray-800 border-gray-200";
+        return "bg-gray-100 text-gray-600 border-gray-100";
       default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
+        return "bg-gray-100 text-gray-600 border-gray-100";
     }
   };
 
   const getStatusColor = (status: Status) => {
     switch (status) {
       case Status.ToDo:
-        return "bg-gray-100 text-gray-800 border-gray-200";
+        return "bg-gray-50 text-gray-800 border-gray-200 dark:bg-gray-950 dark:text-gray-100 dark:border-gray-800";
       case Status.WorkInProgress:
-        return "bg-blue-100 text-blue-800 border-blue-200";
+        return "bg-gray-100 text-gray-800 border-gray-300 dark:bg-gray-900 dark:text-gray-100 dark:border-gray-700";
       case Status.UnderReview:
-        return "bg-purple-100 text-purple-800 border-purple-200";
+        return "bg-gray-200 text-gray-800 border-gray-400 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600";
       case Status.Completed:
-        return "bg-green-100 text-green-800 border-green-200";
+        return "bg-gray-300 text-gray-800 border-gray-500 dark:bg-gray-700 dark:text-gray-100 dark:border-gray-500";
       default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
+        return "bg-gray-50 text-gray-800 border-gray-200 dark:bg-gray-950 dark:text-gray-100 dark:border-gray-800";
     }
   };
 

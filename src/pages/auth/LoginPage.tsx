@@ -144,7 +144,7 @@ const LoginPage = () => {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center px-4">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-12 h-12 border-4 border-gray-500/30 border-t-gray-500 rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-400">Checking authentication...</p>
         </div>
       </div>
@@ -157,7 +157,7 @@ const LoginPage = () => {
         {/* Animated Background Elements */}
         <div className="absolute inset-0">
           <motion.div
-            className="absolute top-1/4 left-1/4 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl"
+            className="absolute top-1/4 left-1/4 w-64 h-64 bg-gray-500/10 rounded-full blur-3xl"
             animate={{
               x: [0, 100, 0],
               y: [0, -50, 0],
@@ -169,7 +169,7 @@ const LoginPage = () => {
             }}
           />
           <motion.div
-            className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"
+            className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gray-500/10 rounded-full blur-3xl"
             animate={{
               x: [0, -80, 0],
               y: [0, 60, 0],
@@ -201,7 +201,7 @@ const LoginPage = () => {
                   alt="LUID"
                   className="w-10 h-10 rounded-lg"
                 />
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-400 to-gray-400 bg-clip-text text-transparent">
                   TaskLuid
                 </h1>
               </motion.div>
@@ -212,7 +212,7 @@ const LoginPage = () => {
 
           {/* Auth Card */}
           <motion.div 
-            className="p-8 bg-black/60 backdrop-blur-xl border border-blue-500/20 rounded-2xl shadow-2xl"
+            className="p-8 bg-black/60 backdrop-blur-xl border border-gray-500/20 rounded-2xl shadow-2xl"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
@@ -240,7 +240,7 @@ const LoginPage = () => {
                   value={mfaCode}
                   onChange={(e) => setMfaCode(e.target.value)}
                   required
-                  className="w-full px-4 py-3 bg-gray-900/50 border border-blue-500/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300"
+                  className="w-full px-4 py-3 bg-gray-900/50 border border-gray-500/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500/50 focus:border-gray-500/50 transition-all duration-300"
                   placeholder="Enter verification code"
                   whileFocus={{ scale: 1.02 }}
                   transition={{ type: "spring", stiffness: 300, damping: 20 }}
@@ -250,7 +250,7 @@ const LoginPage = () => {
               <motion.button
                 type="submit"
                 disabled={loading}
-                className="w-full px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-semibold rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-500/25"
+                className="w-full px-4 py-3 bg-gradient-to-r from-gray-500 to-gray-500 hover:from-gray-600 hover:to-gray-600 text-white font-semibold rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-gray-500/25"
                 whileHover={{ scale: 1.02, y: -2 }}
                 whileTap={{ scale: 0.98 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
@@ -372,7 +372,7 @@ const LoginPage = () => {
                 </label>
                 <Link
                   to="/forgot-password"
-                  className="text-sm text-blue-400 hover:text-blue-300 transition-colors duration-300"
+                  className="text-sm text-gray-400 hover:text-gray-300 transition-colors duration-300"
                 >
                   Forgot password?
                 </Link>
@@ -430,7 +430,7 @@ const LoginPage = () => {
             Don&apos;t have an account?{" "}
             <Link
               to="/auth/register"
-              className="text-blue-400 hover:text-blue-300 font-medium transition-colors duration-300"
+              className="text-gray-400 hover:text-gray-300 font-medium transition-colors duration-300"
             >
               Sign up
             </Link>

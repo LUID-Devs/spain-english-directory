@@ -64,13 +64,13 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ activity }) => {
 
   const getActivityColor = (type: ActivityType) => {
     switch (type) {
-      case 'task_created': return 'bg-blue-100 text-blue-600 border-blue-200';
-      case 'task_completed': return 'bg-green-100 text-green-600 border-green-200';
-      case 'task_updated': return 'bg-yellow-100 text-yellow-600 border-yellow-200';
-      case 'project_created': return 'bg-purple-100 text-purple-600 border-purple-200';
-      case 'project_updated': return 'bg-indigo-100 text-indigo-600 border-indigo-200';
-      case 'comment_added': return 'bg-orange-100 text-orange-600 border-orange-200';
-      case 'file_uploaded': return 'bg-pink-100 text-pink-600 border-pink-200';
+      case 'task_created': return 'bg-gray-100 text-gray-600 border-gray-200';
+      case 'task_completed': return 'bg-gray-200 text-gray-700 border-gray-300';
+      case 'task_updated': return 'bg-gray-100 text-gray-600 border-gray-200';
+      case 'project_created': return 'bg-gray-300 text-gray-800 border-gray-400';
+      case 'project_updated': return 'bg-gray-200 text-gray-700 border-gray-300';
+      case 'comment_added': return 'bg-gray-50 text-gray-500 border-gray-100';
+      case 'file_uploaded': return 'bg-gray-100 text-gray-600 border-gray-200';
       case 'user_activity': return 'bg-gray-100 text-gray-600 border-gray-200';
       default: return 'bg-gray-100 text-gray-600 border-gray-200';
     }

@@ -115,7 +115,7 @@ const RoleManagementModal = ({ isOpen, onClose, user, onUpdateRole }: RoleManage
                 alt={`${user.username}'s profile`}
                 className="h-16 w-16 rounded-full border-2 border-border object-cover"
               />
-              <div className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-background bg-green-500" />
+              <div className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-background bg-gray-600" />
             </div>
             <div className="flex-1">
               <h3 className="text-lg font-semibold text-foreground">

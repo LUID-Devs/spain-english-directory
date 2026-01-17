@@ -11,7 +11,7 @@ function FeatureCard({ feature, index }: { feature: { icon: React.ElementType; t
         className="p-6 rounded-lg bg-neutral-900 group hover:bg-neutral-800 transition-all"
         whileHover={{ y: -5 }}
       >
-        <feature.icon className="w-12 h-12 text-blue-400 mb-4 group-hover:scale-110 transition-transform" />
+        <feature.icon className="w-12 h-12 text-gray-400 mb-4 group-hover:scale-110 transition-transform" />
         <h3 className="text-xl font-semibold mb-2 text-white">
           {feature.title}
         </h3>
@@ -52,7 +52,7 @@ const LandingPage = () => {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 font-semibold">
+                  <div className="bg-gradient-to-r from-gray-600 to-gray-600 text-white px-6 py-2 rounded-xl hover:from-gray-700 hover:to-gray-700 transition-all duration-300 font-semibold">
                     Sign In
                   </div>
                 </motion.div>
@@ -67,12 +67,12 @@ const LandingPage = () => {
         <div className="container mx-auto px-4 relative z-10">
           <FadeInWhenVisible>
             <div className="text-center max-w-4xl mx-auto">
-              <div className="mb-6 text-lg px-6 py-3 bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-blue-400 hover:from-blue-500/30 hover:to-purple-500/30 transition-all duration-300 rounded-full inline-block">
+              <div className="mb-6 text-lg px-6 py-3 bg-gradient-to-r from-gray-500/20 to-gray-500/20 text-gray-400 hover:from-gray-500/30 hover:to-gray-500/30 transition-all duration-300 rounded-full inline-block">
                 ⚡ Transform Your Workflow Today
               </div>
               <h2 className="text-4xl md:text-6xl font-bold mb-6 text-white">
                 Ready to Transform Your
-                <span className="block bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-500">
+                <span className="block bg-clip-text text-transparent bg-gradient-to-r from-gray-500 to-gray-500">
                   Project Management?
                 </span>
               </h2>
@@ -87,7 +87,7 @@ const LandingPage = () => {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    <div className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold px-8 py-4 rounded-xl shadow-lg shadow-blue-500/30 transition-all duration-300">
+                    <div className="bg-gradient-to-r from-gray-600 to-gray-600 hover:from-gray-700 hover:to-gray-700 text-white font-bold px-8 py-4 rounded-xl shadow-lg shadow-gray-500/30 transition-all duration-300">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         className="h-5 w-5 mr-2 inline"
@@ -112,7 +112,7 @@ const LandingPage = () => {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    <div className="border-2 border-blue-500 text-blue-400 hover:bg-blue-500 hover:text-white font-bold px-8 py-4 rounded-xl transition-all duration-300">
+                    <div className="border-2 border-gray-500 text-gray-400 hover:bg-gray-500 hover:text-white font-bold px-8 py-4 rounded-xl transition-all duration-300">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         className="h-5 w-5 mr-2 inline"
@@ -142,13 +142,13 @@ const LandingPage = () => {
               {/* Value Proposition Cards */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
                 <motion.div
-                  className="p-4 rounded-lg bg-gradient-to-br from-blue-500/10 to-blue-600/10 border border-blue-500/20"
+                  className="p-4 rounded-lg bg-gradient-to-br from-gray-500/10 to-gray-600/10 border border-gray-500/20"
                   whileHover={{ y: -5 }}
                 >
                   <div className="flex items-center justify-center mb-2">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      className="h-8 w-8 text-blue-400"
+                      className="h-8 w-8 text-gray-400"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -166,13 +166,13 @@ const LandingPage = () => {
                 </motion.div>
 
                 <motion.div
-                  className="p-4 rounded-lg bg-gradient-to-br from-green-500/10 to-green-600/10 border border-green-500/20"
+                  className="p-4 rounded-lg bg-gradient-to-br from-gray-500/10 to-gray-600/10 border border-gray-500/20"
                   whileHover={{ y: -5 }}
                 >
                   <div className="flex items-center justify-center mb-2">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      className="h-8 w-8 text-green-400"
+                      className="h-8 w-8 text-gray-400"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -190,13 +190,13 @@ const LandingPage = () => {
                 </motion.div>
 
                 <motion.div
-                  className="p-4 rounded-lg bg-gradient-to-br from-purple-500/10 to-purple-600/10 border border-purple-500/20"
+                  className="p-4 rounded-lg bg-gradient-to-br from-gray-500/10 to-gray-600/10 border border-gray-500/20"
                   whileHover={{ y: -5 }}
                 >
                   <div className="flex items-center justify-center mb-2">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      className="h-8 w-8 text-purple-400"
+                      className="h-8 w-8 text-gray-400"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -218,9 +218,9 @@ const LandingPage = () => {
         </div>
         
         {/* Animated Background Elements */}
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 via-purple-600/5 to-blue-600/5 backdrop-blur-3xl" />
-        <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute inset-0 bg-gradient-to-r from-gray-600/5 via-gray-600/5 to-gray-600/5 backdrop-blur-3xl" />
+        <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-gray-500/10 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-gray-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
       </div>
 
       {/* Community Section */}
@@ -236,24 +236,24 @@ const LandingPage = () => {
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <motion.div
-                className="p-6 rounded-lg bg-blue-600/10 border border-blue-500/20 text-center"
+                className="p-6 rounded-lg bg-gray-600/10 border border-gray-500/20 text-center"
                 whileHover={{ scale: 1.05 }}
               >
-                <h3 className="text-2xl font-bold text-blue-500 mb-2">Open Beta</h3>
+                <h3 className="text-2xl font-bold text-gray-500 mb-2">Open Beta</h3>
                 <p className="text-neutral-400">Free to try</p>
               </motion.div>
               <motion.div
-                className="p-6 rounded-lg bg-blue-600/10 border border-blue-500/20 text-center"
+                className="p-6 rounded-lg bg-gray-600/10 border border-gray-500/20 text-center"
                 whileHover={{ scale: 1.05 }}
               >
-                <h3 className="text-2xl font-bold text-blue-500 mb-2">Active Development</h3>
+                <h3 className="text-2xl font-bold text-gray-500 mb-2">Active Development</h3>
                 <p className="text-neutral-400">Regular updates</p>
               </motion.div>
               <motion.div
-                className="p-6 rounded-lg bg-blue-600/10 border border-blue-500/20 text-center"
+                className="p-6 rounded-lg bg-gray-600/10 border border-gray-500/20 text-center"
                 whileHover={{ scale: 1.05 }}
               >
-                <h3 className="text-2xl font-bold text-blue-500 mb-2">Direct Support</h3>
+                <h3 className="text-2xl font-bold text-gray-500 mb-2">Direct Support</h3>
                 <p className="text-neutral-400">Developer feedback</p>
               </motion.div>
             </div>
@@ -280,12 +280,12 @@ const LandingPage = () => {
             {projectTools.map((category, index) => (
               <FadeInWhenVisible key={category.title} delay={index * 0.1}>
                 <motion.div
-                  className="p-6 rounded-xl bg-gradient-to-br from-neutral-800/50 to-neutral-900/50 border border-neutral-700/50 hover:border-blue-500/30 transition-all duration-300 group"
+                  className="p-6 rounded-xl bg-gradient-to-br from-neutral-800/50 to-neutral-900/50 border border-neutral-700/50 hover:border-gray-500/30 transition-all duration-300 group"
                   whileHover={{ y: -5, scale: 1.02 }}
                 >
                   <div className="flex items-center mb-4">
-                    <div className="p-3 rounded-lg bg-gradient-to-br from-blue-500/20 to-purple-500/20 mr-4 group-hover:from-blue-500/30 group-hover:to-purple-500/30 transition-all duration-300">
-                      <category.icon className="w-6 h-6 text-blue-400" />
+                    <div className="p-3 rounded-lg bg-gradient-to-br from-gray-500/20 to-gray-500/20 mr-4 group-hover:from-gray-500/30 group-hover:to-gray-500/30 transition-all duration-300">
+                      <category.icon className="w-6 h-6 text-gray-400" />
                     </div>
                     <h3 className="text-xl font-semibold text-white">{category.title}</h3>
                   </div>
@@ -293,7 +293,7 @@ const LandingPage = () => {
                   <div className="space-y-2">
                     {category.features.map((feature: string, featureIndex: number) => (
                       <div key={featureIndex} className="flex items-center text-sm text-neutral-300">
-                        <div className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-2"></div>
+                        <div className="w-1.5 h-1.5 bg-gray-400 rounded-full mr-2"></div>
                         {feature}
                       </div>
                     ))}
@@ -311,16 +311,16 @@ const LandingPage = () => {
                 {popularFeatures.map((tool, index) => (
                   <motion.div
                     key={tool.name}
-                    className="p-4 rounded-lg bg-neutral-800/50 border border-neutral-700 hover:border-blue-500/50 transition-all duration-300 text-center group"
+                    className="p-4 rounded-lg bg-neutral-800/50 border border-neutral-700 hover:border-gray-500/50 transition-all duration-300 text-center group"
                     whileHover={{ scale: 1.05 }}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
                   >
-                    <tool.icon className="w-8 h-8 text-blue-400 mx-auto mb-2 group-hover:text-blue-300 transition-colors" />
+                    <tool.icon className="w-8 h-8 text-gray-400 mx-auto mb-2 group-hover:text-gray-300 transition-colors" />
                     <p className="text-sm text-white font-medium">{tool.name}</p>
                     {tool.isNew && (
-                      <div className="mt-1 bg-green-500/20 text-green-400 text-xs px-2 py-1 rounded">New</div>
+                      <div className="mt-1 bg-gray-500/20 text-gray-400 text-xs px-2 py-1 rounded">New</div>
                     )}
                   </motion.div>
                 ))}
@@ -351,7 +351,7 @@ const LandingPage = () => {
       </div>
 
       {/* Footer */}
-      <footer className="border-t border-blue-500/20 bg-black/90 backdrop-blur-xl relative">
+      <footer className="border-t border-gray-500/20 bg-black/90 backdrop-blur-xl relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="py-12 md:py-16">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12">
@@ -372,7 +372,7 @@ const LandingPage = () => {
                     transition={{ type: "spring", stiffness: 300, damping: 20 }}
                   />
                   <div>
-                    <h3 className="font-bold text-xl bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                    <h3 className="font-bold text-xl bg-gradient-to-r from-gray-400 to-gray-400 bg-clip-text text-transparent">
                       Luid Suite
                     </h3>
                     <p className="text-xs text-neutral-500">Integrated productivity apps</p>
@@ -382,7 +382,7 @@ const LandingPage = () => {
                   TaskLuid is part of Luid Suite - productivity apps built by an independent developer.
                 </p>
                 <p className="text-gray-400 text-xs">
-                  Contact: <a href="mailto:alaindimabuyo@luiddevelopers.com" className="text-blue-400 hover:text-blue-300">alaindimabuyo@luiddevelopers.com</a>
+                  Contact: <a href="mailto:alaindimabuyo@luiddevelopers.com" className="text-gray-400 hover:text-gray-300">alaindimabuyo@luiddevelopers.com</a>
                 </p>
               </motion.div>
 
@@ -397,39 +397,39 @@ const LandingPage = () => {
                 <h4 className="font-semibold text-white text-lg mb-4">Apps</h4>
                 <ul className="space-y-3">
                   <li>
-                    <a href="https://taskluid.com" className="text-gray-300 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center group">
-                      <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-3 group-hover:bg-blue-300 transition-colors"></span>
+                    <a href="https://taskluid.com" className="text-gray-300 hover:text-gray-400 text-sm transition-colors duration-300 flex items-center group">
+                      <span className="w-1.5 h-1.5 bg-gray-400 rounded-full mr-3 group-hover:bg-gray-300 transition-colors"></span>
                       TaskLuid
                     </a>
                   </li>
                   <li>
-                    <a href="https://resumeluid.com" className="text-gray-300 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center group">
-                      <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-3 group-hover:bg-blue-300 transition-colors"></span>
+                    <a href="https://resumeluid.com" className="text-gray-300 hover:text-gray-400 text-sm transition-colors duration-300 flex items-center group">
+                      <span className="w-1.5 h-1.5 bg-gray-400 rounded-full mr-3 group-hover:bg-gray-300 transition-colors"></span>
                       ResumeLuid
                     </a>
                   </li>
                   <li>
-                    <a href="https://luidkit.com" className="text-gray-300 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center group">
-                      <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-3 group-hover:bg-blue-300 transition-colors"></span>
+                    <a href="https://luidkit.com" className="text-gray-300 hover:text-gray-400 text-sm transition-colors duration-300 flex items-center group">
+                      <span className="w-1.5 h-1.5 bg-gray-400 rounded-full mr-3 group-hover:bg-gray-300 transition-colors"></span>
                       LuidKit
                     </a>
                   </li>
                   <li>
                     <span className="text-gray-500 text-sm flex items-center group">
                       <span className="w-1.5 h-1.5 bg-gray-600 rounded-full mr-3"></span>
-                      RoomLuid <span className="ml-2 text-xs bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded">Coming Soon</span>
+                      RoomLuid <span className="ml-2 text-xs bg-gray-500/20 text-gray-400 px-2 py-0.5 rounded">Coming Soon</span>
                     </span>
                   </li>
                   <li>
                     <span className="text-gray-500 text-sm flex items-center group">
                       <span className="w-1.5 h-1.5 bg-gray-600 rounded-full mr-3"></span>
-                      LuidGPT <span className="ml-2 text-xs bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded">Coming Soon</span>
+                      LuidGPT <span className="ml-2 text-xs bg-gray-500/20 text-gray-400 px-2 py-0.5 rounded">Coming Soon</span>
                     </span>
                   </li>
                   <li>
                     <span className="text-gray-500 text-sm flex items-center group">
                       <span className="w-1.5 h-1.5 bg-gray-600 rounded-full mr-3"></span>
-                      LuidSpeak <span className="ml-2 text-xs bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded">Coming Soon</span>
+                      LuidSpeak <span className="ml-2 text-xs bg-gray-500/20 text-gray-400 px-2 py-0.5 rounded">Coming Soon</span>
                     </span>
                   </li>
                 </ul>
@@ -446,26 +446,26 @@ const LandingPage = () => {
                 <h4 className="font-semibold text-white text-lg mb-4">Support</h4>
                 <ul className="space-y-3">
                   <li>
-                    <a href="mailto:alaindimabuyo@luiddevelopers.com?subject=Help Request" className="text-gray-300 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center group">
-                      <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-3 group-hover:bg-blue-300 transition-colors"></span>
+                    <a href="mailto:alaindimabuyo@luiddevelopers.com?subject=Help Request" className="text-gray-300 hover:text-gray-400 text-sm transition-colors duration-300 flex items-center group">
+                      <span className="w-1.5 h-1.5 bg-gray-400 rounded-full mr-3 group-hover:bg-gray-300 transition-colors"></span>
                       Help Center
                     </a>
                   </li>
                   <li>
-                    <a href="mailto:alaindimabuyo@luiddevelopers.com?subject=Contact" className="text-gray-300 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center group">
-                      <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-3 group-hover:bg-blue-300 transition-colors"></span>
+                    <a href="mailto:alaindimabuyo@luiddevelopers.com?subject=Contact" className="text-gray-300 hover:text-gray-400 text-sm transition-colors duration-300 flex items-center group">
+                      <span className="w-1.5 h-1.5 bg-gray-400 rounded-full mr-3 group-hover:bg-gray-300 transition-colors"></span>
                       Contact
                     </a>
                   </li>
                   <li>
-                    <a href="mailto:alaindimabuyo@luiddevelopers.com?subject=Feedback" className="text-gray-300 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center group">
-                      <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-3 group-hover:bg-blue-300 transition-colors"></span>
+                    <a href="mailto:alaindimabuyo@luiddevelopers.com?subject=Feedback" className="text-gray-300 hover:text-gray-400 text-sm transition-colors duration-300 flex items-center group">
+                      <span className="w-1.5 h-1.5 bg-gray-400 rounded-full mr-3 group-hover:bg-gray-300 transition-colors"></span>
                       Send Feedback
                     </a>
                   </li>
                   <li>
-                    <a href="mailto:alaindimabuyo@luiddevelopers.com?subject=Bug Report" className="text-gray-300 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center group">
-                      <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-3 group-hover:bg-blue-300 transition-colors"></span>
+                    <a href="mailto:alaindimabuyo@luiddevelopers.com?subject=Bug Report" className="text-gray-300 hover:text-gray-400 text-sm transition-colors duration-300 flex items-center group">
+                      <span className="w-1.5 h-1.5 bg-gray-400 rounded-full mr-3 group-hover:bg-gray-300 transition-colors"></span>
                       Report Bug
                     </a>
                   </li>
@@ -483,20 +483,20 @@ const LandingPage = () => {
                 <h4 className="font-semibold text-white text-lg mb-4">Legal</h4>
                 <ul className="space-y-3">
                   <li>
-                    <Link href="/privacy" className="text-gray-300 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center group">
-                      <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-3 group-hover:bg-blue-300 transition-colors"></span>
+                    <Link href="/privacy" className="text-gray-300 hover:text-gray-400 text-sm transition-colors duration-300 flex items-center group">
+                      <span className="w-1.5 h-1.5 bg-gray-400 rounded-full mr-3 group-hover:bg-gray-300 transition-colors"></span>
                       Privacy Policy
                     </Link>
                   </li>
                   <li>
-                    <Link href="/terms" className="text-gray-300 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center group">
-                      <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-3 group-hover:bg-blue-300 transition-colors"></span>
+                    <Link href="/terms" className="text-gray-300 hover:text-gray-400 text-sm transition-colors duration-300 flex items-center group">
+                      <span className="w-1.5 h-1.5 bg-gray-400 rounded-full mr-3 group-hover:bg-gray-300 transition-colors"></span>
                       Terms of Service
                     </Link>
                   </li>
                   <li>
-                    <Link href="/cookies" className="text-gray-300 hover:text-blue-400 text-sm transition-colors duration-300 flex items-center group">
-                      <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-3 group-hover:bg-blue-300 transition-colors"></span>
+                    <Link href="/cookies" className="text-gray-300 hover:text-gray-400 text-sm transition-colors duration-300 flex items-center group">
+                      <span className="w-1.5 h-1.5 bg-gray-400 rounded-full mr-3 group-hover:bg-gray-300 transition-colors"></span>
                       Cookie Policy
                     </Link>
                   </li>
@@ -506,7 +506,7 @@ const LandingPage = () => {
 
             {/* Bottom Bar */}
             <motion.div
-              className="border-t border-blue-500/20 mt-12 pt-8"
+              className="border-t border-gray-500/20 mt-12 pt-8"
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               transition={{ duration: 0.6, delay: 0.5 }}
@@ -519,19 +519,19 @@ const LandingPage = () => {
                 <div className="flex items-center gap-6 text-sm">
                   <Link
                     href="/privacy"
-                    className="text-gray-400 hover:text-blue-400 transition-colors duration-300"
+                    className="text-gray-400 hover:text-gray-300 transition-colors duration-300"
                   >
                     Privacy Policy
                   </Link>
                   <Link
                     href="/terms"
-                    className="text-gray-400 hover:text-blue-400 transition-colors duration-300"
+                    className="text-gray-400 hover:text-gray-300 transition-colors duration-300"
                   >
                     Terms of Service
                   </Link>
                   <Link
                     href="/cookies"
-                    className="text-gray-400 hover:text-blue-400 transition-colors duration-300"
+                    className="text-gray-400 hover:text-gray-300 transition-colors duration-300"
                   >
                     Cookie Policy
                   </Link>
@@ -544,7 +544,7 @@ const LandingPage = () => {
         {/* Animated Background Elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <motion.div
-            className="absolute -bottom-32 -left-32 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl"
+            className="absolute -bottom-32 -left-32 w-64 h-64 bg-gray-500/5 rounded-full blur-3xl"
             animate={{
               x: [0, 50, 0],
               y: [0, -30, 0],
@@ -556,7 +556,7 @@ const LandingPage = () => {
             }}
           />
           <motion.div
-            className="absolute -bottom-32 -right-32 w-64 h-64 bg-purple-500/5 rounded-full blur-3xl"
+            className="absolute -bottom-32 -right-32 w-64 h-64 bg-gray-500/5 rounded-full blur-3xl"
             animate={{
               x: [0, -50, 0],
               y: [0, -20, 0],

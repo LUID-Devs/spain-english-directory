@@ -270,21 +270,21 @@ const TimelinePage = () => {
 
           {/* Quick Stats */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 text-center w-full lg:w-auto">
-            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-2 sm:p-3">
-              <div className="text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400">{stats.today}</div>
-              <div className="text-xs text-blue-600 dark:text-blue-400">Today</div>
+            <div className="bg-gray-50 dark:bg-gray-900/20 rounded-lg p-2 sm:p-3">
+              <div className="text-xl sm:text-2xl font-bold text-gray-600 dark:text-gray-400">{stats.today}</div>
+              <div className="text-xs text-gray-600 dark:text-gray-400">Today</div>
             </div>
-            <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-2 sm:p-3">
-              <div className="text-xl sm:text-2xl font-bold text-green-600 dark:text-green-400">{stats.thisWeek}</div>
-              <div className="text-xs text-green-600 dark:text-green-400">This Week</div>
+            <div className="bg-gray-50 dark:bg-gray-900/20 rounded-lg p-2 sm:p-3">
+              <div className="text-xl sm:text-2xl font-bold text-gray-600 dark:text-gray-400">{stats.thisWeek}</div>
+              <div className="text-xs text-gray-600 dark:text-gray-400">This Week</div>
             </div>
-            <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-2 sm:p-3">
-              <div className="text-xl sm:text-2xl font-bold text-purple-600 dark:text-purple-400">{stats.taskActivities}</div>
-              <div className="text-xs text-purple-600 dark:text-purple-400">Task Events</div>
+            <div className="bg-gray-50 dark:bg-gray-900/20 rounded-lg p-2 sm:p-3">
+              <div className="text-xl sm:text-2xl font-bold text-gray-600 dark:text-gray-400">{stats.taskActivities}</div>
+              <div className="text-xs text-gray-600 dark:text-gray-400">Task Events</div>
             </div>
-            <div className="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-2 sm:p-3">
-              <div className="text-xl sm:text-2xl font-bold text-orange-600 dark:text-orange-400">{stats.projectActivities}</div>
-              <div className="text-xs text-orange-600 dark:text-orange-400">Project Events</div>
+            <div className="bg-gray-50 dark:bg-gray-900/20 rounded-lg p-2 sm:p-3">
+              <div className="text-xl sm:text-2xl font-bold text-gray-600 dark:text-gray-400">{stats.projectActivities}</div>
+              <div className="text-xs text-gray-600 dark:text-gray-400">Project Events</div>
             </div>
           </div>
         </div>
@@ -324,11 +324,11 @@ const TimelinePage = () => {
       {/* Error Alerts for Partial Failures */}
       {(tasksError || projectsError) && (
         <div className="mb-6">
-          <div className="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 p-4">
+          <div className="bg-gray-50 dark:bg-gray-900/20 border-l-4 border-gray-400 p-4">
             <div className="flex">
-              <AlertCircle className="h-5 w-5 text-yellow-400 mr-3 mt-0.5" />
+              <AlertCircle className="h-5 w-5 text-gray-400 mr-3 mt-0.5" />
               <div>
-                <p className="text-sm text-yellow-700 dark:text-yellow-200">
+                <p className="text-sm text-gray-700 dark:text-gray-200">
                   Some activity data may be incomplete due to loading issues.
                   {tasksError && " Tasks data unavailable."}
                   {projectsError && " Projects data unavailable."}

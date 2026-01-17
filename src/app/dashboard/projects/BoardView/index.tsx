@@ -350,29 +350,29 @@ const TaskColumn = React.memo(({
       "To Do": {
         variant: "outline",
         icon: ListIcon,
-        className: "border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950"
+        className: "border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950"
       },
       "Work In Progress": {
         variant: "secondary",
         icon: Activity,
-        className: "border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-950"
+        className: "border-gray-300 bg-gray-100 dark:border-gray-700 dark:bg-gray-900"
       },
       "Under Review": {
         variant: "outline",
         icon: Eye,
-        className: "border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-950"
+        className: "border-gray-400 bg-gray-200 dark:border-gray-600 dark:bg-gray-800"
       },
       "Completed": {
         variant: "default",
         icon: CheckCircle2,
-        className: "border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950"
+        className: "border-gray-500 bg-gray-300 dark:border-gray-500 dark:bg-gray-700"
       },
     };
     // Return default config for custom statuses
     return configs[status] || {
       variant: "outline" as const,
       icon: Target,
-      className: "border-purple-200 bg-purple-50 dark:border-purple-800 dark:bg-purple-950"
+      className: "border-gray-300 bg-gray-100 dark:border-gray-700 dark:bg-gray-900"
     };
   };
 

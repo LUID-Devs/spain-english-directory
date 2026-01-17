@@ -43,14 +43,14 @@ const Timeline = ({
     locale: "en-US",
   });
 
-  // Priority colors for Gantt bars
+  // Priority colors for Gantt bars (grayscale)
   const getPriorityColor = (priority: string | undefined) => {
     switch (priority) {
-      case "Urgent": return "#FF3B30";
-      case "High": return "#FF9500"; 
-      case "Medium": return "#007AFF";
-      case "Low": return "#34C759";
-      default: return "#8E8E93";
+      case "Urgent": return "#111827"; // gray-900
+      case "High": return "#374151"; // gray-700
+      case "Medium": return "#6B7280"; // gray-500
+      case "Low": return "#D1D5DB"; // gray-300
+      default: return "#F3F4F6"; // gray-100
     }
   };
 
@@ -158,19 +158,19 @@ const Timeline = ({
           {/* Legend */}
           <div className="flex items-center gap-4 text-xs">
             <div className="flex items-center gap-1">
-              <div className="w-3 h-3 rounded bg-red-500"></div>
+              <div className="w-3 h-3 rounded bg-gray-900"></div>
               <span className="text-muted-foreground">Urgent</span>
             </div>
             <div className="flex items-center gap-1">
-              <div className="w-3 h-3 rounded bg-orange-500"></div>
+              <div className="w-3 h-3 rounded bg-gray-700"></div>
               <span className="text-muted-foreground">High</span>
             </div>
             <div className="flex items-center gap-1">
-              <div className="w-3 h-3 rounded bg-blue-500"></div>
+              <div className="w-3 h-3 rounded bg-gray-500"></div>
               <span className="text-muted-foreground">Medium</span>
             </div>
             <div className="flex items-center gap-1">
-              <div className="w-3 h-3 rounded bg-green-500"></div>
+              <div className="w-3 h-3 rounded bg-gray-300"></div>
               <span className="text-muted-foreground">Low</span>
             </div>
           </div>

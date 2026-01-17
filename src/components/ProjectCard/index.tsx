@@ -124,7 +124,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, viewMode = "grid" })
     
     // Check if project is actually completed (100% progress)
     if (progress >= 100) {
-      return <Badge variant="default" className="text-xs bg-green-100 text-green-800 hover:bg-green-100">Completed</Badge>;
+      return <Badge variant="default" className="text-xs bg-gray-100 text-gray-800 hover:bg-gray-100">Completed</Badge>;
     }
     
     // Determine status based on actual progress and due dates
@@ -218,13 +218,13 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, viewMode = "grid" })
                     disabled={isFavoriting || isUnfavoriting}
                     className="h-8 w-8 p-0"
                   >
-                    <Star 
+                    <Star
                       className={cn(
                         "h-4 w-4 transition-colors",
-                        project.isFavorited 
-                          ? "text-yellow-500 fill-yellow-500" 
-                          : "text-muted-foreground hover:text-yellow-500"
-                      )} 
+                        project.isFavorited
+                          ? "text-gray-500 fill-gray-500"
+                          : "text-muted-foreground hover:text-gray-500"
+                      )}
                     />
                   </Button>
 
@@ -425,7 +425,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, viewMode = "grid" })
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-muted rounded-lg p-3">
                 <div className="flex items-center gap-2 text-sm">
-                  <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                  <CheckCircle className="h-4 w-4 text-gray-500 flex-shrink-0" />
                   <span className="text-muted-foreground">Tasks</span>
                 </div>
                 <p className="text-lg font-bold text-foreground mt-1">
@@ -435,7 +435,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, viewMode = "grid" })
               
               <div className="bg-muted rounded-lg p-3">
                 <div className="flex items-center gap-2 text-sm">
-                  <Clock className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                  <Clock className="h-4 w-4 text-gray-500 flex-shrink-0" />
                   <span className="text-muted-foreground">Last Update</span>
                 </div>
                 <p className="text-sm font-bold text-foreground mt-1">
@@ -479,7 +479,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, viewMode = "grid" })
                   
                   return (isOverdue && daysPastDue < 365)
                     ? "bg-destructive/10 border-destructive/20"
-                    : "bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800";
+                    : "bg-gray-50 dark:bg-gray-900/20 border-gray-200 dark:border-gray-800";
                 })()
               )}>
                 <div className={cn(
@@ -492,7 +492,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, viewMode = "grid" })
                     
                     return (isOverdue && daysPastDue < 365)
                       ? "text-destructive"
-                      : "text-yellow-800 dark:text-yellow-200";
+                      : "text-gray-800 dark:text-gray-200";
                   })()
                 )}>
                   <Clock className="h-4 w-4 flex-shrink-0" />

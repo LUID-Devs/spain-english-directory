@@ -332,11 +332,11 @@ const NavbarSearch: React.FC<NavbarSearchProps> = ({
                             <div className="flex items-center gap-3">
                               <div className="flex-shrink-0">
                                 <div className={`w-2 h-2 rounded-full ${
-                                  task.priority === 'Urgent' ? 'bg-red-500' :
-                                  task.priority === 'High' ? 'bg-orange-500' :
-                                  task.priority === 'Medium' ? 'bg-yellow-500' :
-                                  task.priority === 'Low' ? 'bg-green-500' :
-                                  'bg-gray-500'
+                                  task.priority === 'Urgent' ? 'bg-gray-900' :
+                                  task.priority === 'High' ? 'bg-gray-700' :
+                                  task.priority === 'Medium' ? 'bg-gray-500' :
+                                  task.priority === 'Low' ? 'bg-gray-400' :
+                                  'bg-gray-300'
                                 }`} />
                               </div>
                               <div className="flex-1 min-w-0">

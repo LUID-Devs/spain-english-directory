@@ -8,7 +8,7 @@ const LandingPage = () => {
       <div className="flex-1 flex items-center justify-center px-4">
         <div className="text-center">
           <p className="text-sm text-neutral-500 mb-2">Part of Luid Suite</p>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-6">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-400 to-gray-400 bg-clip-text text-transparent mb-6">
             TaskLuid
           </h1>
           <p className="text-gray-300 mb-8 max-w-md mx-auto">
@@ -17,13 +17,13 @@ const LandingPage = () => {
           <div className="space-x-4 mb-8">
             <Link
               to="/auth/login"
-              className="inline-block px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:from-blue-600 hover:to-purple-600 transition-all duration-300"
+              className="inline-block px-6 py-3 bg-gradient-to-r from-gray-500 to-gray-500 text-white rounded-lg hover:from-gray-600 hover:to-gray-600 transition-all duration-300"
             >
               Sign In
             </Link>
             <Link
               to="/auth/register"
-              className="inline-block px-6 py-3 border border-blue-500 text-blue-400 rounded-lg hover:bg-blue-500/10 transition-all duration-300"
+              className="inline-block px-6 py-3 border border-gray-500 text-gray-400 rounded-lg hover:bg-gray-500/10 transition-all duration-300"
             >
               Sign Up
             </Link>
@@ -41,13 +41,13 @@ const LandingPage = () => {
             &copy; {new Date().getFullYear()} Luid Suite
           </p>
           <div className="flex gap-6 text-sm">
-            <Link to="/privacy" className="text-neutral-400 hover:text-blue-400 transition-colors">
+            <Link to="/privacy" className="text-neutral-400 hover:text-gray-400 transition-colors">
               Privacy Policy
             </Link>
-            <Link to="/terms" className="text-neutral-400 hover:text-blue-400 transition-colors">
+            <Link to="/terms" className="text-neutral-400 hover:text-gray-400 transition-colors">
               Terms of Service
             </Link>
-            <Link to="/cookies" className="text-neutral-400 hover:text-blue-400 transition-colors">
+            <Link to="/cookies" className="text-neutral-400 hover:text-gray-400 transition-colors">
               Cookie Policy
             </Link>
           </div>

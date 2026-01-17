@@ -56,7 +56,7 @@ const WorkspaceSwitcher: React.FC = () => {
     if (!org) return <Building2 className="w-5 h-5" aria-hidden="true" />;
 
     if (org.settings?.isPersonal) {
-      return <User className="w-5 h-5 text-blue-500" aria-hidden="true" />;
+      return <User className="w-5 h-5 text-gray-500" aria-hidden="true" />;
     }
 
     if (org.logoUrl) {
@@ -74,7 +74,7 @@ const WorkspaceSwitcher: React.FC = () => {
     // Return initials
     const initials = org.name.substring(0, 2).toUpperCase();
     return (
-      <div className="w-5 h-5 rounded bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-xs font-bold">
+      <div className="w-5 h-5 rounded bg-gradient-to-br from-gray-500 to-gray-700 flex items-center justify-center text-white text-xs font-bold">
         {initials}
       </div>
     );
@@ -133,7 +133,7 @@ const WorkspaceSwitcher: React.FC = () => {
                   </p>
                 </div>
                 {activeOrganization.id === org.id && (
-                  <Check className="w-4 h-4 text-green-500" aria-hidden="true" />
+                  <Check className="w-4 h-4 text-gray-500" aria-hidden="true" />
                 )}
               </button>
             ))}

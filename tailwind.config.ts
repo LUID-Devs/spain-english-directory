@@ -63,17 +63,17 @@ export default {
           foreground: "hsl(var(--card-foreground))",
         },
         
-        // Apple System Colors
+        // Monochrome accent (keeping structure for compatibility)
         apple: {
-          blue: "#007AFF",
-          green: "#34C759",
-          indigo: "#5856D6",
-          orange: "#FF9500",
-          pink: "#FF2D92",
-          purple: "#AF52DE",
-          red: "#FF3B30",
-          teal: "#5AC8FA",
-          yellow: "#FFCC00",
+          blue: "#525252",
+          green: "#404040",
+          indigo: "#525252",
+          orange: "#525252",
+          pink: "#525252",
+          purple: "#525252",
+          red: "#FF3B30", // Keep red for errors
+          teal: "#525252",
+          yellow: "#525252",
         },
         
         // Enhanced gray scale following Apple HIG
@@ -105,25 +105,25 @@ export default {
           opaque: "var(--color-separator-opaque)",
         },
         
-        // Legacy colors for compatibility
+        // Legacy colors for compatibility (converted to grayscale)
         white: "#ffffff",
         blue: {
-          50: "#eff6ff",
-          100: "#dbeafe",
-          200: "#bfdbfe",
-          300: "#93c5fd",
-          400: "#60a5fa",
-          500: "#3b82f6",
-          600: "#2563eb",
-          700: "#1d4ed8",
-          800: "#1e40af",
-          900: "#1e3a8a",
-          950: "#172554",
+          50: "#fafafa",
+          100: "#f5f5f5",
+          200: "#e5e5e5",
+          300: "#d4d4d4",
+          400: "#a3a3a3",
+          500: "#737373",
+          600: "#525252",
+          700: "#404040",
+          800: "#262626",
+          900: "#171717",
+          950: "#0a0a0a",
         },
         "dark-bg": "#101214",
         "dark-secondary": "#1d1f21",
         "dark-tertiary": "#3b3d40",
-        "blue-primary": "#007AFF",
+        "blue-primary": "#525252",
         "stroke-dark": "#2d3135",
       },
       

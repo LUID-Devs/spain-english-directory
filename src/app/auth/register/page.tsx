@@ -133,7 +133,7 @@ const RegisterPage = () => {
         {/* Animated Background Elements */}
         <div className="absolute inset-0">
           <motion.div
-            className="absolute top-1/4 left-1/4 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl"
+            className="absolute top-1/4 left-1/4 w-64 h-64 bg-gray-500/10 rounded-full blur-3xl"
             animate={{
               x: [0, 100, 0],
               y: [0, -50, 0],
@@ -145,7 +145,7 @@ const RegisterPage = () => {
             }}
           />
           <motion.div
-            className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"
+            className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gray-500/10 rounded-full blur-3xl"
             animate={{
               x: [0, -80, 0],
               y: [0, 60, 0],
@@ -177,7 +177,7 @@ const RegisterPage = () => {
                   alt="LUID"
                   className="w-10 h-10 rounded-lg"
                 />
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-400 to-gray-400 bg-clip-text text-transparent">
                   TaskLuid
                 </h1>
               </motion.div>
@@ -188,7 +188,7 @@ const RegisterPage = () => {
 
           {/* Auth Card */}
           <motion.div 
-            className="p-8 bg-black/60 backdrop-blur-xl border border-blue-500/20 rounded-2xl shadow-2xl"
+            className="p-8 bg-black/60 backdrop-blur-xl border border-gray-500/20 rounded-2xl shadow-2xl"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
@@ -216,7 +216,7 @@ const RegisterPage = () => {
                   value={confirmationCode}
                   onChange={(e) => setConfirmationCode(e.target.value)}
                   required
-                  className="w-full px-4 py-3 bg-gray-900/50 border border-blue-500/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300"
+                  className="w-full px-4 py-3 bg-gray-900/50 border border-gray-500/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500/50 focus:border-gray-500/50 transition-all duration-300"
                   placeholder="Enter confirmation code"
                   whileFocus={{ scale: 1.02 }}
                   transition={{ type: "spring", stiffness: 300, damping: 20 }}
@@ -226,7 +226,7 @@ const RegisterPage = () => {
               <motion.button
                 type="submit"
                 disabled={loading}
-                className="w-full px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-semibold rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-500/25"
+                className="w-full px-4 py-3 bg-gradient-to-r from-gray-500 to-gray-500 hover:from-gray-600 hover:to-gray-600 text-white font-semibold rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-gray-500/25"
                 whileHover={{ scale: 1.02, y: -2 }}
                 whileTap={{ scale: 0.98 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
@@ -245,7 +245,7 @@ const RegisterPage = () => {
             <div className="mt-6 text-center text-sm text-gray-400">
               <Link
                 href="/auth/login"
-                className="text-blue-400 hover:text-blue-300 font-medium transition-colors duration-300"
+                className="text-gray-400 hover:text-gray-300 font-medium transition-colors duration-300"
               >
                 Back to Sign In
               </Link>
@@ -262,7 +262,7 @@ const RegisterPage = () => {
         {/* Animated Background Elements */}
         <div className="absolute inset-0">
           <motion.div
-            className="absolute top-1/4 left-1/4 w-64 h-64 bg-green-500/10 rounded-full blur-3xl"
+            className="absolute top-1/4 left-1/4 w-64 h-64 bg-gray-500/10 rounded-full blur-3xl"
             animate={{
               x: [0, 100, 0],
               y: [0, -50, 0],
@@ -274,7 +274,7 @@ const RegisterPage = () => {
             }}
           />
           <motion.div
-            className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"
+            className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gray-500/10 rounded-full blur-3xl"
             animate={{
               x: [0, -80, 0],
               y: [0, 60, 0],
@@ -300,7 +300,7 @@ const RegisterPage = () => {
             animate={{ scale: 1 }}
             transition={{ duration: 0.6, delay: 0.2, type: "spring", stiffness: 200 }}
           >
-            <div className="w-20 h-20 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center">
+            <div className="w-20 h-20 bg-gradient-to-r from-gray-500 to-gray-500 rounded-full flex items-center justify-center">
               <motion.svg 
                 className="w-10 h-10 text-white" 
                 fill="none" 
@@ -321,7 +321,7 @@ const RegisterPage = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
           >
-            <h2 className="text-3xl font-bold bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent mb-4">
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-400 to-gray-400 bg-clip-text text-transparent mb-4">
               Registration Successful!
             </h2>
             <p className="text-gray-300 mb-8">
@@ -334,7 +334,7 @@ const RegisterPage = () => {
               animate={{ rotate: 360 }}
               transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
             >
-              <div className="w-6 h-6 border-2 border-blue-400/20 border-t-blue-400 rounded-full"></div>
+              <div className="w-6 h-6 border-2 border-gray-400/20 border-t-gray-400 rounded-full"></div>
             </motion.div>
           </motion.div>
         </motion.div>
@@ -520,7 +520,7 @@ const RegisterPage = () => {
             Already have an account?{" "}
             <Link
               href="/auth/login"
-              className="text-blue-400 hover:text-blue-300 font-medium transition-colors duration-300"
+              className="text-gray-400 hover:text-gray-300 font-medium transition-colors duration-300"
             >
               Sign in
             </Link>

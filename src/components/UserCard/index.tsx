@@ -55,7 +55,7 @@ const UserCard = ({ user, showStats = false, onManageRole }: Props) => {
                 className="h-16 w-16 rounded-full border-2 border-border object-cover"
               />
               {/* Online status indicator */}
-              <div className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-background bg-green-500" />
+              <div className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-background bg-gray-600" />
             </div>
             
             <div className="min-w-0 flex-1">
@@ -106,7 +106,7 @@ const UserCard = ({ user, showStats = false, onManageRole }: Props) => {
                 </div>
               </div>
               <div className="rounded-lg bg-muted p-3 text-center">
-                <div className="text-lg font-bold text-purple-600 dark:text-purple-400">
+                <div className="text-lg font-bold text-gray-600 dark:text-gray-400">
                   {user.taskStats.assigned}
                 </div>
                 <div className="text-xs font-medium text-muted-foreground">
@@ -114,7 +114,7 @@ const UserCard = ({ user, showStats = false, onManageRole }: Props) => {
                 </div>
               </div>
               <div className="rounded-lg bg-muted p-3 text-center">
-                <div className="text-lg font-bold text-green-600 dark:text-green-400">
+                <div className="text-lg font-bold text-gray-600 dark:text-gray-400">
                   {user.taskStats.completed}
                 </div>
                 <div className="text-xs font-medium text-muted-foreground">
@@ -122,7 +122,7 @@ const UserCard = ({ user, showStats = false, onManageRole }: Props) => {
                 </div>
               </div>
               <div className="rounded-lg bg-muted p-3 text-center">
-                <div className="text-lg font-bold text-red-600 dark:text-red-400">
+                <div className="text-lg font-bold text-gray-600 dark:text-gray-400">
                   {user.taskStats.overdue}
                 </div>
                 <div className="text-xs font-medium text-muted-foreground">

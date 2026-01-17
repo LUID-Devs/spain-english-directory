@@ -195,7 +195,7 @@ const InviteAcceptPage: React.FC = () => {
                 className="w-16 h-16 rounded-lg object-cover"
               />
             ) : (
-              <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+              <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-gray-500 to-gray-500 flex items-center justify-center">
                 <Building2 className="w-8 h-8 text-white" />
               </div>
             )}
@@ -246,7 +246,7 @@ const InviteAcceptPage: React.FC = () => {
               ) : (
                 // Email doesn't match
                 <div className="space-y-3">
-                  <div className="bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200 text-sm p-3 rounded-md">
+                  <div className="bg-gray-100 dark:bg-gray-900/20 text-gray-800 dark:text-gray-200 text-sm p-3 rounded-md">
                     This invite was sent to <strong>{invite?.email}</strong>, but you're logged in as <strong>{user?.email}</strong>.
                   </div>
                   <Button

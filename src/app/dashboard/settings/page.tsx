@@ -243,9 +243,9 @@ const SettingsPage = () => {
   const getRoleBadge = (role: string) => {
     switch (role) {
       case 'owner':
-        return <Badge className="bg-yellow-500 hover:bg-yellow-600"><Crown className="h-3 w-3 mr-1" />Owner</Badge>;
+        return <Badge className="bg-gray-800 hover:bg-gray-900"><Crown className="h-3 w-3 mr-1" />Owner</Badge>;
       case 'admin':
-        return <Badge className="bg-blue-500 hover:bg-blue-600"><Shield className="h-3 w-3 mr-1" />Admin</Badge>;
+        return <Badge className="bg-gray-600 hover:bg-gray-700"><Shield className="h-3 w-3 mr-1" />Admin</Badge>;
       default:
         return <Badge variant="secondary"><User className="h-3 w-3 mr-1" />Member</Badge>;
     }
@@ -610,11 +610,11 @@ const SettingsPage = () => {
                 <div className="flex items-center gap-3">
                   <div className={cn(
                     "w-8 h-8 rounded-full flex items-center justify-center",
-                    isGoogleAuth ? "bg-green-100" : "bg-blue-100"
+                    isGoogleAuth ? "bg-gray-100" : "bg-gray-100"
                   )}>
                     <svg className={cn(
                       "w-4 h-4",
-                      isGoogleAuth ? "text-green-600" : "text-blue-600"
+                      isGoogleAuth ? "text-gray-600" : "text-gray-600"
                     )} viewBox="0 0 24 24">
                       <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                       <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -631,7 +631,7 @@ const SettingsPage = () => {
                 </div>
 
                 {isGoogleAuth ? (
-                  <Badge variant="outline" className="gap-1 text-green-600 border-green-600">
+                  <Badge variant="outline" className="gap-1 text-gray-600 border-gray-600">
                     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
@@ -778,7 +778,7 @@ const SettingsPage = () => {
                             className="h-9 w-9 rounded-full object-cover"
                           />
                         ) : (
-                          <div className="h-9 w-9 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                          <div className="h-9 w-9 rounded-full bg-gradient-to-br from-gray-500 to-gray-600 flex items-center justify-center">
                             <span className="text-white text-sm font-medium">
                               {member.user?.username?.charAt(0).toUpperCase() || '?'}
                             </span>

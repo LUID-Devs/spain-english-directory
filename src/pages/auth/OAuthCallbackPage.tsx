@@ -132,7 +132,7 @@ const OAuthCallbackPage: React.FC = () => {
       <div className="max-w-md w-full space-y-8 p-8">
         {status === 'loading' && (
           <div className="text-center">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-500 mx-auto"></div>
+            <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-gray-500 mx-auto"></div>
             <h2 className="mt-8 text-2xl font-bold text-white">
               Completing sign-in...
             </h2>
@@ -144,8 +144,8 @@ const OAuthCallbackPage: React.FC = () => {
 
         {status === 'success' && (
           <div className="text-center">
-            <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-500/20 border-2 border-green-500">
-              <svg className="h-8 w-8 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-gray-500/20 border-2 border-gray-500">
+              <svg className="h-8 w-8 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
               </svg>
             </div>

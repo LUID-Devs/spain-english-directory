@@ -127,14 +127,14 @@ const TeamsPage = () => {
     switch (role) {
       case 'owner':
         return (
-          <Badge className="bg-yellow-500 hover:bg-yellow-600 gap-1">
+          <Badge className="bg-gray-800 hover:bg-gray-900 gap-1">
             <Crown className="h-3 w-3" />
             Owner
           </Badge>
         );
       case 'admin':
         return (
-          <Badge className="bg-blue-500 hover:bg-blue-600 gap-1">
+          <Badge className="bg-gray-600 hover:bg-gray-700 gap-1">
             <Shield className="h-3 w-3" />
             Admin
           </Badge>
@@ -224,12 +224,12 @@ const TeamsPage = () => {
               <div className="text-2xl font-bold text-primary">{stats.total}</div>
               <div className="text-xs text-muted-foreground">Total Members</div>
             </div>
-            <div className="text-center bg-yellow-100 dark:bg-yellow-900/20 rounded-lg p-4">
-              <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{stats.owners}</div>
+            <div className="text-center bg-gray-100 dark:bg-gray-900/20 rounded-lg p-4">
+              <div className="text-2xl font-bold text-gray-600 dark:text-gray-400">{stats.owners}</div>
               <div className="text-xs text-muted-foreground">Owners</div>
             </div>
-            <div className="text-center bg-blue-100 dark:bg-blue-900/20 rounded-lg p-4">
-              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{stats.admins}</div>
+            <div className="text-center bg-gray-100 dark:bg-gray-900/20 rounded-lg p-4">
+              <div className="text-2xl font-bold text-gray-600 dark:text-gray-400">{stats.admins}</div>
               <div className="text-xs text-muted-foreground">Admins</div>
             </div>
             <div className="text-center bg-muted rounded-lg p-4">
@@ -311,7 +311,7 @@ const TeamsPage = () => {
                         className="h-11 w-11 rounded-full object-cover"
                       />
                     ) : (
-                      <div className="h-11 w-11 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                      <div className="h-11 w-11 rounded-full bg-gradient-to-br from-gray-500 to-gray-600 flex items-center justify-center">
                         <span className="text-white text-lg font-medium">
                           {member.user?.username?.charAt(0).toUpperCase() || '?'}
                         </span>
