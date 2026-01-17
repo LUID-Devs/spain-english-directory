@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Search, Settings2, X, Users, Briefcase, CheckSquare, User, Clock } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { debounce } from "lodash";
+import debounce from "lodash/debounce";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import AdvancedSearchModal, { SearchFilters } from "@/components/AdvancedSearchModal";

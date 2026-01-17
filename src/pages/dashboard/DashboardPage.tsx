@@ -8,6 +8,8 @@ import { useGetProjectsQuery, useGetTasksByUserQuery } from "@/hooks/useApi";
 import { useGlobalStore } from "@/stores/globalStore";
 import React from "react";
 import Header from "@/components/Header";
+// TODO: Consider lazy-loading charts for better initial load performance
+// Recharts adds ~150KB to the bundle
 import {
   Bar,
   BarChart,

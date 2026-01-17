@@ -25,46 +25,51 @@ type Props = {
   task: Task;
 };
 
-const TaskCard = ({ task }: Props) => {
+const PRIORITY_CONFIGS = {
+  "Urgent": {
+    variant: "destructive" as const,
+    icon: AlertTriangle,
+  },
+  "High": {
+    variant: "default" as const,
+    icon: Target,
+  },
+  "Medium": {
+    variant: "secondary" as const,
+    icon: Activity,
+  },
+  "Low": {
+    variant: "outline" as const,
+    icon: Clock,
+  },
+  "Backlog": {
+    variant: "outline" as const,
+    icon: ListIcon,
+  },
+};
+
+const STATUS_CONFIGS = {
+  "Completed": { variant: "default" as const, icon: CheckCircle2 },
+  "Work In Progress": { variant: "secondary" as const, icon: Activity },
+  "Under Review": { variant: "outline" as const, icon: Clock },
+  "To Do": { variant: "outline" as const, icon: ListIcon },
+};
+
+const DEFAULT_PRIORITY_CONFIG = { variant: "outline" as const, icon: Activity };
+const DEFAULT_STATUS_CONFIG = { variant: "outline" as const, icon: ListIcon };
+
+const getPriorityConfig = (priority: string) => {
+  return PRIORITY_CONFIGS[priority as keyof typeof PRIORITY_CONFIGS] || DEFAULT_PRIORITY_CONFIG;
+};
+
+const getStatusConfig = (status: string) => {
+  return STATUS_CONFIGS[status as keyof typeof STATUS_CONFIGS] || DEFAULT_STATUS_CONFIG;
+};
+
+const TaskCard = React.memo(({ task }: Props) => {
   const { openTaskModal } = useTaskModal();
   const taskTagsSplit = task.tags ? task.tags.split(",") : [];
   const numberOfComments = (task.comments && task.comments.length) || 0;
-
-  const getPriorityConfig = (priority: string) => {
-    const configs = {
-      "Urgent": { 
-        variant: "destructive" as const,
-        icon: AlertTriangle,
-      },
-      "High": { 
-        variant: "default" as const,
-        icon: Target,
-      },
-      "Medium": { 
-        variant: "secondary" as const,
-        icon: Activity,
-      },
-      "Low": { 
-        variant: "outline" as const,
-        icon: Clock,
-      },
-      "Backlog": { 
-        variant: "outline" as const,
-        icon: ListIcon,
-      },
-    };
-    return configs[priority as keyof typeof configs] || { variant: "outline" as const, icon: Activity };
-  };
-
-  const getStatusConfig = (status: string) => {
-    const configs = {
-      "Completed": { variant: "default" as const, icon: CheckCircle2 },
-      "Work In Progress": { variant: "secondary" as const, icon: Activity },
-      "Under Review": { variant: "outline" as const, icon: Clock },
-      "To Do": { variant: "outline" as const, icon: ListIcon },
-    };
-    return configs[status as keyof typeof configs] || { variant: "outline" as const, icon: ListIcon };
-  };
 
   const getDueDateStatus = () => {
     if (!task.dueDate) return null;
@@ -209,6 +214,6 @@ const TaskCard = ({ task }: Props) => {
       </CardContent>
     </Card>
   );
-};
+});
 
 export default TaskCard;

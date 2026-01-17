@@ -320,7 +320,7 @@ type TaskColumnProps = {
   canMoveRight: boolean;
 };
 
-const TaskColumn = ({
+const TaskColumn = React.memo(({
   status,
   tasks,
   moveTask,
@@ -487,14 +487,42 @@ const TaskColumn = ({
       </CardContent>
     </Card>
   );
-};
+});
 
 type TaskProps = {
   task: TaskType;
   onTaskSelect: (task: { taskId: number; editMode: boolean }) => void;
 };
 
-const Task = ({ task, onTaskSelect }: TaskProps) => {
+// Priority configuration - moved outside component to avoid recreation on each render
+const PRIORITY_CONFIGS = {
+  "Urgent": {
+    variant: "destructive" as const,
+    icon: AlertTriangle,
+  },
+  "High": {
+    variant: "default" as const,
+    icon: Target,
+  },
+  "Medium": {
+    variant: "secondary" as const,
+    icon: Activity,
+  },
+  "Low": {
+    variant: "outline" as const,
+    icon: Clock,
+  },
+  "Backlog": {
+    variant: "outline" as const,
+    icon: ListIcon,
+  },
+};
+
+const getPriorityConfig = (priority: TaskType["priority"]) => {
+  return PRIORITY_CONFIGS[priority as keyof typeof PRIORITY_CONFIGS] || { variant: "outline" as const, icon: Activity };
+};
+
+const Task = React.memo(({ task, onTaskSelect }: TaskProps) => {
   const [isEditMode, setIsEditMode] = React.useState(false);
   const [showDropdown, setShowDropdown] = React.useState(false);
   const [showDeleteModal, setShowDeleteModal] = React.useState(false);
@@ -613,32 +641,6 @@ const Task = ({ task, onTaskSelect }: TaskProps) => {
       return () => document.removeEventListener('click', handleClickOutside);
     }
   }, [showDropdown]);
-
-  const getPriorityConfig = (priority: TaskType["priority"]) => {
-    const configs = {
-      "Urgent": { 
-        variant: "destructive" as const,
-        icon: AlertTriangle,
-      },
-      "High": { 
-        variant: "default" as const,
-        icon: Target,
-      },
-      "Medium": { 
-        variant: "secondary" as const,
-        icon: Activity,
-      },
-      "Low": { 
-        variant: "outline" as const,
-        icon: Clock,
-      },
-      "Backlog": { 
-        variant: "outline" as const,
-        icon: ListIcon,
-      },
-    };
-    return configs[priority as keyof typeof configs] || { variant: "outline" as const, icon: Activity };
-  };
 
   const getDueDateStatus = () => {
     if (!task.dueDate) return null;
@@ -837,7 +839,7 @@ const Task = ({ task, onTaskSelect }: TaskProps) => {
       />
     </>
   );
-};
+});
 
 // Status Management Modal Component
 type StatusManagementModalProps = {
