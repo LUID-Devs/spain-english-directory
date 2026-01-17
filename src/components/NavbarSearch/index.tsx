@@ -18,11 +18,15 @@ import { useTaskModal } from "@/contexts/TaskModalContext";
 interface NavbarSearchProps {
   className?: string;
   placeholder?: string;
+  autoFocus?: boolean;
+  onResultClick?: () => void;
 }
 
-const NavbarSearch: React.FC<NavbarSearchProps> = ({ 
-  className = "", 
-  placeholder = "Search projects, tasks, users..." 
+const NavbarSearch: React.FC<NavbarSearchProps> = ({
+  className = "",
+  placeholder = "Search projects, tasks, users...",
+  autoFocus = false,
+  onResultClick,
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentFilters, setCurrentFilters] = useState<SearchFilters>({});
@@ -166,9 +170,9 @@ const NavbarSearch: React.FC<NavbarSearchProps> = ({
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
       if (
-        searchInputRef.current && 
-        !searchInputRef.current.contains(target) && 
-        dropdownRef.current && 
+        searchInputRef.current &&
+        !searchInputRef.current.contains(target) &&
+        dropdownRef.current &&
         !dropdownRef.current.contains(target)
       ) {
         setShowSuggestions(false);
@@ -181,6 +185,23 @@ const NavbarSearch: React.FC<NavbarSearchProps> = ({
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+  // Auto-focus when autoFocus prop is true
+  useEffect(() => {
+    if (autoFocus && searchInputRef.current) {
+      // Small delay to ensure the component is fully mounted
+      const timer = setTimeout(() => {
+        searchInputRef.current?.focus();
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [autoFocus]);
+
+  // Helper to handle result click and close mobile overlay
+  const handleResultClick = () => {
+    setShowResults(false);
+    onResultClick?.();
+  };
 
   return (
     <>
@@ -303,7 +324,7 @@ const NavbarSearch: React.FC<NavbarSearchProps> = ({
                             key={`task-${task.id}`}
                             onClick={() => {
                               openTaskModal(task.id);
-                              setShowResults(false);
+                              handleResultClick();
                             }}
                             className="w-full text-left block px-2 py-2 rounded hover:bg-accent transition-colors"
                           >
@@ -370,7 +391,7 @@ const NavbarSearch: React.FC<NavbarSearchProps> = ({
                             key={`project-${project.id}`}
                             to={`/dashboard/projects/${project.id}`}
                             className="block px-2 py-2 rounded hover:bg-accent transition-colors"
-                            onClick={() => setShowResults(false)}
+                            onClick={handleResultClick}
                           >
                             <div className="flex items-center gap-3">
                               <div className="flex-shrink-0">
@@ -414,7 +435,7 @@ const NavbarSearch: React.FC<NavbarSearchProps> = ({
                           <div
                             key={`user-${user.userId}`}
                             className="flex items-center gap-3 px-2 py-2 rounded hover:bg-accent transition-colors cursor-pointer"
-                            onClick={() => setShowResults(false)}
+                            onClick={handleResultClick}
                           >
                             <div className="flex-shrink-0">
                               {user.profilePictureUrl ? (

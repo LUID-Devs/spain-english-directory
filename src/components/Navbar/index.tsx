@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Settings, Menu, Moon, Sun, User, LogOut } from "lucide-react";
+import { Settings, Menu, Moon, Sun, User, LogOut, X, Search } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useGlobalStore } from "@/stores/globalStore";
@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 
 const Navbar = () => {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [showMobileSearch, setShowMobileSearch] = useState(false);
   const { isSidebarCollapsed, isDarkMode, toggleSidebar, toggleDarkMode } = useGlobalStore();
 
   const auth = useAuth();
@@ -26,6 +27,7 @@ const Navbar = () => {
   const currentUserDetails = currentUser?.userDetails;
   console.log('Navbar - Auth & User Data:', auth.user?.sub, currentUser, currentUserDetails);
   return (
+    <>
     <motion.div
       className="flex items-center justify-between bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-3 sm:px-4 py-2 sm:py-3 border-b border-border sticky top-0 z-30"
       initial={{ y: -100 }}
@@ -78,11 +80,10 @@ const Navbar = () => {
           variant="ghost"
           size="sm"
           className="sm:hidden min-h-[44px] min-w-[44px] p-2"
-          aria-label="Search"
+          aria-label="Open search"
+          onClick={() => setShowMobileSearch(true)}
         >
-          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
+          <Search className="h-5 w-5" />
         </Button>
 
         {/* Theme Toggle */}
@@ -231,6 +232,51 @@ const Navbar = () => {
         </div>
       </div>
     </motion.div>
+
+      {/* Mobile Search Overlay */}
+      <AnimatePresence>
+        {showMobileSearch && (
+          <motion.div
+            className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm sm:hidden"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div className="flex flex-col h-full">
+              {/* Header */}
+              <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+                <span className="text-lg font-medium">Search</span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="min-h-[44px] min-w-[44px] p-2"
+                  onClick={() => setShowMobileSearch(false)}
+                  aria-label="Close search"
+                >
+                  <X className="h-5 w-5" />
+                </Button>
+              </div>
+
+              {/* Search Input */}
+              <div className="p-4">
+                <NavbarSearch
+                  className="w-full"
+                  placeholder="Search tasks, projects..."
+                  autoFocus
+                  onResultClick={() => setShowMobileSearch(false)}
+                />
+              </div>
+
+              {/* Hint Text */}
+              <div className="px-4 text-sm text-muted-foreground">
+                Search for tasks, projects, or team members
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 };
 
