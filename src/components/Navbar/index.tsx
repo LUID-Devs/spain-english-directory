@@ -32,14 +32,8 @@ const Navbar = () => {
       animate={{ y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
     >
-      {/* Left Section - Workspace, Menu & Search */}
+      {/* Left Section - Menu, Workspace & Search */}
       <div className="flex items-center gap-2 sm:gap-4">
-        {/* Workspace Switcher */}
-        <WorkspaceSwitcher />
-
-        {/* Divider */}
-        <div className="hidden md:block h-8 w-[1px] bg-border"></div>
-
         {/* Menu Toggle - Always show on mobile, conditional on desktop */}
         <Button
           variant="ghost"
@@ -61,6 +55,12 @@ const Navbar = () => {
             <Menu className="h-5 w-5" />
           </Button>
         )}
+
+        {/* Workspace Switcher */}
+        <WorkspaceSwitcher />
+
+        {/* Divider */}
+        <div className="hidden md:block h-8 w-[1px] bg-border"></div>
 
         {/* Search Bar - Responsive width */}
         <div className="hidden sm:flex h-min w-[180px] sm:w-[220px] md:w-[280px] lg:w-[350px]">
