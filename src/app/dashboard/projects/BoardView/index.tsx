@@ -216,10 +216,10 @@ const BoardView = ({
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-4 sm:p-6 overflow-x-auto">
-        <div className="flex gap-3 sm:gap-6 min-w-max pb-4">
+      <div className="container mx-auto px-2 sm:px-4 py-4 sm:p-6 overflow-x-auto scrollbar-hide">
+        <div className="flex gap-3 sm:gap-6 pb-4 snap-x snap-mandatory sm:snap-none">
           {DEFAULT_STATUSES.map((status) => (
-            <Card key={status} className="w-[280px] sm:w-80 flex-shrink-0">
+            <Card key={status} className="w-[85vw] sm:w-80 flex-shrink-0 snap-center sm:snap-align-none">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-sm font-medium">{status}</CardTitle>
@@ -252,9 +252,9 @@ const BoardView = ({
   }
 
   return (
-    <div className="container mx-auto px-4 py-4 sm:p-6 overflow-x-auto">
+    <div className="container mx-auto px-2 sm:px-4 py-4 sm:p-6 overflow-x-auto scrollbar-hide">
       <DndProvider backend={HTML5Backend}>
-        <div className="flex gap-3 sm:gap-6 min-w-max pb-4">
+        <div className="flex gap-3 sm:gap-6 pb-4 snap-x snap-mandatory sm:snap-none">
           {statusNames.map((status: string) => (
             <TaskColumn
               key={status}
@@ -385,7 +385,7 @@ const TaskColumn = ({
         drop(instance);
       }}
       className={cn(
-        "w-[280px] sm:w-80 flex-shrink-0 transition-all duration-300 ease-out",
+        "w-[85vw] sm:w-80 flex-shrink-0 transition-all duration-300 ease-out snap-center sm:snap-align-none",
         config.className,
         isOver && "ring-2 ring-primary ring-offset-2"
       )}
@@ -899,7 +899,7 @@ const StatusManagementModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="w-[95vw] max-w-[425px] p-4 sm:p-6">
         <DialogHeader>
           <DialogTitle>
             {mode === 'add' ? 'Add New Status' : 'Edit Status'}
@@ -923,11 +923,11 @@ const StatusManagementModal = ({
               />
             </div>
           </div>
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose}>
+          <DialogFooter className="flex-col-reverse sm:flex-row gap-2 sm:gap-0">
+            <Button type="button" variant="outline" onClick={onClose} className="w-full sm:w-auto">
               Cancel
             </Button>
-            <Button type="submit" disabled={!statusName.trim() || isLoading}>
+            <Button type="submit" disabled={!statusName.trim() || isLoading} className="w-full sm:w-auto">
               {isLoading ? 'Saving...' : mode === 'add' ? 'Add Status' : 'Save Changes'}
             </Button>
           </DialogFooter>
@@ -977,7 +977,7 @@ const DeleteStatusModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="w-[95vw] max-w-[425px] p-4 sm:p-6">
         <DialogHeader>
           <DialogTitle>Delete Status</DialogTitle>
           <DialogDescription>
@@ -994,8 +994,8 @@ const DeleteStatusModal = ({
             )}
           </DialogDescription>
         </DialogHeader>
-        <DialogFooter>
-          <Button type="button" variant="outline" onClick={onClose}>
+        <DialogFooter className="flex-col-reverse sm:flex-row gap-2 sm:gap-0">
+          <Button type="button" variant="outline" onClick={onClose} className="w-full sm:w-auto">
             Cancel
           </Button>
           <Button
@@ -1003,6 +1003,7 @@ const DeleteStatusModal = ({
             variant="destructive"
             onClick={handleDelete}
             disabled={isLoading || status?.isDefault}
+            className="w-full sm:w-auto"
           >
             {isLoading ? 'Deleting...' : 'Delete Status'}
           </Button>

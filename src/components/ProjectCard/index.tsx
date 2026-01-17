@@ -152,10 +152,10 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, viewMode = "grid" })
             "hover:shadow-md transition-all duration-200 cursor-pointer group",
             project.archived && "opacity-75 bg-muted"
           )}>
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 {/* Main content area */}
-                <div className="flex-1 min-w-0 pr-16">
+                <div className="flex-1 min-w-0 pr-12 sm:pr-16">
                   {/* Title and badge row */}
                   <div className="flex items-center gap-3 mb-2">
                     <h3 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors truncate">
@@ -173,27 +173,27 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, viewMode = "grid" })
                   </p>
 
                   {/* Stats row */}
-                  <div className="flex items-center gap-6 text-sm text-muted-foreground mb-3">
+                  <div className="flex items-center flex-wrap gap-3 sm:gap-6 text-sm text-muted-foreground mb-3">
                     <div className="flex items-center gap-1.5">
                       <CheckCircle className="h-4 w-4 flex-shrink-0" />
                       <span className="whitespace-nowrap">{completedTasks}/{totalTasks} tasks</span>
                     </div>
-                    
+
                     <div className="flex items-center gap-1.5">
                       <Clock className="h-4 w-4 flex-shrink-0" />
                       <span className="whitespace-nowrap">
                         {project.updatedAt ? format(new Date(project.updatedAt), "MMM d") : "Unknown"}
                       </span>
                     </div>
-                    
-                    <div className="flex items-center gap-1.5">
+
+                    <div className="hidden sm:flex items-center gap-1.5">
                       <Calendar className="h-4 w-4 flex-shrink-0" />
                       <span className="whitespace-nowrap">
                         {project.startDate ? format(new Date(project.startDate), "MMM d") : "No date"}
                       </span>
                     </div>
-                    
-                    <div className="flex items-center gap-1.5">
+
+                    <div className="hidden sm:flex items-center gap-1.5">
                       <Clock className="h-4 w-4 flex-shrink-0" />
                       <span className="whitespace-nowrap">{daysSinceStart} days ago</span>
                     </div>

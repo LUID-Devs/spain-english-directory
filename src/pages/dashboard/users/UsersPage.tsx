@@ -126,16 +126,16 @@ const UsersPage = () => {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto px-4 py-4 sm:p-6 space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Team Members</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Team Members</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
             {filteredUsers.length} member{filteredUsers.length !== 1 ? 's' : ''} in your organization
           </p>
         </div>
-        <Button onClick={() => setIsInviteModalOpen(true)}>
+        <Button onClick={() => setIsInviteModalOpen(true)} className="w-full sm:w-auto">
           <UserPlus className="h-4 w-4 mr-2" />
           Invite User
         </Button>
@@ -143,7 +143,7 @@ const UsersPage = () => {
 
       {/* Search and Filter Bar */}
       <Card>
-        <CardContent className="p-6">
+        <CardContent className="p-4 sm:p-6">
           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -226,93 +226,152 @@ const UsersPage = () => {
               Manage roles and view member statistics
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>User</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Team</TableHead>
-                  <TableHead>Task Stats</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredUsers.map((user) => {
-                  const roleBadge = getRoleBadge(user.role || 'member');
-                  return (
-                    <TableRow key={user.userId}>
-                      <TableCell>
-                        <div className="flex items-center space-x-3">
-                          <div className="h-10 w-10 flex-shrink-0">
-                            <img
-                              src={user.profilePictureUrl 
-                                ? `https://pm-s3-images.s3.us-east-1.amazonaws.com/${user.profilePictureUrl}`
-                                : `https://pm-s3-images.s3.us-east-1.amazonaws.com/p1.jpeg`
-                              }
-                              alt={user.username}
-                              className="h-10 w-10 rounded-full border-2 border-border object-cover"
-                            />
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <div className="text-sm font-medium text-foreground truncate">
-                              {user.username}
-                            </div>
-                            <div className="text-sm text-muted-foreground truncate">
-                              {user.email}
-                            </div>
-                          </div>
+          <CardContent className="p-0 sm:p-6 sm:pt-0">
+            {/* Mobile: Card-based layout */}
+            <div className="sm:hidden divide-y divide-border">
+              {filteredUsers.map((user) => {
+                const roleBadge = getRoleBadge(user.role || 'member');
+                return (
+                  <div key={user.userId} className="p-4">
+                    <div className="flex items-start gap-3 mb-3">
+                      <img
+                        src={user.profilePictureUrl
+                          ? `https://pm-s3-images.s3.us-east-1.amazonaws.com/${user.profilePictureUrl}`
+                          : `https://pm-s3-images.s3.us-east-1.amazonaws.com/p1.jpeg`
+                        }
+                        alt={user.username}
+                        className="h-10 w-10 rounded-full border-2 border-border object-cover shrink-0"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-foreground truncate">{user.username}</div>
+                        <div className="text-sm text-muted-foreground truncate">{user.email}</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 flex-wrap mb-3">
+                      <Badge variant={roleBadge.variant} className="text-xs">{roleBadge.label}</Badge>
+                      {user.teamName && (
+                        <Badge variant="outline" className="text-xs">{user.teamName}</Badge>
+                      )}
+                    </div>
+                    {user.taskStats && (
+                      <div className="flex gap-4 text-xs mb-3">
+                        <div className="text-center">
+                          <div className="font-semibold text-primary">{user.taskStats.authored}</div>
+                          <div className="text-muted-foreground">Created</div>
                         </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={roleBadge.variant} className="text-xs">
-                          {roleBadge.label}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        {user.teamName ? (
-                          <Badge variant="outline" className="text-xs">
-                            {user.teamName}
-                          </Badge>
-                        ) : (
-                          <span className="text-sm text-muted-foreground">No team</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {user.taskStats ? (
-                          <div className="flex space-x-4 text-xs">
-                            <div className="text-center">
-                              <div className="font-semibold text-primary">{user.taskStats.authored}</div>
-                              <div className="text-muted-foreground">Created</div>
+                        <div className="text-center">
+                          <div className="font-semibold text-green-600">{user.taskStats.completed}</div>
+                          <div className="text-muted-foreground">Done</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="font-semibold text-red-600">{user.taskStats.overdue}</div>
+                          <div className="text-muted-foreground">Overdue</div>
+                        </div>
+                      </div>
+                    )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleManageRole(user)}
+                      className="w-full"
+                    >
+                      <Settings className="h-4 w-4 mr-1" />
+                      Manage Role
+                    </Button>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Desktop: Table layout */}
+            <div className="hidden sm:block">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>User</TableHead>
+                    <TableHead>Role</TableHead>
+                    <TableHead>Team</TableHead>
+                    <TableHead>Task Stats</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredUsers.map((user) => {
+                    const roleBadge = getRoleBadge(user.role || 'member');
+                    return (
+                      <TableRow key={user.userId}>
+                        <TableCell>
+                          <div className="flex items-center space-x-3">
+                            <div className="h-10 w-10 flex-shrink-0">
+                              <img
+                                src={user.profilePictureUrl
+                                  ? `https://pm-s3-images.s3.us-east-1.amazonaws.com/${user.profilePictureUrl}`
+                                  : `https://pm-s3-images.s3.us-east-1.amazonaws.com/p1.jpeg`
+                                }
+                                alt={user.username}
+                                className="h-10 w-10 rounded-full border-2 border-border object-cover"
+                              />
                             </div>
-                            <div className="text-center">
-                              <div className="font-semibold text-green-600">{user.taskStats.completed}</div>
-                              <div className="text-muted-foreground">Done</div>
-                            </div>
-                            <div className="text-center">
-                              <div className="font-semibold text-red-600">{user.taskStats.overdue}</div>
-                              <div className="text-muted-foreground">Overdue</div>
+                            <div className="min-w-0 flex-1">
+                              <div className="text-sm font-medium text-foreground truncate">
+                                {user.username}
+                              </div>
+                              <div className="text-sm text-muted-foreground truncate">
+                                {user.email}
+                              </div>
                             </div>
                           </div>
-                        ) : (
-                          <span className="text-muted-foreground text-sm">No data</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleManageRole(user)}
-                        >
-                          <Settings className="h-4 w-4 mr-1" />
-                          Manage
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant={roleBadge.variant} className="text-xs">
+                            {roleBadge.label}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          {user.teamName ? (
+                            <Badge variant="outline" className="text-xs">
+                              {user.teamName}
+                            </Badge>
+                          ) : (
+                            <span className="text-sm text-muted-foreground">No team</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {user.taskStats ? (
+                            <div className="flex space-x-4 text-xs">
+                              <div className="text-center">
+                                <div className="font-semibold text-primary">{user.taskStats.authored}</div>
+                                <div className="text-muted-foreground">Created</div>
+                              </div>
+                              <div className="text-center">
+                                <div className="font-semibold text-green-600">{user.taskStats.completed}</div>
+                                <div className="text-muted-foreground">Done</div>
+                              </div>
+                              <div className="text-center">
+                                <div className="font-semibold text-red-600">{user.taskStats.overdue}</div>
+                                <div className="text-muted-foreground">Overdue</div>
+                              </div>
+                            </div>
+                          ) : (
+                            <span className="text-muted-foreground text-sm">No data</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleManageRole(user)}
+                          >
+                            <Settings className="h-4 w-4 mr-1" />
+                            Manage
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
           </CardContent>
         </Card>
       )}

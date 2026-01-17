@@ -179,12 +179,12 @@ const TeamsPage = () => {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto px-4 py-4 sm:p-6 space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Team Members</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Team Members</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
             {isPersonalWorkspace
               ? "Personal workspace - only you have access"
               : `Manage members of ${activeOrganization?.name || 'your workspace'}`
@@ -192,7 +192,7 @@ const TeamsPage = () => {
           </p>
         </div>
         {canInvite && (
-          <Button onClick={() => setIsInviteModalOpen(true)} className="gap-2">
+          <Button onClick={() => setIsInviteModalOpen(true)} className="gap-2 w-full sm:w-auto">
             <UserPlus className="h-4 w-4" />
             Invite Member
           </Button>

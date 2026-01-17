@@ -326,73 +326,111 @@ const DashboardPage = () => {
           </CardHeader>
           <CardContent className="p-0 sm:p-6 sm:pt-0">
             {(tasks || []).length > 0 ? (
-              <div className="overflow-x-auto">
-              <Table className="min-w-[600px]">
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Task</TableHead>
-                    <TableHead>Priority</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Due Date</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
+              <>
+                {/* Mobile: Card-based layout */}
+                <div className="sm:hidden divide-y divide-border">
                   {(tasks || []).slice(0, 5).map((task) => (
-                    <TableRow key={task.id}>
-                      <TableCell>
-                        <div>
-                          <button 
-                            onClick={() => openTaskModal(task.id)}
-                            className="font-medium hover:underline text-left"
-                          >
-                            {task.title}
-                          </button>
-                          {task.description && (
-                            <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-                              {task.description}
-                            </p>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={getPriorityVariant(task.priority)}>
+                    <button
+                      key={task.id}
+                      onClick={() => openTaskModal(task.id)}
+                      className="w-full p-4 text-left hover:bg-accent/50 transition-colors"
+                    >
+                      <div className="flex items-start justify-between gap-3 mb-2">
+                        <h4 className="font-medium text-foreground line-clamp-2 flex-1">
+                          {task.title}
+                        </h4>
+                        <Badge variant={getPriorityVariant(task.priority)} className="shrink-0">
                           {task.priority}
                         </Badge>
-                      </TableCell>
-                      <TableCell>
+                      </div>
+                      <div className="flex items-center gap-2 flex-wrap">
                         <Badge variant={getStatusVariant(task.status)}>
                           {task.status}
                         </Badge>
-                      </TableCell>
-                      <TableCell>
-                        {task.dueDate ? (
+                        {task.dueDate && (
                           <span className={cn(
-                            "text-sm",
+                            "text-xs",
                             new Date(task.dueDate) < new Date() && task.status !== 'Completed'
                               ? "text-destructive font-medium"
                               : "text-muted-foreground"
                           )}>
-                            {new Date(task.dueDate).toLocaleDateString()}
+                            Due: {new Date(task.dueDate).toLocaleDateString()}
                           </span>
-                        ) : (
-                          <span className="text-muted-foreground">No date</span>
                         )}
-                      </TableCell>
-                      <TableCell>
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={() => openTaskModal(task.id)}
-                        >
-                          View
-                        </Button>
-                      </TableCell>
-                    </TableRow>
+                      </div>
+                    </button>
                   ))}
-                </TableBody>
-              </Table>
-              </div>
+                </div>
+
+                {/* Desktop: Table layout */}
+                <div className="hidden sm:block overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Task</TableHead>
+                        <TableHead>Priority</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Due Date</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {(tasks || []).slice(0, 5).map((task) => (
+                        <TableRow key={task.id}>
+                          <TableCell>
+                            <div>
+                              <button
+                                onClick={() => openTaskModal(task.id)}
+                                className="font-medium hover:underline text-left"
+                              >
+                                {task.title}
+                              </button>
+                              {task.description && (
+                                <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                                  {task.description}
+                                </p>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={getPriorityVariant(task.priority)}>
+                              {task.priority}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={getStatusVariant(task.status)}>
+                              {task.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            {task.dueDate ? (
+                              <span className={cn(
+                                "text-sm",
+                                new Date(task.dueDate) < new Date() && task.status !== 'Completed'
+                                  ? "text-destructive font-medium"
+                                  : "text-muted-foreground"
+                              )}>
+                                {new Date(task.dueDate).toLocaleDateString()}
+                              </span>
+                            ) : (
+                              <span className="text-muted-foreground">No date</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => openTaskModal(task.id)}
+                            >
+                              View
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </>
             ) : (
               <div className="flex items-center justify-center h-64">
                 <div className="text-center space-y-4">

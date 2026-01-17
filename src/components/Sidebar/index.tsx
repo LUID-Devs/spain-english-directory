@@ -88,7 +88,7 @@ const Sidebar = () => {
     <div className={sidebarClassNames}>
       <div className="flex h-[100%] w-full flex-col justify-start">
         {/* TOP LOGO */}
-        <div className="z-50 flex min-h-[56px] w-64 items-center justify-between bg-background px-6 pt-3">
+        <div className="z-50 flex min-h-[56px] w-full items-center justify-between bg-background px-4 sm:px-6 pt-3">
           <div className="flex items-center gap-2">
             <img
               src="/logo.png"
@@ -110,7 +110,7 @@ const Sidebar = () => {
         </div>
 
         {/* WORKSPACE INFO */}
-        <div className="flex items-center gap-5 border-y border-border px-8 py-4">
+        <div className="flex items-center gap-3 sm:gap-5 border-y border-border px-4 sm:px-6 py-3 sm:py-4">
           <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
             <span className="text-white font-bold text-sm">
               {auth.activeOrganization?.settings?.isPersonal
@@ -132,7 +132,7 @@ const Sidebar = () => {
         </div>
 
         {/* MY WORK SECTION */}
-        <div className="px-6 py-3">
+        <div className="px-4 sm:px-6 py-3">
           <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
             MY WORK
           </h4>
@@ -146,7 +146,7 @@ const Sidebar = () => {
 
         {/* QUICK ACCESS SECTION */}
         {favoriteProjects.length > 0 && (
-          <div className="px-6 py-3">
+          <div className="px-4 sm:px-6 py-3">
             <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
               PINNED PROJECTS
             </h4>
@@ -165,7 +165,7 @@ const Sidebar = () => {
         )}
 
         {/* PRIORITY TASKS SECTION */}
-        <div className="px-6 py-3">
+        <div className="px-4 sm:px-6 py-3">
           <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
             PRIORITY TASKS
           </h4>
@@ -201,7 +201,7 @@ const Sidebar = () => {
         </div>
 
         {/* TEAMS SECTION */}
-        <div className="px-6 py-3">
+        <div className="px-4 sm:px-6 py-3">
           <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
             TEAM
           </h4>
@@ -228,7 +228,7 @@ const Sidebar = () => {
       />
 
       {/* USER PROFILE (Mobile) */}
-      <div className="z-10 flex w-full flex-col items-center gap-4 bg-background px-6 py-4 border-t border-border md:hidden">
+      <div className="z-10 flex w-full flex-col items-center gap-4 bg-background px-4 py-4 border-t border-border md:hidden">
         <div className="flex w-full items-center">
           <div className="align-center flex h-9 w-9 justify-center">
             {!!currentUserDetails?.profilePictureUrl ? (

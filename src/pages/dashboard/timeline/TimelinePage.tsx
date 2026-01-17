@@ -250,40 +250,40 @@ const TimelinePage = () => {
 
 
   return (
-    <div className="container h-full w-[100%] bg-background p-8">
+    <div className="container h-full w-full bg-background px-4 py-4 sm:p-8">
       <Header name="Activity Timeline" />
 
       {/* Welcome Section with Stats */}
-      <div className="mb-6 bg-card border border-border rounded-lg p-6 shadow">
-        <div className="flex flex-col lg:flex-row gap-6 items-start lg:items-center justify-between">
+      <div className="mb-4 sm:mb-6 bg-card border border-border rounded-lg p-4 sm:p-6 shadow">
+        <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 items-start lg:items-center justify-between">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <Activity className="h-6 w-6 text-primary" />
-              <h2 className="text-xl font-semibold text-foreground">
+              <Activity className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+              <h2 className="text-lg sm:text-xl font-semibold text-foreground">
                 Activity Timeline
               </h2>
             </div>
-            <p className="text-muted-foreground">
+            <p className="text-sm sm:text-base text-muted-foreground">
               Track all activities across your projects and tasks
             </p>
           </div>
-          
+
           {/* Quick Stats */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 text-center">
-            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3">
-              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{stats.today}</div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 text-center w-full lg:w-auto">
+            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-2 sm:p-3">
+              <div className="text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400">{stats.today}</div>
               <div className="text-xs text-blue-600 dark:text-blue-400">Today</div>
             </div>
-            <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-3">
-              <div className="text-2xl font-bold text-green-600 dark:text-green-400">{stats.thisWeek}</div>
+            <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-2 sm:p-3">
+              <div className="text-xl sm:text-2xl font-bold text-green-600 dark:text-green-400">{stats.thisWeek}</div>
               <div className="text-xs text-green-600 dark:text-green-400">This Week</div>
             </div>
-            <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-3">
-              <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">{stats.taskActivities}</div>
+            <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-2 sm:p-3">
+              <div className="text-xl sm:text-2xl font-bold text-purple-600 dark:text-purple-400">{stats.taskActivities}</div>
               <div className="text-xs text-purple-600 dark:text-purple-400">Task Events</div>
             </div>
-            <div className="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-3">
-              <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">{stats.projectActivities}</div>
+            <div className="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-2 sm:p-3">
+              <div className="text-xl sm:text-2xl font-bold text-orange-600 dark:text-orange-400">{stats.projectActivities}</div>
               <div className="text-xs text-orange-600 dark:text-orange-400">Project Events</div>
             </div>
           </div>
@@ -291,7 +291,7 @@ const TimelinePage = () => {
       </div>
       
       {/* Search and Filters */}
-      <div className="mb-6 bg-card border border-border rounded-lg p-4 shadow">
+      <div className="mb-4 sm:mb-6 bg-card border border-border rounded-lg p-3 sm:p-4 shadow">
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
           {/* Search */}
           <div className="relative flex-1">
@@ -340,7 +340,7 @@ const TimelinePage = () => {
       )}
 
       {/* Timeline Activities */}
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {Object.entries(groupedActivities).length === 0 ? (
           <div className="bg-card border border-border rounded-lg p-12 shadow text-center">
             <Sparkles className="h-16 w-16 text-muted-foreground/50 mx-auto mb-4" />
