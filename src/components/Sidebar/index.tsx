@@ -72,9 +72,16 @@ const Sidebar = () => {
   const remainingProjectsCount = (projects?.length || 0) - favoriteProjects.length;
 
   const sidebarClassNames = cn(
-    "fixed flex flex-col h-full justify-between transition-all duration-300 z-40 bg-background border-r border-border overflow-y-auto",
-    isSidebarCollapsed ? "w-0 hidden" : "w-64",
-    "shadow-sm" // Using more subtle shadow per design system
+    // Base styles
+    "fixed flex flex-col h-full justify-between z-50 bg-background border-r border-border overflow-y-auto",
+    "transition-transform duration-300 ease-in-out",
+    // Mobile: slide drawer behavior
+    "w-72 sm:w-64",
+    isSidebarCollapsed ? "-translate-x-full" : "translate-x-0",
+    // Desktop: always visible when not collapsed
+    "lg:translate-x-0",
+    isSidebarCollapsed && "lg:-translate-x-full lg:w-0",
+    "shadow-lg lg:shadow-sm"
   );
   
   return (
@@ -284,10 +291,12 @@ const SidebarLink = ({ href, icon: Icon, label, isCompact = false, isSubItem = f
       <div
         className={cn(
           "relative flex cursor-pointer items-center gap-3 transition-colors rounded-md",
-          isActive 
-            ? "bg-accent text-accent-foreground" 
-            : "text-muted-foreground hover:text-foreground hover:bg-accent/50",
-          isCompact ? "py-1.5 px-3" : "py-2 px-3",
+          // Touch-friendly: minimum 44px height
+          "min-h-[44px]",
+          isActive
+            ? "bg-accent text-accent-foreground"
+            : "text-muted-foreground hover:text-foreground hover:bg-accent/50 active:bg-accent/70",
+          isCompact ? "py-2 px-3" : "py-2.5 px-3",
           isSubItem ? "text-sm ml-2" : ""
         )}
       >

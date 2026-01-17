@@ -6,9 +6,10 @@ import { useGlobalStore } from "@/stores/globalStore";
 import { UserProvider } from "@/components/UserProvider";
 import { useAuth } from "@/app/authProvider";
 import { TaskModalProvider } from "@/contexts/TaskModalContext";
+import { cn } from "@/lib/utils";
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
-  const { isSidebarCollapsed, isDarkMode } = useGlobalStore();
+  const { isSidebarCollapsed, isDarkMode, toggleSidebar } = useGlobalStore();
 
   useEffect(() => {
     if (isDarkMode) {
@@ -17,18 +18,44 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
       document.documentElement.classList.remove("dark");
     }
   }, [isDarkMode]);
-  
+
+  // Prevent body scroll when mobile sidebar is open
+  useEffect(() => {
+    if (!isSidebarCollapsed && window.innerWidth < 1024) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isSidebarCollapsed]);
+
   return (
     <UserProvider>
       <TaskModalProvider>
         <div className="flex min-h-screen w-full bg-background text-foreground">
+          {/* Mobile Backdrop Overlay */}
+          <div
+            className={cn(
+              "fixed inset-0 z-40 bg-black/50 backdrop-blur-sm transition-opacity duration-300 lg:hidden",
+              !isSidebarCollapsed ? "opacity-100" : "opacity-0 pointer-events-none"
+            )}
+            onClick={toggleSidebar}
+            aria-hidden="true"
+          />
+
           {/* Sidebar */}
           <Sidebar />
+
           <main
-            className={`flex w-full flex-col transition-all duration-300 ${isSidebarCollapsed ? "" : "md:pl-64"}`}
+            className={cn(
+              "flex w-full flex-col transition-all duration-300",
+              isSidebarCollapsed ? "" : "lg:pl-64"
+            )}
           >
             <Navbar />
-            <div className="flex-1 p-6">
+            <div className="flex-1 px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
               {children}
             </div>
           </main>

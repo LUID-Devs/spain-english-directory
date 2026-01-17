@@ -139,6 +139,32 @@ export default {
         "apple-12": "var(--space-12)",
         "apple-16": "var(--space-16)",
         "apple-20": "var(--space-20)",
+        // Touch target sizes
+        "touch": "44px",
+        "touch-lg": "48px",
+        // Safe area insets for notched devices
+        "safe-top": "env(safe-area-inset-top)",
+        "safe-bottom": "env(safe-area-inset-bottom)",
+        "safe-left": "env(safe-area-inset-left)",
+        "safe-right": "env(safe-area-inset-right)",
+      },
+
+      // Minimum sizes for touch targets
+      minHeight: {
+        "touch": "44px",
+        "touch-lg": "48px",
+      },
+      minWidth: {
+        "touch": "44px",
+        "touch-lg": "48px",
+      },
+
+      // Safe area padding
+      padding: {
+        "safe-top": "env(safe-area-inset-top)",
+        "safe-bottom": "env(safe-area-inset-bottom)",
+        "safe-left": "env(safe-area-inset-left)",
+        "safe-right": "env(safe-area-inset-right)",
       },
       
       borderRadius: {
@@ -183,6 +209,13 @@ export default {
         "apple-md": "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
         "apple-lg": "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
         "apple-xl": "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)",
+      },
+
+      // Custom screens for device detection
+      screens: {
+        'touch': { 'raw': '(hover: none) and (pointer: coarse)' },
+        'stylus': { 'raw': '(hover: none) and (pointer: fine)' },
+        'mouse': { 'raw': '(hover: hover) and (pointer: fine)' },
       },
     },
   },

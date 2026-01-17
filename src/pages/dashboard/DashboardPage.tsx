@@ -217,39 +217,39 @@ const DashboardPage = () => {
       };
 
   return (
-    <div className="container h-full w-[100%] bg-background p-8">
+    <div className="container h-full w-full bg-background">
       <Header name="Project Management Dashboard" />
 
       {/* Welcome Section */}
-      <div className="mb-6">
-        <div className="bg-card rounded-lg p-4 shadow border border-border">
-          <h2 className="text-xl font-semibold text-foreground mb-2">
+      <div className="mb-4 sm:mb-6">
+        <div className="bg-card rounded-lg p-3 sm:p-4 shadow border border-border">
+          <h2 className="text-lg sm:text-xl font-semibold text-foreground mb-1 sm:mb-2">
             Welcome back, {user?.preferred_username || user?.username || 'User'}!
           </h2>
-          <p className="text-muted-foreground">
+          <p className="text-sm sm:text-base text-muted-foreground">
             Here's your project overview and recent activity.
           </p>
         </div>
       </div>
 
       {/* Subscription Status */}
-      <div className="mb-6">
+      <div className="mb-4 sm:mb-6">
         <SubscriptionStatus />
       </div>
-      
-      {/* Quick Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+
+      {/* Quick Stats Cards - 2 cols on mobile, 4 on desktop */}
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
         
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-3 sm:p-4 md:p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Total Tasks</p>
-                <p className="text-2xl font-bold text-foreground">
+                <p className="text-xl sm:text-2xl font-bold text-foreground">
                   {(tasks || []).length}
                 </p>
               </div>
-              <div className="h-8 w-8 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
+              <div className="h-8 w-8 sm:h-10 sm:w-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center shrink-0">
                 <svg className="h-5 w-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                 </svg>
@@ -259,7 +259,7 @@ const DashboardPage = () => {
         </Card>
         
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-3 sm:p-4 md:p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Completed</p>
@@ -267,7 +267,7 @@ const DashboardPage = () => {
                   {(tasks || []).filter(task => task.status === 'Completed').length}
                 </p>
               </div>
-              <div className="h-8 w-8 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
+              <div className="h-8 w-8 sm:h-10 sm:w-10 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center shrink-0">
                 <svg className="h-5 w-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
@@ -277,7 +277,7 @@ const DashboardPage = () => {
         </Card>
         
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-3 sm:p-4 md:p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">In Progress</p>
@@ -285,7 +285,7 @@ const DashboardPage = () => {
                   {(tasks || []).filter(task => task.status === 'Work In Progress').length}
                 </p>
               </div>
-              <div className="h-8 w-8 bg-yellow-100 dark:bg-yellow-900 rounded-lg flex items-center justify-center">
+              <div className="h-8 w-8 sm:h-10 sm:w-10 bg-yellow-100 dark:bg-yellow-900 rounded-lg flex items-center justify-center shrink-0">
                 <svg className="h-5 w-5 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -295,7 +295,7 @@ const DashboardPage = () => {
         </Card>
         
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-3 sm:p-4 md:p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Projects</p>
@@ -303,7 +303,7 @@ const DashboardPage = () => {
                   {(projects || []).length}
                 </p>
               </div>
-              <div className="h-8 w-8 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
+              <div className="h-8 w-8 sm:h-10 sm:w-10 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center shrink-0">
                 <svg className="h-5 w-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                 </svg>
@@ -312,21 +312,22 @@ const DashboardPage = () => {
           </CardContent>
         </Card>
       </div>
-      <Card className="md:col-span-2">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <CheckSquare className="h-5 w-5" />
+      <Card className="mb-4 sm:mb-6">
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+              <CheckSquare className="h-4 w-4 sm:h-5 sm:w-5" />
               Your Recent Tasks
             </CardTitle>
             {(tasks || []).length > 0 && (
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 Showing {Math.min((tasks || []).length, 5)} of {(tasks || []).length} tasks
               </p>
             )}
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-0 sm:p-6 sm:pt-0">
             {(tasks || []).length > 0 ? (
-              <Table>
+              <div className="overflow-x-auto">
+              <Table className="min-w-[600px]">
                 <TableHeader>
                   <TableRow>
                     <TableHead>Task</TableHead>
@@ -391,6 +392,7 @@ const DashboardPage = () => {
                   ))}
                 </TableBody>
               </Table>
+              </div>
             ) : (
               <div className="flex items-center justify-center h-64">
                 <div className="text-center space-y-4">
@@ -404,17 +406,17 @@ const DashboardPage = () => {
             )}
           </CardContent>
         </Card>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2">
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <AlertCircle className="h-5 w-5" />
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+              <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5" />
               Task Priority Distribution
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-3 sm:p-6 sm:pt-0">
           {taskDistribution.length > 0 ? (
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={220} className="sm:!h-[280px] md:!h-[300px]">
               <BarChart data={taskDistribution}>
                 <CartesianGrid
                   strokeDasharray="3 3"
@@ -443,15 +445,15 @@ const DashboardPage = () => {
           </CardContent>
         </Card>
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Briefcase className="h-5 w-5" />
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+              <Briefcase className="h-4 w-4 sm:h-5 sm:w-5" />
               Project Status Overview
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-3 sm:p-6 sm:pt-0">
           {projectStatus.length > 0 ? (
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={220} className="sm:!h-[280px] md:!h-[300px]">
               <PieChart>
                 <Pie dataKey="count" data={projectStatus} fill="#82ca9d" label>
                   {projectStatus.map((entry, index) => (
