@@ -139,23 +139,23 @@ const AttachmentsSection: React.FC<AttachmentsSectionProps> = ({ taskId }) => {
       case 'png':
       case 'gif':
       case 'webp':
-        return <Image className="h-4 w-4" />;
+        return <Image className="h-4 w-4" aria-hidden="true" />;
       case 'pdf':
-        return <FileText className="h-4 w-4" />;
+        return <FileText className="h-4 w-4" aria-hidden="true" />;
       case 'mp3':
       case 'wav':
       case 'ogg':
-        return <FileAudio className="h-4 w-4" />;
+        return <FileAudio className="h-4 w-4" aria-hidden="true" />;
       case 'mp4':
       case 'mov':
       case 'avi':
-        return <FileVideo className="h-4 w-4" />;
+        return <FileVideo className="h-4 w-4" aria-hidden="true" />;
       case 'zip':
       case 'rar':
       case '7z':
-        return <Archive className="h-4 w-4" />;
+        return <Archive className="h-4 w-4" aria-hidden="true" />;
       default:
-        return <File className="h-4 w-4" />;
+        return <File className="h-4 w-4" aria-hidden="true" />;
     }
   };
 
@@ -179,7 +179,7 @@ const AttachmentsSection: React.FC<AttachmentsSectionProps> = ({ taskId }) => {
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center gap-2">
-        <Paperclip className="h-5 w-5 text-muted-foreground" />
+        <Paperclip className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
         <h3 className="text-lg font-semibold text-foreground">
           Attachments ({attachments?.length || 0})
         </h3>
@@ -199,7 +199,7 @@ const AttachmentsSection: React.FC<AttachmentsSectionProps> = ({ taskId }) => {
         onClick={() => fileInputRef.current?.click()}
       >
         <div className="flex items-center justify-center gap-2">
-          <Upload className="h-5 w-5 text-muted-foreground" />
+          <Upload className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
           <p className="text-sm text-muted-foreground">
             Drop files or{" "}
             <span className="text-primary hover:underline">browse</span>
@@ -266,7 +266,7 @@ const AttachmentsSection: React.FC<AttachmentsSectionProps> = ({ taskId }) => {
           ))
         ) : (
           <div className="text-center py-8">
-            <Paperclip className="h-12 w-12 text-muted-foreground/50 mx-auto mb-3" />
+            <Paperclip className="h-12 w-12 text-muted-foreground/50 mx-auto mb-3" aria-hidden="true" />
             <p className="text-muted-foreground">No attachments yet</p>
             <p className="text-sm text-muted-foreground/70">
               Upload files to share with your team
@@ -323,8 +323,9 @@ const AttachmentItem: React.FC<AttachmentItemProps> = ({
           onClick={onDownload}
           className="p-2 text-muted-foreground hover:text-foreground rounded-lg hover:bg-accent transition-colors"
           title="Download"
+          aria-label="Download attachment"
         >
-          <Download className="h-4 w-4" />
+          <Download className="h-4 w-4" aria-hidden="true" />
         </button>
 
         {isOwner && (
@@ -333,8 +334,9 @@ const AttachmentItem: React.FC<AttachmentItemProps> = ({
             disabled={isDeleting}
             className="p-2 text-destructive hover:text-destructive/80 rounded-lg hover:bg-destructive/10 transition-colors disabled:opacity-50"
             title="Delete"
+            aria-label="Delete attachment"
           >
-            <Trash2 className="h-4 w-4" />
+            <Trash2 className="h-4 w-4" aria-hidden="true" />
           </button>
         )}
       </div>

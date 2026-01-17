@@ -53,10 +53,10 @@ const WorkspaceSwitcher: React.FC = () => {
   }, [activeOrganization?.id]);
 
   const getWorkspaceIcon = (org: typeof activeOrganization) => {
-    if (!org) return <Building2 className="w-5 h-5" />;
+    if (!org) return <Building2 className="w-5 h-5" aria-hidden="true" />;
 
     if (org.settings?.isPersonal) {
-      return <User className="w-5 h-5 text-blue-500" />;
+      return <User className="w-5 h-5 text-blue-500" aria-hidden="true" />;
     }
 
     if (org.logoUrl) {
@@ -65,6 +65,8 @@ const WorkspaceSwitcher: React.FC = () => {
           src={org.logoUrl}
           alt={org.name}
           className="w-5 h-5 rounded object-cover"
+          width={20}
+          height={20}
         />
       );
     }
@@ -89,6 +91,9 @@ const WorkspaceSwitcher: React.FC = () => {
         onClick={() => setIsOpen(!isOpen)}
         disabled={isLoading}
         className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-accent transition-colors min-w-[180px]"
+        aria-expanded={isOpen}
+        aria-haspopup="listbox"
+        aria-label="Switch workspace"
       >
         {getWorkspaceIcon(activeOrganization)}
         <span className="font-medium text-foreground truncate max-w-[140px]">
@@ -96,7 +101,7 @@ const WorkspaceSwitcher: React.FC = () => {
             ? 'Personal'
             : activeOrganization.name}
         </span>
-        <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${isOpen ? 'rotate-180' : ''}`} aria-hidden="true" />
       </button>
 
       {/* Dropdown */}
@@ -128,7 +133,7 @@ const WorkspaceSwitcher: React.FC = () => {
                   </p>
                 </div>
                 {activeOrganization.id === org.id && (
-                  <Check className="w-4 h-4 text-green-500" />
+                  <Check className="w-4 h-4 text-green-500" aria-hidden="true" />
                 )}
               </button>
             ))}
@@ -145,7 +150,7 @@ const WorkspaceSwitcher: React.FC = () => {
                 }}
                 className="w-full flex items-center gap-3 px-3 py-2 hover:bg-accent transition-colors text-muted-foreground"
               >
-                <UserPlus className="w-5 h-5" />
+                <UserPlus className="w-5 h-5" aria-hidden="true" />
                 <span>Invite Members</span>
               </button>
             )}
@@ -156,7 +161,7 @@ const WorkspaceSwitcher: React.FC = () => {
               }}
               className="w-full flex items-center gap-3 px-3 py-2 hover:bg-accent transition-colors text-muted-foreground"
             >
-              <Plus className="w-5 h-5" />
+              <Plus className="w-5 h-5" aria-hidden="true" />
               <span>Create Workspace</span>
             </button>
           </div>

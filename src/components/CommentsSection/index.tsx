@@ -140,7 +140,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ taskId }) => {
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center gap-2">
-        <MessageSquare className="h-5 w-5 text-muted-foreground" />
+        <MessageSquare className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
         <h3 className="text-lg font-semibold text-foreground">
           Comments ({comments?.length || 0})
         </h3>
@@ -158,7 +158,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ taskId }) => {
 
         <div className="flex justify-between items-center">
           <div className="text-sm text-muted-foreground flex items-center gap-2">
-            <Image className="h-4 w-4" />
+            <Image className="h-4 w-4" aria-hidden="true" />
             Paste image with Ctrl+V
           </div>
           <Button
@@ -166,11 +166,11 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ taskId }) => {
             disabled={(!newComment.trim() || newComment === '<p></p>') || isCreating || isUploadingImage}
           >
             {isUploadingImage ? (
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              <Loader2 className="h-4 w-4 animate-spin mr-2" aria-hidden="true" />
             ) : (
-              <Send className="h-4 w-4 mr-2" />
+              <Send className="h-4 w-4 mr-2" aria-hidden="true" />
             )}
-            {isCreating ? "Posting..." : isUploadingImage ? "Uploading..." : "Post Comment"}
+            {isCreating ? "Posting\u2026" : isUploadingImage ? "Uploading\u2026" : "Post Comment"}
           </Button>
         </div>
       </form>
@@ -211,7 +211,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ taskId }) => {
           ))
         ) : (
           <div className="text-center py-8">
-            <MessageSquare className="h-12 w-12 text-muted-foreground/50 mx-auto mb-3" />
+            <MessageSquare className="h-12 w-12 text-muted-foreground/50 mx-auto mb-3" aria-hidden="true" />
             <p className="text-muted-foreground">No comments yet</p>
             <p className="text-sm text-muted-foreground/70">Be the first to add a comment!</p>
           </div>
@@ -316,8 +316,8 @@ const CommentItem: React.FC<CommentItemProps> = ({
                 onClick={onSaveEdit}
                 disabled={!editingText.trim() || editingText === '<p></p>' || isUpdating}
               >
-                <Check className="h-3 w-3 mr-1" />
-                {isUpdating ? "Saving..." : "Save"}
+                <Check className="h-3 w-3 mr-1" aria-hidden="true" />
+                {isUpdating ? "Saving\u2026" : "Save"}
               </Button>
               <Button
                 size="sm"
@@ -325,7 +325,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
                 onClick={onCancelEdit}
                 disabled={isUpdating}
               >
-                <X className="h-3 w-3 mr-1" />
+                <X className="h-3 w-3 mr-1" aria-hidden="true" />
                 Cancel
               </Button>
             </div>
@@ -372,7 +372,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
               onClick={onEdit}
               className="flex items-center gap-1 px-2 py-1 text-xs text-muted-foreground hover:text-foreground rounded hover:bg-accent transition-colors"
             >
-              <Edit3 className="h-3 w-3" />
+              <Edit3 className="h-3 w-3" aria-hidden="true" />
               Edit
             </button>
             <button
@@ -380,8 +380,8 @@ const CommentItem: React.FC<CommentItemProps> = ({
               disabled={isDeleting}
               className="flex items-center gap-1 px-2 py-1 text-xs text-destructive hover:text-destructive/80 rounded hover:bg-destructive/10 transition-colors disabled:opacity-50"
             >
-              <Trash2 className="h-3 w-3" />
-              {isDeleting ? "Deleting..." : "Delete"}
+              <Trash2 className="h-3 w-3" aria-hidden="true" />
+              {isDeleting ? "Deleting\u2026" : "Delete"}
             </button>
           </div>
         )}

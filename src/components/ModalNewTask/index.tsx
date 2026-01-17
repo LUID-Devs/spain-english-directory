@@ -282,17 +282,17 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
               className="flex items-center justify-between w-full text-left"
             >
               <div className="flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-primary" />
+                <Sparkles className="h-4 w-4 text-primary" aria-hidden="true" />
                 <span className="font-medium text-sm">Quick Create with AI</span>
                 <span className="text-xs text-muted-foreground flex items-center gap-1">
-                  <Coins className="h-3 w-3" />
+                  <Coins className="h-3 w-3" aria-hidden="true" />
                   {AI_CREDIT_COST} credit
                 </span>
               </div>
               {showAiInput ? (
-                <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                <ChevronUp className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
               ) : (
-                <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                <ChevronDown className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
               )}
             </button>
 
@@ -318,12 +318,12 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
                   >
                     {isAiParsing ? (
                       <>
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Parsing...
+                        <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                        Parsing…
                       </>
                     ) : (
                       <>
-                        <Sparkles className="h-4 w-4" />
+                        <Sparkles className="h-4 w-4" aria-hidden="true" />
                         Parse with AI
                       </>
                     )}
@@ -363,7 +363,7 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
             <Label className="flex items-center gap-2 text-foreground font-medium">
               Description
               <span className="text-xs text-muted-foreground font-normal flex items-center gap-1">
-                <Image className="h-3 w-3" />
+                <Image className="h-3 w-3" aria-hidden="true" />
                 Paste image with Ctrl+V
               </span>
             </Label>
@@ -536,7 +536,7 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
               {isLoading ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2" />
-                  Creating Task...
+                  Creating Task…
                 </>
               ) : (
                 `Create ${priority} Priority Task`

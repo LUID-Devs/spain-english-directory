@@ -143,7 +143,7 @@ const InviteToWorkspaceModal: React.FC<InviteToWorkspaceModalProps> = ({
         {success ? (
           <div className="space-y-4">
             <Alert className="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800">
-              <Check className="h-4 w-4 text-green-600" />
+              <Check className="h-4 w-4 text-green-600" aria-hidden="true" />
               <AlertDescription className="text-green-800 dark:text-green-200">
                 Invitation sent to <span className="font-medium">{success.invite?.email}</span>
               </AlertDescription>
@@ -165,9 +165,9 @@ const InviteToWorkspaceModal: React.FC<InviteToWorkspaceModalProps> = ({
                     onClick={copyInviteLink}
                   >
                     {copied ? (
-                      <Check className="h-4 w-4 text-green-600" />
+                      <Check className="h-4 w-4 text-green-600" aria-hidden="true" />
                     ) : (
-                      <Copy className="h-4 w-4" />
+                      <Copy className="h-4 w-4" aria-hidden="true" />
                     )}
                   </Button>
                 </div>
@@ -187,7 +187,7 @@ const InviteToWorkspaceModal: React.FC<InviteToWorkspaceModalProps> = ({
                 }}
                 className="flex-1"
               >
-                <UserPlus className="w-4 h-4 mr-2" />
+                <UserPlus className="w-4 h-4 mr-2" aria-hidden="true" />
                 Invite Another
               </Button>
               <Button
@@ -210,7 +210,7 @@ const InviteToWorkspaceModal: React.FC<InviteToWorkspaceModalProps> = ({
             <div className="space-y-2">
               <Label htmlFor="invite-email">Email Address *</Label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
                 <Input
                   id="invite-email"
                   type="email"
@@ -286,12 +286,12 @@ const InviteToWorkspaceModal: React.FC<InviteToWorkspaceModalProps> = ({
               >
                 {isLoading ? (
                   <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Sending...
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" aria-hidden="true" />
+                    Sending…
                   </>
                 ) : (
                   <>
-                    <Mail className="w-4 h-4 mr-2" />
+                    <Mail className="w-4 h-4 mr-2" aria-hidden="true" />
                     Send Invitation
                   </>
                 )}

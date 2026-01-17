@@ -99,7 +99,7 @@ const CreateWorkspaceModal: React.FC<CreateWorkspaceModalProps> = ({ isOpen, onC
 
         {error && (
           <Alert variant="destructive">
-            <AlertTriangle className="h-4 w-4" />
+            <AlertTriangle className="h-4 w-4" aria-hidden="true" />
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
@@ -107,7 +107,7 @@ const CreateWorkspaceModal: React.FC<CreateWorkspaceModalProps> = ({ isOpen, onC
         {/* Workspace Name */}
         <div className="space-y-2">
           <Label htmlFor="workspace-name" className="flex items-center gap-2">
-            <Building2 className="h-4 w-4 text-muted-foreground" />
+            <Building2 className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
             Workspace Name *
           </Label>
           <Input
@@ -124,7 +124,7 @@ const CreateWorkspaceModal: React.FC<CreateWorkspaceModalProps> = ({ isOpen, onC
         {/* Description */}
         <div className="space-y-2">
           <Label htmlFor="workspace-description" className="flex items-center gap-2">
-            <FileText className="h-4 w-4 text-muted-foreground" />
+            <FileText className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
             Description
           </Label>
           <Textarea
@@ -156,12 +156,12 @@ const CreateWorkspaceModal: React.FC<CreateWorkspaceModalProps> = ({ isOpen, onC
           >
             {isLoading ? (
               <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Creating...
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" aria-hidden="true" />
+                Creating…
               </>
             ) : (
               <>
-                <Building2 className="w-4 h-4 mr-2" />
+                <Building2 className="w-4 h-4 mr-2" aria-hidden="true" />
                 Create Workspace
               </>
             )}
