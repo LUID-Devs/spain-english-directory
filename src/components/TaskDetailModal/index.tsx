@@ -227,11 +227,11 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-5xl max-h-[90vh] overflow-hidden">
+      <DialogContent className="w-[95vw] max-w-5xl max-h-[90vh] overflow-hidden p-4 sm:p-6">
         <DialogHeader>
-          <DialogTitle className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className="text-sm font-mono bg-muted text-muted-foreground px-2 py-1 rounded">
+          <DialogTitle className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+              <span className="text-xs sm:text-sm font-mono bg-muted text-muted-foreground px-2 py-1 rounded">
                 Task #{taskId}
               </span>
               {(isSaving || isUploadingImage) && (
@@ -245,10 +245,10 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
               variant="outline"
               size="sm"
               onClick={handleShare}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 self-start sm:self-auto"
             >
               <Share2 className="h-4 w-4" />
-              Share
+              <span className="hidden sm:inline">Share</span>
             </Button>
           </DialogTitle>
         </DialogHeader>
@@ -263,7 +263,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
             <div className="space-y-4">
               <div className="h-8 bg-muted rounded animate-pulse" />
               <div className="h-20 bg-muted rounded animate-pulse" />
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="h-16 bg-muted rounded animate-pulse" />
                 <div className="h-16 bg-muted rounded animate-pulse" />
               </div>
@@ -276,9 +276,9 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
               </p>
             </div>
           ) : (
-            <div className="flex gap-6">
+            <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
               {/* Left Column - Main Content */}
-              <div className="flex-1 space-y-5 min-w-0">
+              <div className="flex-1 space-y-4 lg:space-y-5 min-w-0 order-2 lg:order-1">
                 {/* Title */}
                 <div className="space-y-2">
                   <Label htmlFor="title" className="text-foreground font-medium">Title</Label>
@@ -328,147 +328,146 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                 </div>
               </div>
 
-              {/* Right Column - Sidebar Metadata */}
-              <div className="w-64 flex-shrink-0 space-y-4">
-                {/* Status */}
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-2 text-foreground font-medium text-sm">
-                    <CircleDot className="h-4 w-4" />
-                    Status
-                  </Label>
-                  <Select
-                    value={editForm.status}
-                    onValueChange={(value) => handleFieldChange('status', value)}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {availableStatuses.map((status) => (
-                        <SelectItem key={status} value={status}>
-                          {status}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+              {/* Right Column - Sidebar Metadata (shows first on mobile) */}
+              <div className="w-full lg:w-64 flex-shrink-0 order-1 lg:order-2 border-b lg:border-b-0 pb-4 lg:pb-0">
+                {/* Mobile: 2-column grid, Desktop: single column */}
+                <div className="grid grid-cols-2 lg:grid-cols-1 gap-3 lg:gap-4">
+                  {/* Status */}
+                  <div className="space-y-1 lg:space-y-2">
+                    <Label className="flex items-center gap-2 text-foreground font-medium text-xs lg:text-sm">
+                      <CircleDot className="h-3 w-3 lg:h-4 lg:w-4" />
+                      Status
+                    </Label>
+                    <Select
+                      value={editForm.status}
+                      onValueChange={(value) => handleFieldChange('status', value)}
+                    >
+                      <SelectTrigger className="w-full h-9 lg:h-10">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availableStatuses.map((status) => (
+                          <SelectItem key={status} value={status}>
+                            {status}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-                {/* Priority */}
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-2 text-foreground font-medium text-sm">
-                    <Flag className="h-4 w-4" />
-                    Priority
-                  </Label>
-                  <Select
-                    value={editForm.priority}
-                    onValueChange={(value) => handleFieldChange('priority', value as Priority)}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Object.values(Priority).map((priority) => (
-                        <SelectItem key={priority} value={priority}>
-                          {priority}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                  {/* Priority */}
+                  <div className="space-y-1 lg:space-y-2">
+                    <Label className="flex items-center gap-2 text-foreground font-medium text-xs lg:text-sm">
+                      <Flag className="h-3 w-3 lg:h-4 lg:w-4" />
+                      Priority
+                    </Label>
+                    <Select
+                      value={editForm.priority}
+                      onValueChange={(value) => handleFieldChange('priority', value as Priority)}
+                    >
+                      <SelectTrigger className="w-full h-9 lg:h-10">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.values(Priority).map((priority) => (
+                          <SelectItem key={priority} value={priority}>
+                            {priority}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-                {/* Type */}
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-2 text-foreground font-medium text-sm">
-                    <Tag className="h-4 w-4" />
-                    Type
-                  </Label>
-                  <Select
-                    value={editForm.taskType || "none"}
-                    onValueChange={(value) => handleFieldChange('taskType', value === "none" ? undefined : value as TaskType)}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">Not set</SelectItem>
-                      {Object.values(TaskType).map((type) => (
-                        <SelectItem key={type} value={type}>
-                          {type}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                  {/* Type */}
+                  <div className="space-y-1 lg:space-y-2">
+                    <Label className="flex items-center gap-2 text-foreground font-medium text-xs lg:text-sm">
+                      <Tag className="h-3 w-3 lg:h-4 lg:w-4" />
+                      Type
+                    </Label>
+                    <Select
+                      value={editForm.taskType || "none"}
+                      onValueChange={(value) => handleFieldChange('taskType', value === "none" ? undefined : value as TaskType)}
+                    >
+                      <SelectTrigger className="w-full h-9 lg:h-10">
+                        <SelectValue placeholder="Select type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">Not set</SelectItem>
+                        {Object.values(TaskType).map((type) => (
+                          <SelectItem key={type} value={type}>
+                            {type}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-                {/* Assignee */}
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-2 text-foreground font-medium text-sm">
-                    <User className="h-4 w-4" />
-                    Assignee
-                  </Label>
-                  <Select
-                    value={editForm.assignedUserId?.toString() || "unassigned"}
-                    onValueChange={(value) => handleFieldChange('assignedUserId', value === "unassigned" ? undefined : parseInt(value))}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select assignee" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="unassigned">Unassigned</SelectItem>
-                      {users?.map((user) => (
-                        <SelectItem key={user.userId} value={user.userId.toString()}>
-                          {user.username}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                  {/* Assignee */}
+                  <div className="space-y-1 lg:space-y-2">
+                    <Label className="flex items-center gap-2 text-foreground font-medium text-xs lg:text-sm">
+                      <User className="h-3 w-3 lg:h-4 lg:w-4" />
+                      Assignee
+                    </Label>
+                    <Select
+                      value={editForm.assignedUserId?.toString() || "unassigned"}
+                      onValueChange={(value) => handleFieldChange('assignedUserId', value === "unassigned" ? undefined : parseInt(value))}
+                    >
+                      <SelectTrigger className="w-full h-9 lg:h-10">
+                        <SelectValue placeholder="Select assignee" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="unassigned">Unassigned</SelectItem>
+                        {users?.map((user) => (
+                          <SelectItem key={user.userId} value={user.userId.toString()}>
+                            {user.username}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-                <div className="border-t pt-4 space-y-4">
                   {/* Start Date */}
-                  <div className="space-y-2">
-                    <Label className="flex items-center gap-2 text-foreground font-medium text-sm">
-                      <Calendar className="h-4 w-4" />
+                  <div className="space-y-1 lg:space-y-2">
+                    <Label className="flex items-center gap-2 text-foreground font-medium text-xs lg:text-sm">
+                      <Calendar className="h-3 w-3 lg:h-4 lg:w-4" />
                       Start Date
                     </Label>
                     <Input
                       type="date"
                       value={editForm.startDate}
                       onChange={(e) => handleFieldChange('startDate', e.target.value)}
-                      className="w-full"
+                      className="w-full h-9 lg:h-10"
                     />
                   </div>
 
                   {/* Due Date */}
-                  <div className="space-y-2">
-                    <Label className="flex items-center gap-2 text-foreground font-medium text-sm">
-                      <Clock className="h-4 w-4" />
+                  <div className="space-y-1 lg:space-y-2">
+                    <Label className="flex items-center gap-2 text-foreground font-medium text-xs lg:text-sm">
+                      <Clock className="h-3 w-3 lg:h-4 lg:w-4" />
                       Due Date
                     </Label>
                     <Input
                       type="date"
                       value={editForm.dueDate}
                       onChange={(e) => handleFieldChange('dueDate', e.target.value)}
-                      className="w-full"
+                      className="w-full h-9 lg:h-10"
                     />
                   </div>
-                </div>
 
-                <div className="border-t pt-4 space-y-4">
-                  {/* Tags */}
-                  <div className="space-y-2">
-                    <Label className="text-foreground font-medium text-sm">Tags</Label>
+                  {/* Tags - full width on mobile */}
+                  <div className="space-y-1 lg:space-y-2 col-span-2 lg:col-span-1">
+                    <Label className="text-foreground font-medium text-xs lg:text-sm">Tags</Label>
                     <Input
                       value={editForm.tags}
                       onChange={(e) => handleFieldChange('tags', e.target.value)}
                       placeholder="Comma separated"
-                      className="w-full"
+                      className="w-full h-9 lg:h-10"
                     />
                   </div>
 
-                  {/* Author */}
-                  <div className="space-y-2">
-                    <Label className="text-foreground font-medium text-sm">Author</Label>
+                  {/* Author - full width on mobile */}
+                  <div className="space-y-1 lg:space-y-2 col-span-2 lg:col-span-1">
+                    <Label className="text-foreground font-medium text-xs lg:text-sm">Author</Label>
                     <div className="text-sm text-muted-foreground p-2 border rounded bg-muted/30">
                       {task.author?.username || "Unknown"}
                     </div>

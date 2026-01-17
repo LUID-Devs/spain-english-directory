@@ -113,7 +113,7 @@ const AdvancedSearchModal = ({
                 Task Filters
               </h3>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 {/* Status */}
                 <div>
                   <label className="block text-sm font-medium text-muted-foreground mb-1">
@@ -122,7 +122,7 @@ const AdvancedSearchModal = ({
                   <select
                     value={filters.status || ''}
                     onChange={(e) => handleFilterChange('status', e.target.value)}
-                    className="w-full rounded-md border border-border bg-background text-foreground px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary sm:text-sm"
+                    className="w-full rounded-md border border-border bg-background text-foreground px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary text-sm"
                   >
                     <option key="any-status" value="">Any Status</option>
                     {availableStatuses.map((status) => (
@@ -139,7 +139,7 @@ const AdvancedSearchModal = ({
                   <select
                     value={filters.priority || ''}
                     onChange={(e) => handleFilterChange('priority', e.target.value)}
-                    className="w-full rounded-md border border-border bg-background text-foreground px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary sm:text-sm"
+                    className="w-full rounded-md border border-border bg-background text-foreground px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary text-sm"
                   >
                     <option key="any-priority" value="">Any Priority</option>
                     <option key="urgent" value="Urgent">Urgent</option>
@@ -151,7 +151,7 @@ const AdvancedSearchModal = ({
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 {/* Assignee */}
                 <div>
                   <label className="block text-sm font-medium text-muted-foreground mb-1">
@@ -160,7 +160,7 @@ const AdvancedSearchModal = ({
                   <select
                     value={filters.assigneeId || ''}
                     onChange={(e) => handleFilterChange('assigneeId', e.target.value ? parseInt(e.target.value) : undefined)}
-                    className="w-full rounded-md border border-border bg-background text-foreground px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary sm:text-sm"
+                    className="w-full rounded-md border border-border bg-background text-foreground px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary text-sm"
                   >
                     <option key="anyone-assignee" value="">Anyone</option>
                     {users?.map((user) => (
@@ -179,7 +179,7 @@ const AdvancedSearchModal = ({
                   <select
                     value={filters.authorId || ''}
                     onChange={(e) => handleFilterChange('authorId', e.target.value ? parseInt(e.target.value) : undefined)}
-                    className="w-full rounded-md border border-border bg-background text-foreground px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary sm:text-sm"
+                    className="w-full rounded-md border border-border bg-background text-foreground px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary text-sm"
                   >
                     <option key="anyone-author" value="">Anyone</option>
                     {users?.map((user) => (
@@ -275,7 +275,7 @@ const AdvancedSearchModal = ({
             Date Range
           </h3>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div>
               <label className="block text-sm font-medium text-muted-foreground mb-1">
                 From
@@ -284,7 +284,7 @@ const AdvancedSearchModal = ({
                 type="date"
                 value={filters.dateFrom || ''}
                 onChange={(e) => handleFilterChange('dateFrom', e.target.value)}
-                className="w-full rounded-md border border-border bg-background text-foreground px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary sm:text-sm"
+                className="w-full rounded-md border border-border bg-background text-foreground px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary text-sm"
               />
             </div>
 
@@ -296,32 +296,32 @@ const AdvancedSearchModal = ({
                 type="date"
                 value={filters.dateTo || ''}
                 onChange={(e) => handleFilterChange('dateTo', e.target.value)}
-                className="w-full rounded-md border border-border bg-background text-foreground px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary sm:text-sm"
+                className="w-full rounded-md border border-border bg-background text-foreground px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary text-sm"
               />
             </div>
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex space-x-3">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
           <button
             type="button"
             onClick={handleReset}
-            className="flex-1 rounded-md border border-border bg-background px-4 py-2 text-sm font-medium text-foreground shadow-sm hover:bg-accent focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            className="flex-1 rounded-md border border-border bg-background px-4 py-2.5 sm:py-2 text-sm font-medium text-foreground shadow-sm hover:bg-accent focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 order-3 sm:order-1"
           >
             Reset
           </button>
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 rounded-md border border-border bg-background px-4 py-2 text-sm font-medium text-foreground shadow-sm hover:bg-accent focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            className="flex-1 rounded-md border border-border bg-background px-4 py-2.5 sm:py-2 text-sm font-medium text-foreground shadow-sm hover:bg-accent focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 order-2"
           >
             Cancel
           </button>
           <button
             type="button"
             onClick={handleSearch}
-            className="flex-1 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            className="flex-1 rounded-md bg-primary px-4 py-2.5 sm:py-2 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 order-1 sm:order-3"
           >
             Search
           </button>

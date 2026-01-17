@@ -128,7 +128,7 @@ const ModalNewProject = ({ isOpen, onClose }: Props) => {
             <Calendar className="h-4 w-4 text-muted-foreground" />
             Project Timeline *
           </Label>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1">
               <span className="text-xs text-muted-foreground">Start Date</span>
               <Input
@@ -153,7 +153,7 @@ const ModalNewProject = ({ isOpen, onClose }: Props) => {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-3 pt-2">
+        <div className="flex flex-col-reverse sm:flex-row gap-3 pt-2">
           <Button
             type="button"
             variant="outline"
