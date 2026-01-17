@@ -57,11 +57,7 @@ const Sidebar = () => {
   const { data: teams } = useGetTeamsQuery(undefined, {
     skip: isSidebarCollapsed, // Skip loading if sidebar is collapsed
   });
-  
-  const handleSignOut = () => {
-    auth.logout();
-  }
-  
+
   if (!currentUser) return null;
 
   const currentUserDetails = currentUser;
@@ -226,36 +222,6 @@ const Sidebar = () => {
         isOpen={isInviteModalOpen}
         onClose={() => setIsInviteModalOpen(false)}
       />
-
-      {/* USER PROFILE (Mobile) */}
-      <div className="z-10 flex w-full flex-col items-center gap-4 bg-background px-4 py-4 border-t border-border md:hidden">
-        <div className="flex w-full items-center">
-          <div className="align-center flex h-9 w-9 justify-center">
-            {!!currentUserDetails?.profilePictureUrl ? (
-              <img
-                src={`https://pm-s3-images.s3.us-east-1.amazonaws.com/${currentUserDetails?.profilePictureUrl}`}
-                alt={currentUserDetails?.username || "User Profile Picture"}
-                width={30}
-                height={30}
-                className="h-8 w-8 rounded-full border-2 border-white object-cover dark:border-dark-secondary"
-              />
-            ) : (
-              <div className="h-8 w-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                <span className="text-white text-sm font-medium">
-                  {currentUserDetails?.username?.charAt(0).toUpperCase() || 'U'}
-                </span>
-              </div>
-            )}
-          </div>
-          <span className="mx-3 text-foreground">{currentUserDetails?.username}</span>
-          <button 
-            className="self-start rounded bg-blue-500 px-4 py-2 text-xs font-bold text-white hover:bg-blue-600 transition-colors md:block" 
-            onClick={handleSignOut}
-          >
-            Sign Out
-          </button>
-        </div>
-      </div>
     </div>
   );
 };
