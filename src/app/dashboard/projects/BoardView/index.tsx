@@ -216,10 +216,10 @@ const BoardView = ({
 
   if (isLoading) {
     return (
-      <div className="container mx-auto p-6 overflow-x-auto">
-        <div className="flex gap-6 min-w-max pb-4">
+      <div className="container mx-auto px-4 py-4 sm:p-6 overflow-x-auto">
+        <div className="flex gap-3 sm:gap-6 min-w-max pb-4">
           {DEFAULT_STATUSES.map((status) => (
-            <Card key={status} className="w-80 flex-shrink-0">
+            <Card key={status} className="w-[280px] sm:w-80 flex-shrink-0">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-sm font-medium">{status}</CardTitle>
@@ -240,7 +240,7 @@ const BoardView = ({
   
   if (error) {
     return (
-      <div className="container mx-auto p-6">
+      <div className="container mx-auto px-4 py-4 sm:p-6">
         <Card>
           <CardContent className="flex flex-col items-center justify-center h-32 text-center space-y-4">
             <AlertTriangle className="h-12 w-12 text-destructive" />
@@ -252,9 +252,9 @@ const BoardView = ({
   }
 
   return (
-    <div className="container mx-auto p-6 overflow-x-auto">
+    <div className="container mx-auto px-4 py-4 sm:p-6 overflow-x-auto">
       <DndProvider backend={HTML5Backend}>
-        <div className="flex gap-6 min-w-max pb-4">
+        <div className="flex gap-3 sm:gap-6 min-w-max pb-4">
           {statusNames.map((status: string) => (
             <TaskColumn
               key={status}
@@ -385,7 +385,7 @@ const TaskColumn = ({
         drop(instance);
       }}
       className={cn(
-        "w-80 flex-shrink-0 transition-all duration-300 ease-out",
+        "w-[280px] sm:w-80 flex-shrink-0 transition-all duration-300 ease-out",
         config.className,
         isOver && "ring-2 ring-primary ring-offset-2"
       )}

@@ -88,19 +88,19 @@ const ProjectHeader = ({
   const activeFiltersCount = [filters.priority, filters.status, filters.assigneeId].filter(Boolean).length;
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto px-4 py-4 sm:p-6 space-y-4 sm:space-y-6">
       {/* Header */}
       <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
+        <CardHeader className="p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center space-x-3">
-              <Folder className="h-8 w-8 text-primary" />
-              <div>
-                <CardTitle className="text-3xl">{projectName}</CardTitle>
-                <p className="text-muted-foreground">Project management and task tracking</p>
+              <Folder className="h-6 w-6 sm:h-8 sm:w-8 text-primary shrink-0" />
+              <div className="min-w-0">
+                <CardTitle className="text-xl sm:text-2xl md:text-3xl truncate">{projectName}</CardTitle>
+                <p className="text-sm text-muted-foreground hidden sm:block">Project management and task tracking</p>
               </div>
             </div>
-            <Button onClick={() => setIsModalNewTaskOpen(true)}>
+            <Button onClick={() => setIsModalNewTaskOpen(true)} className="w-full sm:w-auto">
               <Plus className="h-4 w-4 mr-2" />
               New Task
             </Button>
@@ -110,10 +110,10 @@ const ProjectHeader = ({
 
       {/* Navigation and Controls */}
       <Card>
-        <CardContent className="p-6">
-          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-            {/* Tab Navigation */}
-            <div className="flex items-center gap-2">
+        <CardContent className="p-4 sm:p-6">
+          <div className="flex flex-col gap-4">
+            {/* Tab Navigation - Scrollable on mobile */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-2 -mb-2 scrollbar-hide">
               <TabButton
                 name="Board"
                 icon={<Grid3x3 className="h-4 w-4" />}
@@ -141,7 +141,7 @@ const ProjectHeader = ({
             </div>
 
             {/* Controls */}
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
               {/* Filter Popover */}
               <Popover open={isFilterOpen} onOpenChange={setIsFilterOpen}>
                 <PopoverTrigger asChild>
@@ -157,7 +157,7 @@ const ProjectHeader = ({
                     )}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-80" align="end">
+                <PopoverContent className="w-[calc(100vw-2rem)] sm:w-80" align="end">
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <h4 className="font-medium">Filter Tasks</h4>
@@ -256,11 +256,11 @@ const ProjectHeader = ({
               </Button>
 
               {/* Search Input */}
-              <div className="relative">
+              <div className="relative flex-1 sm:flex-none order-first sm:order-none">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Search Task"
-                  className="pl-10 w-64"
+                  className="pl-10 w-full sm:w-48 md:w-64"
                   value={searchQuery}
                   onChange={(e) => onSearchChange(e.target.value)}
                 />
@@ -274,6 +274,11 @@ const ProjectHeader = ({
                     <X className="h-3 w-3" />
                   </Button>
                 )}
+              </div>
+
+              {/* Filter and Share Buttons */}
+              <div className="flex items-center gap-2">
+                {/* Filter Popover is above */}
               </div>
             </div>
           </div>

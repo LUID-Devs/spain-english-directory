@@ -255,7 +255,7 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden">
+      <DialogContent className="w-[95vw] max-w-2xl max-h-[90vh] overflow-hidden p-4 sm:p-6">
         <DialogHeader>
           <DialogTitle>
             Create New Task
@@ -376,7 +376,7 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
           </div>
 
           {/* Status and Priority */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label className="text-foreground font-medium">Status</Label>
               <Select
@@ -438,7 +438,7 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
           </div>
 
           {/* Dates */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="startDate" className="text-foreground font-medium">Start Date</Label>
               <Input
@@ -460,7 +460,7 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
           </div>
 
           {/* Team Assignment */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label className="text-foreground font-medium">
                 Author <span className="text-destructive">*</span>

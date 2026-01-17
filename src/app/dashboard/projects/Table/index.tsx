@@ -106,7 +106,7 @@ const TableView = ({
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto px-4 py-4 sm:p-6 space-y-4 sm:space-y-6">
       {/* Header */}
       <Card>
         <CardHeader>
@@ -176,17 +176,18 @@ const TableView = ({
               Detailed view of all project tasks
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <Table>
+          <CardContent className="p-0 sm:p-6">
+            <div className="overflow-x-auto">
+            <Table className="min-w-[800px]">
               <TableHeader>
                 <TableRow>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Priority</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Assignee</TableHead>
-                  <TableHead>Due Date</TableHead>
-                  <TableHead>Tags</TableHead>
+                  <TableHead className="min-w-[200px]">Title</TableHead>
+                  <TableHead className="min-w-[100px]">Status</TableHead>
+                  <TableHead className="min-w-[100px]">Priority</TableHead>
+                  <TableHead className="min-w-[80px] hidden md:table-cell">Type</TableHead>
+                  <TableHead className="min-w-[120px]">Assignee</TableHead>
+                  <TableHead className="min-w-[100px] hidden sm:table-cell">Due Date</TableHead>
+                  <TableHead className="min-w-[100px] hidden lg:table-cell">Tags</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -214,7 +215,7 @@ const TableView = ({
                           <span className="text-muted-foreground">—</span>
                         )}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="hidden md:table-cell">
                         {task.taskType ? (
                           <Badge variant="outline" className="text-xs">
                             {task.taskType}
@@ -243,7 +244,7 @@ const TableView = ({
                           <span className="text-muted-foreground text-sm">Unassigned</span>
                         )}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="hidden sm:table-cell">
                         {task.dueDate ? (
                           <div className="flex items-center space-x-1 text-sm text-foreground">
                             <Calendar className="h-3 w-3" />
@@ -253,7 +254,7 @@ const TableView = ({
                           <span className="text-muted-foreground">—</span>
                         )}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="hidden lg:table-cell">
                         {task.tags ? (
                           <div className="flex flex-wrap gap-1">
                             {task.tags.split(",").slice(0, 2).map((tag: string, index: number) => (
@@ -274,6 +275,7 @@ const TableView = ({
                 })}
               </TableBody>
             </Table>
+            </div>
           </CardContent>
         </Card>
       )}
