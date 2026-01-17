@@ -328,10 +328,10 @@ const SettingsPage = () => {
   };
 
   return (
-    <div className="container max-w-4xl mx-auto p-6 space-y-8">
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
-        <p className="text-muted-foreground">
+    <div className="container max-w-4xl mx-auto px-4 py-4 sm:p-6 space-y-6 sm:space-y-8">
+      <div className="space-y-1 sm:space-y-2">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Settings</h1>
+        <p className="text-sm sm:text-base text-muted-foreground">
           Manage your account settings and preferences
         </p>
       </div>
@@ -340,16 +340,16 @@ const SettingsPage = () => {
 
       {/* User Profile Section */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <User className="h-5 w-5" />
+        <CardHeader className="p-4 sm:p-6">
+          <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+            <User className="h-4 w-4 sm:h-5 sm:w-5" />
             Profile Information
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-sm">
             Your basic account information and profile details
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label className="text-sm font-medium">Username</Label>
@@ -412,7 +412,7 @@ const SettingsPage = () => {
                   Edit Profile
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-md">
+              <DialogContent className="w-[95vw] max-w-md p-4 sm:p-6">
                 <DialogHeader>
                   <DialogTitle>Edit Profile</DialogTitle>
                   <DialogDescription>
@@ -493,16 +493,16 @@ const SettingsPage = () => {
 
       {/* Security Section */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Shield className="h-5 w-5" />
+        <CardHeader className="p-4 sm:p-6">
+          <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+            <Shield className="h-4 w-4 sm:h-5 sm:w-5" />
             Security & Authentication
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-sm">
             Manage your password and authentication methods
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0 space-y-6">
           {/* Password Change */}
           <div className="space-y-4">
             <div>
@@ -518,7 +518,7 @@ const SettingsPage = () => {
                     Change Password
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-md">
+                <DialogContent className="w-[95vw] max-w-md p-4 sm:p-6">
                   <DialogHeader>
                     <DialogTitle>Change Password</DialogTitle>
                     <DialogDescription>
@@ -650,16 +650,16 @@ const SettingsPage = () => {
 
       {/* Workspace Settings */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Building2 className="h-5 w-5" />
+        <CardHeader className="p-4 sm:p-6">
+          <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+            <Building2 className="h-4 w-4 sm:h-5 sm:w-5" />
             Workspace Settings
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-sm">
             Manage your current workspace settings and members
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0 space-y-6">
           {isWorkspaceLoading ? (
             <div className="flex items-center justify-center py-8">
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -673,10 +673,10 @@ const SettingsPage = () => {
             <>
               {/* Workspace Info */}
               <div className="space-y-4">
-                <div className="flex items-start justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                   <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-lg font-semibold">{workspaceData?.name || activeOrganization?.name}</h3>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="text-base sm:text-lg font-semibold">{workspaceData?.name || activeOrganization?.name}</h3>
                       {isPersonalWorkspace && (
                         <Badge variant="outline">Personal</Badge>
                       )}
@@ -696,7 +696,7 @@ const SettingsPage = () => {
                           Edit
                         </Button>
                       </DialogTrigger>
-                      <DialogContent>
+                      <DialogContent className="w-[95vw] max-w-md p-4 sm:p-6">
                         <DialogHeader>
                           <DialogTitle>Edit Workspace</DialogTitle>
                           <DialogDescription>
@@ -749,7 +749,7 @@ const SettingsPage = () => {
 
               {/* Members Section */}
               <div className="space-y-4">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                   <div>
                     <h4 className="text-sm font-medium">Members</h4>
                     <p className="text-xs text-muted-foreground">
@@ -757,7 +757,7 @@ const SettingsPage = () => {
                     </p>
                   </div>
                   {canInviteMembers && (
-                    <Button variant="outline" size="sm" className="gap-2" onClick={() => setIsInviteModalOpen(true)}>
+                    <Button variant="outline" size="sm" className="gap-2 w-full sm:w-auto" onClick={() => setIsInviteModalOpen(true)}>
                       <UserPlus className="h-4 w-4" />
                       Invite
                     </Button>
@@ -768,7 +768,7 @@ const SettingsPage = () => {
                   {workspaceMembers.map((member) => (
                     <div
                       key={member.odId || member.userId}
-                      className="flex items-center justify-between p-3 rounded-lg border bg-card"
+                      className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-lg border bg-card gap-2"
                     >
                       <div className="flex items-center gap-3">
                         {member.user?.profilePictureUrl ? (
@@ -819,14 +819,14 @@ const SettingsPage = () => {
                           Leave Workspace
                         </Button>
                       </DialogTrigger>
-                      <DialogContent>
+                      <DialogContent className="w-[95vw] max-w-md p-4 sm:p-6">
                         <DialogHeader>
                           <DialogTitle>Leave Workspace</DialogTitle>
                           <DialogDescription>
                             Are you sure you want to leave "{workspaceData?.name}"? You'll lose access to all projects and tasks in this workspace.
                           </DialogDescription>
                         </DialogHeader>
-                        <DialogFooter>
+                        <DialogFooter className="flex-col sm:flex-row gap-2">
                           <Button variant="outline" onClick={() => setIsLeaveDialogOpen(false)}>
                             Cancel
                           </Button>
@@ -859,9 +859,9 @@ const SettingsPage = () => {
 
       {/* Subscription Settings */}
       <Card>
-        <CardHeader>
-          <CardTitle className="text-2xl font-semibold">Subscription & Billing</CardTitle>
-          <CardDescription>
+        <CardHeader className="p-4 sm:p-6">
+          <CardTitle className="text-xl sm:text-2xl font-semibold">Subscription & Billing</CardTitle>
+          <CardDescription className="text-sm">
             Manage your subscription plan and billing information. All billing is handled through{' '}
             <a
               href="https://luidhub.com/account"
@@ -873,7 +873,7 @@ const SettingsPage = () => {
             </a>.
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
           <SubscriptionDashboard />
         </CardContent>
       </Card>
