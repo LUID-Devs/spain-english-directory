@@ -17,25 +17,23 @@ const PriorityEmptyState: React.FC<PriorityEmptyStateProps> = ({
   const theme = getPriorityTheme(priority);
 
   const renderIllustration = () => {
-    const iconSize = "text-6xl";
-
     return (
-      <div className="relative mb-6">
+      <div className="relative mb-4 sm:mb-6">
         {/* Background gradient circle with improved styling */}
-        <div className={`relative w-32 h-32 mx-auto rounded-full ${getPriorityGradientClasses(priority)} ${getPriorityShadowClasses(priority)} flex items-center justify-center`}>
+        <div className={`relative w-24 h-24 sm:w-32 sm:h-32 mx-auto rounded-full ${getPriorityGradientClasses(priority)} ${getPriorityShadowClasses(priority)} flex items-center justify-center`}>
           {/* Gradient overlay for better contrast */}
           <div className={`absolute inset-0 ${getPriorityGradientOverlay(priority)} rounded-full`}></div>
-          <div className="relative z-10 w-24 h-24 bg-background rounded-full flex items-center justify-center shadow-inner">
-            <span className={`${iconSize} drop-shadow-sm`} role="img" aria-label={`${priority} priority icon`}>
+          <div className="relative z-10 w-18 h-18 sm:w-24 sm:h-24 bg-background rounded-full flex items-center justify-center shadow-inner">
+            <span className="text-4xl sm:text-6xl drop-shadow-sm" role="img" aria-label={`${priority} priority icon`}>
               {theme.emptyStateIcon}
             </span>
           </div>
         </div>
 
-        {/* Enhanced floating accent elements */}
-        <div className="absolute top-4 left-8 w-3 h-3 rounded-full opacity-40 shadow-sm animate-pulse" style={{ backgroundColor: theme.primaryColor, animationDelay: '0s' }}></div>
-        <div className="absolute bottom-8 right-6 w-2 h-2 rounded-full opacity-30 shadow-sm animate-pulse" style={{ backgroundColor: theme.accentColor, animationDelay: '1s' }}></div>
-        <div className="absolute top-12 right-12 w-1.5 h-1.5 rounded-full opacity-35 shadow-sm animate-pulse" style={{ backgroundColor: theme.secondaryColor, animationDelay: '2s' }}></div>
+        {/* Enhanced floating accent elements - hidden on very small screens */}
+        <div className="hidden sm:block absolute top-4 left-8 w-3 h-3 rounded-full opacity-40 shadow-sm animate-pulse" style={{ backgroundColor: theme.primaryColor, animationDelay: '0s' }}></div>
+        <div className="hidden sm:block absolute bottom-8 right-6 w-2 h-2 rounded-full opacity-30 shadow-sm animate-pulse" style={{ backgroundColor: theme.accentColor, animationDelay: '1s' }}></div>
+        <div className="hidden sm:block absolute top-12 right-12 w-1.5 h-1.5 rounded-full opacity-35 shadow-sm animate-pulse" style={{ backgroundColor: theme.secondaryColor, animationDelay: '2s' }}></div>
       </div>
     );
   };
@@ -61,21 +59,21 @@ const PriorityEmptyState: React.FC<PriorityEmptyStateProps> = ({
   const content = getEmptyStateContent();
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[400px] p-8 text-center">
+    <div className="flex flex-col items-center justify-center min-h-[280px] sm:min-h-[400px] p-4 sm:p-8 text-center">
       {renderIllustration()}
 
-      <div className="max-w-md mx-auto space-y-4">
-        <h2 className="text-2xl font-bold text-foreground">
+      <div className="max-w-md mx-auto space-y-3 sm:space-y-4">
+        <h2 className="text-xl sm:text-2xl font-bold text-foreground">
           {content.title}
         </h2>
 
-        <p className="text-foreground/80 text-lg font-medium">
+        <p className="text-foreground/80 text-sm sm:text-lg font-medium px-2">
           {content.message}
         </p>
 
         {totalTasks > 0 && (
-          <div className="bg-muted rounded-lg p-4 mx-auto max-w-xs border border-border">
-            <p className="text-sm font-semibold text-foreground">
+          <div className="bg-muted rounded-lg p-3 sm:p-4 mx-auto max-w-xs border border-border">
+            <p className="text-xs sm:text-sm font-semibold text-foreground">
               You have <span className="font-bold" style={{ color: theme.primaryColor }}>{totalTasks}</span> total tasks
             </p>
             <p className="text-xs text-muted-foreground mt-1 font-medium">
@@ -84,26 +82,26 @@ const PriorityEmptyState: React.FC<PriorityEmptyStateProps> = ({
           </div>
         )}
 
-        <p className="text-sm font-semibold italic" style={{ color: theme.primaryColor }}>
+        <p className="text-xs sm:text-sm font-semibold italic px-2" style={{ color: theme.primaryColor }}>
           {content.motivation}
         </p>
 
-        <div className="pt-4">
+        <div className="pt-2 sm:pt-4">
           <button
             onClick={onCreateTask}
-            className={`${getPriorityButtonClasses(priority)} px-8 py-3 text-base font-semibold transform transition-all duration-200 hover:scale-105 hover:shadow-lg inline-flex items-center gap-2`}
+            className={`${getPriorityButtonClasses(priority)} px-6 sm:px-8 py-2.5 sm:py-3 text-sm sm:text-base font-semibold transform transition-all duration-200 hover:scale-105 hover:shadow-lg inline-flex items-center gap-2 w-full sm:w-auto justify-center`}
             style={{
               backgroundColor: getPriorityTheme(priority).primaryColor,
               borderColor: getPriorityTheme(priority).primaryColor
             }}
           >
-            <Plus className="h-5 w-5" />
+            <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
             {content.buttonText}
           </button>
         </div>
 
-        {/* Subtle decoration */}
-        <div className="flex justify-center space-x-2 pt-6">
+        {/* Subtle decoration - hidden on mobile */}
+        <div className="hidden sm:flex justify-center space-x-2 pt-6">
           {[...Array(3)].map((_, i) => (
             <div
               key={i}
