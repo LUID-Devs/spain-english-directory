@@ -29,7 +29,8 @@ import {
   Zap,
   CheckSquare,
   ClipboardList,
-  UserPlus
+  UserPlus,
+  Bot
 } from "lucide-react";
 import InviteToWorkspaceModal from "@/components/InviteToWorkspaceModal";
 import { useLocation, Link } from "react-router-dom";
@@ -140,6 +141,7 @@ const Sidebar = () => {
             <SidebarLink href="/dashboard/tasks" icon={CheckSquare} label="My Tasks" />
             <SidebarLink href="/dashboard/projects" icon={Briefcase} label="Projects" />
             <SidebarLink href="/dashboard/timeline" icon={Activity} label="Timeline" />
+            <SidebarLink href="/dashboard/mission-control" icon={Bot} label="Mission Control" />
           </nav>
         </div>
 

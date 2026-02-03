@@ -9,6 +9,7 @@ export interface Agent {
   name: string;
   displayName: string;
   role: string;
+  personality?: Record<string, any>;
   status: "idle" | "active" | "blocked";
   lastHeartbeat: string | null;
   currentTaskId: number | null;
@@ -21,6 +22,36 @@ export interface Agent {
     assignedTasks: number;
     notifications: number;
   };
+}
+
+export interface CreateAgentData {
+  name: string;
+  displayName: string;
+  role: string;
+  personality?: Record<string, any>;
+}
+
+export interface CreateAgentResponse {
+  id: number;
+  name: string;
+  displayName: string;
+  role: string;
+  organizationId: number;
+  apiKey: string;
+  message: string;
+}
+
+export interface UpdateAgentData {
+  displayName?: string;
+  role?: string;
+  personality?: Record<string, any>;
+}
+
+export interface RegenerateKeyResponse {
+  id: number;
+  name: string;
+  apiKey: string;
+  message: string;
 }
 
 export const useAgents = (organizationId?: number) => {
@@ -45,6 +76,98 @@ export const useAgent = (agentId: number) => {
       return response.json();
     },
     enabled: !!agentId,
+  });
+};
+
+// ==================== AGENT MUTATIONS ====================
+
+export const useCreateAgent = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<CreateAgentResponse, Error, CreateAgentData>({
+    mutationFn: async (data) => {
+      const response = await fetch(`${API_BASE}/api/agents`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to create agent");
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["agents"] });
+    },
+  });
+};
+
+export const useUpdateAgent = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<Agent, Error, { agentId: number; data: UpdateAgentData }>({
+    mutationFn: async ({ agentId, data }) => {
+      const response = await fetch(`${API_BASE}/api/agents/${agentId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to update agent");
+      }
+      return response.json();
+    },
+    onSuccess: (_, { agentId }) => {
+      queryClient.invalidateQueries({ queryKey: ["agents"] });
+      queryClient.invalidateQueries({ queryKey: ["agent", agentId] });
+    },
+  });
+};
+
+export const useDeleteAgent = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<{ message: string }, Error, number>({
+    mutationFn: async (agentId) => {
+      const response = await fetch(`${API_BASE}/api/agents/${agentId}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to delete agent");
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["agents"] });
+    },
+  });
+};
+
+export const useRegenerateAgentKey = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<RegenerateKeyResponse, Error, number>({
+    mutationFn: async (agentId) => {
+      const response = await fetch(`${API_BASE}/api/agents/${agentId}/regenerate-key`, {
+        method: "POST",
+        credentials: "include",
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to regenerate API key");
+      }
+      return response.json();
+    },
+    onSuccess: (_, agentId) => {
+      queryClient.invalidateQueries({ queryKey: ["agents"] });
+      queryClient.invalidateQueries({ queryKey: ["agent", agentId] });
+    },
   });
 };
 

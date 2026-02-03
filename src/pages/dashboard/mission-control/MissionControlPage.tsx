@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import Header from "@/components/Header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -9,20 +8,27 @@ import {
   Activity,
   CheckCircle,
   Clock,
-  AlertCircle,
   MessageSquare,
   Users,
   Zap,
+  Plus,
 } from "lucide-react";
 import { AgentGrid } from "@/components/mission-control/AgentGrid";
 import { TaskBoard } from "@/components/mission-control/TaskBoard";
 import { ActivityFeed } from "@/components/mission-control/ActivityFeed";
+import { CreateAgentModal } from "@/components/mission-control/CreateAgentModal";
 import { useAgents, useActivityFeed } from "@/hooks/useMissionControl";
+import { useAuth } from "@/app/authProvider";
 
 const MissionControlPage = () => {
   const [activeTab, setActiveTab] = useState("agents");
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const { data: agents, isLoading: agentsLoading } = useAgents();
   const { data: activities, isLoading: activitiesLoading } = useActivityFeed();
+  const { activeOrganization } = useAuth();
+
+  // Check if user can manage agents (admin or owner)
+  const canManageAgents = activeOrganization?.role === "admin" || activeOrganization?.role === "owner";
 
   // Calculate stats
   const stats = {
@@ -36,7 +42,15 @@ const MissionControlPage = () => {
 
   return (
     <div className="container h-full w-full bg-background p-8">
-      <Header name="Mission Control" />
+      <div className="flex items-center justify-between mb-6">
+        <Header name="Mission Control" />
+        {canManageAgents && (
+          <Button onClick={() => setIsCreateModalOpen(true)} className="flex items-center gap-2">
+            <Plus className="h-4 w-4" />
+            Create Agent
+          </Button>
+        )}
+      </div>
 
       {/* Stats Overview */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
@@ -111,7 +125,7 @@ const MissionControlPage = () => {
         </TabsList>
 
         <TabsContent value="agents" className="space-y-4">
-          <AgentGrid agents={agents || []} isLoading={agentsLoading} />
+          <AgentGrid agents={agents || []} isLoading={agentsLoading} canManageAgents={canManageAgents} />
         </TabsContent>
 
         <TabsContent value="tasks" className="space-y-4">
@@ -122,6 +136,12 @@ const MissionControlPage = () => {
           <ActivityFeed activities={activities || []} isLoading={activitiesLoading} />
         </TabsContent>
       </Tabs>
+
+      {/* Create Agent Modal */}
+      <CreateAgentModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+      />
     </div>
   );
 };

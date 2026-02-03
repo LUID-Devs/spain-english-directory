@@ -1,31 +1,26 @@
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Clock, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Clock, CheckCircle, AlertCircle, Loader2, MoreVertical, Pencil, Key, Trash2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-
-interface Agent {
-  id: number;
-  name: string;
-  displayName: string;
-  role: string;
-  status: "idle" | "active" | "blocked";
-  lastHeartbeat: string | null;
-  currentTask?: {
-    id: number;
-    title: string;
-    status: string;
-  } | null;
-  _count?: {
-    assignedTasks: number;
-    notifications: number;
-  };
-}
+import { EditAgentModal } from "./EditAgentModal";
+import { DeleteAgentModal } from "./DeleteAgentModal";
+import { RegenerateKeyModal } from "./RegenerateKeyModal";
+import { Agent } from "@/hooks/useMissionControl";
 
 interface AgentGridProps {
   agents: Agent[];
   isLoading: boolean;
+  canManageAgents?: boolean;
 }
 
 // SpongeBob character emoji mapping
@@ -61,7 +56,11 @@ const statusConfig = {
   blocked: { color: "bg-red-500", icon: AlertCircle, label: "Blocked" },
 };
 
-export const AgentGrid: React.FC<AgentGridProps> = ({ agents, isLoading }) => {
+export const AgentGrid: React.FC<AgentGridProps> = ({ agents, isLoading, canManageAgents = false }) => {
+  const [editAgent, setEditAgent] = useState<Agent | null>(null);
+  const [deleteAgent, setDeleteAgent] = useState<Agent | null>(null);
+  const [regenerateKeyAgent, setRegenerateKeyAgent] = useState<Agent | null>(null);
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -107,6 +106,34 @@ export const AgentGrid: React.FC<AgentGridProps> = ({ agents, isLoading }) => {
                     {agent.role.replace("-", " ")}
                   </Badge>
                 </div>
+                {canManageAgents && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <MoreVertical className="h-4 w-4" />
+                        <span className="sr-only">Agent actions</span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => setEditAgent(agent)}>
+                        <Pencil className="h-4 w-4 mr-2" />
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setRegenerateKeyAgent(agent)}>
+                        <Key className="h-4 w-4 mr-2" />
+                        Regenerate API Key
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={() => setDeleteAgent(agent)}
+                        className="text-destructive focus:text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
               </div>
             </CardHeader>
 
@@ -148,6 +175,23 @@ export const AgentGrid: React.FC<AgentGridProps> = ({ agents, isLoading }) => {
           </Card>
         );
       })}
+
+      {/* Modals */}
+      <EditAgentModal
+        isOpen={!!editAgent}
+        onClose={() => setEditAgent(null)}
+        agent={editAgent}
+      />
+      <DeleteAgentModal
+        isOpen={!!deleteAgent}
+        onClose={() => setDeleteAgent(null)}
+        agent={deleteAgent}
+      />
+      <RegenerateKeyModal
+        isOpen={!!regenerateKeyAgent}
+        onClose={() => setRegenerateKeyAgent(null)}
+        agent={regenerateKeyAgent}
+      />
     </div>
   );
 };
