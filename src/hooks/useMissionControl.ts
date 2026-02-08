@@ -231,6 +231,22 @@ export interface TaskAssignment {
   };
 }
 
+export interface TaskAgentAssignment {
+  id: number;
+  agentId: number;
+  taskId: number;
+  status: string;
+  assignedAt: string;
+  agent: {
+    id: number;
+    name: string;
+    displayName: string;
+    role: string;
+    status: "idle" | "active" | "blocked";
+    currentTaskId: number | null;
+  };
+}
+
 export const useAgentTasks = (agentId?: number, status?: string) => {
   return useQuery<TaskAssignment[]>({
     queryKey: ["agentTasks", agentId, status],
@@ -271,6 +287,36 @@ export const useAssignTaskToAgent = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["agentTasks"] });
       queryClient.invalidateQueries({ queryKey: ["agents"] });
+      queryClient.invalidateQueries({ queryKey: ["taskAgentAssignments"] });
+    },
+  });
+};
+
+export const useTaskAgentAssignments = (taskId?: number) => {
+  return useQuery<TaskAgentAssignment[]>({
+    queryKey: ["taskAgentAssignments", taskId],
+    queryFn: async () => {
+      if (!taskId) return [];
+      return missionFetch<TaskAgentAssignment[]>(`/api/tasks/${taskId}/assign-agents`);
+    },
+    enabled: !!taskId,
+    refetchInterval: (query) => (query.state.error ? false : 30000),
+  });
+};
+
+export const useUnassignTaskFromAgent = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ taskId, agentId }: { taskId: number; agentId: number }) =>
+      missionFetch(`/api/tasks/${taskId}/assign-agents/${agentId}`, {
+        method: "DELETE",
+      }),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["agentTasks"] });
+      queryClient.invalidateQueries({ queryKey: ["agents"] });
+      queryClient.invalidateQueries({ queryKey: ["taskAgentAssignments", variables.taskId] });
+      queryClient.invalidateQueries({ queryKey: ["taskAgentAssignments"] });
     },
   });
 };
