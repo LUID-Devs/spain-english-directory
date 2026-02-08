@@ -23,9 +23,9 @@ import { useAuth } from "@/app/authProvider";
 const MissionControlPage = () => {
   const [activeTab, setActiveTab] = useState("agents");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const { data: agents, isLoading: agentsLoading } = useAgents();
-  const { data: activities, isLoading: activitiesLoading } = useActivityFeed();
   const { activeOrganization } = useAuth();
+  const { data: agents, isLoading: agentsLoading } = useAgents(activeOrganization?.id);
+  const { data: activities, isLoading: activitiesLoading } = useActivityFeed(activeOrganization?.id);
 
   // Check if user can manage agents (admin or owner)
   const canManageAgents = activeOrganization?.role === "admin" || activeOrganization?.role === "owner";
