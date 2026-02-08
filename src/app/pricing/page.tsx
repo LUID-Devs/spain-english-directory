@@ -13,7 +13,7 @@ import {
 } from '@mui/material';
 import { Check } from '@mui/icons-material';
 
-const BILLING_URL = process.env.NEXT_PUBLIC_BILLING_URL || '/dashboard/settings';
+const BILLING_URL = import.meta.env.VITE_BILLING_URL || '/dashboard/settings';
 
 const plans = [
   {

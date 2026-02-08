@@ -43,7 +43,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Debug timing
   useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.DEV) {
       console.log('[AUTH] AuthProvider mounted at:', Date.now());
     }
   }, []);

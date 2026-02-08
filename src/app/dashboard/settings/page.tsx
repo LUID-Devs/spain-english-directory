@@ -864,7 +864,7 @@ const SettingsPage = () => {
           <CardDescription className="text-sm">
             Manage your subscription plan and billing information. Billing is handled directly in TaskLuid{' '}
             <a
-              href={process.env.NEXT_PUBLIC_BILLING_MANAGE_URL || process.env.NEXT_PUBLIC_BILLING_URL || '/pricing'}
+              href={import.meta.env.VITE_BILLING_MANAGE_URL || import.meta.env.VITE_BILLING_URL || '/pricing'}
               target="_blank"
               rel="noopener noreferrer"
               className="text-primary hover:underline"
