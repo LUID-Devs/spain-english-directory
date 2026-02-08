@@ -99,7 +99,8 @@ const OAuthCallbackPage: React.FC = () => {
         await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/status`, {
           credentials: 'include',
           headers: {
-            'Authorization': `Bearer ${session.tokens.accessToken}`
+            'Authorization': `Bearer ${session.tokens.accessToken}`,
+            'X-ID-Token': `${session.tokens.idToken}`
           }
         });
       } catch (backendError) {

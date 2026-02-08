@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchAuthSession, getCurrentUser, signOut } from 'aws-amplify/auth';
 
@@ -39,7 +39,13 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [activeOrganization, setActiveOrganization] = useState<Organization | null>(null);
+  const userRef = useRef<User | null>(null);
+  const authCheckInFlightRef = useRef<Promise<void> | null>(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    userRef.current = user;
+  }, [user]);
 
   // Debug timing
   useEffect(() => {
@@ -49,6 +55,11 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const checkAuthStatus = useCallback(async () => {
+    if (authCheckInFlightRef.current) {
+      return authCheckInFlightRef.current;
+    }
+
+    const runAuthCheck = async () => {
     const authStart = Date.now();
     console.log('[AUTH] Starting auth check at:', authStart);
 
@@ -74,51 +85,66 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-      // Build headers with Cognito tokens if available
-      const headers: HeadersInit = {
-        'Content-Type': 'application/json',
-      };
+      try {
+        // Build headers with Cognito tokens if available
+        const headers: HeadersInit = {
+          'Content-Type': 'application/json',
+        };
 
-      if (cognitoSession?.tokens?.accessToken) {
-        headers['Authorization'] = `Bearer ${cognitoSession.tokens.accessToken}`;
-      }
+        if (cognitoSession?.tokens?.accessToken) {
+          headers['Authorization'] = `Bearer ${cognitoSession.tokens.accessToken}`;
+        }
 
-      // Also send ID token which contains email and other user attributes
-      if (cognitoSession?.tokens?.idToken) {
-        headers['X-ID-Token'] = `${cognitoSession.tokens.idToken}`;
-      }
+        // Also send ID token which contains email and other user attributes
+        if (cognitoSession?.tokens?.idToken) {
+          headers['X-ID-Token'] = `${cognitoSession.tokens.idToken}`;
+        }
 
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/status`, {
-        credentials: 'include', // Still send cookies for traditional auth
-        signal: controller.signal,
-        headers,
-      });
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/status`, {
+          credentials: 'include', // Still send cookies for traditional auth
+          signal: controller.signal,
+          headers,
+        });
 
-      clearTimeout(timeoutId);
-      const authEnd = Date.now();
-      console.log('[AUTH] Auth request completed in:', authEnd - authStart, 'ms');
+        const authEnd = Date.now();
+        console.log('[AUTH] Auth request completed in:', authEnd - authStart, 'ms');
 
-      if (response.ok) {
-        const data = await response.json();
-        console.log('[AUTH] Backend response:', data);
+        if (response.ok) {
+          const data = await response.json();
+          console.log('[AUTH] Backend response:', data);
 
-        // If backend returns user data, use it
-        if (data.user && data.isAuthenticated) {
-          setUser(data.user);
-          console.log('[AUTH] User authenticated from backend:', data.user.username || data.user.email || data.user.sub);
+          // If backend returns user data, use it
+          if (data.user && data.isAuthenticated) {
+            setUser(data.user);
+            console.log('[AUTH] User authenticated from backend:', data.user.username || data.user.email || data.user.sub);
 
-          // Set organizations and active organization
-          if (data.organizations) {
-            setOrganizations(data.organizations);
-            console.log('[AUTH] Organizations loaded:', data.organizations.length);
-          }
-          if (data.activeOrganization) {
-            setActiveOrganization(data.activeOrganization);
-            console.log('[AUTH] Active organization:', data.activeOrganization.name);
+            // Set organizations and active organization
+            if (data.organizations) {
+              setOrganizations(data.organizations);
+              console.log('[AUTH] Organizations loaded:', data.organizations.length);
+            }
+            if (data.activeOrganization) {
+              setActiveOrganization(data.activeOrganization);
+              console.log('[AUTH] Active organization:', data.activeOrganization.name);
+            }
+          } else if (cognitoUser) {
+            // Fallback to Cognito user data if backend doesn't return user
+            console.log('[AUTH] Using Cognito user data as fallback');
+            setUser({
+              sub: cognitoUser.userId,
+              email: cognitoUser.username,
+              username: cognitoUser.username,
+              preferred_username: cognitoUser.username,
+            });
+          } else {
+            setUser(null);
+            setOrganizations([]);
+            setActiveOrganization(null);
+            console.log('[AUTH] No user data available');
           }
         } else if (cognitoUser) {
-          // Fallback to Cognito user data if backend doesn't return user
-          console.log('[AUTH] Using Cognito user data as fallback');
+          // If backend request fails but we have Cognito session, use Cognito data
+          console.warn('[AUTH] Backend request failed with status:', response.status, '- using Cognito fallback user');
           setUser({
             sub: cognitoUser.userId,
             email: cognitoUser.username,
@@ -129,32 +155,39 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setUser(null);
           setOrganizations([]);
           setActiveOrganization(null);
-          console.log('[AUTH] No user data available');
+          console.log('[AUTH] User not authenticated');
         }
-      } else if (cognitoUser) {
-        // If backend request fails but we have Cognito session, use Cognito data
-        console.log('[AUTH] Backend request failed, using Cognito user data');
+      } finally {
+        clearTimeout(timeoutId);
+      }
+    } catch (error) {
+      const authEnd = Date.now();
+      console.error('[AUTH] Auth check failed after:', authEnd - authStart, 'ms', error);
+
+      if (cognitoUser) {
+        // Keep user authenticated client-side if backend status endpoint is temporarily slow
+        console.warn('[AUTH] Preserving Cognito user after auth status failure');
         setUser({
           sub: cognitoUser.userId,
           email: cognitoUser.username,
           username: cognitoUser.username,
           preferred_username: cognitoUser.username,
         });
-      } else {
+      } else if (!userRef.current) {
         setUser(null);
-        setOrganizations([]);
-        setActiveOrganization(null);
-        console.log('[AUTH] User not authenticated');
       }
-    } catch (error) {
-      const authEnd = Date.now();
-      console.error('[AUTH] Auth check failed after:', authEnd - authStart, 'ms', error);
-
-      setUser(null);
     } finally {
       setIsLoading(false);
       console.log('[AUTH] Auth loading complete at:', Date.now());
     }
+    };
+
+    const currentRun = runAuthCheck().finally(() => {
+      authCheckInFlightRef.current = null;
+    });
+
+    authCheckInFlightRef.current = currentRun;
+    return currentRun;
   }, []);
 
   useEffect(() => {
