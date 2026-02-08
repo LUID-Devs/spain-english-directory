@@ -14,9 +14,7 @@ import {
 import { ArrowUp, Crown, ExternalLink, Coins } from 'lucide-react';
 import { useSubscription } from '@/stores/subscriptionStore';
 
-const LUIDHUB_PRICING_URL = import.meta.env.VITE_LUIDHUB_URL
-  ? `${import.meta.env.VITE_LUIDHUB_URL}/pricing`
-  : 'https://luidhub.com/pricing';
+const BILLING_URL = import.meta.env.VITE_BILLING_URL || '/pricing';
 
 interface UsageGateProps {
   children: React.ReactNode;
@@ -89,7 +87,7 @@ export function UsageGate({
   });
 
   const handleUpgrade = () => {
-    window.open(LUIDHUB_PRICING_URL, '_blank');
+    window.open(BILLING_URL, '_blank');
     setShowUpgradeModal(false);
   };
 
@@ -122,15 +120,12 @@ export function UsageGate({
           {blockReason === 'pro' ? (
             <Box sx={{ mb: 3 }}>
               <Alert severity="info" sx={{ mb: 2 }}>
-                <strong>{feature}</strong> requires a LuidHub Pro subscription.
+                <strong>{feature}</strong> requires a TaskLuid Pro subscription.
               </Alert>
-              <Typography variant="body1" sx={{ mb: 2 }}>
-                Upgrade to LuidHub Pro to unlock:
-              </Typography>
+              <Typography variant="body1" sx={{ mb: 2 }}>Upgrade to TaskLuid Pro to unlock:</Typography>
               <Box component="ul" sx={{ pl: 3 }}>
                 <li>Unlimited tasks and projects</li>
                 <li>Monthly credit allowance</li>
-                <li>Access to all LUID apps</li>
                 <li>AI-powered features</li>
                 <li>Priority support</li>
               </Box>
@@ -145,7 +140,7 @@ export function UsageGate({
                 Get more credits by:
               </Typography>
               <Box component="ul" sx={{ pl: 3 }}>
-                <li>Upgrading to LuidHub Pro for monthly credits</li>
+                <li>Upgrading to TaskLuid Pro for monthly credits</li>
                 <li>Purchasing additional credit packs</li>
               </Box>
             </Box>
@@ -161,7 +156,7 @@ export function UsageGate({
             variant="contained"
             startIcon={<ExternalLink size={16} />}
           >
-            {blockReason === 'pro' ? 'Upgrade to Pro' : 'Get Credits on LuidHub'}
+            {blockReason === 'pro' ? 'Upgrade to Pro' : 'Get Credits'}
           </Button>
         </DialogActions>
       </Dialog>

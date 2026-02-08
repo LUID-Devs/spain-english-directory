@@ -5,9 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
-const LUIDHUB_PRICING_URL = import.meta.env.VITE_LUIDHUB_URL
-  ? `${import.meta.env.VITE_LUIDHUB_URL}/pricing`
-  : 'https://luidhub.com/pricing';
+const BILLING_URL = import.meta.env.VITE_BILLING_URL || '/pricing';
 
 interface SubscriptionStatusProps {
   compact?: boolean;
@@ -50,7 +48,7 @@ export function SubscriptionStatus({
           <Button
             size="sm"
             variant="outline"
-            onClick={() => window.open(LUIDHUB_PRICING_URL, '_blank')}
+            onClick={() => window.open(BILLING_URL, '_blank')}
           >
             <ArrowUp size={14} className="mr-1" />
             Upgrade
@@ -103,7 +101,7 @@ export function SubscriptionStatus({
           <div className="mt-4">
             <Button
               variant="outline"
-              onClick={() => window.open(LUIDHUB_PRICING_URL, '_blank')}
+              onClick={() => window.open(BILLING_URL, '_blank')}
               size="sm"
             >
               <ArrowUp size={14} className="mr-2" />

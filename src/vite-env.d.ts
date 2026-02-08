@@ -2,8 +2,8 @@
 
 interface ImportMetaEnv {
   readonly VITE_API_BASE_URL: string
-  readonly VITE_LUIDHUB_API_URL: string
-  readonly VITE_LUIDHUB_URL: string
+  readonly VITE_BILLING_URL: string
+  readonly VITE_BILLING_MANAGE_URL: string
   readonly VITE_COGNITO_AUTHORITY: string
   readonly VITE_COGNITO_CLIENT_ID: string
   readonly VITE_COGNITO_REDIRECT_URI: string

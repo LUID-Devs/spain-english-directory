@@ -3,15 +3,15 @@ import { Loader2 } from 'lucide-react';
 
 const PricingPage = () => {
   useEffect(() => {
-    // Redirect to LuidHub pricing page
-    window.location.href = 'https://luidhub.com/pricing';
+    const billingUrl = import.meta.env.VITE_BILLING_URL || '/app/pricing';
+    window.location.href = billingUrl;
   }, []);
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center">
       <div className="text-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
-        <p className="text-muted-foreground">Redirecting to LuidHub pricing...</p>
+        <p className="text-muted-foreground">Redirecting to TaskLuid pricing...</p>
       </div>
     </div>
   );

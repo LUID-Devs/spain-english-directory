@@ -1,2 +1,0 @@
-import{r as t,j as e,p as r}from"./index-BqyhVOXf.js";const i=()=>(t.useEffect(()=>{window.location.href="https://luidhub.com/pricing"},[]),e.jsx("div",{className:"min-h-screen bg-background flex items-center justify-center",children:e.jsxs("div",{className:"text-center",children:[e.jsx(r,{className:"h-8 w-8 animate-spin text-primary mx-auto mb-4"}),e.jsx("p",{className:"text-muted-foreground",children:"Redirecting to LuidHub pricing..."})]})}));export{i as default};
-//# sourceMappingURL=PricingPage-CTrsoNES.js.map

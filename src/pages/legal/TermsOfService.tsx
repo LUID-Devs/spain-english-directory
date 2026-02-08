@@ -63,7 +63,7 @@ const TermsOfService = () => {
           <section>
             <h2 className="text-2xl font-semibold text-white mb-4">4. Subscription and Payment</h2>
             <p className="text-neutral-300 leading-relaxed mb-4">
-              Some features require a paid subscription through LuidHub. By subscribing, you agree to:
+              Some features require a paid subscription through TaskLuid billing. By subscribing, you agree to:
             </p>
             <ul className="list-disc list-inside text-neutral-300 space-y-2 ml-4">
               <li>Pay all fees associated with your subscription plan</li>

@@ -862,14 +862,14 @@ const SettingsPage = () => {
         <CardHeader className="p-4 sm:p-6">
           <CardTitle className="text-xl sm:text-2xl font-semibold">Subscription & Billing</CardTitle>
           <CardDescription className="text-sm">
-            Manage your subscription plan and billing information. All billing is handled through{' '}
+            Manage your subscription plan and billing information. Billing is handled directly in TaskLuid{' '}
             <a
-              href="https://luidhub.com/account"
+              href={process.env.NEXT_PUBLIC_BILLING_MANAGE_URL || process.env.NEXT_PUBLIC_BILLING_URL || '/pricing'}
               target="_blank"
               rel="noopener noreferrer"
               className="text-primary hover:underline"
             >
-              LuidHub
+              Billing Portal
             </a>.
           </CardDescription>
         </CardHeader>
