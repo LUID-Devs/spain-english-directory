@@ -42,25 +42,29 @@ const MissionControlPage = () => {
 
   return (
     <div className="container h-full w-full bg-background p-4 sm:p-6 lg:p-8">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
         <Header name="Mission Control" />
         {canManageAgents && (
-          <Button onClick={() => setIsCreateModalOpen(true)} className="flex items-center gap-2 w-full sm:w-auto">
-            <Plus className="h-4 w-4" />
-            Create Agent
+          <Button 
+            onClick={() => setIsCreateModalOpen(true)} 
+            className="flex items-center justify-center gap-2 w-full sm:w-auto text-sm sm:text-base"
+            size="default"
+          >
+            <Plus className="h-4 w-4 flex-shrink-0" />
+            <span className="whitespace-nowrap">Create Agent</span>
           </Button>
         )}
       </div>
 
       {/* Stats Overview */}
-      <div className="grid gap-2 sm:gap-4 grid-cols-2 lg:grid-cols-4 mb-6">
+      <div className="grid gap-2 sm:gap-4 grid-cols-2 lg:grid-cols-4 mb-4 sm:mb-6">
         <Card className="overflow-hidden">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 px-3 sm:px-6">
-            <CardTitle className="text-xs sm:text-sm font-medium truncate">Total Agents</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 px-2 sm:px-6 pt-3 sm:pt-6">
+            <CardTitle className="text-[10px] sm:text-xs md:text-sm font-medium truncate">Total Agents</CardTitle>
             <Bot className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
           </CardHeader>
-          <CardContent className="px-3 sm:px-6">
-            <div className="text-xl sm:text-2xl font-bold">{stats.totalAgents}</div>
+          <CardContent className="px-2 sm:px-6 pb-3 sm:pb-6">
+            <div className="text-lg sm:text-xl md:text-2xl font-bold">{stats.totalAgents}</div>
             <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
               SpongeBob Squad
             </p>
@@ -68,12 +72,12 @@ const MissionControlPage = () => {
         </Card>
 
         <Card className="overflow-hidden">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 px-3 sm:px-6">
-            <CardTitle className="text-xs sm:text-sm font-medium truncate">Active Now</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 px-2 sm:px-6 pt-3 sm:pt-6">
+            <CardTitle className="text-[10px] sm:text-xs md:text-sm font-medium truncate">Active Now</CardTitle>
             <Zap className="h-3 w-3 sm:h-4 sm:w-4 text-green-500 flex-shrink-0" />
           </CardHeader>
-          <CardContent className="px-3 sm:px-6">
-            <div className="text-xl sm:text-2xl font-bold text-green-600">{stats.activeAgents}</div>
+          <CardContent className="px-2 sm:px-6 pb-3 sm:pb-6">
+            <div className="text-lg sm:text-xl md:text-2xl font-bold text-green-600">{stats.activeAgents}</div>
             <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
               {stats.idleAgents} idle, {stats.blockedAgents} blocked
             </p>
@@ -81,12 +85,12 @@ const MissionControlPage = () => {
         </Card>
 
         <Card className="overflow-hidden">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 px-3 sm:px-6">
-            <CardTitle className="text-xs sm:text-sm font-medium truncate">Pending Tasks</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 px-2 sm:px-6 pt-3 sm:pt-6">
+            <CardTitle className="text-[10px] sm:text-xs md:text-sm font-medium truncate">Pending Tasks</CardTitle>
             <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-500 flex-shrink-0" />
           </CardHeader>
-          <CardContent className="px-3 sm:px-6">
-            <div className="text-xl sm:text-2xl font-bold">{stats.pendingTasks}</div>
+          <CardContent className="px-2 sm:px-6 pb-3 sm:pb-6">
+            <div className="text-lg sm:text-xl md:text-2xl font-bold">{stats.pendingTasks}</div>
             <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
               Across all agents
             </p>
@@ -94,12 +98,12 @@ const MissionControlPage = () => {
         </Card>
 
         <Card className="overflow-hidden">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 px-3 sm:px-6">
-            <CardTitle className="text-xs sm:text-sm font-medium truncate">Notifications</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 px-2 sm:px-6 pt-3 sm:pt-6">
+            <CardTitle className="text-[10px] sm:text-xs md:text-sm font-medium truncate">Notifications</CardTitle>
             <MessageSquare className="h-3 w-3 sm:h-4 sm:w-4 text-blue-500 flex-shrink-0" />
           </CardHeader>
-          <CardContent className="px-3 sm:px-6">
-            <div className="text-xl sm:text-2xl font-bold">{stats.unreadNotifications}</div>
+          <CardContent className="px-2 sm:px-6 pb-3 sm:pb-6">
+            <div className="text-lg sm:text-xl md:text-2xl font-bold">{stats.unreadNotifications}</div>
             <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
               Unread mentions
             </p>

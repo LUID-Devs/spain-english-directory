@@ -63,24 +63,24 @@ export const AgentGrid: React.FC<AgentGridProps> = ({ agents, isLoading, canMana
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      <div className="flex items-center justify-center h-48 sm:h-64">
+        <Loader2 className="h-6 w-6 sm:h-8 sm:w-8 animate-spin text-muted-foreground" />
       </div>
     );
   }
 
   if (!agents || agents.length === 0) {
     return (
-      <Card>
-        <CardContent className="flex items-center justify-center h-64">
-          <p className="text-muted-foreground">No agents configured yet</p>
+      <Card className="mx-0 sm:mx-0">
+        <CardContent className="flex items-center justify-center h-48 sm:h-64 px-4">
+          <p className="text-muted-foreground text-sm sm:text-base text-center">No agents configured yet</p>
         </CardContent>
       </Card>
     );
   }
 
   return (
-    <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+    <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 pb-4">
       {agents.map((agent) => {
         const StatusIcon = statusConfig[agent.status]?.icon || Clock;
         const emoji = characterEmojis[agent.name] || "🤖";
@@ -91,26 +91,26 @@ export const AgentGrid: React.FC<AgentGridProps> = ({ agents, isLoading, canMana
             {/* Status indicator bar */}
             <div className={`absolute top-0 left-0 right-0 h-1 ${statusConfig[agent.status]?.color || "bg-gray-400"}`} />
 
-            <CardHeader className="pb-2">
-              <div className="flex items-center gap-3">
-                <Avatar className="h-12 w-12 text-2xl">
+            <CardHeader className="pb-2 px-3 sm:px-6 pt-4 sm:pt-6">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <Avatar className="h-10 w-10 sm:h-12 sm:w-12 text-xl sm:text-2xl flex-shrink-0">
                   <AvatarFallback className="bg-muted">
                     {emoji}
                   </AvatarFallback>
                 </Avatar>
-                <div className="flex-1 min-w-0">
-                  <CardTitle className="text-sm font-medium truncate">
+                <div className="flex-1 min-w-0 overflow-hidden">
+                  <CardTitle className="text-xs sm:text-sm font-medium truncate">
                     {agent.displayName}
                   </CardTitle>
-                  <Badge variant="outline" className={`text-xs text-white ${roleColor}`}>
+                  <Badge variant="outline" className={`text-[10px] sm:text-xs text-white mt-0.5 ${roleColor}`}>
                     {agent.role.replace("-", " ")}
                   </Badge>
                 </div>
                 {canManageAgents && (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <MoreVertical className="h-4 w-4" />
+                      <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8 flex-shrink-0">
+                        <MoreVertical className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                         <span className="sr-only">Agent actions</span>
                       </Button>
                     </DropdownMenuTrigger>
@@ -137,11 +137,11 @@ export const AgentGrid: React.FC<AgentGridProps> = ({ agents, isLoading, canMana
               </div>
             </CardHeader>
 
-            <CardContent className="pt-0">
-              <div className="space-y-2">
+            <CardContent className="pt-0 px-3 sm:px-6 pb-4 sm:pb-6">
+              <div className="space-y-1.5 sm:space-y-2">
                 {/* Status */}
-                <div className="flex items-center gap-2 text-sm">
-                  <StatusIcon className={`h-4 w-4 ${agent.status === "active" ? "text-green-500" : agent.status === "blocked" ? "text-red-500" : "text-gray-400"}`} />
+                <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm">
+                  <StatusIcon className={`h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0 ${agent.status === "active" ? "text-green-500" : agent.status === "blocked" ? "text-red-500" : "text-gray-400"}`} />
                   <span className="text-muted-foreground">
                     {statusConfig[agent.status]?.label}
                   </span>
@@ -149,20 +149,20 @@ export const AgentGrid: React.FC<AgentGridProps> = ({ agents, isLoading, canMana
 
                 {/* Current Task */}
                 {agent.currentTask && (
-                  <div className="text-xs text-muted-foreground truncate">
-                    Working: {agent.currentTask.title}
+                  <div className="text-[10px] sm:text-xs text-muted-foreground truncate">
+                    Working: <span className="font-medium">{agent.currentTask.title}</span>
                   </div>
                 )}
 
                 {/* Last Heartbeat */}
                 {agent.lastHeartbeat && (
-                  <div className="text-xs text-muted-foreground">
+                  <div className="text-[10px] sm:text-xs text-muted-foreground">
                     Last seen: {formatDistanceToNow(new Date(agent.lastHeartbeat), { addSuffix: true })}
                   </div>
                 )}
 
                 {/* Stats */}
-                <div className="flex gap-4 text-xs text-muted-foreground pt-2 border-t">
+                <div className="flex gap-3 sm:gap-4 text-[10px] sm:text-xs text-muted-foreground pt-1.5 sm:pt-2 border-t">
                   <span>{agent._count?.assignedTasks || 0} tasks</span>
                   {(agent._count?.notifications || 0) > 0 && (
                     <span className="text-blue-500">

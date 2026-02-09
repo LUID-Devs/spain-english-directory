@@ -101,25 +101,25 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({ activities, isLoadin
               return (
                 <div
                   key={activity.id}
-                  className="flex items-start gap-3 pb-4 border-b last:border-0"
+                  className="flex items-start gap-2 sm:gap-3 pb-3 sm:pb-4 border-b last:border-0 last:pb-0"
                 >
                   {/* Agent Avatar */}
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-muted flex items-center justify-center text-lg">
+                  <div className="flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-muted flex items-center justify-center text-base sm:text-lg">
                     {emoji}
                   </div>
 
                   {/* Activity Content */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-medium text-sm">
+                  <div className="flex-1 min-w-0 overflow-hidden">
+                    <div className="flex flex-wrap items-center gap-1 sm:gap-2">
+                      <span className="font-medium text-xs sm:text-sm">
                         {activity.agent.displayName}
                       </span>
-                      <ActionIcon className={`h-4 w-4 ${config.color}`} />
-                      <span className="text-sm text-muted-foreground">
+                      <ActionIcon className={`h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0 ${config.color}`} />
+                      <span className="text-xs sm:text-sm text-muted-foreground">
                         {config.label}
                       </span>
                       {activity.task && (
-                        <span className="text-sm font-medium truncate">
+                        <span className="text-xs sm:text-sm font-medium truncate max-w-full">
                           "{activity.task.title}"
                         </span>
                       )}
@@ -127,18 +127,18 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({ activities, isLoadin
 
                     {/* Details */}
                     {activity.details?.message && activity.action === "heartbeat" && (
-                      <p className="text-xs text-muted-foreground mt-1">
+                      <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
                         {activity.details.message}
                       </p>
                     )}
                     {activity.details?.content && (
-                      <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                      <p className="text-xs sm:text-sm text-muted-foreground mt-1 line-clamp-2">
                         {activity.details.content}
                       </p>
                     )}
 
                     {/* Timestamp */}
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="text-[10px] sm:text-xs text-muted-foreground mt-1">
                       {formatDistanceToNow(new Date(activity.createdAt), { addSuffix: true })}
                     </p>
                   </div>
