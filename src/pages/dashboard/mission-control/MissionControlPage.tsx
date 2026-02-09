@@ -53,54 +53,54 @@ const MissionControlPage = () => {
       </div>
 
       {/* Stats Overview */}
-      <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4 mb-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Agents</CardTitle>
-            <Bot className="h-4 w-4 text-muted-foreground" />
+      <div className="grid gap-2 sm:gap-4 grid-cols-2 lg:grid-cols-4 mb-6">
+        <Card className="overflow-hidden">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 px-3 sm:px-6">
+            <CardTitle className="text-xs sm:text-sm font-medium truncate">Total Agents</CardTitle>
+            <Bot className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalAgents}</div>
-            <p className="text-xs text-muted-foreground">
+          <CardContent className="px-3 sm:px-6">
+            <div className="text-xl sm:text-2xl font-bold">{stats.totalAgents}</div>
+            <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
               SpongeBob Squad
             </p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Now</CardTitle>
-            <Zap className="h-4 w-4 text-green-500" />
+        <Card className="overflow-hidden">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 px-3 sm:px-6">
+            <CardTitle className="text-xs sm:text-sm font-medium truncate">Active Now</CardTitle>
+            <Zap className="h-3 w-3 sm:h-4 sm:w-4 text-green-500 flex-shrink-0" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">{stats.activeAgents}</div>
-            <p className="text-xs text-muted-foreground">
+          <CardContent className="px-3 sm:px-6">
+            <div className="text-xl sm:text-2xl font-bold text-green-600">{stats.activeAgents}</div>
+            <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
               {stats.idleAgents} idle, {stats.blockedAgents} blocked
             </p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Tasks</CardTitle>
-            <Clock className="h-4 w-4 text-yellow-500" />
+        <Card className="overflow-hidden">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 px-3 sm:px-6">
+            <CardTitle className="text-xs sm:text-sm font-medium truncate">Pending Tasks</CardTitle>
+            <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-500 flex-shrink-0" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.pendingTasks}</div>
-            <p className="text-xs text-muted-foreground">
+          <CardContent className="px-3 sm:px-6">
+            <div className="text-xl sm:text-2xl font-bold">{stats.pendingTasks}</div>
+            <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
               Across all agents
             </p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Notifications</CardTitle>
-            <MessageSquare className="h-4 w-4 text-blue-500" />
+        <Card className="overflow-hidden">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 px-3 sm:px-6">
+            <CardTitle className="text-xs sm:text-sm font-medium truncate">Notifications</CardTitle>
+            <MessageSquare className="h-3 w-3 sm:h-4 sm:w-4 text-blue-500 flex-shrink-0" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.unreadNotifications}</div>
-            <p className="text-xs text-muted-foreground">
+          <CardContent className="px-3 sm:px-6">
+            <div className="text-xl sm:text-2xl font-bold">{stats.unreadNotifications}</div>
+            <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
               Unread mentions
             </p>
           </CardContent>
@@ -109,21 +109,18 @@ const MissionControlPage = () => {
 
       {/* Main Content Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="w-full sm:w-auto flex flex-wrap sm:flex-nowrap">
-          <TabsTrigger value="agents" className="flex items-center gap-2 flex-1 sm:flex-none">
+        <TabsList className="w-full grid grid-cols-3 sm:w-auto sm:inline-flex sm:grid-cols-none">
+          <TabsTrigger value="agents" className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4">
             <Users className="h-4 w-4" />
-            <span className="hidden sm:inline">Agents</span>
-            <span className="sm:hidden">Agents</span>
+            <span className="text-xs sm:text-sm truncate">Agents</span>
           </TabsTrigger>
-          <TabsTrigger value="tasks" className="flex items-center gap-2 flex-1 sm:flex-none">
+          <TabsTrigger value="tasks" className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4">
             <CheckCircle className="h-4 w-4" />
-            <span className="hidden sm:inline">Task Board</span>
-            <span className="sm:hidden">Tasks</span>
+            <span className="text-xs sm:text-sm truncate">Tasks</span>
           </TabsTrigger>
-          <TabsTrigger value="activity" className="flex items-center gap-2 flex-1 sm:flex-none">
+          <TabsTrigger value="activity" className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4">
             <Activity className="h-4 w-4" />
-            <span className="hidden sm:inline">Activity Feed</span>
-            <span className="sm:hidden">Activity</span>
+            <span className="text-xs sm:text-sm truncate">Activity</span>
           </TabsTrigger>
         </TabsList>
 

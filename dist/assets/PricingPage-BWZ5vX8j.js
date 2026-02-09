@@ -1,2 +1,0 @@
-import{r as s,j as e,p as t}from"./index-BCq6K7R1.js";const a=()=>(s.useEffect(()=>{const r="/app/pricing";window.location.href=r},[]),e.jsx("div",{className:"min-h-screen bg-background flex items-center justify-center",children:e.jsxs("div",{className:"text-center",children:[e.jsx(t,{className:"h-8 w-8 animate-spin text-primary mx-auto mb-4"}),e.jsx("p",{className:"text-muted-foreground",children:"Redirecting to TaskLuid pricing..."})]})}));export{a as default};
-//# sourceMappingURL=PricingPage-BWZ5vX8j.js.map

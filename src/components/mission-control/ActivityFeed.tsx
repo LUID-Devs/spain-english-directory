@@ -91,7 +91,7 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({ activities, isLoadin
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <ScrollArea className="h-[500px] pr-4">
+        <ScrollArea className="h-[300px] sm:h-[400px] lg:h-[500px] pr-4">
           <div className="space-y-4">
             {activities.map((activity) => {
               const config = actionConfig[activity.action] || actionConfig.status_updated;

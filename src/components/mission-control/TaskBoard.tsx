@@ -77,9 +77,9 @@ export const TaskBoard: React.FC = () => {
   }, {} as Record<string, TaskAssignment[]>);
 
   return (
-    <div className="flex gap-4 overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0 snap-x">
+    <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0 snap-x">
       {columns.map((column) => (
-        <div key={column.id} className="min-w-[280px] sm:min-w-[250px] flex-shrink-0 snap-start">
+        <div key={column.id} className="min-w-[260px] sm:min-w-[250px] flex-shrink-0 snap-start">
           <div className="flex items-center gap-2 mb-3">
             <div className={`w-3 h-3 rounded-full ${column.color}`} />
             <h3 className="font-medium text-sm">{column.title}</h3>
@@ -88,7 +88,7 @@ export const TaskBoard: React.FC = () => {
             </Badge>
           </div>
 
-          <ScrollArea className="h-[500px]">
+          <ScrollArea className="h-[300px] sm:h-[400px] lg:h-[500px]">
             <div className="space-y-2 pr-2">
               {tasksByStatus[column.id]?.map((assignment) => (
                 <Card
