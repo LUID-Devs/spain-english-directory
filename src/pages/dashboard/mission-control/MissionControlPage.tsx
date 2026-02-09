@@ -92,7 +92,7 @@ const MissionControlPage = () => {
       </Card>
 
       {/* Stats Overview - Improved Design */}
-      <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4 mb-4 sm:mb-6">
+      <div className="grid gap-2 sm:gap-4 grid-cols-2 lg:grid-cols-4 mb-4 sm:mb-6">
         {/* Total Agents */}
         <Card className="overflow-hidden border-l-4 border-l-blue-500">
           <CardContent className="p-3 sm:p-4 md:p-6">

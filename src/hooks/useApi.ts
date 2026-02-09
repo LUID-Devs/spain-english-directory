@@ -362,6 +362,9 @@ export const useUpdateTaskMutation = () => {
         setTasks(updatedTasks);
       }
 
+      // Dispatch event to notify other components (e.g., Mission Control TaskBoard)
+      window.dispatchEvent(new CustomEvent('taskUpdated', { detail: { taskId, updates: updatedTask } }));
+
       return updatedTask;
     } catch (error) {
       // Rollback on error - get fresh state for rollback

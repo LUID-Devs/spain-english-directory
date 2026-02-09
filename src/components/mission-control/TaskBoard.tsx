@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -59,9 +59,19 @@ const characterEmojis: Record<string, string> = {
 };
 
 export const TaskBoard: React.FC = () => {
-  const { data: assignments, isLoading } = useAgentTasks();
+  const { data: assignments, isLoading, refetch } = useAgentTasks();
   const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null);
   const [selectedProjectId, setSelectedProjectId] = useState<number | undefined>(undefined);
+
+  // Listen for task updates and refresh the board
+  useEffect(() => {
+    const handleTaskUpdated = () => {
+      refetch();
+    };
+
+    window.addEventListener('taskUpdated', handleTaskUpdated);
+    return () => window.removeEventListener('taskUpdated', handleTaskUpdated);
+  }, [refetch]);
 
   if (isLoading) {
     return (
@@ -154,6 +164,8 @@ export const TaskBoard: React.FC = () => {
         onClose={() => {
           setSelectedTaskId(null);
           setSelectedProjectId(undefined);
+          // Refresh data when modal closes to reflect any changes
+          refetch();
         }}
         taskId={selectedTaskId || 0}
         projectId={selectedProjectId}
