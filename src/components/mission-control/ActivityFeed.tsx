@@ -83,15 +83,15 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({ activities, isLoadin
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Activity className="h-5 w-5" />
+    <Card className="overflow-hidden">
+      <CardHeader className="p-4 sm:p-6">
+        <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+          <Activity className="h-4 w-4 sm:h-5 sm:w-5" />
           Recent Activity
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <ScrollArea className="h-[300px] sm:h-[400px] lg:h-[500px] pr-4">
+      <CardContent className="p-3 sm:p-6 sm:pt-0">
+        <ScrollArea className="h-[350px] sm:h-[400px] lg:h-[500px] pr-2 sm:pr-4">
           <div className="space-y-4">
             {activities.map((activity) => {
               const config = actionConfig[activity.action] || actionConfig.status_updated;

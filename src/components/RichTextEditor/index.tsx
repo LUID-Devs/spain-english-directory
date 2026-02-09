@@ -7,7 +7,18 @@ import Underline from '@tiptap/extension-underline';
 import Strike from '@tiptap/extension-strike';
 import Link from '@tiptap/extension-link';
 import TextAlign from '@tiptap/extension-text-align';
-import { Bold, Italic, Underline as UnderlineIcon, Strikethrough, List, ListOrdered, Heading3, Heading4, Quote, Code, Undo, Redo, Link as LinkIcon, AlignLeft, AlignCenter, AlignRight, SeparatorHorizontal } from 'lucide-react';
+import Highlight from '@tiptap/extension-highlight';
+import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
+import { createLowlight, common } from 'lowlight';
+import { 
+  Bold, Italic, Underline as UnderlineIcon, Strikethrough, List, ListOrdered, 
+  Heading1, Heading2, Heading3, Heading4, Quote, Code, Code2, Undo, Redo, 
+  Link as LinkIcon, AlignLeft, AlignCenter, AlignRight, SeparatorHorizontal, 
+  Highlighter, Paintbrush
+} from 'lucide-react';
+
+// Create lowlight instance with common languages
+const lowlight = createLowlight(common);
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
@@ -36,9 +47,9 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     extensions: [
       StarterKit.configure({
         heading: {
-          levels: [3, 4], // Support h3 and h4 for task descriptions
+          levels: [1, 2, 3, 4], // Support h1, h2, h3 and h4 for task descriptions
         },
-        codeBlock: false,
+        codeBlock: false, // Use CodeBlockLowlight instead for syntax highlighting
         strike: false, // Disable default strike from StarterKit, use explicit extension
       }),
       Image.configure({
@@ -61,6 +72,13 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
       }),
       TextAlign.configure({
         types: ['heading', 'paragraph'],
+      }),
+      Highlight.configure({
+        multicolor: true,
+      }),
+      CodeBlockLowlight.configure({
+        lowlight,
+        defaultLanguage: 'plaintext',
       }),
     ],
     content,
@@ -238,7 +256,35 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 
           <ToolbarDivider />
 
+          {/* Highlighting */}
+          <ToolbarButton
+            onClick={() => editor.chain().focus().toggleHighlight().run()}
+            isActive={editor.isActive('highlight')}
+            disabled={!editor.can().chain().focus().toggleHighlight().run()}
+            title="Highlight Text"
+          >
+            <Highlighter className="w-4 h-4" />
+          </ToolbarButton>
+
+          <ToolbarDivider />
+
           {/* Headings */}
+          <ToolbarButton
+            onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+            isActive={editor.isActive('heading', { level: 1 })}
+            disabled={!editor.can().chain().focus().toggleHeading({ level: 1 }).run()}
+            title="Heading 1"
+          >
+            <Heading1 className="w-4 h-4" />
+          </ToolbarButton>
+          <ToolbarButton
+            onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+            isActive={editor.isActive('heading', { level: 2 })}
+            disabled={!editor.can().chain().focus().toggleHeading({ level: 2 }).run()}
+            title="Heading 2"
+          >
+            <Heading2 className="w-4 h-4" />
+          </ToolbarButton>
           <ToolbarButton
             onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
             isActive={editor.isActive('heading', { level: 3 })}
@@ -286,6 +332,18 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
             title="Quote"
           >
             <Quote className="w-4 h-4" />
+          </ToolbarButton>
+
+          <ToolbarDivider />
+
+          {/* Code Block */}
+          <ToolbarButton
+            onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+            isActive={editor.isActive('codeBlock')}
+            disabled={!editor.can().chain().focus().toggleCodeBlock().run()}
+            title="Code Block"
+          >
+            <Code2 className="w-4 h-4" />
           </ToolbarButton>
 
           <ToolbarDivider />
@@ -450,6 +508,32 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           color: hsl(var(--muted-foreground));
         }
 
+        .rich-text-editor .ProseMirror h1 {
+          font-size: 24px;
+          font-weight: 700;
+          margin: 20px 0 12px 0;
+          color: hsl(var(--foreground));
+          border-bottom: 2px solid hsl(var(--border));
+          padding-bottom: 8px;
+        }
+
+        .rich-text-editor .ProseMirror h1:first-child {
+          margin-top: 0;
+        }
+
+        .rich-text-editor .ProseMirror h2 {
+          font-size: 20px;
+          font-weight: 600;
+          margin: 18px 0 10px 0;
+          color: hsl(var(--foreground));
+          border-bottom: 1px solid hsl(var(--border));
+          padding-bottom: 6px;
+        }
+
+        .rich-text-editor .ProseMirror h2:first-child {
+          margin-top: 0;
+        }
+
         .rich-text-editor .ProseMirror h3 {
           font-size: 16px;
           font-weight: 600;
@@ -468,6 +552,78 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           font-weight: 600;
           margin: 12px 0 6px 0;
           color: hsl(var(--foreground));
+        }
+
+        .rich-text-editor .ProseMirror h4:first-child {
+          margin-top: 0;
+        }
+
+        /* Code Block with Syntax Highlighting */
+        .rich-text-editor .ProseMirror pre {
+          background: hsl(var(--muted));
+          border: 1px solid hsl(var(--border));
+          border-radius: 8px;
+          padding: 16px;
+          margin: 12px 0;
+          overflow-x: auto;
+          font-family: 'Fira Code', 'Monaco', 'Consolas', 'Courier New', monospace;
+          font-size: 13px;
+          line-height: 1.5;
+        }
+
+        .rich-text-editor .ProseMirror pre code {
+          background: none;
+          padding: 0;
+          font-size: inherit;
+          color: inherit;
+          border-radius: 0;
+        }
+
+        .rich-text-editor .ProseMirror pre .hljs-comment,
+        .rich-text-editor .ProseMirror pre .hljs-quote {
+          color: #6a737d;
+          font-style: italic;
+        }
+
+        .rich-text-editor .ProseMirror pre .hljs-keyword,
+        .rich-text-editor .ProseMirror pre .hljs-selector-tag,
+        .rich-text-editor .ProseMirror pre .hljs-subst {
+          color: #d73a49;
+          font-weight: bold;
+        }
+
+        .rich-text-editor .ProseMirror pre .hljs-string,
+        .rich-text-editor .ProseMirror pre .hljs-doctag,
+        .rich-text-editor .ProseMirror pre .hljs-regexp {
+          color: #032f62;
+        }
+
+        .rich-text-editor .ProseMirror pre .hljs-number,
+        .rich-text-editor .ProseMirror pre .hljs-literal {
+          color: #005cc5;
+        }
+
+        .rich-text-editor .ProseMirror pre .hljs-function,
+        .rich-text-editor .ProseMirror pre .hljs-class .hljs-title {
+          color: #6f42c1;
+        }
+
+        .rich-text-editor .ProseMirror pre .hljs-variable,
+        .rich-text-editor .ProseMirror pre .hljs-template-variable,
+        .rich-text-editor .ProseMirror pre .hljs-tag .hljs-attr {
+          color: #e36209;
+        }
+
+        /* Highlight styles */
+        .rich-text-editor .ProseMirror mark {
+          background-color: #fef3c7;
+          padding: 2px 4px;
+          border-radius: 3px;
+          color: inherit;
+        }
+
+        .dark .rich-text-editor .ProseMirror mark {
+          background-color: rgba(251, 191, 36, 0.3);
         }
 
         .rich-text-editor .ProseMirror u {

@@ -109,18 +109,27 @@ const MissionControlPage = () => {
 
       {/* Main Content Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="w-full grid grid-cols-3 sm:w-auto sm:inline-flex sm:grid-cols-none">
-          <TabsTrigger value="agents" className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4">
-            <Users className="h-4 w-4" />
-            <span className="text-xs sm:text-sm truncate">Agents</span>
+        <TabsList className="w-full h-auto flex flex-wrap sm:flex-nowrap sm:w-auto sm:inline-flex gap-1 p-1">
+          <TabsTrigger 
+            value="agents" 
+            className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-2 min-h-[40px]"
+          >
+            <Users className="h-4 w-4 flex-shrink-0" />
+            <span className="text-xs sm:text-sm whitespace-nowrap">Agents</span>
           </TabsTrigger>
-          <TabsTrigger value="tasks" className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4">
-            <CheckCircle className="h-4 w-4" />
-            <span className="text-xs sm:text-sm truncate">Tasks</span>
+          <TabsTrigger 
+            value="tasks" 
+            className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-2 min-h-[40px]"
+          >
+            <CheckCircle className="h-4 w-4 flex-shrink-0" />
+            <span className="text-xs sm:text-sm whitespace-nowrap">Tasks</span>
           </TabsTrigger>
-          <TabsTrigger value="activity" className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4">
-            <Activity className="h-4 w-4" />
-            <span className="text-xs sm:text-sm truncate">Activity</span>
+          <TabsTrigger 
+            value="activity" 
+            className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-2 min-h-[40px]"
+          >
+            <Activity className="h-4 w-4 flex-shrink-0" />
+            <span className="text-xs sm:text-sm whitespace-nowrap">Activity</span>
           </TabsTrigger>
         </TabsList>
 

@@ -77,13 +77,13 @@ export const TaskBoard: React.FC = () => {
   }, {} as Record<string, TaskAssignment[]>);
 
   return (
-    <div className="flex gap-2 sm:gap-4 overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0 snap-x">
+    <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0 snap-x scroll-smooth">
       {columns.map((column) => (
-        <div key={column.id} className="min-w-[200px] sm:min-w-[250px] flex-shrink-0 snap-start">
-          <div className="flex items-center gap-2 mb-3">
-            <div className={`w-3 h-3 rounded-full ${column.color}`} />
-            <h3 className="font-medium text-sm">{column.title}</h3>
-            <Badge variant="secondary" className="ml-auto">
+        <div key={column.id} className="min-w-[260px] sm:min-w-[280px] md:min-w-[300px] flex-shrink-0 snap-start">
+          <div className="flex items-center gap-2 mb-3 px-0.5">
+            <div className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full flex-shrink-0 ${column.color}`} />
+            <h3 className="font-medium text-sm truncate">{column.title}</h3>
+            <Badge variant="secondary" className="ml-auto text-xs flex-shrink-0">
               {tasksByStatus[column.id]?.length || 0}
             </Badge>
           </div>
@@ -132,7 +132,7 @@ export const TaskBoard: React.FC = () => {
               ))}
 
               {(!tasksByStatus[column.id] || tasksByStatus[column.id].length === 0) && (
-                <div className="text-center text-muted-foreground text-sm py-8 border-2 border-dashed rounded-lg">
+                <div className="text-center text-muted-foreground text-xs sm:text-sm py-6 sm:py-8 border-2 border-dashed rounded-lg px-2">
                   No tasks
                 </div>
               )}
