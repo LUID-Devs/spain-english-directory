@@ -1,2 +1,0 @@
-import{j as r,P as o}from"./index-pZBFkNFf.js";import{R as t}from"./index-DPmcL5OD.js";import"./index-Cc4A563O.js";import"./card--GsGNNuk.js";import"./avatar-CEJkUnod.js";import"./constructNow-BQ_G5z1a.js";import"./target-F6xuZNWf.js";import"./sparkles-_0_fyBYE.js";import"./coins-BGxgJMAE.js";import"./formatISO-BojZ5pjA.js";import"./table-ChaKia1-.js";import"./grid-3x3-BeDyuVJg.js";import"./trending-up-DD5ofCru.js";const f=()=>r.jsx(t,{priority:o.Backlog});export{f as default};
-//# sourceMappingURL=BacklogPriorityPage-DfZS68mJ.js.map

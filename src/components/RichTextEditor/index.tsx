@@ -3,7 +3,11 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import Placeholder from '@tiptap/extension-placeholder';
-import { Bold, Italic, List, ListOrdered, Heading3, Heading4, Quote, Code, Undo, Redo } from 'lucide-react';
+import Underline from '@tiptap/extension-underline';
+import Strike from '@tiptap/extension-strike';
+import Link from '@tiptap/extension-link';
+import TextAlign from '@tiptap/extension-text-align';
+import { Bold, Italic, Underline as UnderlineIcon, Strikethrough, List, ListOrdered, Heading3, Heading4, Quote, Code, Undo, Redo, Link as LinkIcon, AlignLeft, AlignCenter, AlignRight, SeparatorHorizontal } from 'lucide-react';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
@@ -35,6 +39,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           levels: [3, 4], // Support h3 and h4 for task descriptions
         },
         codeBlock: false,
+        strike: false, // Disable default strike from StarterKit, use explicit extension
       }),
       Image.configure({
         inline: true,
@@ -45,6 +50,17 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
       }),
       Placeholder.configure({
         placeholder,
+      }),
+      Underline,
+      Strike,
+      Link.configure({
+        openOnClick: false,
+        HTMLAttributes: {
+          class: 'rich-text-link',
+        },
+      }),
+      TextAlign.configure({
+        types: ['heading', 'paragraph'],
       }),
     ],
     content,
@@ -196,6 +212,22 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
             <Italic className="w-4 h-4" />
           </ToolbarButton>
           <ToolbarButton
+            onClick={() => editor.chain().focus().toggleUnderline().run()}
+            isActive={editor.isActive('underline')}
+            disabled={!editor.can().chain().focus().toggleUnderline().run()}
+            title="Underline"
+          >
+            <UnderlineIcon className="w-4 h-4" />
+          </ToolbarButton>
+          <ToolbarButton
+            onClick={() => editor.chain().focus().toggleStrike().run()}
+            isActive={editor.isActive('strike')}
+            disabled={!editor.can().chain().focus().toggleStrike().run()}
+            title="Strikethrough"
+          >
+            <Strikethrough className="w-4 h-4" />
+          </ToolbarButton>
+          <ToolbarButton
             onClick={() => editor.chain().focus().toggleCode().run()}
             isActive={editor.isActive('code')}
             disabled={!editor.can().chain().focus().toggleCode().run()}
@@ -254,6 +286,62 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
             title="Quote"
           >
             <Quote className="w-4 h-4" />
+          </ToolbarButton>
+
+          <ToolbarDivider />
+
+          {/* Link */}
+          <ToolbarButton
+            onClick={() => {
+              const previousUrl = editor.getAttributes('link').href;
+              const url = window.prompt('Enter URL:', previousUrl);
+              if (url === null) return;
+              if (url === '') {
+                editor.chain().focus().extendMarkRange('link').unsetLink().run();
+              } else {
+                editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+              }
+            }}
+            isActive={editor.isActive('link')}
+            title="Link"
+          >
+            <LinkIcon className="w-4 h-4" />
+          </ToolbarButton>
+
+          <ToolbarDivider />
+
+          {/* Text Alignment */}
+          <ToolbarButton
+            onClick={() => editor.chain().focus().setTextAlign('left').run()}
+            isActive={editor.isActive({ textAlign: 'left' })}
+            title="Align Left"
+          >
+            <AlignLeft className="w-4 h-4" />
+          </ToolbarButton>
+          <ToolbarButton
+            onClick={() => editor.chain().focus().setTextAlign('center').run()}
+            isActive={editor.isActive({ textAlign: 'center' })}
+            title="Align Center"
+          >
+            <AlignCenter className="w-4 h-4" />
+          </ToolbarButton>
+          <ToolbarButton
+            onClick={() => editor.chain().focus().setTextAlign('right').run()}
+            isActive={editor.isActive({ textAlign: 'right' })}
+            title="Align Right"
+          >
+            <AlignRight className="w-4 h-4" />
+          </ToolbarButton>
+
+          <ToolbarDivider />
+
+          {/* Horizontal Rule */}
+          <ToolbarButton
+            onClick={() => editor.chain().focus().setHorizontalRule().run()}
+            disabled={!editor.can().chain().focus().setHorizontalRule().run()}
+            title="Horizontal Rule"
+          >
+            <SeparatorHorizontal className="w-4 h-4" />
           </ToolbarButton>
 
           <ToolbarDivider />
@@ -380,6 +468,30 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           font-weight: 600;
           margin: 12px 0 6px 0;
           color: hsl(var(--foreground));
+        }
+
+        .rich-text-editor .ProseMirror u {
+          text-decoration: underline;
+        }
+
+        .rich-text-editor .ProseMirror s {
+          text-decoration: line-through;
+        }
+
+        .rich-text-editor .ProseMirror .rich-text-link {
+          color: hsl(var(--primary));
+          text-decoration: underline;
+          cursor: pointer;
+        }
+
+        .rich-text-editor .ProseMirror .rich-text-link:hover {
+          color: hsl(var(--primary) / 0.8);
+        }
+
+        .rich-text-editor .ProseMirror hr {
+          border: none;
+          border-top: 2px solid hsl(var(--border));
+          margin: 16px 0;
         }
 
         /* Dark mode adjustments */
