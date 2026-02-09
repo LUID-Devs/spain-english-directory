@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Loader2, GripVertical } from "lucide-react";
 import { useAgentTasks } from "@/hooks/useMissionControl";
+import TaskDetailModal from "@/components/TaskDetailModal";
 
 interface TaskAssignment {
   id: number;
@@ -59,6 +60,8 @@ const characterEmojis: Record<string, string> = {
 
 export const TaskBoard: React.FC = () => {
   const { data: assignments, isLoading } = useAgentTasks();
+  const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null);
+  const [selectedProjectId, setSelectedProjectId] = useState<number | undefined>(undefined);
 
   if (isLoading) {
     return (
@@ -94,6 +97,10 @@ export const TaskBoard: React.FC = () => {
                 <Card
                   key={assignment.id}
                   className="cursor-pointer hover:shadow-md transition-shadow"
+                  onClick={() => {
+                    setSelectedTaskId(assignment.task.id);
+                    setSelectedProjectId(assignment.task.project?.id);
+                  }}
                 >
                   <CardContent className="p-3">
                     {/* Task Title */}
@@ -140,6 +147,17 @@ export const TaskBoard: React.FC = () => {
           </ScrollArea>
         </div>
       ))}
+
+      {/* Task Detail Modal */}
+      <TaskDetailModal
+        isOpen={selectedTaskId !== null}
+        onClose={() => {
+          setSelectedTaskId(null);
+          setSelectedProjectId(undefined);
+        }}
+        taskId={selectedTaskId || 0}
+        projectId={selectedProjectId}
+      />
     </div>
   );
 };
