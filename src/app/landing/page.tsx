@@ -41,12 +41,12 @@ const LandingPage = () => {
               <h1 className="ml-3 text-2xl font-bold text-white">TaskLuid</h1>
             </div>
             <nav className="flex space-x-6">
-              <Link href="#features" className="text-neutral-400 hover:text-white transition-colors">
+              <a href="#features" className="text-neutral-400 hover:text-white transition-colors">
                 Features
-              </Link>
-              <Link href="#about" className="text-neutral-400 hover:text-white transition-colors">
+              </a>
+              <a href="#about" className="text-neutral-400 hover:text-white transition-colors">
                 About
-              </Link>
+              </a>
               <Link href="/auth/login">
                 <motion.div
                   whileHover={{ scale: 1.05 }}
@@ -107,7 +107,7 @@ const LandingPage = () => {
                   </motion.div>
                 </Link>
                 
-                <Link href="#features">
+                <a href="#features">
                   <motion.div
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
@@ -136,7 +136,7 @@ const LandingPage = () => {
                       Explore Features
                     </div>
                   </motion.div>
-                </Link>
+                </a>
               </div>
 
               {/* Value Proposition Cards */}

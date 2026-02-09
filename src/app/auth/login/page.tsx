@@ -319,12 +319,12 @@ const LoginPage = () => {
                 <label htmlFor="password" className="block text-sm font-medium text-gray-300">
                   Password
                 </label>
-                <Link
-                  href="/forgot-password"
-                  className="text-sm text-gray-400 hover:text-gray-300 transition-colors duration-300"
+                <span
+                  className="text-sm text-gray-500 cursor-not-allowed"
+                  title="Forgot password feature coming soon"
                 >
                   Forgot password?
-                </Link>
+                </span>
               </div>
               <motion.input
                 id="password"
