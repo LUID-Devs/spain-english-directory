@@ -15,6 +15,7 @@ import { formatDistanceToNow } from "date-fns";
 import { EditAgentModal } from "./EditAgentModal";
 import { DeleteAgentModal } from "./DeleteAgentModal";
 import { RegenerateKeyModal } from "./RegenerateKeyModal";
+import { AgentDetailModal } from "./AgentDetailModal";
 import { Agent } from "@/hooks/useMissionControl";
 
 interface AgentGridProps {
@@ -60,6 +61,7 @@ export const AgentGrid: React.FC<AgentGridProps> = ({ agents, isLoading, canMana
   const [editAgent, setEditAgent] = useState<Agent | null>(null);
   const [deleteAgent, setDeleteAgent] = useState<Agent | null>(null);
   const [regenerateKeyAgent, setRegenerateKeyAgent] = useState<Agent | null>(null);
+  const [detailAgentId, setDetailAgentId] = useState<number | null>(null);
 
   if (isLoading) {
     return (
@@ -87,7 +89,11 @@ export const AgentGrid: React.FC<AgentGridProps> = ({ agents, isLoading, canMana
         const roleColor = roleColors[agent.role] || "bg-gray-500";
 
         return (
-          <Card key={agent.id} className="relative overflow-hidden">
+          <Card 
+          key={agent.id} 
+          className="relative overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+          onClick={() => setDetailAgentId(agent.id)}
+        >
             {/* Status indicator bar */}
             <div className={`absolute top-0 left-0 right-0 h-1 ${statusConfig[agent.status]?.color || "bg-gray-400"}`} />
 
@@ -108,7 +114,7 @@ export const AgentGrid: React.FC<AgentGridProps> = ({ agents, isLoading, canMana
                 </div>
                 {canManageAgents && (
                   <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
+                    <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
                       <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8 flex-shrink-0">
                         <MoreVertical className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                         <span className="sr-only">Agent actions</span>
@@ -191,6 +197,23 @@ export const AgentGrid: React.FC<AgentGridProps> = ({ agents, isLoading, canMana
         isOpen={!!regenerateKeyAgent}
         onClose={() => setRegenerateKeyAgent(null)}
         agent={regenerateKeyAgent}
+      />
+      <AgentDetailModal
+        isOpen={detailAgentId !== null}
+        onClose={() => setDetailAgentId(null)}
+        agentId={detailAgentId || 0}
+        onEdit={(agent) => {
+          setDetailAgentId(null);
+          setEditAgent(agent);
+        }}
+        onDelete={(agent) => {
+          setDetailAgentId(null);
+          setDeleteAgent(agent);
+        }}
+        onRegenerateKey={(agent) => {
+          setDetailAgentId(null);
+          setRegenerateKeyAgent(agent);
+        }}
       />
     </div>
   );
