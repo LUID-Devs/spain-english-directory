@@ -3,6 +3,7 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import Placeholder from '@tiptap/extension-placeholder';
+import { Bold, Italic, List, ListOrdered, Heading3, Heading4, Quote, Code, Undo, Redo } from 'lucide-react';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
@@ -134,8 +135,147 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     }
   }, [editor, onImageUpload]);
 
+  // Toolbar button component
+  const ToolbarButton = ({
+    onClick,
+    isActive = false,
+    disabled = false,
+    title,
+    children,
+  }: {
+    onClick: () => void;
+    isActive?: boolean;
+    disabled?: boolean;
+    title: string;
+    children: React.ReactNode;
+  }) => (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      title={title}
+      className={`p-2 rounded-md transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center ${
+        isActive
+          ? 'bg-primary text-primary-foreground'
+          : 'hover:bg-muted text-muted-foreground hover:text-foreground'
+      } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+    >
+      {children}
+    </button>
+  );
+
+  // Divider component
+  const ToolbarDivider = () => (
+    <div className="w-px h-6 bg-border mx-1" />
+  );
+
+  if (!editor) {
+    return null;
+  }
+
   return (
     <div className={`rich-text-editor ${className}`}>
+      {/* Formatting Toolbar */}
+      {!disabled && (
+        <div className="flex flex-wrap items-center gap-1 p-2 border border-b-0 border-border rounded-t-lg bg-muted/50">
+          {/* Text Formatting */}
+          <ToolbarButton
+            onClick={() => editor.chain().focus().toggleBold().run()}
+            isActive={editor.isActive('bold')}
+            disabled={!editor.can().chain().focus().toggleBold().run()}
+            title="Bold"
+          >
+            <Bold className="w-4 h-4" />
+          </ToolbarButton>
+          <ToolbarButton
+            onClick={() => editor.chain().focus().toggleItalic().run()}
+            isActive={editor.isActive('italic')}
+            disabled={!editor.can().chain().focus().toggleItalic().run()}
+            title="Italic"
+          >
+            <Italic className="w-4 h-4" />
+          </ToolbarButton>
+          <ToolbarButton
+            onClick={() => editor.chain().focus().toggleCode().run()}
+            isActive={editor.isActive('code')}
+            disabled={!editor.can().chain().focus().toggleCode().run()}
+            title="Inline Code"
+          >
+            <Code className="w-4 h-4" />
+          </ToolbarButton>
+
+          <ToolbarDivider />
+
+          {/* Headings */}
+          <ToolbarButton
+            onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+            isActive={editor.isActive('heading', { level: 3 })}
+            disabled={!editor.can().chain().focus().toggleHeading({ level: 3 }).run()}
+            title="Heading 3"
+          >
+            <Heading3 className="w-4 h-4" />
+          </ToolbarButton>
+          <ToolbarButton
+            onClick={() => editor.chain().focus().toggleHeading({ level: 4 }).run()}
+            isActive={editor.isActive('heading', { level: 4 })}
+            disabled={!editor.can().chain().focus().toggleHeading({ level: 4 }).run()}
+            title="Heading 4"
+          >
+            <Heading4 className="w-4 h-4" />
+          </ToolbarButton>
+
+          <ToolbarDivider />
+
+          {/* Lists */}
+          <ToolbarButton
+            onClick={() => editor.chain().focus().toggleBulletList().run()}
+            isActive={editor.isActive('bulletList')}
+            disabled={!editor.can().chain().focus().toggleBulletList().run()}
+            title="Bullet List"
+          >
+            <List className="w-4 h-4" />
+          </ToolbarButton>
+          <ToolbarButton
+            onClick={() => editor.chain().focus().toggleOrderedList().run()}
+            isActive={editor.isActive('orderedList')}
+            disabled={!editor.can().chain().focus().toggleOrderedList().run()}
+            title="Numbered List"
+          >
+            <ListOrdered className="w-4 h-4" />
+          </ToolbarButton>
+
+          <ToolbarDivider />
+
+          {/* Blockquote */}
+          <ToolbarButton
+            onClick={() => editor.chain().focus().toggleBlockquote().run()}
+            isActive={editor.isActive('blockquote')}
+            disabled={!editor.can().chain().focus().toggleBlockquote().run()}
+            title="Quote"
+          >
+            <Quote className="w-4 h-4" />
+          </ToolbarButton>
+
+          <ToolbarDivider />
+
+          {/* Undo/Redo */}
+          <ToolbarButton
+            onClick={() => editor.chain().focus().undo().run()}
+            disabled={!editor.can().chain().focus().undo().run()}
+            title="Undo"
+          >
+            <Undo className="w-4 h-4" />
+          </ToolbarButton>
+          <ToolbarButton
+            onClick={() => editor.chain().focus().redo().run()}
+            disabled={!editor.can().chain().focus().redo().run()}
+            title="Redo"
+          >
+            <Redo className="w-4 h-4" />
+          </ToolbarButton>
+        </div>
+      )}
+
       <EditorContent editor={editor} />
       <style>{`
         .rich-text-editor {
@@ -146,7 +286,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           min-height: 120px;
           padding: 12px;
           border: 1px solid hsl(var(--border));
-          border-radius: 8px;
+          border-radius: ${disabled ? '8px' : '0 0 8px 8px'};
           background: hsl(var(--background));
           color: hsl(var(--foreground));
           font-size: 14px;
