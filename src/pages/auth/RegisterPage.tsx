@@ -191,7 +191,7 @@ const RegisterPage = () => {
         >
           {/* Header */}
           <div className="text-center mb-8">
-            <Link to="/" className="inline-block">
+            <Link to="/landing" className="inline-block">
               <motion.div
                 className="flex items-center justify-center gap-3 mb-4"
                 whileHover={{ scale: 1.05 }}
@@ -405,7 +405,7 @@ const RegisterPage = () => {
       >
         {/* Header */}
         <div className="text-center mb-8">
-          <Link to="/" className="inline-block">
+          <Link to="/landing" className="inline-block">
             <motion.div
               className="flex items-center justify-center gap-3 mb-4"
               whileHover={{ scale: 1.05 }}

@@ -190,7 +190,7 @@ const LoginPage = () => {
         >
           {/* Header */}
           <div className="text-center mb-8">
-            <Link to="/" className="inline-block">
+            <Link to="/landing" className="inline-block">
               <motion.div
                 className="flex items-center justify-center gap-3 mb-4"
                 whileHover={{ scale: 1.05 }}
@@ -309,7 +309,7 @@ const LoginPage = () => {
       >
         {/* Header */}
         <div className="text-center mb-8">
-          <Link to="/" className="inline-block">
+          <Link to="/landing" className="inline-block">
             <motion.div
               className="flex items-center justify-center gap-3 mb-4"
               whileHover={{ scale: 1.05 }}
@@ -370,12 +370,12 @@ const LoginPage = () => {
                 <label htmlFor="password" className="block text-sm font-medium text-gray-300">
                   Password
                 </label>
-                <Link
-                  to="/forgot-password"
-                  className="text-sm text-gray-400 hover:text-gray-300 transition-colors duration-300"
+                <span
+                  className="text-sm text-gray-400 hover:text-gray-300 transition-colors duration-300 cursor-pointer"
+                  onClick={() => alert('Password reset feature coming soon! Please contact support.')}
                 >
                   Forgot password?
-                </Link>
+                </span>
               </div>
               <motion.input
                 id="password"
