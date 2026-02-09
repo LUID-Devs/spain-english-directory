@@ -15,12 +15,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
-const LUIDHUB_PRICING_URL = import.meta.env.VITE_LUIDHUB_URL
-  ? `${import.meta.env.VITE_LUIDHUB_URL}/pricing`
-  : 'https://luidhub.com/pricing';
-const LUIDHUB_ACCOUNT_URL = import.meta.env.VITE_LUIDHUB_URL
-  ? `${import.meta.env.VITE_LUIDHUB_URL}/account`
-  : 'https://luidhub.com/account';
+const BILLING_URL = import.meta.env.VITE_BILLING_URL || '/pricing';
+const BILLING_MANAGE_URL = import.meta.env.VITE_BILLING_MANAGE_URL || BILLING_URL;
 
 export function SubscriptionDashboard() {
   const {
@@ -48,19 +44,19 @@ export function SubscriptionDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* LuidHub Integration Notice */}
+      {/* Billing Notice */}
       <Alert className="border-primary/30 bg-primary/5">
         <ExternalLink className="h-4 w-4 text-primary" />
         <AlertDescription className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <span className="text-sm">
-            Your TaskLuid subscription is managed through <strong>LuidHub</strong>.
-            {isFree && ' Upgrade to Pro for unlimited access and premium features across all LUID apps.'}
+            Your TaskLuid subscription is managed directly in TaskLuid billing.
+            {isFree && ' Upgrade to Pro for more monthly credits and premium features.'}
           </span>
           {isFree && (
             <Button
               size="sm"
               className="gap-2 shrink-0"
-              onClick={() => window.open(LUIDHUB_PRICING_URL, '_blank')}
+              onClick={() => window.open(BILLING_URL, '_blank')}
             >
               <Crown className="h-4 w-4" />
               Upgrade to Pro
@@ -98,7 +94,7 @@ export function SubscriptionDashboard() {
             <div className="flex flex-wrap gap-2">
               {isFree ? (
                 <Button
-                  onClick={() => window.open(LUIDHUB_PRICING_URL, '_blank')}
+                  onClick={() => window.open(BILLING_URL, '_blank')}
                   className="gap-2"
                 >
                   <Crown className="h-4 w-4" />
@@ -107,7 +103,7 @@ export function SubscriptionDashboard() {
               ) : (
                 <Button
                   variant="outline"
-                  onClick={() => window.open(LUIDHUB_ACCOUNT_URL, '_blank')}
+                  onClick={() => window.open(BILLING_MANAGE_URL, '_blank')}
                   className="gap-2"
                 >
                   <ExternalLink className="h-4 w-4" />
@@ -149,7 +145,7 @@ export function SubscriptionDashboard() {
 
             <Button
               variant="outline"
-              onClick={() => window.open(LUIDHUB_ACCOUNT_URL, '_blank')}
+              onClick={() => window.open(BILLING_MANAGE_URL, '_blank')}
               className="gap-2 w-full"
             >
               <CreditCard className="h-4 w-4" />
@@ -165,7 +161,7 @@ export function SubscriptionDashboard() {
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2">
               <Crown className="h-5 w-5 text-gray-500" />
-              Upgrade to LuidHub Pro
+              Upgrade to TaskLuid Pro
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -187,7 +183,7 @@ export function SubscriptionDashboard() {
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-gray-500" />
-                  <span className="text-sm">Access to all LUID apps</span>
+                  <span className="text-sm">Advanced workspace limits</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-gray-500" />
@@ -200,11 +196,11 @@ export function SubscriptionDashboard() {
               </div>
             </div>
             <Button
-              onClick={() => window.open(LUIDHUB_PRICING_URL, '_blank')}
+              onClick={() => window.open(BILLING_URL, '_blank')}
               className="gap-2"
             >
               <ExternalLink className="h-4 w-4" />
-              View Plans on LuidHub
+              View TaskLuid Plans
             </Button>
           </CardContent>
         </Card>

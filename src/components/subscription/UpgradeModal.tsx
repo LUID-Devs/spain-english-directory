@@ -11,10 +11,7 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 
-// LuidHub URL for pricing page
-const LUIDHUB_PRICING_URL = import.meta.env.VITE_LUIDHUB_URL
-  ? `${import.meta.env.VITE_LUIDHUB_URL}/pricing`
-  : 'https://luidhub.com/pricing';
+const BILLING_URL = import.meta.env.VITE_BILLING_URL || '/pricing';
 
 interface UpgradeModalProps {
   isOpen: boolean;
@@ -41,19 +38,19 @@ interface UpgradeModalProps {
 export function UpgradeModal({
   isOpen,
   onClose,
-  title = 'Upgrade to LuidHub Pro',
-  message = 'Unlock premium features across all LUID apps with one subscription.',
+  title = 'Upgrade to TaskLuid Pro',
+  message = 'Unlock premium features with your TaskLuid Pro subscription.',
   features = [
     'Unlimited projects and tasks',
     'AI-powered task suggestions',
     'Advanced analytics and reporting',
     'Priority support',
-    'Access to all LUID apps',
+    'Priority support',
   ],
-  ctaText = 'View Plans on LuidHub',
+  ctaText = 'View TaskLuid Plans',
 }: UpgradeModalProps) {
   const handleUpgrade = () => {
-    window.open(LUIDHUB_PRICING_URL, '_blank');
+    window.open(BILLING_URL, '_blank');
   };
 
   return (
@@ -104,7 +101,7 @@ export function UpgradeModal({
             </Button>
 
             <p className="text-xs text-muted-foreground text-center">
-              $9/month or $79/year - One subscription for all LUID apps
+              EUR 10/month - TaskLuid Pro
             </p>
 
             <Button

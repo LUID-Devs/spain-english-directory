@@ -1,6 +1,67 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000";
+const API_BASE = (
+  import.meta.env.VITE_API_BASE_URL ||
+  import.meta.env.VITE_API_URL ||
+  "http://localhost:8000"
+).replace(/\/$/, "");
+
+const getAuthHeaders = async (): Promise<Record<string, string>> => {
+  const headers: Record<string, string> = {};
+
+  try {
+    const { fetchAuthSession } = await import("aws-amplify/auth");
+    const session = await fetchAuthSession();
+
+    if (session?.tokens?.accessToken) {
+      headers.Authorization = `Bearer ${session.tokens.accessToken}`;
+    }
+
+    if (session?.tokens?.idToken) {
+      headers["X-ID-Token"] = `${session.tokens.idToken}`;
+    }
+  } catch {
+    // No Cognito session available, request may still authenticate via cookie session
+  }
+
+  return headers;
+};
+
+const missionFetch = async <T>(path: string, options: RequestInit = {}): Promise<T> => {
+  const isFormData = options.body instanceof FormData;
+  const authHeaders = await getAuthHeaders();
+  const headers: Record<string, string> = {
+    ...authHeaders,
+    ...(options.headers as Record<string, string>),
+  };
+
+  if (!isFormData && !headers["Content-Type"]) {
+    headers["Content-Type"] = "application/json";
+  }
+
+  const response = await fetch(`${API_BASE}${path}`, {
+    credentials: "include",
+    ...options,
+    headers,
+  });
+
+  if (!response.ok) {
+    let message = `Request failed with status ${response.status}`;
+    try {
+      const errorData = await response.json();
+      if (errorData?.message) {
+        message = errorData.message;
+      } else if (errorData?.error) {
+        message = errorData.error;
+      }
+    } catch {
+      // Keep default message when response isn't JSON
+    }
+    throw new Error(message);
+  }
+
+  return response.json();
+};
 
 // ==================== AGENTS ====================
 
@@ -59,22 +120,21 @@ export const useAgents = (organizationId?: number) => {
     queryKey: ["agents", organizationId],
     queryFn: async () => {
       const params = organizationId ? `?organizationId=${organizationId}` : "";
-      const response = await fetch(`${API_BASE}/api/agents${params}`);
-      if (!response.ok) throw new Error("Failed to fetch agents");
-      return response.json();
+      return missionFetch<Agent[]>(`/api/agents${params}`);
     },
-    refetchInterval: 30000, // Refresh every 30 seconds
+    refetchInterval: (query) => (query.state.error ? false : 30000),
+    retry: (failureCount, error) => {
+      const message = error?.message?.toLowerCase() || "";
+      if (message.includes("401") || message.includes("auth")) return false;
+      return failureCount < 2;
+    },
   });
 };
 
 export const useAgent = (agentId: number) => {
   return useQuery<Agent>({
     queryKey: ["agent", agentId],
-    queryFn: async () => {
-      const response = await fetch(`${API_BASE}/api/agents/${agentId}`);
-      if (!response.ok) throw new Error("Failed to fetch agent");
-      return response.json();
-    },
+    queryFn: async () => missionFetch<Agent>(`/api/agents/${agentId}`),
     enabled: !!agentId,
   });
 };
@@ -85,19 +145,11 @@ export const useCreateAgent = () => {
   const queryClient = useQueryClient();
 
   return useMutation<CreateAgentResponse, Error, CreateAgentData>({
-    mutationFn: async (data) => {
-      const response = await fetch(`${API_BASE}/api/agents`, {
+    mutationFn: async (data) =>
+      missionFetch<CreateAgentResponse>("/api/agents", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
         body: JSON.stringify(data),
-      });
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Failed to create agent");
-      }
-      return response.json();
-    },
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["agents"] });
     },
@@ -108,19 +160,11 @@ export const useUpdateAgent = () => {
   const queryClient = useQueryClient();
 
   return useMutation<Agent, Error, { agentId: number; data: UpdateAgentData }>({
-    mutationFn: async ({ agentId, data }) => {
-      const response = await fetch(`${API_BASE}/api/agents/${agentId}`, {
+    mutationFn: async ({ agentId, data }) =>
+      missionFetch<Agent>(`/api/agents/${agentId}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
         body: JSON.stringify(data),
-      });
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Failed to update agent");
-      }
-      return response.json();
-    },
+      }),
     onSuccess: (_, { agentId }) => {
       queryClient.invalidateQueries({ queryKey: ["agents"] });
       queryClient.invalidateQueries({ queryKey: ["agent", agentId] });
@@ -132,17 +176,10 @@ export const useDeleteAgent = () => {
   const queryClient = useQueryClient();
 
   return useMutation<{ message: string }, Error, number>({
-    mutationFn: async (agentId) => {
-      const response = await fetch(`${API_BASE}/api/agents/${agentId}`, {
+    mutationFn: async (agentId) =>
+      missionFetch<{ message: string }>(`/api/agents/${agentId}`, {
         method: "DELETE",
-        credentials: "include",
-      });
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Failed to delete agent");
-      }
-      return response.json();
-    },
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["agents"] });
     },
@@ -153,17 +190,10 @@ export const useRegenerateAgentKey = () => {
   const queryClient = useQueryClient();
 
   return useMutation<RegenerateKeyResponse, Error, number>({
-    mutationFn: async (agentId) => {
-      const response = await fetch(`${API_BASE}/api/agents/${agentId}/regenerate-key`, {
+    mutationFn: async (agentId) =>
+      missionFetch<RegenerateKeyResponse>(`/api/agents/${agentId}/regenerate-key`, {
         method: "POST",
-        credentials: "include",
-      });
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Failed to regenerate API key");
-      }
-      return response.json();
-    },
+      }),
     onSuccess: (_, agentId) => {
       queryClient.invalidateQueries({ queryKey: ["agents"] });
       queryClient.invalidateQueries({ queryKey: ["agent", agentId] });
@@ -201,23 +231,37 @@ export interface TaskAssignment {
   };
 }
 
+export interface TaskAgentAssignment {
+  id: number;
+  agentId: number;
+  taskId: number;
+  status: string;
+  assignedAt: string;
+  agent: {
+    id: number;
+    name: string;
+    displayName: string;
+    role: string;
+    status: "idle" | "active" | "blocked";
+    currentTaskId: number | null;
+  };
+}
+
 export const useAgentTasks = (agentId?: number, status?: string) => {
   return useQuery<TaskAssignment[]>({
     queryKey: ["agentTasks", agentId, status],
     queryFn: async () => {
-      let url = `${API_BASE}/api/agents`;
+      let path = "/api/agents";
       if (agentId) {
-        url += `/${agentId}/tasks`;
-        if (status) url += `?status=${status}`;
+        path += `/${agentId}/tasks`;
+        if (status) path += `?status=${status}`;
       } else {
         // Get all agent tasks across all agents
-        const agentsResponse = await fetch(`${API_BASE}/api/agents`);
-        const agents = await agentsResponse.json();
+        const agents = await missionFetch<Agent[]>("/api/agents");
 
         const allTasks = await Promise.all(
           agents.map(async (agent: Agent) => {
-            const tasksResponse = await fetch(`${API_BASE}/api/agents/${agent.id}/tasks`);
-            const tasks = await tasksResponse.json();
+            const tasks = await missionFetch<TaskAssignment[]>(`/api/agents/${agent.id}/tasks`);
             return tasks.map((t: any) => ({ ...t, agent }));
           })
         );
@@ -225,11 +269,9 @@ export const useAgentTasks = (agentId?: number, status?: string) => {
         return allTasks.flat();
       }
 
-      const response = await fetch(url);
-      if (!response.ok) throw new Error("Failed to fetch agent tasks");
-      return response.json();
+      return missionFetch<TaskAssignment[]>(path);
     },
-    refetchInterval: 30000,
+    refetchInterval: (query) => (query.state.error ? false : 30000),
   });
 };
 
@@ -237,18 +279,44 @@ export const useAssignTaskToAgent = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ taskId, agentIds }: { taskId: number; agentIds: number[] }) => {
-      const response = await fetch(`${API_BASE}/api/tasks/${taskId}/assign-agents`, {
+    mutationFn: async ({ taskId, agentIds }: { taskId: number; agentIds: number[] }) =>
+      missionFetch(`/api/tasks/${taskId}/assign-agents`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ agentIds }),
-      });
-      if (!response.ok) throw new Error("Failed to assign task");
-      return response.json();
-    },
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["agentTasks"] });
       queryClient.invalidateQueries({ queryKey: ["agents"] });
+      queryClient.invalidateQueries({ queryKey: ["taskAgentAssignments"] });
+    },
+  });
+};
+
+export const useTaskAgentAssignments = (taskId?: number) => {
+  return useQuery<TaskAgentAssignment[]>({
+    queryKey: ["taskAgentAssignments", taskId],
+    queryFn: async () => {
+      if (!taskId) return [];
+      return missionFetch<TaskAgentAssignment[]>(`/api/tasks/${taskId}/assign-agents`);
+    },
+    enabled: !!taskId,
+    refetchInterval: (query) => (query.state.error ? false : 30000),
+  });
+};
+
+export const useUnassignTaskFromAgent = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ taskId, agentId }: { taskId: number; agentId: number }) =>
+      missionFetch(`/api/tasks/${taskId}/assign-agents/${agentId}`, {
+        method: "DELETE",
+      }),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["agentTasks"] });
+      queryClient.invalidateQueries({ queryKey: ["agents"] });
+      queryClient.invalidateQueries({ queryKey: ["taskAgentAssignments", variables.taskId] });
+      queryClient.invalidateQueries({ queryKey: ["taskAgentAssignments"] });
     },
   });
 };
@@ -266,16 +334,10 @@ export const useUpdateAgentTaskStatus = () => {
       taskId: number;
       status: string;
     }) => {
-      const response = await fetch(
-        `${API_BASE}/api/agents/${agentId}/tasks/${taskId}/status`,
-        {
+      return missionFetch(`/api/agents/${agentId}/tasks/${taskId}/status`, {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ status }),
-        }
-      );
-      if (!response.ok) throw new Error("Failed to update task status");
-      return response.json();
+        });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["agentTasks"] });
@@ -314,14 +376,10 @@ export const useAgentNotifications = (agentId: number, unread?: boolean) => {
     queryKey: ["notifications", agentId, unread],
     queryFn: async () => {
       const params = unread ? "?unread=true" : "";
-      const response = await fetch(
-        `${API_BASE}/api/agents/${agentId}/notifications${params}`
-      );
-      if (!response.ok) throw new Error("Failed to fetch notifications");
-      return response.json();
+      return missionFetch<Notification[]>(`/api/agents/${agentId}/notifications${params}`);
     },
     enabled: !!agentId,
-    refetchInterval: 15000,
+    refetchInterval: (query) => (query.state.error ? false : 15000),
   });
 };
 
@@ -329,14 +387,8 @@ export const useMarkNotificationRead = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (notificationId: number) => {
-      const response = await fetch(
-        `${API_BASE}/api/notifications/${notificationId}/read`,
-        { method: "PUT" }
-      );
-      if (!response.ok) throw new Error("Failed to mark notification read");
-      return response.json();
-    },
+    mutationFn: async (notificationId: number) =>
+      missionFetch(`/api/notifications/${notificationId}/read`, { method: "PUT" }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
     },
@@ -368,13 +420,15 @@ export const useActivityFeed = (organizationId?: number, limit = 50) => {
   return useQuery<ActivityLog[]>({
     queryKey: ["activityFeed", organizationId, limit],
     queryFn: async () => {
-      const orgId = organizationId || 1; // Default to org 1 for now
-      const response = await fetch(
-        `${API_BASE}/api/organizations/${orgId}/activity?limit=${limit}`
-      );
-      if (!response.ok) throw new Error("Failed to fetch activity feed");
-      return response.json();
+      if (!organizationId) return [];
+      return missionFetch<ActivityLog[]>(`/api/organizations/${organizationId}/activity?limit=${limit}`);
     },
-    refetchInterval: 10000, // Refresh every 10 seconds for real-time feel
+    enabled: !!organizationId,
+    refetchInterval: (query) => (query.state.error ? false : 10000),
+    retry: (failureCount, error) => {
+      const message = error?.message?.toLowerCase() || "";
+      if (message.includes("401") || message.includes("403")) return false;
+      return failureCount < 2;
+    },
   });
 };

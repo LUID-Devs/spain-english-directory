@@ -9,7 +9,7 @@ interface SubscriptionProviderProps {
 /**
  * SubscriptionProvider
  *
- * Initializes LuidHub subscription and credits data when the user is authenticated.
+ * Initializes subscription and credits data when the user is authenticated.
  * This provider should wrap your authenticated app content.
  *
  * Note: We use useAuth() instead of useCurrentUser() from userStore because
@@ -17,7 +17,7 @@ interface SubscriptionProviderProps {
  * (in dashboard/layout.tsx), so userStore.currentUser would always be null here.
  */
 export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ children }) => {
-  const { fetchLuidHubSubscription } = useSubscriptionStore();
+  const { fetchSubscription } = useSubscriptionStore();
   const { user, isAuthenticated, isLoading } = useAuth();
 
   useEffect(() => {
@@ -30,11 +30,11 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
     if (isAuthenticated && user) {
       // Small delay to ensure Cognito tokens are fully available
       const timer = setTimeout(() => {
-        fetchLuidHubSubscription();
+        fetchSubscription();
       }, 500);
       return () => clearTimeout(timer);
     }
-  }, [user, isAuthenticated, isLoading, fetchLuidHubSubscription]);
+  }, [user, isAuthenticated, isLoading, fetchSubscription]);
 
   return <>{children}</>;
 };

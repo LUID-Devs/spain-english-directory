@@ -1,9 +1,10 @@
 /**
- * LuidHub Credits API
- * Handles credit balance and subscription status from LuidHub
+ * TaskLuid credits/subscription API (app-local backend).
  */
 
-const LUIDHUB_API_URL = import.meta.env.VITE_LUIDHUB_API_URL || 'https://api.luidhub.com/api';
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
+
+const buildUrl = (path: string): string => `${API_BASE_URL}${path}`;
 
 export interface CreditBalance {
   total_credits: number;
@@ -24,45 +25,22 @@ export interface CreditsApiResponse<T> {
   error?: string;
 }
 
-/**
- * Get the user's credit balance from LuidHub
- * @param token - The user's Cognito access token
- * @returns The credit balance or null if failed
- */
 export async function getBalance(token: string): Promise<CreditBalance | null> {
-  if (!token) {
-    return null;
-  }
+  if (!token) return null;
 
   try {
-    const response = await fetch(`${LUIDHUB_API_URL}/credits/balance`, {
+    const response = await fetch(buildUrl('/credits/balance'), {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
     });
 
-    if (!response.ok) {
-      return null;
-    }
+    if (!response.ok) return null;
 
     const result = await response.json();
-
-    // Handle both direct and wrapped response structures
-    if (result.total_credits !== undefined) {
-      return {
-        total_credits: result.total_credits,
-        subscription_credits: result.subscription_credits || 0,
-        purchased_credits: result.purchased_credits || 0,
-      };
-    } else if (result.data?.total_credits !== undefined) {
-      return {
-        total_credits: result.data.total_credits,
-        subscription_credits: result.data.subscription_credits || 0,
-        purchased_credits: result.data.purchased_credits || 0,
-      };
-    } else if (result.success && result.data) {
+    if (result?.data) {
       return {
         total_credits: result.data.total_credits || 0,
         subscription_credits: result.data.subscription_credits || 0,
@@ -70,82 +48,75 @@ export async function getBalance(token: string): Promise<CreditBalance | null> {
       };
     }
 
+    if (result?.total_credits !== undefined) {
+      return {
+        total_credits: result.total_credits || 0,
+        subscription_credits: result.subscription_credits || 0,
+        purchased_credits: result.purchased_credits || 0,
+      };
+    }
+
     return null;
-  } catch (error) {
+  } catch {
     return null;
   }
 }
 
-/**
- * Get the user's subscription status from LuidHub
- * @param token - The user's Cognito access token
- * @returns The subscription status or null if failed
- */
 export async function getSubscriptionStatus(token: string): Promise<SubscriptionStatus | null> {
-  if (!token) {
-    return null;
-  }
+  if (!token) return null;
 
   try {
-    const response = await fetch(`${LUIDHUB_API_URL}/subscription/status`, {
+    const response = await fetch(buildUrl('/credits/subscription-status'), {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
     });
 
-    if (!response.ok) {
-      return null;
-    }
+    if (!response.ok) return null;
 
     const result = await response.json();
+    const data = result?.data || result;
+    if (!data) return null;
 
-    // Handle both direct and wrapped response structures
-    if (result.success && result.subscription) {
-      return result.subscription;
-    } else if (result.success && result.data) {
-      return result.data;
-    } else if (result.planType) {
-      return result;
-    }
-
-    return null;
-  } catch (error) {
+    const plan = data.planType || data.plan || 'free';
+    return {
+      planType: plan === 'pro' ? 'pro' : 'free',
+      status: data.status || 'inactive',
+      currentPeriodEnd: data.current_period_end || data.currentPeriodEnd,
+      cancelAtPeriodEnd: data.cancel_at_period_end || data.cancelAtPeriodEnd,
+    };
+  } catch {
     return null;
   }
 }
 
-/**
- * Check if user has enough credits for an operation
- * @param token - The user's Cognito access token
- * @param amount - The amount of credits required
- * @returns Whether the user can afford the operation
- */
 export async function checkCredits(token: string, amount: number): Promise<boolean> {
-  const balance = await getBalance(token);
+  if (!token) return false;
 
-  if (!balance) {
-    // If we can't fetch balance, default to allowing the operation
-    // This prevents blocking users when API is unavailable
-    return true;
+  try {
+    const response = await fetch(buildUrl(`/credits/check?amount=${amount}`), {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) return false;
+    const result = await response.json();
+    return Boolean(result?.data?.has_credits);
+  } catch {
+    return false;
   }
-
-  return balance.total_credits >= amount;
 }
 
-/**
- * Fetch both subscription status and credits in parallel
- * @param token - The user's Cognito access token
- * @returns Both subscription and credits data
- */
-export async function fetchLuidHubData(token: string): Promise<{
+export async function fetchSubscriptionData(token: string): Promise<{
   subscription: SubscriptionStatus | null;
   credits: CreditBalance | null;
 }> {
-  if (!token) {
-    return { subscription: null, credits: null };
-  }
+  if (!token) return { subscription: null, credits: null };
 
   const [subscription, credits] = await Promise.all([
     getSubscriptionStatus(token),
@@ -159,7 +130,7 @@ export const creditsApi = {
   getBalance,
   getSubscriptionStatus,
   checkCredits,
-  fetchLuidHubData,
+  fetchSubscriptionData,
 };
 
 export default creditsApi;

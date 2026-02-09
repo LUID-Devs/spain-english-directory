@@ -2,11 +2,12 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useGetTaskQuery, useUpdateTaskMutation, useGetUsersQuery, useUploadTaskDescriptionImageMutation, useGetProjectStatusesQuery } from "@/hooks/useApi";
 import { toast } from "sonner";
-import { Calendar, User, Flag, Clock, Paperclip, Tag, CircleDot, Loader2, Image, Share2 } from "lucide-react";
+import { Calendar, User, Flag, Clock, Paperclip, Tag, CircleDot, Loader2, Image, Share2, Bot, X } from "lucide-react";
 import CommentsSection from "@/components/CommentsSection";
 import AttachmentsSection from "@/components/AttachmentsSection";
 import RichTextEditor from "@/components/RichTextEditor";
 import { Status, Priority, TaskType } from "@/hooks/useApi";
+import { useAgents, useAssignTaskToAgent, useTaskAgentAssignments, useUnassignTaskFromAgent } from "@/hooks/useMissionControl";
 import {
   Dialog,
   DialogContent,
@@ -37,6 +38,14 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
   const { data: users = [] } = useGetUsersQuery(undefined, {
     skip: !isOpen,
   });
+  const { data: agents = [], isLoading: isAgentsLoading } = useAgents();
+  const {
+    data: taskAgentAssignments = [],
+    isLoading: isTaskAgentAssignmentsLoading,
+    refetch: refetchTaskAgentAssignments,
+  } = useTaskAgentAssignments(isOpen ? taskId : undefined);
+  const assignTaskToAgent = useAssignTaskToAgent();
+  const unassignTaskFromAgent = useUnassignTaskFromAgent();
 
   // Fetch dynamic statuses for the project
   const effectiveProjectId = projectId || task?.projectId;
@@ -57,6 +66,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
 
   const [isSaving, setIsSaving] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [selectedAgentToAssign, setSelectedAgentToAssign] = useState<string>("none");
 
   const [editForm, setEditForm] = useState({
     title: "",
@@ -99,6 +109,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
   useEffect(() => {
     if (!isOpen) {
       isInitializedRef.current = false;
+      setSelectedAgentToAssign("none");
     }
   }, [isOpen]);
 
@@ -224,6 +235,57 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
       toast.error("Failed to copy link");
     });
   };
+
+  const assignedAgentIdSet = React.useMemo(
+    () => new Set(taskAgentAssignments.map((assignment) => assignment.agentId)),
+    [taskAgentAssignments]
+  );
+
+  const handleAssignAgent = useCallback(
+    async (value: string) => {
+      setSelectedAgentToAssign(value);
+      if (value === "none") return;
+
+      const agentId = Number.parseInt(value, 10);
+      if (Number.isNaN(agentId)) {
+        toast.error("Invalid agent selected");
+        setSelectedAgentToAssign("none");
+        return;
+      }
+
+      if (assignedAgentIdSet.has(agentId)) {
+        toast.info("Agent is already assigned to this task");
+        setSelectedAgentToAssign("none");
+        return;
+      }
+
+      try {
+        await assignTaskToAgent.mutateAsync({ taskId, agentIds: [agentId] });
+        await refetchTaskAgentAssignments();
+        toast.success("AI agent assigned");
+      } catch (assignError) {
+        console.error("Failed to assign agent:", assignError);
+        toast.error(assignError instanceof Error ? assignError.message : "Failed to assign AI agent");
+      } finally {
+        setSelectedAgentToAssign("none");
+      }
+    },
+    [assignedAgentIdSet, assignTaskToAgent, refetchTaskAgentAssignments, taskId]
+  );
+
+  const handleUnassignAgent = useCallback(
+    async (agentId: number) => {
+      try {
+        await unassignTaskFromAgent.mutateAsync({ taskId, agentId });
+        await refetchTaskAgentAssignments();
+        toast.success("AI agent unassigned");
+      } catch (unassignError) {
+        console.error("Failed to unassign agent:", unassignError);
+        toast.error(unassignError instanceof Error ? unassignError.message : "Failed to unassign AI agent");
+      }
+    },
+    [refetchTaskAgentAssignments, taskId, unassignTaskFromAgent]
+  );
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -426,6 +488,63 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                         ))}
                       </SelectContent>
                     </Select>
+                  </div>
+
+                  {/* AI Agent Assignee */}
+                  <div className="space-y-1 lg:space-y-2 col-span-2 lg:col-span-1">
+                    <Label className="flex items-center gap-2 text-foreground font-medium text-xs lg:text-sm">
+                      <Bot className="h-3 w-3 lg:h-4 lg:w-4" />
+                      AI Agent
+                    </Label>
+                    <Select
+                      value={selectedAgentToAssign}
+                      onValueChange={handleAssignAgent}
+                      disabled={assignTaskToAgent.isPending || isAgentsLoading}
+                    >
+                      <SelectTrigger className="w-full h-9 lg:h-10">
+                        <SelectValue placeholder="Assign AI agent" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">Select agent</SelectItem>
+                        {agents.map((agent) => (
+                          <SelectItem key={agent.id} value={String(agent.id)}>
+                            {agent.displayName} ({agent.role})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <div className="space-y-1">
+                      {isTaskAgentAssignmentsLoading ? (
+                        <div className="text-xs text-muted-foreground">Loading assigned agents…</div>
+                      ) : taskAgentAssignments.length === 0 ? (
+                        <div className="text-xs text-muted-foreground">No AI agent assigned</div>
+                      ) : (
+                        taskAgentAssignments.map((assignment) => (
+                          <div
+                            key={assignment.id}
+                            className="flex items-center justify-between rounded border px-2 py-1 text-xs"
+                          >
+                            <div className="min-w-0">
+                              <div className="font-medium truncate">{assignment.agent.displayName}</div>
+                              <div className="text-muted-foreground truncate">
+                                {assignment.agent.role} • {assignment.status}
+                              </div>
+                            </div>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6 shrink-0"
+                              onClick={() => handleUnassignAgent(assignment.agentId)}
+                              disabled={unassignTaskFromAgent.isPending}
+                              aria-label={`Unassign ${assignment.agent.displayName}`}
+                            >
+                              <X className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        ))
+                      )}
+                    </div>
                   </div>
 
                   {/* Start Date */}

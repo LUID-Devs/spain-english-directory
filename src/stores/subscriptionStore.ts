@@ -6,9 +6,6 @@ import {
   type SubscriptionStatus,
 } from '@/lib/credits-api';
 
-// LuidHub API URL for subscription status
-const LUIDHUB_API_URL = import.meta.env.VITE_LUIDHUB_API_URL || 'https://api.luidhub.com/api';
-
 /**
  * Get the authentication token from Cognito
  * Uses dynamic import to ensure Amplify is fully initialized
@@ -42,7 +39,7 @@ interface SubscriptionState {
   cancelAtPeriodEnd?: boolean;
 }
 
-interface LuidHubSubscriptionStore {
+interface SubscriptionStoreState {
   // Credits state
   credits: CreditsState;
 
@@ -61,8 +58,8 @@ interface LuidHubSubscriptionStore {
   setError: (error: string | null) => void;
   clearError: () => void;
 
-  // LuidHub API actions
-  fetchLuidHubSubscription: () => Promise<{
+  // Subscription API actions
+  fetchSubscription: () => Promise<{
     subscription: SubscriptionStatus | null;
     credits: CreditBalance | null;
   } | null>;
@@ -87,7 +84,7 @@ const initialSubscriptionState: SubscriptionState = {
   status: 'active',
 };
 
-export const useSubscriptionStore = create<LuidHubSubscriptionStore>()(
+export const useSubscriptionStore = create<SubscriptionStoreState>()(
   subscribeWithSelector((set, get) => ({
     // Initial state
     credits: initialCreditsState,
@@ -102,10 +99,10 @@ export const useSubscriptionStore = create<LuidHubSubscriptionStore>()(
     clearError: () => set({ error: null }),
 
     /**
-     * Fetch subscription status and credits from LuidHub
+     * Fetch subscription status and credits from app-local backend
      * This is the main initialization function
      */
-    fetchLuidHubSubscription: async () => {
+    fetchSubscription: async () => {
       const token = await getAuthToken();
 
       if (!token) {
@@ -121,7 +118,7 @@ export const useSubscriptionStore = create<LuidHubSubscriptionStore>()(
       set({ loading: true, error: null });
 
       try {
-        const { subscription, credits } = await creditsApi.fetchLuidHubData(token);
+        const { subscription, credits } = await creditsApi.fetchSubscriptionData(token);
 
         const isPro = subscription?.planType === 'pro' && subscription?.status === 'active';
 
@@ -150,7 +147,7 @@ export const useSubscriptionStore = create<LuidHubSubscriptionStore>()(
     },
 
     /**
-     * Fetch only credits from LuidHub (for refreshing after operations)
+     * Fetch only credits (for refreshing after operations)
      */
     fetchCredits: async () => {
       const token = await getAuthToken();
@@ -218,7 +215,7 @@ export const useSubscription = () => {
     loading,
     error,
     isPro,
-    fetchLuidHubSubscription,
+    fetchSubscription,
     fetchCredits,
     isProUser,
     canAffordOperation,
@@ -243,9 +240,9 @@ export const useSubscription = () => {
     isPro,
 
     // Actions
-    fetchLuidHubSubscription,
+    fetchSubscription,
     fetchCredits,
-    refreshSubscription: fetchLuidHubSubscription,
+    refreshSubscription: fetchSubscription,
 
     // Utilities
     isProUser,
