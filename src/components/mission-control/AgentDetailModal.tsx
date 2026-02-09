@@ -292,7 +292,7 @@ export const AgentDetailModal: React.FC<AgentDetailModalProps> = ({
               {/* Overview Tab */}
               <TabsContent value="overview" className="mt-0 space-y-4">
                 {/* Stats Cards */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
                   <Card>
                     <CardContent className="p-3 sm:p-4">
                       <p className="text-xs text-muted-foreground">Total Tasks</p>
