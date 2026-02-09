@@ -162,7 +162,7 @@ export const AgentGrid: React.FC<AgentGridProps> = ({ agents, isLoading, canMana
                 )}
 
                 {/* Stats */}
-                <div className="flex gap-3 sm:gap-4 text-[10px] sm:text-xs text-muted-foreground pt-1.5 sm:pt-2 border-t">
+                <div className="flex gap-2 sm:gap-4 text-[10px] sm:text-xs text-muted-foreground pt-1.5 sm:pt-2 border-t">
                   <span>{agent._count?.assignedTasks || 0} tasks</span>
                   {(agent._count?.notifications || 0) > 0 && (
                     <span className="text-blue-500">
