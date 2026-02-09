@@ -77,7 +77,7 @@ export const TaskBoard: React.FC = () => {
   }, {} as Record<string, TaskAssignment[]>);
 
   return (
-    <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0 snap-x scroll-smooth">
+    <div className="flex gap-2 sm:gap-4 overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0 snap-x scroll-smooth">
       {columns.map((column) => (
         <div key={column.id} className="min-w-[200px] sm:min-w-[280px] md:min-w-[300px] flex-shrink-0 snap-start">
           <div className="flex items-center gap-2 mb-3 px-0.5">
