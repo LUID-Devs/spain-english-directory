@@ -415,7 +415,7 @@ export const AgentDetailModal: React.FC<AgentDetailModalProps> = ({
                         onClick={() => setSelectedTaskId(assignment.task.id)}
                       >
                         <CardContent className="p-3 sm:p-4">
-                          <div className="flex items-start justify-between gap-3">
+                          <div className="flex items-start justify-between gap-2 sm:gap-3">
                             <div className="flex-1 min-w-0">
                               <p className="font-medium text-sm truncate">{assignment.task.title}</p>
                               <div className="flex flex-wrap items-center gap-2 mt-1.5">
@@ -469,7 +469,7 @@ export const AgentDetailModal: React.FC<AgentDetailModalProps> = ({
                           className={`${!notification.read ? "border-l-4 border-l-blue-500" : ""}`}
                         >
                           <CardContent className="p-3 sm:p-4">
-                            <div className="flex items-start gap-3">
+                            <div className="flex items-start gap-2 sm:gap-3">
                               <div className="flex-shrink-0">
                                 {notification.type === "assignment" ? (
                                   <ClipboardList className="h-5 w-5 text-blue-500" />
@@ -531,7 +531,7 @@ export const AgentDetailModal: React.FC<AgentDetailModalProps> = ({
                         return (
                           <div
                             key={activity.id}
-                            className="flex items-start gap-3 pb-3 border-b last:border-0"
+                            className="flex items-start gap-2 sm:gap-3 pb-3 border-b last:border-0"
                           >
                             <div className="flex-shrink-0 w-8 h-8 rounded-full bg-muted flex items-center justify-center text-lg">
                               {emoji}
