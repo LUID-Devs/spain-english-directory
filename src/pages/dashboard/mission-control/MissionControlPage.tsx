@@ -42,7 +42,7 @@ const MissionControlPage = () => {
 
   return (
     <div className="container h-full w-full bg-background p-4 sm:p-6 lg:p-8">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 mb-4 sm:mb-6">
         <Header name="Mission Control" />
         {canManageAgents && (
           <Button 

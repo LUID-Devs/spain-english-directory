@@ -1,0 +1,2 @@
+import{j as r,P as o}from"./index-Cl1xZT0M.js";import{R as t}from"./index-CyWe_kM5.js";import"./index-EEokgm7H.js";import"./card-_gttJuBd.js";import"./avatar-B2806YU1.js";import"./constructNow-V_036x_F.js";import"./target-AbkEMwIl.js";import"./sparkles-AV4iSFPD.js";import"./coins-Drs8Vxbx.js";import"./formatISO-Cp6AJKRS.js";import"./table-BWqZB1g3.js";import"./grid-3x3-CP44r0TK.js";import"./trending-up-v23i3o10.js";const R=()=>r.jsx(t,{priority:o.Low});export{R as default};
+//# sourceMappingURL=LowPriorityPage-Bvz9K4DE.js.map
