@@ -46,7 +46,7 @@ const MissionControlPage = () => {
     <div className="container h-full w-full bg-background p-4 sm:p-6 lg:p-8">
       {/* Header Section */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 mb-4 sm:mb-6">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <div className="h-10 w-10 bg-primary/10 rounded-xl flex items-center justify-center">
             <LayoutDashboard className="h-5 w-5 text-primary" />
           </div>
@@ -72,7 +72,7 @@ const MissionControlPage = () => {
       {/* Welcome Section */}
       <Card className="mb-4 sm:mb-6 border-primary/10 bg-gradient-to-r from-primary/5 to-transparent">
         <CardContent className="p-4 sm:p-6">
-          <div className="flex items-start gap-3">
+          <div className="flex items-start gap-2 sm:gap-3">
             <div className="h-8 w-8 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
               <Sparkles className="h-4 w-4 text-primary" />
             </div>
