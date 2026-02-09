@@ -10,15 +10,46 @@ import TextAlign from '@tiptap/extension-text-align';
 import Highlight from '@tiptap/extension-highlight';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { createLowlight, common } from 'lowlight';
+import { Extension } from '@tiptap/core';
 import { 
   Bold, Italic, Underline as UnderlineIcon, Strikethrough, List, ListOrdered, 
-  Heading1, Heading2, Heading3, Heading4, Quote, Code, Code2, Undo, Redo, 
+  Heading1, Heading2, Heading3, Quote, Code, Code2, Undo, Redo, 
   Link as LinkIcon, AlignLeft, AlignCenter, AlignRight, SeparatorHorizontal, 
-  Highlighter, Paintbrush
+  Highlighter
 } from 'lucide-react';
 
 // Create lowlight instance with common languages
 const lowlight = createLowlight(common);
+
+// Custom keyboard shortcuts extension
+const KeyboardShortcuts = Extension.create({
+  name: 'keyboardShortcuts',
+  addKeyboardShortcuts() {
+    return {
+      // Bold: Ctrl/Cmd + B
+      'Mod-b': () => this.editor.commands.toggleBold(),
+      // Italic: Ctrl/Cmd + I
+      'Mod-i': () => this.editor.commands.toggleItalic(),
+      // Underline: Ctrl/Cmd + U
+      'Mod-u': () => this.editor.commands.toggleUnderline(),
+      // Heading 1: Ctrl/Cmd + Alt + 1
+      'Mod-Alt-1': () => this.editor.commands.toggleHeading({ level: 1 }),
+      // Heading 2: Ctrl/Cmd + Alt + 2
+      'Mod-Alt-2': () => this.editor.commands.toggleHeading({ level: 2 }),
+      // Heading 3: Ctrl/Cmd + Alt + 3
+      'Mod-Alt-3': () => this.editor.commands.toggleHeading({ level: 3 }),
+      // Bullet List: Ctrl/Cmd + Shift + 8
+      'Mod-Shift-8': () => this.editor.commands.toggleBulletList(),
+      // Ordered List: Ctrl/Cmd + Shift + 7
+      'Mod-Shift-7': () => this.editor.commands.toggleOrderedList(),
+      // Undo: Ctrl/Cmd + Z
+      'Mod-z': () => this.editor.commands.undo(),
+      // Redo: Ctrl/Cmd + Shift + Z or Ctrl/Cmd + Y
+      'Mod-Shift-z': () => this.editor.commands.redo(),
+      'Mod-y': () => this.editor.commands.redo(),
+    };
+  },
+});
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
@@ -47,7 +78,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     extensions: [
       StarterKit.configure({
         heading: {
-          levels: [1, 2, 3, 4], // Support h1, h2, h3 and h4 for task descriptions
+          levels: [1, 2, 3], // Support h1, h2, h3 as per requirements
         },
         codeBlock: false, // Use CodeBlockLowlight instead for syntax highlighting
         strike: false, // Disable default strike from StarterKit, use explicit extension
@@ -80,6 +111,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         lowlight,
         defaultLanguage: 'plaintext',
       }),
+      KeyboardShortcuts, // Add custom keyboard shortcuts
     ],
     content,
     editable: !disabled,
@@ -217,7 +249,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
             onClick={() => editor.chain().focus().toggleBold().run()}
             isActive={editor.isActive('bold')}
             disabled={!editor.can().chain().focus().toggleBold().run()}
-            title="Bold"
+            title="Bold (Ctrl+B)"
           >
             <Bold className="w-4 h-4" />
           </ToolbarButton>
@@ -225,7 +257,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
             onClick={() => editor.chain().focus().toggleItalic().run()}
             isActive={editor.isActive('italic')}
             disabled={!editor.can().chain().focus().toggleItalic().run()}
-            title="Italic"
+            title="Italic (Ctrl+I)"
           >
             <Italic className="w-4 h-4" />
           </ToolbarButton>
@@ -233,7 +265,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
             onClick={() => editor.chain().focus().toggleUnderline().run()}
             isActive={editor.isActive('underline')}
             disabled={!editor.can().chain().focus().toggleUnderline().run()}
-            title="Underline"
+            title="Underline (Ctrl+U)"
           >
             <UnderlineIcon className="w-4 h-4" />
           </ToolbarButton>
@@ -273,7 +305,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
             onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
             isActive={editor.isActive('heading', { level: 1 })}
             disabled={!editor.can().chain().focus().toggleHeading({ level: 1 }).run()}
-            title="Heading 1"
+            title="Heading 1 (Ctrl+Alt+1)"
           >
             <Heading1 className="w-4 h-4" />
           </ToolbarButton>
@@ -281,7 +313,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
             onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
             isActive={editor.isActive('heading', { level: 2 })}
             disabled={!editor.can().chain().focus().toggleHeading({ level: 2 }).run()}
-            title="Heading 2"
+            title="Heading 2 (Ctrl+Alt+2)"
           >
             <Heading2 className="w-4 h-4" />
           </ToolbarButton>
@@ -289,17 +321,9 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
             onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
             isActive={editor.isActive('heading', { level: 3 })}
             disabled={!editor.can().chain().focus().toggleHeading({ level: 3 }).run()}
-            title="Heading 3"
+            title="Heading 3 (Ctrl+Alt+3)"
           >
             <Heading3 className="w-4 h-4" />
-          </ToolbarButton>
-          <ToolbarButton
-            onClick={() => editor.chain().focus().toggleHeading({ level: 4 }).run()}
-            isActive={editor.isActive('heading', { level: 4 })}
-            disabled={!editor.can().chain().focus().toggleHeading({ level: 4 }).run()}
-            title="Heading 4"
-          >
-            <Heading4 className="w-4 h-4" />
           </ToolbarButton>
 
           <ToolbarDivider />
@@ -309,7 +333,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
             onClick={() => editor.chain().focus().toggleBulletList().run()}
             isActive={editor.isActive('bulletList')}
             disabled={!editor.can().chain().focus().toggleBulletList().run()}
-            title="Bullet List"
+            title="Bullet List (Ctrl+Shift+8)"
           >
             <List className="w-4 h-4" />
           </ToolbarButton>
@@ -317,7 +341,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
             onClick={() => editor.chain().focus().toggleOrderedList().run()}
             isActive={editor.isActive('orderedList')}
             disabled={!editor.can().chain().focus().toggleOrderedList().run()}
-            title="Numbered List"
+            title="Numbered List (Ctrl+Shift+7)"
           >
             <ListOrdered className="w-4 h-4" />
           </ToolbarButton>
@@ -408,14 +432,14 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           <ToolbarButton
             onClick={() => editor.chain().focus().undo().run()}
             disabled={!editor.can().chain().focus().undo().run()}
-            title="Undo"
+            title="Undo (Ctrl+Z)"
           >
             <Undo className="w-4 h-4" />
           </ToolbarButton>
           <ToolbarButton
             onClick={() => editor.chain().focus().redo().run()}
             disabled={!editor.can().chain().focus().redo().run()}
-            title="Redo"
+            title="Redo (Ctrl+Shift+Z)"
           >
             <Redo className="w-4 h-4" />
           </ToolbarButton>
