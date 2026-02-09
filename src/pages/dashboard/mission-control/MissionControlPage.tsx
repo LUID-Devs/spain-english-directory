@@ -41,11 +41,11 @@ const MissionControlPage = () => {
   };
 
   return (
-    <div className="container h-full w-full bg-background p-8">
-      <div className="flex items-center justify-between mb-6">
+    <div className="container h-full w-full bg-background p-4 sm:p-6 lg:p-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <Header name="Mission Control" />
         {canManageAgents && (
-          <Button onClick={() => setIsCreateModalOpen(true)} className="flex items-center gap-2">
+          <Button onClick={() => setIsCreateModalOpen(true)} className="flex items-center gap-2 w-full sm:w-auto">
             <Plus className="h-4 w-4" />
             Create Agent
           </Button>
@@ -53,7 +53,7 @@ const MissionControlPage = () => {
       </div>
 
       {/* Stats Overview */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
+      <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4 mb-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Agents</CardTitle>
@@ -109,18 +109,21 @@ const MissionControlPage = () => {
 
       {/* Main Content Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="agents" className="flex items-center gap-2">
+        <TabsList className="w-full sm:w-auto flex flex-wrap sm:flex-nowrap">
+          <TabsTrigger value="agents" className="flex items-center gap-2 flex-1 sm:flex-none">
             <Users className="h-4 w-4" />
-            Agents
+            <span className="hidden sm:inline">Agents</span>
+            <span className="sm:hidden">Agents</span>
           </TabsTrigger>
-          <TabsTrigger value="tasks" className="flex items-center gap-2">
+          <TabsTrigger value="tasks" className="flex items-center gap-2 flex-1 sm:flex-none">
             <CheckCircle className="h-4 w-4" />
-            Task Board
+            <span className="hidden sm:inline">Task Board</span>
+            <span className="sm:hidden">Tasks</span>
           </TabsTrigger>
-          <TabsTrigger value="activity" className="flex items-center gap-2">
+          <TabsTrigger value="activity" className="flex items-center gap-2 flex-1 sm:flex-none">
             <Activity className="h-4 w-4" />
-            Activity Feed
+            <span className="hidden sm:inline">Activity Feed</span>
+            <span className="sm:hidden">Activity</span>
           </TabsTrigger>
         </TabsList>
 
