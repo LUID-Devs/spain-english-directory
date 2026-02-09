@@ -12,6 +12,8 @@ import {
   Users,
   Zap,
   Plus,
+  LayoutDashboard,
+  Sparkles,
 } from "lucide-react";
 import { AgentGrid } from "@/components/mission-control/AgentGrid";
 import { TaskBoard } from "@/components/mission-control/TaskBoard";
@@ -23,7 +25,7 @@ import { useAuth } from "@/app/authProvider";
 const MissionControlPage = () => {
   const [activeTab, setActiveTab] = useState("agents");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const { activeOrganization } = useAuth();
+  const { activeOrganization, user } = useAuth();
   const { data: agents, isLoading: agentsLoading } = useAgents(activeOrganization?.id);
   const { data: activities, isLoading: activitiesLoading } = useActivityFeed(activeOrganization?.id);
 
@@ -42,8 +44,19 @@ const MissionControlPage = () => {
 
   return (
     <div className="container h-full w-full bg-background p-4 sm:p-6 lg:p-8">
+      {/* Header Section */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 mb-4 sm:mb-6">
-        <Header name="Mission Control" />
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 bg-primary/10 rounded-xl flex items-center justify-center">
+            <LayoutDashboard className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <Header name="Mission Control" />
+            <p className="text-xs sm:text-sm text-muted-foreground">
+              Manage your AI agents and monitor activity
+            </p>
+          </div>
+        </div>
         {canManageAgents && (
           <Button 
             onClick={() => setIsCreateModalOpen(true)} 
@@ -56,99 +69,159 @@ const MissionControlPage = () => {
         )}
       </div>
 
-      {/* Stats Overview */}
-      <div className="grid gap-2 sm:gap-4 grid-cols-2 lg:grid-cols-4 mb-4 sm:mb-6">
-        <Card className="overflow-hidden">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 px-2 sm:px-6 pt-3 sm:pt-6">
-            <CardTitle className="text-[10px] sm:text-xs md:text-sm font-medium truncate">Total Agents</CardTitle>
-            <Bot className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
-          </CardHeader>
-          <CardContent className="px-2 sm:px-6 pb-3 sm:pb-6">
-            <div className="text-lg sm:text-xl md:text-2xl font-bold">{stats.totalAgents}</div>
-            <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
-              SpongeBob Squad
-            </p>
+      {/* Welcome Section */}
+      <Card className="mb-4 sm:mb-6 border-primary/10 bg-gradient-to-r from-primary/5 to-transparent">
+        <CardContent className="p-4 sm:p-6">
+          <div className="flex items-start gap-3">
+            <div className="h-8 w-8 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+              <Sparkles className="h-4 w-4 text-primary" />
+            </div>
+            <div>
+              <h2 className="text-base sm:text-lg font-semibold text-foreground">
+                Welcome to Mission Control, {user?.preferred_username || user?.username || 'Commander'}!
+              </h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                Monitor your AI agent squad, track tasks, and view real-time activity. 
+                {stats.activeAgents > 0 && (
+                  <span className="text-green-600 font-medium"> {stats.activeAgents} agent{stats.activeAgents !== 1 ? 's' : ''} currently active.</span>
+                )}
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Stats Overview - Improved Design */}
+      <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4 mb-4 sm:mb-6">
+        {/* Total Agents */}
+        <Card className="overflow-hidden border-l-4 border-l-blue-500">
+          <CardContent className="p-3 sm:p-4 md:p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs sm:text-sm font-medium text-muted-foreground">Total Agents</p>
+                <p className="text-xl sm:text-2xl font-bold text-foreground">{stats.totalAgents}</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">
+                  SpongeBob Squad
+                </p>
+              </div>
+              <div className="h-8 w-8 sm:h-10 sm:w-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
+                <Bot className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 dark:text-blue-400" />
+              </div>
+            </div>
           </CardContent>
         </Card>
 
-        <Card className="overflow-hidden">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 px-2 sm:px-6 pt-3 sm:pt-6">
-            <CardTitle className="text-[10px] sm:text-xs md:text-sm font-medium truncate">Active Now</CardTitle>
-            <Zap className="h-3 w-3 sm:h-4 sm:w-4 text-green-500 flex-shrink-0" />
-          </CardHeader>
-          <CardContent className="px-2 sm:px-6 pb-3 sm:pb-6">
-            <div className="text-lg sm:text-xl md:text-2xl font-bold text-green-600">{stats.activeAgents}</div>
-            <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
-              {stats.idleAgents} idle, {stats.blockedAgents} blocked
-            </p>
+        {/* Active Now */}
+        <Card className="overflow-hidden border-l-4 border-l-green-500">
+          <CardContent className="p-3 sm:p-4 md:p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs sm:text-sm font-medium text-muted-foreground">Active Now</p>
+                <p className="text-xl sm:text-2xl font-bold text-green-600">{stats.activeAgents}</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">
+                  {stats.idleAgents} idle, {stats.blockedAgents} blocked
+                </p>
+              </div>
+              <div className="h-8 w-8 sm:h-10 sm:w-10 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
+                <Zap className="h-4 w-4 sm:h-5 sm:w-5 text-green-600 dark:text-green-400" />
+              </div>
+            </div>
           </CardContent>
         </Card>
 
-        <Card className="overflow-hidden">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 px-2 sm:px-6 pt-3 sm:pt-6">
-            <CardTitle className="text-[10px] sm:text-xs md:text-sm font-medium truncate">Pending Tasks</CardTitle>
-            <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-500 flex-shrink-0" />
-          </CardHeader>
-          <CardContent className="px-2 sm:px-6 pb-3 sm:pb-6">
-            <div className="text-lg sm:text-xl md:text-2xl font-bold">{stats.pendingTasks}</div>
-            <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
-              Across all agents
-            </p>
+        {/* Pending Tasks */}
+        <Card className="overflow-hidden border-l-4 border-l-yellow-500">
+          <CardContent className="p-3 sm:p-4 md:p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs sm:text-sm font-medium text-muted-foreground">Pending Tasks</p>
+                <p className="text-xl sm:text-2xl font-bold text-foreground">{stats.pendingTasks}</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">
+                  Across all agents
+                </p>
+              </div>
+              <div className="h-8 w-8 sm:h-10 sm:w-10 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
+                <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-600 dark:text-yellow-400" />
+              </div>
+            </div>
           </CardContent>
         </Card>
 
-        <Card className="overflow-hidden">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 px-2 sm:px-6 pt-3 sm:pt-6">
-            <CardTitle className="text-[10px] sm:text-xs md:text-sm font-medium truncate">Notifications</CardTitle>
-            <MessageSquare className="h-3 w-3 sm:h-4 sm:w-4 text-blue-500 flex-shrink-0" />
-          </CardHeader>
-          <CardContent className="px-2 sm:px-6 pb-3 sm:pb-6">
-            <div className="text-lg sm:text-xl md:text-2xl font-bold">{stats.unreadNotifications}</div>
-            <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
-              Unread mentions
-            </p>
+        {/* Notifications */}
+        <Card className="overflow-hidden border-l-4 border-l-purple-500">
+          <CardContent className="p-3 sm:p-4 md:p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs sm:text-sm font-medium text-muted-foreground">Notifications</p>
+                <p className="text-xl sm:text-2xl font-bold text-foreground">{stats.unreadNotifications}</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">
+                  Unread mentions
+                </p>
+              </div>
+              <div className="h-8 w-8 sm:h-10 sm:w-10 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
+                <MessageSquare className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600 dark:text-purple-400" />
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Main Content Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="w-full h-auto flex flex-wrap sm:flex-nowrap sm:w-auto sm:inline-flex gap-1 p-1">
-          <TabsTrigger 
-            value="agents" 
-            className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-2 min-h-[40px]"
-          >
-            <Users className="h-4 w-4 flex-shrink-0" />
-            <span className="text-xs sm:text-sm whitespace-nowrap">Agents</span>
-          </TabsTrigger>
-          <TabsTrigger 
-            value="tasks" 
-            className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-2 min-h-[40px]"
-          >
-            <CheckCircle className="h-4 w-4 flex-shrink-0" />
-            <span className="text-xs sm:text-sm whitespace-nowrap">Tasks</span>
-          </TabsTrigger>
-          <TabsTrigger 
-            value="activity" 
-            className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-2 min-h-[40px]"
-          >
-            <Activity className="h-4 w-4 flex-shrink-0" />
-            <span className="text-xs sm:text-sm whitespace-nowrap">Activity</span>
-          </TabsTrigger>
-        </TabsList>
+      {/* Main Content Section */}
+      <Card className="overflow-hidden">
+        <CardHeader className="p-4 sm:p-6 pb-0">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="w-full h-auto flex flex-wrap sm:flex-nowrap sm:w-auto sm:inline-flex gap-1 p-1 bg-muted/50">
+              <TabsTrigger 
+                value="agents" 
+                className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 min-h-[44px] data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                <Users className="h-4 w-4 flex-shrink-0" />
+                <span className="text-xs sm:text-sm font-medium whitespace-nowrap">Agents</span>
+                {stats.totalAgents > 0 && (
+                  <span className="ml-1 text-[10px] bg-muted-foreground/20 px-1.5 py-0.5 rounded-full">
+                    {stats.totalAgents}
+                  </span>
+                )}
+              </TabsTrigger>
+              <TabsTrigger 
+                value="tasks" 
+                className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 min-h-[44px] data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                <CheckCircle className="h-4 w-4 flex-shrink-0" />
+                <span className="text-xs sm:text-sm font-medium whitespace-nowrap">Tasks</span>
+                {stats.pendingTasks > 0 && (
+                  <span className="ml-1 text-[10px] bg-muted-foreground/20 px-1.5 py-0.5 rounded-full">
+                    {stats.pendingTasks}
+                  </span>
+                )}
+              </TabsTrigger>
+              <TabsTrigger 
+                value="activity" 
+                className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 min-h-[44px] data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                <Activity className="h-4 w-4 flex-shrink-0" />
+                <span className="text-xs sm:text-sm font-medium whitespace-nowrap">Activity</span>
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </CardHeader>
 
-        <TabsContent value="agents" className="space-y-4">
-          <AgentGrid agents={agents || []} isLoading={agentsLoading} canManageAgents={canManageAgents} />
-        </TabsContent>
+        <CardContent className="p-4 sm:p-6 pt-4">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsContent value="agents" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
+              <AgentGrid agents={agents || []} isLoading={agentsLoading} canManageAgents={canManageAgents} />
+            </TabsContent>
 
-        <TabsContent value="tasks" className="space-y-4">
-          <TaskBoard />
-        </TabsContent>
+            <TabsContent value="tasks" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
+              <TaskBoard />
+            </TabsContent>
 
-        <TabsContent value="activity" className="space-y-4">
-          <ActivityFeed activities={activities || []} isLoading={activitiesLoading} />
-        </TabsContent>
-      </Tabs>
+            <TabsContent value="activity" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
+              <ActivityFeed activities={activities || []} isLoading={activitiesLoading} />
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
 
       {/* Create Agent Modal */}
       <CreateAgentModal
