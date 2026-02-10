@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
@@ -11,15 +11,34 @@ import Highlight from '@tiptap/extension-highlight';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { createLowlight, common } from 'lowlight';
 import { Extension } from '@tiptap/core';
+import { marked } from 'marked';
+import TurndownService from 'turndown';
 import { 
   Bold, Italic, Underline as UnderlineIcon, Strikethrough, List, ListOrdered, 
   Heading1, Heading2, Heading3, Quote, Code, Code2, Undo, Redo, 
   Link as LinkIcon, AlignLeft, AlignCenter, AlignRight, SeparatorHorizontal, 
-  Highlighter
+  Highlighter, FileCode, Eye, EyeOff
 } from 'lucide-react';
 
 // Create lowlight instance with common languages
 const lowlight = createLowlight(common);
+
+// Create turndown service for HTML to Markdown conversion
+const turndownService = new TurndownService({
+  headingStyle: 'atx',
+  codeBlockStyle: 'fenced',
+  bulletListMarker: '-',
+});
+
+// Configure turndown to handle images properly
+turndownService.addRule('images', {
+  filter: 'img',
+  replacement: (content, node) => {
+    const src = (node as HTMLImageElement).getAttribute('src') || '';
+    const alt = (node as HTMLImageElement).getAttribute('alt') || '';
+    return `![${alt}](${src})`;
+  }
+});
 
 // Custom keyboard shortcuts extension
 const KeyboardShortcuts = Extension.create({
@@ -60,6 +79,8 @@ interface RichTextEditorProps {
   placeholder?: string;
   className?: string;
   disabled?: boolean;
+  format?: 'html' | 'markdown';
+  onFormatChange?: (format: 'html' | 'markdown') => void;
 }
 
 const RichTextEditor: React.FC<RichTextEditorProps> = ({
@@ -69,19 +90,24 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   placeholder = 'Enter description...',
   className = '',
   disabled = false,
+  format = 'html',
+  onFormatChange,
 }) => {
   // Track if we're programmatically updating to avoid triggering onChange
   const isUpdatingRef = useRef(false);
   const lastContentRef = useRef(content);
+  const [isMarkdownMode, setIsMarkdownMode] = useState(false);
+  const [markdownContent, setMarkdownContent] = useState('');
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
         heading: {
-          levels: [1, 2, 3], // Support h1, h2, h3 as per requirements
+          levels: [1, 2, 3],
         },
-        codeBlock: false, // Use CodeBlockLowlight instead for syntax highlighting
-        strike: false, // Disable default strike from StarterKit, use explicit extension
+        codeBlock: false,
+        strike: false,
       }),
       Image.configure({
         inline: true,
@@ -111,16 +137,23 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         lowlight,
         defaultLanguage: 'plaintext',
       }),
-      KeyboardShortcuts, // Add custom keyboard shortcuts
+      KeyboardShortcuts,
     ],
-    content,
-    editable: !disabled,
+    content: format === 'markdown' ? marked.parse(content, { async: false }) as string : content,
+    editable: !disabled && !isMarkdownMode,
     onUpdate: ({ editor }) => {
-      // Skip if this is a programmatic update
-      if (isUpdatingRef.current) return;
+      if (isUpdatingRef.current || isMarkdownMode) return;
 
-      const newContent = editor.getHTML();
-      // Only trigger onChange if content actually changed
+      const htmlContent = editor.getHTML();
+      let newContent: string;
+
+      if (format === 'markdown') {
+        // Convert HTML to Markdown
+        newContent = turndownService.turndown(htmlContent);
+      } else {
+        newContent = htmlContent;
+      }
+
       if (newContent !== lastContentRef.current) {
         lastContentRef.current = newContent;
         onChange(newContent);
@@ -131,6 +164,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         class: 'rich-text-editor-content',
       },
       handlePaste: (view, event) => {
+        if (isMarkdownMode) return false;
         const items = event.clipboardData?.items;
         if (!items) return false;
 
@@ -147,6 +181,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         return false;
       },
       handleDrop: (view, event) => {
+        if (isMarkdownMode) return false;
         const files = event.dataTransfer?.files;
         if (!files || files.length === 0) return false;
 
@@ -162,26 +197,36 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     },
   });
 
-  // Update content when it changes externally (only if actually different)
+  // Update content when it changes externally
   useEffect(() => {
-    if (editor && content !== lastContentRef.current) {
-      // Normalize both for comparison (TipTap might format differently)
+    if (!editor) return;
+    
+    if (content !== lastContentRef.current) {
+      const htmlContent = format === 'markdown' 
+        ? marked.parse(content, { async: false }) as string 
+        : content;
+      
       const editorContent = editor.getHTML();
-      const normalizedContent = content || '';
-      const normalizedEditor = editorContent || '';
-
-      // Only update if genuinely different
-      if (normalizedContent !== normalizedEditor) {
+      
+      if (htmlContent !== editorContent) {
         isUpdatingRef.current = true;
         lastContentRef.current = content;
-        editor.commands.setContent(content);
-        // Reset flag after a tick to ensure onUpdate has fired
+        editor.commands.setContent(htmlContent);
         setTimeout(() => {
           isUpdatingRef.current = false;
         }, 0);
       }
     }
-  }, [content, editor]);
+  }, [content, editor, format]);
+
+  // Sync markdown content when switching modes
+  useEffect(() => {
+    if (isMarkdownMode && editor) {
+      const html = editor.getHTML();
+      const md = turndownService.turndown(html);
+      setMarkdownContent(md);
+    }
+  }, [isMarkdownMode, editor]);
 
   // Handle image upload
   const handleImageUpload = useCallback(async (file: File) => {
@@ -191,15 +236,86 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
       const imageUrl = await onImageUpload(file);
       const fullUrl = imageUrl.startsWith('http') ? imageUrl : `${API_BASE_URL}${imageUrl}`;
 
-      editor
-        .chain()
-        .focus()
-        .setImage({ src: fullUrl })
-        .run();
+      if (format === 'markdown') {
+        // Insert markdown image syntax
+        const imageMarkdown = `![${file.name}](${fullUrl})`;
+        const newContent = content + '\n\n' + imageMarkdown;
+        onChange(newContent);
+      } else {
+        editor
+          .chain()
+          .focus()
+          .setImage({ src: fullUrl })
+          .run();
+      }
     } catch (error) {
       console.error('Failed to upload image:', error);
     }
-  }, [editor, onImageUpload]);
+  }, [editor, onImageUpload, format, content, onChange]);
+
+  // Toggle markdown mode
+  const toggleMarkdownMode = useCallback(() => {
+    if (!editor) return;
+    
+    if (!isMarkdownMode) {
+      // Switching to markdown mode - convert HTML to markdown
+      const html = editor.getHTML();
+      const md = turndownService.turndown(html);
+      setMarkdownContent(md);
+    } else {
+      // Switching to WYSIWYG mode - convert markdown to HTML
+      const html = marked.parse(markdownContent, { async: false }) as string;
+      editor.commands.setContent(html);
+      
+      // Trigger onChange with updated content
+      let newContent: string;
+      if (format === 'markdown') {
+        newContent = markdownContent;
+      } else {
+        newContent = html;
+      }
+      
+      if (newContent !== lastContentRef.current) {
+        lastContentRef.current = newContent;
+        onChange(newContent);
+      }
+    }
+    
+    setIsMarkdownMode(!isMarkdownMode);
+  }, [isMarkdownMode, editor, markdownContent, format, onChange]);
+
+  // Handle markdown textarea changes
+  const handleMarkdownChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newMarkdown = e.target.value;
+    setMarkdownContent(newMarkdown);
+    
+    if (newMarkdown !== lastContentRef.current) {
+      lastContentRef.current = newMarkdown;
+      onChange(newMarkdown);
+    }
+  }, [onChange]);
+
+  // Toggle format between HTML and Markdown storage
+  const toggleFormat = useCallback(() => {
+    const newFormat = format === 'html' ? 'markdown' : 'html';
+    
+    if (editor) {
+      if (newFormat === 'markdown' && !isMarkdownMode) {
+        // Convert current HTML to markdown storage
+        const html = editor.getHTML();
+        const md = turndownService.turndown(html);
+        lastContentRef.current = md;
+        onChange(md);
+      } else if (newFormat === 'html' && !isMarkdownMode) {
+        // Keep as HTML
+        const html = editor.getHTML();
+        lastContentRef.current = html;
+        onChange(html);
+      }
+    }
+    
+    onFormatChange?.(newFormat);
+  }, [format, isMarkdownMode, editor, onChange, onFormatChange]);
 
   // Toolbar button component
   const ToolbarButton = ({
@@ -241,9 +357,51 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 
   return (
     <div className={`rich-text-editor ${className}`}>
-      {/* Formatting Toolbar */}
+      {/* Format Toggle & Markdown Mode Toggle */}
       {!disabled && (
-        <div className="flex flex-wrap items-center gap-1 p-2 border border-b-0 border-border rounded-t-lg bg-muted/50">
+        <div className="flex items-center justify-between p-2 border border-b-0 border-border rounded-t-lg bg-muted/50">
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground font-medium">Format:</span>
+            <div className="flex items-center bg-background rounded-md border border-border overflow-hidden">
+              <button
+                type="button"
+                onClick={() => format !== 'html' && toggleFormat()}
+                className={`px-3 py-1 text-xs font-medium transition-colors ${
+                  format === 'html'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'hover:bg-muted text-muted-foreground'
+                }`}
+              >
+                HTML
+              </button>
+              <button
+                type="button"
+                onClick={() => format !== 'markdown' && toggleFormat()}
+                className={`px-3 py-1 text-xs font-medium transition-colors ${
+                  format === 'markdown'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'hover:bg-muted text-muted-foreground'
+                }`}
+              >
+                Markdown
+              </button>
+            </div>
+          </div>
+          
+          <ToolbarButton
+            onClick={toggleMarkdownMode}
+            isActive={isMarkdownMode}
+            title={isMarkdownMode ? 'Switch to Visual Editor' : 'Switch to Markdown Editor'}
+          >
+            {isMarkdownMode ? <Eye className="w-4 h-4" /> : <FileCode className="w-4 h-4" />}
+            <span className="ml-1 text-xs">{isMarkdownMode ? 'Visual' : 'MD'}</span>
+          </ToolbarButton>
+        </div>
+      )}
+
+      {/* Formatting Toolbar - Only show in visual mode */}
+      {!disabled && !isMarkdownMode && (
+        <div className="flex flex-wrap items-center gap-1 p-2 border border-b-0 border-border bg-muted/50">
           {/* Text Formatting */}
           <ToolbarButton
             onClick={() => editor.chain().focus().toggleBold().run()}
@@ -446,7 +604,34 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         </div>
       )}
 
-      <EditorContent editor={editor} />
+      {/* Editor Content */}
+      {isMarkdownMode ? (
+        <textarea
+          ref={textareaRef}
+          value={markdownContent}
+          onChange={handleMarkdownChange}
+          disabled={disabled}
+          placeholder={placeholder}
+          className="rich-text-markdown-textarea"
+          style={{
+            width: '100%',
+            minHeight: '200px',
+            padding: '12px',
+            border: '1px solid hsl(var(--border))',
+            borderRadius: disabled ? '8px' : '0 0 8px 8px',
+            background: 'hsl(var(--background))',
+            color: 'hsl(var(--foreground))',
+            fontSize: '14px',
+            lineHeight: '1.6',
+            fontFamily: 'monospace',
+            resize: 'vertical',
+            outline: 'none',
+          }}
+        />
+      ) : (
+        <EditorContent editor={editor} />
+      )}
+
       <style>{`
         .rich-text-editor {
           position: relative;
@@ -677,6 +862,12 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         /* Dark mode adjustments */
         .dark .rich-text-editor .ProseMirror {
           background: hsl(var(--background));
+        }
+
+        /* Markdown textarea focus */
+        .rich-text-markdown-textarea:focus {
+          border-color: hsl(var(--ring)) !important;
+          box-shadow: 0 0 0 2px hsl(var(--ring) / 0.2);
         }
       `}</style>
     </div>
