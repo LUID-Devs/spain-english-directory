@@ -566,13 +566,18 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                     <Label className="flex items-center gap-2 text-foreground font-medium text-xs lg:text-sm">
                       <Clock className="h-3 w-3 lg:h-4 lg:w-4" />
                       Due Date
+                      <span className="text-destructive">*</span>
                     </Label>
                     <Input
                       type="date"
                       value={editForm.dueDate}
                       onChange={(e) => handleFieldChange('dueDate', e.target.value)}
-                      className="w-full h-9 lg:h-10"
+                      className={`w-full h-9 lg:h-10 ${!editForm.dueDate ? 'border-destructive' : ''}`}
+                      required
                     />
+                    {!editForm.dueDate && (
+                      <p className="text-xs text-destructive">Due date is required</p>
+                    )}
                   </div>
 
                   {/* Tags - full width on mobile */}

@@ -68,6 +68,14 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
   const [showAiInput, setShowAiInput] = useState(true);
   const AI_CREDIT_COST = 1;
 
+  // AI Due Date Suggestion state
+  const [dueDateSuggestion, setDueDateSuggestion] = useState<{
+    date: string;
+    reasoning: string;
+    confidence: number;
+  } | null>(null);
+  const [isSuggestingDueDate, setIsSuggestingDueDate] = useState(false);
+
   // Reset form to initial state
   const resetForm = () => {
     setTitle("");
@@ -80,6 +88,7 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
     setAssignedUserId("");
     setAiInput("");
     setShowAiInput(true);
+    setDueDateSuggestion(null);
     // Keep authorUserId as the current user
     if (currentUser?.userId) {
       setAuthorUserId(currentUser.userId.toString());
@@ -166,6 +175,59 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
       toast.error(error.message || "Failed to parse task with AI");
     } finally {
       setIsAiParsing(false);
+    }
+  };
+
+  // AI Due Date Suggestion function
+  const handleSuggestDueDate = async () => {
+    if (!title.trim()) {
+      toast.error("Please enter a task title first");
+      return;
+    }
+
+    if (totalCredits < AI_CREDIT_COST) {
+      toast.error("Insufficient credits. Please purchase more credits to use AI features.");
+      return;
+    }
+
+    setIsSuggestingDueDate(true);
+
+    try {
+      // Strip HTML tags from description for AI processing
+      const plainDescription = description.replace(/<[^>]*>/g, '');
+      
+      const response = await apiService.suggestDueDateWithAI({
+        title: title.trim(),
+        description: plainDescription || undefined,
+        priority,
+        tags: tags || undefined,
+      });
+
+      if (response.success && response.suggestedDueDate) {
+        setDueDateSuggestion({
+          date: response.suggestedDueDate,
+          reasoning: response.reasoning || 'Based on task priority and complexity',
+          confidence: response.confidence || 0.8,
+        });
+        toast.success(`Due date suggested! Used ${response.creditsUsed || AI_CREDIT_COST} credit.`);
+        fetchCredits();
+      } else {
+        const errorMsg = response.error?.message || "Failed to suggest due date";
+        toast.error(errorMsg);
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Failed to get AI due date suggestion");
+    } finally {
+      setIsSuggestingDueDate(false);
+    }
+  };
+
+  // Apply suggested due date
+  const applySuggestedDueDate = () => {
+    if (dueDateSuggestion) {
+      setDueDate(dueDateSuggestion.date);
+      setDueDateSuggestion(null);
+      toast.success("Due date applied!");
     }
   };
 
@@ -456,9 +518,69 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
                 id="dueDate"
                 type="date"
                 value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
+                onChange={(e) => {
+                  setDueDate(e.target.value);
+                  setDueDateSuggestion(null);
+                }}
                 required
               />
+              
+              {/* AI Due Date Suggestion */}
+              {!dueDate && title && !dueDateSuggestion && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleSuggestDueDate}
+                  disabled={isSuggestingDueDate || totalCredits < AI_CREDIT_COST}
+                  className="text-xs gap-1 h-7 px-2 text-primary hover:text-primary"
+                >
+                  {isSuggestingDueDate ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : (
+                    <Sparkles className="h-3 w-3" />
+                  )}
+                  Suggest with AI
+                  <span className="text-muted-foreground">({AI_CREDIT_COST} credit)</span>
+                </Button>
+              )}
+              
+              {/* Show Suggestion */}
+              {dueDateSuggestion && !dueDate && (
+                <div className="rounded-md border border-primary/20 bg-primary/5 p-2 mt-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium text-foreground truncate">
+                        Suggested: {new Date(dueDateSuggestion.date).toLocaleDateString()}
+                      </p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {dueDateSuggestion.reasoning}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setDueDateSuggestion(null)}
+                        className="h-6 px-2 text-xs"
+                      >
+                        Ignore
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="default"
+                        size="sm"
+                        onClick={applySuggestedDueDate}
+                        className="h-6 px-2 text-xs gap-1"
+                      >
+                        <Sparkles className="h-3 w-3" />
+                        Apply
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

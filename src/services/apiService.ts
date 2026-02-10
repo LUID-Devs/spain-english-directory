@@ -583,6 +583,29 @@ class ApiService {
   async getAIStatus(): Promise<AIStatusResponse> {
     return this.request<AIStatusResponse>('/api/ai/status');
   }
+
+  // AI Due Date Suggestion
+  async suggestDueDateWithAI(taskData: {
+    title: string;
+    description?: string;
+    priority: string;
+    tags?: string;
+  }): Promise<{
+    success: boolean;
+    suggestedDueDate?: string;
+    reasoning?: string;
+    confidence?: number;
+    error?: {
+      message: string;
+      code: string;
+    };
+    creditsUsed?: number;
+  }> {
+    return this.request('/api/ai/suggest-due-date', {
+      method: 'POST',
+      body: JSON.stringify(taskData),
+    });
+  }
 }
 
 export const apiService = new ApiService();
