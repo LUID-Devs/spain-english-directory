@@ -17,7 +17,6 @@ import {
   ShieldAlert,
   Clock,
   Star,
-  Pin,
   Plus,
   FolderOpen,
   Activity,
@@ -36,6 +35,7 @@ import InviteToWorkspaceModal from "@/components/InviteToWorkspaceModal";
 import { useLocation, Link } from "react-router-dom";
 import { useGlobalStore } from "@/stores/globalStore";
 import { useGetProjectsQuery, useGetTeamsQuery } from "@/hooks/useApi";
+import { useProjects } from "@/stores/apiStore";
 import { useCurrentUser } from "@/stores/userStore";
 import { useAuth } from "@/app/authProvider";
 import { Button } from "@/components/ui/button";
@@ -52,9 +52,13 @@ const Sidebar = () => {
   const auth = useAuth();
   const { currentUser } = useCurrentUser();
 
-  const { data: projects } = useGetProjectsQuery({}, {
+  const { data: queryProjects } = useGetProjectsQuery({}, {
     skip: isSidebarCollapsed, // Skip loading if sidebar is collapsed
   });
+  
+  // Subscribe to store for real-time updates (e.g., when user stars/unstars a project)
+  const projectsStore = useProjects();
+  const projects = projectsStore.data || queryProjects;
   const { data: teams } = useGetTeamsQuery(undefined, {
     skip: isSidebarCollapsed, // Skip loading if sidebar is collapsed
   });
@@ -64,8 +68,8 @@ const Sidebar = () => {
   const currentUserDetails = currentUser;
   const userTeam = teams?.find(team => team.teamId === currentUser.teamId);
 
-  // Get favorite/pinned projects (first 3-5 projects as example)
-  const favoriteProjects = projects?.slice(0, 4) || [];
+  // Get favorite/pinned projects (only starred projects)
+  const favoriteProjects = projects?.filter((project) => project.isFavorited) || [];
   const remainingProjectsCount = (projects?.length || 0) - favoriteProjects.length;
 
   const sidebarClassNames = cn(
@@ -145,7 +149,7 @@ const Sidebar = () => {
           </nav>
         </div>
 
-        {/* QUICK ACCESS SECTION */}
+        {/* PINNED PROJECTS SECTION */}
         {favoriteProjects.length > 0 && (
           <div className="px-4 sm:px-6 py-3">
             <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
@@ -156,7 +160,7 @@ const Sidebar = () => {
                 <SidebarLink
                   key={`favorite-${project.id}`}
                   href={`/dashboard/projects/${project.id}`}
-                  icon={Pin}
+                  icon={Star}
                   label={project.name}
                   isSubItem
                 />
