@@ -217,7 +217,7 @@ const BoardView = ({
   if (isLoading) {
     return (
       <div className="container mx-auto px-2 sm:px-4 py-4 sm:p-6 overflow-x-auto scrollbar-hide">
-        <div className="flex gap-3 sm:gap-6 pb-4 snap-x snap-mandatory sm:snap-none">
+        <div className="flex gap-2 sm:gap-6 pb-4 snap-x snap-mandatory sm:snap-none">
           {DEFAULT_STATUSES.map((status) => (
             <Card key={status} className="w-[85vw] sm:w-80 flex-shrink-0 snap-center sm:snap-align-none">
               <CardHeader className="pb-3">
@@ -254,7 +254,7 @@ const BoardView = ({
   return (
     <div className="container mx-auto px-2 sm:px-4 py-4 sm:p-6 overflow-x-auto scrollbar-hide">
       <DndProvider backend={HTML5Backend}>
-        <div className="flex gap-3 sm:gap-6 pb-4 snap-x snap-mandatory sm:snap-none">
+        <div className="flex gap-2 sm:gap-6 pb-4 snap-x snap-mandatory sm:snap-none">
           {statusNames.map((status: string) => (
             <TaskColumn
               key={status}
