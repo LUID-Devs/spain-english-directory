@@ -176,7 +176,7 @@ export const AgentDetailModal: React.FC<AgentDetailModalProps> = ({
 
             <DialogHeader className="p-4 sm:p-6 pb-0">
               <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                <div className="flex items-center gap-3 sm:gap-4">
+                <div className="flex items-center gap-2 sm:gap-3">
                   <Avatar className="h-14 w-14 sm:h-16 sm:w-16 text-2xl sm:text-3xl flex-shrink-0">
                     <AvatarFallback className="bg-muted">{emoji}</AvatarFallback>
                   </Avatar>
