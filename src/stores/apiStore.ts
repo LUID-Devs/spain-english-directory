@@ -13,6 +13,7 @@ interface ApiState {
   tasks: ApiResponse<any[]>;
   users: ApiResponse<any[]>;
   teams: ApiResponse<any[]>;
+  agents: ApiResponse<any[]>;
   taskComments: Record<string, ApiResponse<any[]>>;
   taskAttachments: Record<string, ApiResponse<any[]>>;
   searchResults: ApiResponse<any>;
@@ -28,6 +29,7 @@ interface ApiState {
   setTasks: (data: any[], loading?: boolean, error?: string | null) => void;
   setUsers: (data: any[], loading?: boolean, error?: string | null) => void;
   setTeams: (data: any[], loading?: boolean, error?: string | null) => void;
+  setAgents: (data: any[], loading?: boolean, error?: string | null) => void;
   setTaskComments: (taskId: string, data: any[], loading?: boolean, error?: string | null) => void;
   setTaskAttachments: (taskId: string, data: any[], loading?: boolean, error?: string | null) => void;
 }
@@ -46,6 +48,7 @@ export const useApiStore = create<ApiState>()(
     tasks: initialApiResponse<any[]>(),
     users: initialApiResponse<any[]>(),
     teams: initialApiResponse<any[]>(),
+    agents: initialApiResponse<any[]>(),
     taskComments: {},
     taskAttachments: {},
     searchResults: initialApiResponse<any>(),
@@ -88,6 +91,7 @@ export const useApiStore = create<ApiState>()(
           tasks: initialApiResponse<any[]>(),
           users: initialApiResponse<any[]>(),
           teams: initialApiResponse<any[]>(),
+          agents: initialApiResponse<any[]>(),
           taskComments: {},
           taskAttachments: {},
           searchResults: initialApiResponse<any>(),
@@ -126,6 +130,15 @@ export const useApiStore = create<ApiState>()(
     setTeams: (data, loading = false, error = null) => 
       set({ 
         teams: { 
+          data, 
+          isLoading: loading, 
+          error 
+        } 
+      }),
+    
+    setAgents: (data, loading = false, error = null) => 
+      set({ 
+        agents: { 
           data, 
           isLoading: loading, 
           error 

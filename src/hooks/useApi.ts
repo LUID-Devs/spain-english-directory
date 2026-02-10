@@ -232,6 +232,49 @@ export const useGetUsersQuery = (params: any = undefined, options: { skip?: bool
   };
 };
 
+// Hook to get agents
+export const useGetAgentsQuery = (options: { skip?: boolean } = {}) => {
+  const { agents, setAgents, setLoading, setError } = useApiStore();
+  const hasFetchedRef = useRef(false);
+  const skipRef = useRef(options.skip);
+  
+  const fetchAgents = useCallback(async () => {
+    if (skipRef.current) return;
+    
+    try {
+      setLoading('agents', true);
+      const agentsData = await apiService.getAgents();
+      setAgents(agentsData);
+      return agentsData;
+    } catch (error) {
+      console.error('Failed to fetch agents:', error);
+      setError('agents', error instanceof Error ? error.message : 'Failed to fetch agents');
+      throw error;
+    } finally {
+      setLoading('agents', false);
+    }
+  }, [setAgents, setLoading, setError]);
+
+  useEffect(() => {
+    // Update refs
+    skipRef.current = options.skip;
+    
+    // Only fetch once on mount unless skip changes
+    if (!hasFetchedRef.current && !options.skip) {
+      hasFetchedRef.current = true;
+      fetchAgents();
+    }
+  }, [options.skip, fetchAgents]);
+
+  return {
+    data: agents.data,
+    isLoading: agents.isLoading,
+    isError: !!agents.error,
+    error: agents.error ? new Error(agents.error) : null,
+    refetch: fetchAgents,
+  };
+};
+
 // Hook to replace useGetTaskCommentsQuery
 export const useGetTaskCommentsQuery = (taskId: number) => {
   const { taskComments, setTaskComments } = useApiStore();

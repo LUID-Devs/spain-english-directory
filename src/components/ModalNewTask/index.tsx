@@ -1,4 +1,4 @@
-import { Priority, Status, useCreateTaskMutation, useGetUsersQuery, useGetProjectsQuery, useGetProjectStatusesQuery, useUploadTaskDescriptionImageMutation } from "@/hooks/useApi";
+import { Priority, Status, useCreateTaskMutation, useGetUsersQuery, useGetAgentsQuery, useGetProjectsQuery, useGetProjectStatusesQuery, useUploadTaskDescriptionImageMutation } from "@/hooks/useApi";
 import { useCurrentUser } from "@/stores/userStore";
 import { useSubscription } from "@/stores/subscriptionStore";
 import { apiService, ParsedTaskData } from "@/services/apiService";
@@ -24,7 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import RichTextEditor from "@/components/RichTextEditor";
-import { Image, Sparkles, Loader2, ChevronDown, ChevronUp, Coins } from "lucide-react";
+import { Image, Sparkles, Loader2, ChevronDown, ChevronUp, Coins, Bot } from "lucide-react";
 
 // Configure marked for safe HTML output
 marked.setOptions({
@@ -47,6 +47,9 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
   const {data: users} = useGetUsersQuery(undefined, {
     skip: !isOpen, // Only load when modal is open
   });
+  const {data: agents} = useGetAgentsQuery({
+    skip: !isOpen, // Only load when modal is open
+  });
   const {data: projects} = useGetProjectsQuery({}, {
     skip: !isOpen, // Only load when modal is open
   });
@@ -60,6 +63,7 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
   const [dueDate, setDueDate] = useState("");
   const [authorUserId, setAuthorUserId] = useState("");
   const [assignedUserId, setAssignedUserId] = useState("");
+  const [assignedAgentId, setAssignedAgentId] = useState("");
   const [projectId, setProjectId] = useState("");
 
   // AI Quick Input state
@@ -86,6 +90,7 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
     setStartDate("");
     setDueDate("");
     setAssignedUserId("");
+    setAssignedAgentId("");
     setAiInput("");
     setShowAiInput(true);
     setDueDateSuggestion(null);
@@ -304,7 +309,19 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
         projectId: id !== null ? Number(id) : Number(projectId),
       };
 
-      await createTask(taskData).unwrap();
+      const result = await createTask(taskData).unwrap();
+      
+      // Assign agent if selected
+      if (assignedAgentId && result?.id) {
+        try {
+          await apiService.assignAgentToTask(result.id, parseInt(assignedAgentId), status);
+        } catch (agentError) {
+          console.error("Failed to assign agent:", agentError);
+          // Don't fail the whole operation if agent assignment fails
+          toast.warning("Task created but failed to assign AI agent");
+        }
+      }
+      
       onClose();
     } catch (error) {
       toast.error("Failed to create task");
@@ -625,6 +642,36 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
                 </SelectContent>
               </Select>
             </div>
+          </div>
+
+          {/* AI Agent Assignment */}
+          <div className="space-y-2">
+            <Label className="text-foreground font-medium flex items-center gap-2">
+              <Bot className="h-4 w-4 text-primary" />
+              AI Agent
+            </Label>
+            <Select
+              value={assignedAgentId || "unassigned"}
+              onValueChange={(value) => setAssignedAgentId(value === "unassigned" ? "" : value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select AI agent (optional)" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="unassigned">No AI Agent</SelectItem>
+                {agents?.map((agent) => (
+                  <SelectItem key={agent.id} value={agent.id.toString()}>
+                    <div className="flex items-center gap-2">
+                      <span>{agent.displayName || agent.name}</span>
+                      <span className="text-xs text-muted-foreground capitalize">({agent.status})</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              Assign an AI agent to work on this task automatically
+            </p>
           </div>
 
           {/* Project Selection (only if not in a specific project) */}

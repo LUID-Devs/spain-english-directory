@@ -83,6 +83,25 @@ export interface UserWithStats extends User {
   };
 }
 
+export interface Agent {
+  id: number;
+  name: string;
+  displayName?: string;
+  role?: string;
+  status: 'active' | 'inactive' | 'busy';
+  lastHeartbeat?: string;
+  currentTaskId?: number;
+  currentTask?: {
+    id: number;
+    title: string;
+    status: string;
+  };
+  _count?: {
+    assignedTasks: number;
+    notifications: number;
+  };
+}
+
 export interface Attachment {
   id: number;
   fileURL: string;
@@ -604,6 +623,18 @@ class ApiService {
     return this.request('/api/ai/suggest-due-date', {
       method: 'POST',
       body: JSON.stringify(taskData),
+    });
+  }
+
+  // Agents
+  async getAgents(): Promise<Agent[]> {
+    return this.request<Agent[]>('/agents');
+  }
+
+  async assignAgentToTask(taskId: number, agentId: number, status?: string): Promise<{ message: string; assignment: any }> {
+    return this.request<{ message: string; assignment: any }>(`/tasks/${taskId}/assign-agents`, {
+      method: 'POST',
+      body: JSON.stringify({ agentId, status: status || 'To Do' }),
     });
   }
 }
