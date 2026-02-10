@@ -36,7 +36,8 @@ import {
   ChevronRight,
   GripVertical,
   Copy,
-  Share2
+  Share2,
+  AlertCircle
 } from "lucide-react";
 import { toast } from "sonner";
 import { format, formatDistanceToNow, isAfter, isBefore } from "date-fns";
@@ -76,6 +77,38 @@ type BoardProps = {
 
 // Default statuses (fallback if API fails)
 const DEFAULT_STATUSES = ["To Do", "Work In Progress", "Under Review", "Completed"];
+
+// WIP (Work In Progress) Limits per column
+const WIP_LIMITS: Record<string, number> = {
+  "To Do": 20,
+  "Work In Progress": 5,  // Strict limit to prevent multitasking
+  "Under Review": 8,
+  "Completed": Infinity,
+};
+
+// Workflow enforcement: defines valid transitions
+// A task can only move to the next status in the chain
+const WORKFLOW_CHAIN = ["To Do", "Work In Progress", "Under Review", "Completed"];
+
+// Check if a status transition is valid according to workflow
+const isValidWorkflowTransition = (fromStatus: string, toStatus: string): boolean => {
+  // Always allow moving back (e.g., from Review back to WIP)
+  const fromIndex = WORKFLOW_CHAIN.indexOf(fromStatus);
+  const toIndex = WORKFLOW_CHAIN.indexOf(toStatus);
+  
+  if (fromIndex === -1 || toIndex === -1) {
+    // Custom statuses - allow any transition for flexibility
+    return true;
+  }
+  
+  // Allow moving to same status, moving forward by one step, or moving backward
+  return toIndex <= fromIndex + 1;
+};
+
+// Get WIP limit for a status
+const getWipLimit = (status: string): number => {
+  return WIP_LIMITS[status] ?? Infinity;
+};
 
 const BoardView = ({
   id,
@@ -128,10 +161,40 @@ const BoardView = ({
   // Lock state for column reordering
   const [isColumnsLocked, setIsColumnsLocked] = React.useState(true);
 
-  const moveTask = async (taskId: number, toStatus: string) => {
+  const moveTask = async (taskId: number, toStatus: string, fromStatus?: string) => {
     try {
+      // Workflow enforcement: Check if transition is valid
+      const currentStatus = fromStatus || tasks?.find(t => t.id === taskId)?.status || "To Do";
+      
+      if (!isValidWorkflowTransition(currentStatus, toStatus)) {
+        toast.error(
+          `Workflow violation: Cannot move task directly from "${currentStatus}" to "${toStatus}". ` +
+          `Tasks must flow through the proper sequence.`,
+          { duration: 4000 }
+        );
+        return;
+      }
+
+      // WIP Limit check
+      const wipLimit = getWipLimit(toStatus);
+      const tasksInTargetColumn = tasks?.filter(t => (t.status || "To Do") === toStatus).length || 0;
+      
+      if (wipLimit !== Infinity && tasksInTargetColumn >= wipLimit) {
+        toast.error(
+          `WIP Limit reached: "${toStatus}" is limited to ${wipLimit} tasks. ` +
+          `Please complete or move existing tasks before adding more.`,
+          { duration: 4000 }
+        );
+        return;
+      }
+
       // Use PUT /tasks/{id} with status update - optimistic update handles UI
       await updateTask({ taskId, task: { status: toStatus } }).unwrap();
+      
+      // Show success message for workflow compliance
+      if (toStatus === "Completed") {
+        toast.success("Task completed! 🎉", { duration: 2000 });
+      }
       // No refetch needed - optimistic update handles this
     } catch (error) {
       console.error('Failed to update task status:', error);
@@ -337,13 +400,16 @@ const TaskColumn = React.memo(({
 }: TaskColumnProps) => {
   const [{ isOver }, drop] = useDrop(() => ({
     accept: "task",
-    drop: (item: { id: number }) => moveTask(item.id, status),
+    drop: (item: { id: number; status?: string }) => moveTask(item.id, status, item.status),
     collect: (monitor: DropTargetMonitor) => ({
       isOver: !!monitor.isOver()
     }),
   }));
 
   const tasksCount = tasks.filter((task) => (task.status || "To Do") === status).length;
+  const wipLimit = getWipLimit(status);
+  const isWipExceeded = wipLimit !== Infinity && tasksCount > wipLimit;
+  const isWipWarning = wipLimit !== Infinity && tasksCount >= wipLimit * 0.8 && tasksCount <= wipLimit;
 
   const getStatusConfig = (status: string) => {
     const configs: Record<string, { variant: "outline" | "secondary" | "default"; icon: any; className: string }> = {
@@ -395,9 +461,22 @@ const TaskColumn = React.memo(({
           <div className="flex items-center space-x-2">
             <StatusIcon className="h-4 w-4 text-muted-foreground" />
             <CardTitle className="text-sm font-medium">{status}</CardTitle>
-            <Badge variant={config.variant} className="text-xs">
-              {tasksCount}
+            <Badge 
+              variant={config.variant} 
+              className={cn(
+                "text-xs",
+                isWipExceeded && "bg-destructive text-destructive-foreground",
+                isWipWarning && "bg-amber-500 text-white"
+              )}
+            >
+              {tasksCount}{wipLimit !== Infinity && `/${wipLimit}`}
             </Badge>
+            {isWipExceeded && (
+              <AlertCircle className="h-4 w-4 text-destructive" title="WIP limit exceeded!" />
+            )}
+            {isWipWarning && !isWipExceeded && (
+              <AlertTriangle className="h-4 w-4 text-amber-500" title="Approaching WIP limit" />
+            )}
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -530,7 +609,7 @@ const Task = React.memo(({ task, onTaskSelect }: TaskProps) => {
   const [createTask, { isLoading: isDuplicating }] = useCreateTaskMutation();
   const [{ isDragging }, drag] = useDrag(() => ({
     type: "task",
-    item: { id: task.id },
+    item: { id: task.id, status: task.status || "To Do" },
     collect: (monitor: DragSourceMonitor) => ({
       isDragging: !!monitor.isDragging()
     }),

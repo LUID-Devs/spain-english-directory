@@ -224,7 +224,7 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
   }, [uploadDescriptionImage]);
 
   const handleSubmit = async () => {
-    if (!title || !authorUserId || !((id !== null) || projectId)) {
+    if (!title || !authorUserId || !((id !== null) || projectId) || !dueDate) {
       return;
     }
 
@@ -250,7 +250,7 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
   };
 
   const isFormValid = () => {
-    return title && authorUserId && (id !== null || projectId);
+    return title && authorUserId && (id !== null || projectId) && dueDate;
   };
 
   return (
@@ -449,12 +449,15 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="dueDate" className="text-foreground font-medium">Due Date</Label>
+              <Label htmlFor="dueDate" className="text-foreground font-medium">
+                Due Date <span className="text-destructive">*</span>
+              </Label>
               <Input
                 id="dueDate"
                 type="date"
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
+                required
               />
             </div>
           </div>
