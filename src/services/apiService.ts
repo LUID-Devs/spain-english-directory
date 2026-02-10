@@ -634,7 +634,7 @@ class ApiService {
   async assignAgentToTask(taskId: number, agentId: number, status?: string): Promise<{ message: string; assignment: any }> {
     return this.request<{ message: string; assignment: any }>(`/tasks/${taskId}/assign-agents`, {
       method: 'POST',
-      body: JSON.stringify({ agentId, status: status || 'To Do' }),
+      body: JSON.stringify({ agentIds: [agentId], status: status || 'To Do' }),
     });
   }
 }
