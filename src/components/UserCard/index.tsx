@@ -4,13 +4,22 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Settings, MessageCircle, Paperclip } from "lucide-react";
+import { Settings, MessageCircle, Paperclip, MoreVertical, Trash2, UserCog } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 
 type Props = {
   user: UserWithStats;
   showStats?: boolean;
   onManageRole?: (user: UserWithStats) => void;
+  onRemoveMember?: (user: UserWithStats) => void;
+  canRemove?: boolean;
 };
 
 const getRoleBadge = (role: string) => {
@@ -23,7 +32,7 @@ const getRoleBadge = (role: string) => {
   return roleMap[role] || roleMap['member'];
 };
 
-const UserCard = ({ user, showStats = false, onManageRole }: Props) => {
+const UserCard = ({ user, showStats = false, onManageRole, onRemoveMember, canRemove = false }: Props) => {
   const formatLastActivity = (lastActivity: string | null) => {
     if (!lastActivity) return "No recent activity";
     const date = new Date(lastActivity);
@@ -68,15 +77,38 @@ const UserCard = ({ user, showStats = false, onManageRole }: Props) => {
             </div>
           </div>
 
-          {onManageRole && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onManageRole(user)}
-              className="h-8 w-8 p-0"
-            >
-              <Settings className="h-4 w-4" />
-            </Button>
+          {(onManageRole || (onRemoveMember && canRemove)) && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0"
+                >
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {onManageRole && (
+                  <DropdownMenuItem onClick={() => onManageRole(user)}>
+                    <UserCog className="h-4 w-4 mr-2" />
+                    Manage Role
+                  </DropdownMenuItem>
+                )}
+                {onRemoveMember && canRemove && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem 
+                      onClick={() => onRemoveMember(user)}
+                      className="text-red-600 focus:text-red-600"
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Remove Member
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
         </div>
 

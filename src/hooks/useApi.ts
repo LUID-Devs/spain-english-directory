@@ -1226,6 +1226,33 @@ export const useUpdateUserRoleMutation = () => {
   return [mutationWrapper, { isLoading: false }];
 };
 
+export const useRemoveOrganizationMemberMutation = () => {
+  const removeOrganizationMember = useCallback(async (data: { organizationId: number; userId: number }) => {
+    const loadingToast = toast.loading('Removing member...');
+    
+    try {
+      const result = await apiService.removeOrganizationMember(data.organizationId, data.userId);
+      toast.success('Member removed successfully!', { id: loadingToast });
+      
+      // Dispatch event to trigger refetch of users list
+      window.dispatchEvent(new CustomEvent('organizationMemberRemoved', { 
+        detail: { userId: data.userId, organizationId: data.organizationId } 
+      }));
+      
+      return result;
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to remove member', { id: loadingToast });
+      throw error;
+    }
+  }, []);
+
+  const mutationWrapper = useCallback((args: { organizationId: number; userId: number }) => ({
+    unwrap: () => removeOrganizationMember(args)
+  }), [removeOrganizationMember]);
+
+  return [mutationWrapper, { isLoading: false }];
+};
+
 // Search hooks
 export const useSearchQuery = (query: string, options: { skip?: boolean } = {}) => {
   const [searchResults, setSearchResults] = useState<any>(null);

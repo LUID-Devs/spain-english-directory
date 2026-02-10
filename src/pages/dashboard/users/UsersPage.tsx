@@ -1,4 +1,5 @@
-import { useGetUsersWithStatsQuery, useInviteUserMutation, useUpdateUserRoleMutation, UserWithStats } from "@/hooks/useApi";
+import { useGetUsersWithStatsQuery, useInviteUserMutation, useUpdateUserRoleMutation, useRemoveOrganizationMemberMutation, UserWithStats } from "@/hooks/useApi";
+import { useUserStore } from "@/stores/userStore";
 import React, { useState } from "react";
 import UserCard from "@/components/UserCard";
 import InviteUserModal from "@/components/InviteUserModal";
@@ -10,7 +11,10 @@ import {
   Settings,
   Grid3X3,
   List,
-  UserPlus
+  UserPlus,
+  Trash2,
+  MoreVertical,
+  AlertTriangle
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,6 +22,21 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 
 const getRoleBadge = (role: string) => {
@@ -31,18 +50,48 @@ const getRoleBadge = (role: string) => {
 };
 
 const UsersPage = () => {
-  const { data: users, isLoading, isError } = useGetUsersWithStatsQuery();
+  const { data: users, isLoading, isError, refetch } = useGetUsersWithStatsQuery();
   const [inviteUser] = useInviteUserMutation();
   const [updateUserRole] = useUpdateUserRoleMutation();
+  const [removeOrganizationMember] = useRemoveOrganizationMemberMutation();
+  const { currentUser } = useUserStore();
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
+  const [isRemoveDialogOpen, setIsRemoveDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserWithStats | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Get current organization ID
+  const currentOrganizationId = currentUser?.activeOrganizationId || 
+    (typeof window !== 'undefined' ? Number(localStorage.getItem('activeOrganizationId')) : null);
 
   const handleManageRole = (user: UserWithStats) => {
     setSelectedUser(user);
     setIsRoleModalOpen(true);
+  };
+
+  const handleRemoveMember = (user: UserWithStats) => {
+    setSelectedUser(user);
+    setIsRemoveDialogOpen(true);
+  };
+
+  const confirmRemoveMember = async () => {
+    if (!selectedUser || !currentOrganizationId) return;
+    
+    try {
+      await removeOrganizationMember({ 
+        organizationId: currentOrganizationId, 
+        userId: selectedUser.userId 
+      }).unwrap();
+      
+      // Refetch users list
+      refetch();
+      setIsRemoveDialogOpen(false);
+      setSelectedUser(null);
+    } catch (error) {
+      console.error("Failed to remove member:", error);
+    }
   };
 
   // Filter users based on search query
@@ -215,6 +264,8 @@ const UsersPage = () => {
               user={user} 
               showStats={true} 
               onManageRole={handleManageRole}
+              onRemoveMember={handleRemoveMember}
+              canRemove={currentUser?.userId !== user.userId}
             />
           ))}
         </div>
@@ -269,15 +320,27 @@ const UsersPage = () => {
                         </div>
                       </div>
                     )}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleManageRole(user)}
-                      className="w-full"
-                    >
-                      <Settings className="h-4 w-4 mr-1" />
-                      Manage Role
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleManageRole(user)}
+                        className="flex-1"
+                      >
+                        <Settings className="h-4 w-4 mr-1" />
+                        Manage Role
+                      </Button>
+                      {currentUser?.userId !== user.userId && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleRemoveMember(user)}
+                          className="text-red-600 hover:text-red-600"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 );
               })}
@@ -357,14 +420,34 @@ const UsersPage = () => {
                           )}
                         </TableCell>
                         <TableCell>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleManageRole(user)}
-                          >
-                            <Settings className="h-4 w-4 mr-1" />
-                            Manage
-                          </Button>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                              >
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => handleManageRole(user)}>
+                                <Settings className="h-4 w-4 mr-2" />
+                                Manage Role
+                              </DropdownMenuItem>
+                              {currentUser?.userId !== user.userId && (
+                                <>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem 
+                                    onClick={() => handleRemoveMember(user)}
+                                    className="text-red-600 focus:text-red-600"
+                                  >
+                                    <Trash2 className="h-4 w-4 mr-2" />
+                                    Remove Member
+                                  </DropdownMenuItem>
+                                </>
+                              )}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </TableCell>
                       </TableRow>
                     );
@@ -400,6 +483,33 @@ const UsersPage = () => {
         user={selectedUser}
         onUpdateRole={handleUpdateRole}
       />
+
+      {/* Remove Member Confirmation Dialog */}
+      <Dialog open={isRemoveDialogOpen} onOpenChange={setIsRemoveDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-red-500" />
+              Remove Team Member
+            </DialogTitle>
+            <DialogDescription>
+              Are you sure you want to remove <strong>{selectedUser?.username}</strong> from the organization?
+              This action cannot be undone. The user will lose access to all projects and tasks.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setIsRemoveDialogOpen(false); setSelectedUser(null); }}>
+              Cancel
+            </Button>
+            <Button
+              onClick={confirmRemoveMember}
+              variant="destructive"
+            >
+              Remove Member
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

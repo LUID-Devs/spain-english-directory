@@ -534,6 +534,12 @@ class ApiService {
     });
   }
 
+  async removeOrganizationMember(organizationId: number, userId: number): Promise<{ message: string }> {
+    return this.request<{ message: string }>(`/organizations/${organizationId}/members/${userId}`, {
+      method: 'DELETE',
+    });
+  }
+
   // Teams
   async getTeams(): Promise<Team[]> {
     return this.request<Team[]>('/teams');
