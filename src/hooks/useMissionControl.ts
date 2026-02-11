@@ -346,6 +346,30 @@ export const useUpdateAgentTaskStatus = () => {
   });
 };
 
+// Update task assignment status by assignment ID (for drag-and-drop in TaskBoard)
+export const useUpdateTaskAssignmentStatus = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      assignmentId,
+      status,
+    }: {
+      assignmentId: number;
+      status: string;
+    }) => {
+      return missionFetch(`/api/agent-tasks/${assignmentId}/status`, {
+          method: "PUT",
+          body: JSON.stringify({ status }),
+        });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["agentTasks"] });
+      queryClient.invalidateQueries({ queryKey: ["agents"] });
+    },
+  });
+};
+
 // ==================== NOTIFICATIONS ====================
 
 export interface Notification {
