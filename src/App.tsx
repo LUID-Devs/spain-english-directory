@@ -10,6 +10,8 @@ import { SubscriptionProvider } from '@/components/SubscriptionProvider';
 import LoginPage from '@/pages/auth/LoginPage';
 import RegisterPage from '@/pages/auth/RegisterPage';
 import OAuthCallbackPage from '@/pages/auth/OAuthCallbackPage';
+import ForgotPasswordPage from '@/pages/auth/ForgotPasswordPage';
+import ResetPasswordPage from '@/pages/auth/ResetPasswordPage';
 
 // Dashboard Components (lazy loaded)
 const DashboardPage = React.lazy(() => import('@/pages/dashboard/DashboardPage'));
@@ -68,6 +70,8 @@ function App() {
           <Route path="/auth/login" element={<LoginPage />} />
           <Route path="/auth/register" element={<RegisterPage />} />
           <Route path="/auth/callback" element={<OAuthCallbackPage />} />
+          <Route path="/auth/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/auth/reset-password" element={<ResetPasswordPage />} />
 
           {/* Organization Routes */}
           <Route path="/organizations/invite/:token" element={<InviteAcceptPage />} />
