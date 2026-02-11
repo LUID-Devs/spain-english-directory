@@ -63,11 +63,12 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const authStart = Date.now();
     console.log('[AUTH] Starting auth check at:', authStart);
 
+    // Declare Cognito variables outside try block so they're available in catch
+    let cognitoSession = null;
+    let cognitoUser = null;
+
     try {
       // First, try to get Cognito session (for OAuth users)
-      let cognitoSession = null;
-      let cognitoUser = null;
-
       try {
       
         cognitoSession = await fetchAuthSession({ forceRefresh: false });
