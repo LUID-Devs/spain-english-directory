@@ -5,17 +5,17 @@ import {
   Status,
 } from "@/hooks/useApi";
 import { useCurrentUser } from "@/stores/userStore";
-import { useGetTasksByUserQuery, useGetProjectsQuery } from "@/hooks/useApi";
+import { useGetTasksByUserQuery, useGetProjectsQuery, useGetUsersQuery } from "@/hooks/useApi";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Filter, CheckSquare, AlertCircle } from "lucide-react";
+import { Search, CheckSquare, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
 import { useTaskModal } from "@/contexts/TaskModalContext";
+import { AdvancedFilters } from "@/components/AdvancedFilters";
 
 // Task status styling helper
 const getStatusVariant = (status: string) => {
@@ -53,9 +53,10 @@ const TasksPage = () => {
   const userId = currentUser?.userId ?? null;
   const { openTaskModal } = useTaskModal();
   
+  // Search and filter state
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [priorityFilter, setPriorityFilter] = useState("all");
+  const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
+  const [activeFilterCount, setActiveFilterCount] = useState(0);
   
   const {
     data: tasks,
@@ -64,6 +65,7 @@ const TasksPage = () => {
   } = useGetTasksByUserQuery(userId || 0, { skip: userId === null });
 
   const { data: projects } = useGetProjectsQuery();
+  const { data: users } = useGetUsersQuery();
 
   // Get unique statuses from user's tasks (combines default + any custom statuses)
   const availableStatuses = useMemo(() => {
@@ -75,24 +77,31 @@ const TasksPage = () => {
     return allStatuses;
   }, [tasks]);
 
-  // Filter and sort tasks
-  const filteredAndSortedTasks = useMemo(() => {
-    if (!tasks) return [];
+  // Combine advanced filters with search term
+  const displayTasks = useMemo(() => {
+    // Start with advanced filter results, or all tasks if no filters
+    const baseTasks = filteredTasks.length > 0 || activeFilterCount > 0 
+      ? filteredTasks 
+      : (tasks || []);
     
-    let filtered = tasks.filter((task) => {
-      const matchesSearch = task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           task.description?.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesStatus = statusFilter === "all" || task.status === statusFilter;
-      const matchesPriority = priorityFilter === "all" || task.priority === priorityFilter;
-      
-      return matchesSearch && matchesStatus && matchesPriority;
+    if (!searchTerm) return baseTasks;
+    
+    // Apply search term on top of filters
+    return baseTasks.filter((task) => {
+      const matchesSearch = 
+        task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        task.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        task.tags?.toLowerCase().includes(searchTerm.toLowerCase());
+      return matchesSearch;
     });
+  }, [tasks, filteredTasks, activeFilterCount, searchTerm]);
 
-    // Sort by priority then status
+  // Sort tasks by priority then status
+  const sortedTasks = useMemo(() => {
     const priorityOrder = { 'Urgent': 1, 'High': 2, 'Medium': 3, 'Low': 4, 'Backlog': 5 };
     const statusOrder = { 'TODO': 1, 'Work In Progress': 2, 'Under Review': 3, 'Completed': 4 };
     
-    return filtered.sort((a, b) => {
+    return [...displayTasks].sort((a, b) => {
       const aPriority = priorityOrder[a.priority as keyof typeof priorityOrder] || 5;
       const bPriority = priorityOrder[b.priority as keyof typeof priorityOrder] || 5;
       if (aPriority !== bPriority) return aPriority - bPriority;
@@ -101,7 +110,17 @@ const TasksPage = () => {
       const bStatus = statusOrder[b.status as keyof typeof statusOrder] || 5;
       return aStatus - bStatus;
     });
-  }, [tasks, searchTerm, statusFilter, priorityFilter]);
+  }, [displayTasks]);
+
+  // Handle filtered tasks from AdvancedFilters
+  const handleFilterChange = (newFilteredTasks: Task[]) => {
+    setFilteredTasks(newFilteredTasks);
+  };
+
+  // Handle active filter count change
+  const handleActiveFiltersChange = (count: number) => {
+    setActiveFilterCount(count);
+  };
 
   if (tasksLoading) {
     return (
@@ -149,81 +168,67 @@ const TasksPage = () => {
     );
   }
 
+  const hasActiveFilters = searchTerm || activeFilterCount > 0;
+  const showingCount = sortedTasks.length;
+  const totalCount = tasks.length;
+
   return (
     <div className="container mx-auto p-6 space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">My Tasks</h1>
           <p className="text-muted-foreground">
-            {tasks.length} task{tasks.length !== 1 ? 's' : ''} assigned to you
+            {hasActiveFilters 
+              ? `Showing ${showingCount} of ${totalCount} tasks`
+              : `${totalCount} task${totalCount !== 1 ? 's' : ''} assigned to you`
+            }
           </p>
         </div>
       </div>
 
-      {/* Filters */}
+      {/* Search and Filters */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Filter className="h-5 w-5" />
-            Filter Tasks
-          </CardTitle>
+          <CardTitle>Search & Filter</CardTitle>
+          <CardDescription>
+            Use advanced filters to find exactly what you need, or save custom views for later
+          </CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  placeholder="Search tasks..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-40">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  {availableStatuses.map((status) => (
-                    <SelectItem key={status} value={status}>
-                      {status}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              
-              <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-                <SelectTrigger className="w-40">
-                  <SelectValue placeholder="Priority" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Priority</SelectItem>
-                  <SelectItem value="Urgent">Urgent</SelectItem>
-                  <SelectItem value="High">High</SelectItem>
-                  <SelectItem value="Medium">Medium</SelectItem>
-                  <SelectItem value="Low">Low</SelectItem>
-                  <SelectItem value="Backlog">Backlog</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+        <CardContent className="space-y-4">
+          {/* Search Input */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Search by title, description, or tags..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
           </div>
+
+          {/* Advanced Filters */}
+          <AdvancedFilters
+            tasks={tasks}
+            projects={projects || []}
+            users={users || []}
+            availableStatuses={availableStatuses}
+            onFilterChange={handleFilterChange}
+            onActiveFiltersChange={handleActiveFiltersChange}
+          />
         </CardContent>
       </Card>
 
       {/* Tasks Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Tasks ({filteredAndSortedTasks.length})</CardTitle>
+          <CardTitle>Tasks ({sortedTasks.length})</CardTitle>
           <CardDescription>
             Your tasks organized by priority and status
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {filteredAndSortedTasks.length > 0 ? (
+          {sortedTasks.length > 0 ? (
             <Table>
               <TableHeader>
                 <TableRow>
@@ -236,7 +241,7 @@ const TasksPage = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredAndSortedTasks.map((task) => (
+                {sortedTasks.map((task) => (
                   <TableRow key={task.id}>
                     <TableCell>
                       <div>
@@ -250,6 +255,15 @@ const TasksPage = () => {
                           <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
                             {task.description}
                           </p>
+                        )}
+                        {task.tags && (
+                          <div className="flex flex-wrap gap-1 mt-2">
+                            {task.tags.split(",").map((tag, i) => (
+                              <Badge key={i} variant="outline" className="text-xs">
+                                {tag.trim()}
+                              </Badge>
+                            ))}
+                          </div>
                         )}
                       </div>
                     </TableCell>
@@ -299,16 +313,16 @@ const TasksPage = () => {
             <div className="text-center py-8">
               <CheckSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <p className="text-foreground font-medium mb-2">
-                {searchTerm || statusFilter !== "all" || priorityFilter !== "all" 
+                {hasActiveFilters
                   ? "No tasks match your filters" 
                   : "No tasks assigned"}
               </p>
               <p className="text-muted-foreground mb-4">
-                {searchTerm || statusFilter !== "all" || priorityFilter !== "all" 
+                {hasActiveFilters
                   ? "Try adjusting your search or filters"
                   : "Tasks assigned to you will appear here"}
               </p>
-              {!(searchTerm || statusFilter !== "all" || priorityFilter !== "all") && (
+              {!hasActiveFilters && (
                 <Button asChild>
                   <Link to="/dashboard/projects">
                     Browse Projects
