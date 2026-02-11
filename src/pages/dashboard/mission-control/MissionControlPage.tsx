@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import Header from "@/components/Header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 import {
   Bot,
   Activity,
@@ -14,20 +15,41 @@ import {
   Plus,
   LayoutDashboard,
   Sparkles,
+  Wifi,
+  WifiOff,
+  Moon,
+  Sunrise,
 } from "lucide-react";
-import { AgentGrid } from "@/components/mission-control/AgentGrid";
-import { TaskBoard } from "@/components/mission-control/TaskBoard";
-import { ActivityFeed } from "@/components/mission-control/ActivityFeed";
+import { 
+  AgentGrid, 
+  TaskBoard, 
+  AgentStatusPanel,
+  NightPatrolTimeline,
+  MorningStandup,
+  RealTimeActivityFeed,
+} from "@/components/mission-control";
 import { CreateAgentModal } from "@/components/mission-control/CreateAgentModal";
-import { useAgents, useActivityFeed } from "@/hooks/useMissionControl";
+import { 
+  useAgents, 
+  useMonitoringData,
+  useNightPatrol,
+  useMorningStandup,
+  AgentWithOnlineStatus,
+  ActivityLog,
+} from "@/hooks/useMissionControl";
+import { useWebSocket } from "@/hooks/useWebSocket";
 import { useAuth } from "@/app/authProvider";
 
 const MissionControlPage = () => {
   const [activeTab, setActiveTab] = useState("agents");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const { activeOrganization, user } = useAuth();
+  
+  // Fetch data
   const { data: agents, isLoading: agentsLoading } = useAgents(activeOrganization?.id);
-  const { data: activities, isLoading: activitiesLoading } = useActivityFeed(activeOrganization?.id);
+  const { data: monitoringData, isLoading: monitoringLoading } = useMonitoringData(activeOrganization?.id);
+  const { data: nightPatrol, isLoading: nightPatrolLoading } = useNightPatrol(activeOrganization?.id);
+  const { data: morningStandup, isLoading: standupLoading } = useMorningStandup(activeOrganization?.id);
 
   // Check if user can manage agents (admin or owner)
   const canManageAgents = activeOrganization?.role === "admin" || activeOrganization?.role === "owner";
@@ -39,8 +61,25 @@ const MissionControlPage = () => {
     idleAgents: agents?.filter((a: any) => a.status === "idle").length || 0,
     blockedAgents: agents?.filter((a: any) => a.status === "blocked").length || 0,
     pendingTasks: agents?.reduce((sum: number, a: any) => sum + (a._count?.assignedTasks || 0), 0) || 0,
-    unreadNotifications: agents?.reduce((sum: number, a: any) => sum + (a._count?.notifications || 0), 0) || 0,
+    onlineAgents: monitoringData?.agents?.filter((a) => a.isOnline).length || 0,
   };
+
+  // WebSocket handlers
+  const handleAgentUpdate = useCallback((updatedAgent: AgentWithOnlineStatus) => {
+    // React Query will automatically refetch, but we can also optimistically update
+    console.log("[MissionControl] Agent updated via WebSocket:", updatedAgent);
+  }, []);
+
+  const handleActivity = useCallback((activity: ActivityLog) => {
+    console.log("[MissionControl] New activity via WebSocket:", activity);
+  }, []);
+
+  // WebSocket connection for real-time updates
+  const { isConnected, connectionError } = useWebSocket({
+    organizationId: activeOrganization?.id,
+    onAgentUpdate: handleAgentUpdate,
+    onActivity: handleActivity,
+  });
 
   return (
     <div className="container h-full w-full bg-background p-4 sm:p-6 lg:p-8">
@@ -57,16 +96,38 @@ const MissionControlPage = () => {
             </p>
           </div>
         </div>
-        {canManageAgents && (
-          <Button 
-            onClick={() => setIsCreateModalOpen(true)} 
-            className="flex items-center justify-center gap-2 w-full sm:w-auto text-sm sm:text-base"
-            size="default"
+        <div className="flex items-center gap-2">
+          {/* WebSocket Connection Status */}
+          <Badge 
+            variant="outline" 
+            className={isConnected 
+              ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" 
+              : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400"
+            }
           >
-            <Plus className="h-4 w-4 flex-shrink-0" />
-            <span className="whitespace-nowrap">Create Agent</span>
-          </Button>
-        )}
+            {isConnected ? (
+              <>
+                <Wifi className="h-3 w-3 mr-1" />
+                Real-time
+              </>
+            ) : (
+              <>
+                <WifiOff className="h-3 w-3 mr-1" />
+                {connectionError ? "Error" : "Offline"}
+              </>
+            )}
+          </Badge>
+          {canManageAgents && (
+            <Button 
+              onClick={() => setIsCreateModalOpen(true)} 
+              className="flex items-center justify-center gap-2 text-sm"
+              size="default"
+            >
+              <Plus className="h-4 w-4 flex-shrink-0" />
+              <span className="whitespace-nowrap">Create Agent</span>
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Welcome Section */}
@@ -82,8 +143,8 @@ const MissionControlPage = () => {
               </h2>
               <p className="text-sm text-muted-foreground mt-1">
                 Monitor your AI agent squad, track tasks, and view real-time activity. 
-                {stats.activeAgents > 0 && (
-                  <span className="text-green-600 font-medium"> {stats.activeAgents} agent{stats.activeAgents !== 1 ? 's' : ''} currently active.</span>
+                {stats.onlineAgents > 0 && (
+                  <span className="text-green-600 font-medium"> {stats.onlineAgents} agent{stats.onlineAgents !== 1 ? 's' : ''} currently online.</span>
                 )}
               </p>
             </div>
@@ -111,19 +172,19 @@ const MissionControlPage = () => {
           </CardContent>
         </Card>
 
-        {/* Active Now */}
+        {/* Online Now */}
         <Card className="overflow-hidden border-l-4 border-l-green-500">
           <CardContent className="p-3 sm:p-4 md:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs sm:text-sm font-medium text-muted-foreground">Active Now</p>
-                <p className="text-xl sm:text-2xl font-bold text-green-600">{stats.activeAgents}</p>
+                <p className="text-xs sm:text-sm font-medium text-muted-foreground">Online Now</p>
+                <p className="text-xl sm:text-2xl font-bold text-green-600">{stats.onlineAgents}</p>
                 <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">
-                  {stats.idleAgents} idle, {stats.blockedAgents} blocked
+                  {stats.activeAgents} active, {stats.idleAgents} idle
                 </p>
               </div>
               <div className="h-8 w-8 sm:h-10 sm:w-10 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
-                <Zap className="h-4 w-4 sm:h-5 sm:w-5 text-green-600 dark:text-green-400" />
+                <Wifi className="h-4 w-4 sm:h-5 sm:w-5 text-green-600 dark:text-green-400" />
               </div>
             </div>
           </CardContent>
@@ -147,19 +208,19 @@ const MissionControlPage = () => {
           </CardContent>
         </Card>
 
-        {/* Notifications */}
-        <Card className="overflow-hidden border-l-4 border-l-purple-500">
+        {/* Blocked */}
+        <Card className="overflow-hidden border-l-4 border-l-red-500">
           <CardContent className="p-3 sm:p-4 md:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs sm:text-sm font-medium text-muted-foreground">Notifications</p>
-                <p className="text-xl sm:text-2xl font-bold text-foreground">{stats.unreadNotifications}</p>
+                <p className="text-xs sm:text-sm font-medium text-muted-foreground">Blocked</p>
+                <p className="text-xl sm:text-2xl font-bold text-red-600">{stats.blockedAgents}</p>
                 <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">
-                  Unread mentions
+                  Need attention
                 </p>
               </div>
-              <div className="h-8 w-8 sm:h-10 sm:w-10 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
-                <MessageSquare className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600 dark:text-purple-400" />
+              <div className="h-8 w-8 sm:h-10 sm:w-10 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
+                <MessageSquare className="h-4 w-4 sm:h-5 sm:w-5 text-red-600 dark:text-red-400" />
               </div>
             </div>
           </CardContent>
@@ -202,6 +263,16 @@ const MissionControlPage = () => {
                 <Activity className="h-4 w-4 flex-shrink-0" />
                 <span className="text-xs sm:text-sm font-medium whitespace-nowrap">Activity</span>
               </TabsTrigger>
+              <TabsTrigger 
+                value="monitoring" 
+                className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 min-h-[44px] data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                <Zap className="h-4 w-4 flex-shrink-0" />
+                <span className="text-xs sm:text-sm font-medium whitespace-nowrap">Live Monitor</span>
+                {isConnected && (
+                  <span className="ml-1 h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+                )}
+              </TabsTrigger>
             </TabsList>
           </Tabs>
         </CardHeader>
@@ -217,7 +288,33 @@ const MissionControlPage = () => {
             </TabsContent>
 
             <TabsContent value="activity" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
-              <ActivityFeed activities={activities || []} isLoading={activitiesLoading} />
+              <RealTimeActivityFeed 
+                organizationId={activeOrganization?.id}
+                initialActivities={monitoringData?.activities}
+                isLoading={monitoringLoading}
+              />
+            </TabsContent>
+
+            <TabsContent value="monitoring" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
+              <div className="space-y-6">
+                {/* Real-time Agent Status */}
+                <AgentStatusPanel 
+                  agents={monitoringData?.agents || []}
+                  isLoading={monitoringLoading}
+                />
+
+                {/* Night Patrol and Morning Standup */}
+                <div className="grid gap-4 lg:grid-cols-2">
+                  <NightPatrolTimeline 
+                    data={nightPatrol}
+                    isLoading={nightPatrolLoading}
+                  />
+                  <MorningStandup 
+                    data={morningStandup}
+                    isLoading={standupLoading}
+                  />
+                </div>
+              </div>
             </TabsContent>
           </Tabs>
         </CardContent>

@@ -456,3 +456,126 @@ export const useActivityFeed = (organizationId?: number, limit = 50) => {
     },
   });
 };
+
+// ==================== AGENT MONITORING ====================
+
+export interface AgentWithOnlineStatus extends Agent {
+  isOnline: boolean;
+  lastSeenSeconds: number | null;
+}
+
+export interface MonitoringData {
+  agents: AgentWithOnlineStatus[];
+  activities: ActivityLog[];
+  taskStats: {
+    total: number;
+    assigned: number;
+    inProgress: number;
+    completed: number;
+    blocked: number;
+  };
+  timestamp: string;
+}
+
+export const useMonitoringData = (organizationId?: number) => {
+  return useQuery<MonitoringData>({
+    queryKey: ["monitoring", "data", organizationId],
+    queryFn: async () => {
+      if (!organizationId) throw new Error("Organization ID required");
+      return missionFetch<MonitoringData>(`/api/monitoring/agents?organizationId=${organizationId}`);
+    },
+    enabled: !!organizationId,
+    refetchInterval: (query) => (query.state.error ? false : 30000),
+  });
+};
+
+export interface NightPatrolTimeline {
+  hour: string;
+  activities: ActivityLog[];
+}
+
+export interface NightPatrolData {
+  date: string;
+  timeline: NightPatrolTimeline[];
+  stats: {
+    totalActivities: number;
+    uniqueAgents: number;
+    taskCompletions: number;
+    newTasks: number;
+  };
+}
+
+export const useNightPatrol = (organizationId?: number) => {
+  return useQuery<NightPatrolData>({
+    queryKey: ["monitoring", "night-patrol", organizationId],
+    queryFn: async () => {
+      if (!organizationId) throw new Error("Organization ID required");
+      return missionFetch<NightPatrolData>(`/api/monitoring/night-patrol?organizationId=${organizationId}`);
+    },
+    enabled: !!organizationId,
+    refetchInterval: (query) => (query.state.error ? false : 300000), // 5 minutes
+  });
+};
+
+export interface MorningStandupData {
+  date: string;
+  yesterday: Array<{
+    agent: {
+      id: number;
+      name: string;
+      displayName: string;
+      role: string;
+    };
+    completedTasks: string[];
+    inProgressTasks: string[];
+    blockedTasks: string[];
+  }>;
+  today: Array<{
+    agent: {
+      id: number;
+      displayName: string;
+    };
+    pendingTasks: Array<{
+      title: string;
+      priority: string | null;
+      status: string;
+    }>;
+  }>;
+  highlights: {
+    totalCompleted: number;
+    totalBlocked: number;
+    activeAgents: number;
+  };
+}
+
+export const useMorningStandup = (organizationId?: number) => {
+  return useQuery<MorningStandupData>({
+    queryKey: ["monitoring", "morning-standup", organizationId],
+    queryFn: async () => {
+      if (!organizationId) throw new Error("Organization ID required");
+      return missionFetch<MorningStandupData>(`/api/monitoring/morning-standup?organizationId=${organizationId}`);
+    },
+    enabled: !!organizationId,
+    refetchInterval: (query) => (query.state.error ? false : 600000), // 10 minutes
+  });
+};
+
+export interface HeartbeatStatus {
+  agents: Array<Agent & {
+    heartbeatStatus: "online" | "away" | "offline";
+    lastHeartbeatAge: number | null;
+  }>;
+  timestamp: string;
+}
+
+export const useHeartbeatStatus = (organizationId?: number) => {
+  return useQuery<HeartbeatStatus>({
+    queryKey: ["monitoring", "heartbeat", organizationId],
+    queryFn: async () => {
+      if (!organizationId) throw new Error("Organization ID required");
+      return missionFetch<HeartbeatStatus>(`/api/monitoring/heartbeat?organizationId=${organizationId}`);
+    },
+    enabled: !!organizationId,
+    refetchInterval: (query) => (query.state.error ? false : 10000), // 10 seconds
+  });
+};

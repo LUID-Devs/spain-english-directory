@@ -2,3 +2,7 @@ export { AgentGrid } from "./AgentGrid";
 export { ActivityFeed } from "./ActivityFeed";
 export { TaskBoard } from "./TaskBoard";
 export { AgentDetailModal } from "./AgentDetailModal";
+export { AgentStatusPanel } from "./AgentStatusPanel";
+export { NightPatrolTimeline } from "./NightPatrolTimeline";
+export { MorningStandup } from "./MorningStandup";
+export { RealTimeActivityFeed } from "./RealTimeActivityFeed";
