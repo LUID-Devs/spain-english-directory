@@ -19,6 +19,8 @@ import {
   WifiOff,
   Moon,
   Sunrise,
+  ListTodo,
+  Filter,
 } from "lucide-react";
 import { 
   AgentGrid, 
@@ -27,6 +29,7 @@ import {
   NightPatrolTimeline,
   MorningStandup,
   RealTimeActivityFeed,
+  DetailedTaskView,
 } from "@/components/mission-control";
 import { CreateAgentModal } from "@/components/mission-control/CreateAgentModal";
 import { 
@@ -34,6 +37,7 @@ import {
   useMonitoringData,
   useNightPatrol,
   useMorningStandup,
+  useAgentTasks,
   AgentWithOnlineStatus,
   ActivityLog,
 } from "@/hooks/useMissionControl";
@@ -50,6 +54,7 @@ const MissionControlPage = () => {
   const { data: monitoringData, isLoading: monitoringLoading } = useMonitoringData(activeOrganization?.id);
   const { data: nightPatrol, isLoading: nightPatrolLoading } = useNightPatrol(activeOrganization?.id);
   const { data: morningStandup, isLoading: standupLoading } = useMorningStandup(activeOrganization?.id);
+  const { data: agentTasks, isLoading: tasksLoading } = useAgentTasks();
 
   // Check if user can manage agents (admin or owner)
   const canManageAgents = activeOrganization?.role === "admin" || activeOrganization?.role === "owner";
@@ -257,6 +262,13 @@ const MissionControlPage = () => {
                 )}
               </TabsTrigger>
               <TabsTrigger 
+                value="detailed" 
+                className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 min-h-[44px] data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                <ListTodo className="h-4 w-4 flex-shrink-0" />
+                <span className="text-xs sm:text-sm font-medium whitespace-nowrap">Detailed</span>
+              </TabsTrigger>
+              <TabsTrigger 
                 value="activity" 
                 className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 min-h-[44px] data-[state=active]:bg-background data-[state=active]:shadow-sm"
               >
@@ -285,6 +297,14 @@ const MissionControlPage = () => {
 
             <TabsContent value="tasks" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
               <TaskBoard />
+            </TabsContent>
+
+            <TabsContent value="detailed" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
+              <DetailedTaskView 
+                assignments={agentTasks || []} 
+                agents={agents || []}
+                isLoading={tasksLoading || agentsLoading}
+              />
             </TabsContent>
 
             <TabsContent value="activity" className="mt-0 focus-visible:outline-none focus-visible:ring-0">

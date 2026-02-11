@@ -6,3 +6,4 @@ export { AgentStatusPanel } from "./AgentStatusPanel";
 export { NightPatrolTimeline } from "./NightPatrolTimeline";
 export { MorningStandup } from "./MorningStandup";
 export { RealTimeActivityFeed } from "./RealTimeActivityFeed";
+export { DetailedTaskView } from "./DetailedTaskView";
