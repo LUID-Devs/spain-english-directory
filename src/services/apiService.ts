@@ -1135,6 +1135,14 @@ export interface Goal {
   createdBy: number;
   createdAt: string;
   updatedAt: string;
+  // Permission fields (Task #264)
+  goalType: 'company' | 'team' | 'individual';
+  visibility: 'public' | 'team' | 'private';
+  teamId?: number;
+  team?: {
+    id: number;
+    teamName: string;
+  };
   project?: {
     id: number;
     name: string;
