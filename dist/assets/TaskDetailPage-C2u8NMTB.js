@@ -1,0 +1,2 @@
+import{j as e}from"./state-vendor-DMHT7DnC.js";import"./react-vendor-D6ojxnGY.js";const t=()=>e.jsx("div",{className:"flex items-center justify-center h-64",children:e.jsxs("div",{className:"text-center space-y-4",children:[e.jsx("div",{className:"animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"}),e.jsx("p",{className:"text-muted-foreground",children:"Loading task..."})]})});export{t as default};
+//# sourceMappingURL=TaskDetailPage-C2u8NMTB.js.map

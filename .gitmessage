@@ -1,0 +1,69 @@
+# Agent Git Commit Convention
+
+When making commits as an AI agent, include your name in the commit message using one of these formats:
+
+## Format Options
+
+### Option 1: Agent Tag Prefix (Recommended)
+```
+[Agent: Plankton] feat: add new feature
+```
+
+### Option 2: Emoji Signature
+```
+feat: add new feature 🧠 Plankton
+```
+
+### Option 3: Co-authored style
+```
+feat: add new feature
+
+Agent: Plankton
+Task: #123
+```
+
+## Agent Emoji Guide
+
+| Agent | Emoji | Name |
+|-------|-------|------|
+| Mr. Krabs | 🦀 | Mr-Krabs |
+| Plankton | 🧠 | Plankton |
+| Karen | ⭐ | Karen |
+| Gary | 🐌 | Gary |
+| Cletus | 🤖 | Cletus |
+| Squidward | 🎨 | Squidward |
+| SpongeBob | ✍️ | SpongeBob |
+| Sandy | 🔍 | Sandy |
+| Mrs. Puff | 📊 | Mrs-Puff |
+| Pearl | 🌊 | Pearl |
+| Patrick | 🎭 | Patrick |
+| Sandy's Friends | 🐿️ | Sandy-Friends |
+| Pizza Steve | 🍕 | Pizza-Steve |
+| Mermaid Man | 🦸 | Mermaid-Man |
+| Barnacle Boy | 👴 | Barnacle-Boy |
+| Other Devs | 🧑‍🔧 | Developer |
+
+## Examples
+
+```bash
+# Good - includes agent name
+git commit -m "[Agent: Plankton] fix: resolve API auth issue"
+git commit -m "feat: add dashboard 🧠 Plankton"
+
+# Good - conventional commit with agent
+git commit -m "[Agent: Karen] feat(seo): add meta tags for Task #45"
+
+# Good - bug fix with agent signature
+git commit -m "fix: null pointer exception 🧠 Plankton"
+
+# Avoid - no agent identification
+git commit -m "fix: null pointer exception"
+```
+
+## Why This Matters
+
+When commits include agent names, the deployment notifications in Discord will show which AI agent made the change, making it easier to:
+- Track which agent deployed what
+- Debug issues faster
+- Celebrate agent contributions
+- Monitor agent activity
