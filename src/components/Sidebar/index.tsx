@@ -213,6 +213,7 @@ const Sidebar = () => {
           </h4>
           <nav className="space-y-1">
             <SidebarLink href="/dashboard/teams" icon={Users} label="Members" />
+            <SidebarLink href="/dashboard/teams/workload" icon={BarChart3} label="Workload" />
             {/* Invite Members - only for team workspaces */}
             {!auth.activeOrganization?.settings?.isPersonal && (
               <button
