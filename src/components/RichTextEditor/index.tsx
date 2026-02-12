@@ -17,7 +17,7 @@ import {
   Bold, Italic, Underline as UnderlineIcon, Strikethrough, List, ListOrdered, 
   Heading1, Heading2, Heading3, Quote, Code, Code2, Undo, Redo, 
   Link as LinkIcon, AlignLeft, AlignCenter, AlignRight, SeparatorHorizontal, 
-  Highlighter, FileCode, Eye, EyeOff
+  Highlighter, FileCode, Eye, EyeOff, Mic, Volume2, StopCircle
 } from 'lucide-react';
 
 // Create lowlight instance with common languages
@@ -99,6 +99,17 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   const [isMarkdownMode, setIsMarkdownMode] = useState(false);
   const [markdownContent, setMarkdownContent] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Speech-to-Text and Text-to-Speech state
+  const [isListening, setIsListening] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [speechSupported, setSpeechSupported] = useState({
+    recognition: false,
+    synthesis: false,
+  });
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const synthRef = useRef<SpeechSynthesis | null>(null);
+  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
   const editor = useEditor({
     extensions: [
@@ -228,6 +239,73 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     }
   }, [isMarkdownMode, editor]);
 
+  // Initialize Speech API support detection
+  useEffect(() => {
+    // Check for Speech Recognition support
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const hasRecognition = !!SpeechRecognition;
+    
+    // Check for Speech Synthesis support
+    const hasSynthesis = 'speechSynthesis' in window;
+    
+    setSpeechSupported({
+      recognition: hasRecognition,
+      synthesis: hasSynthesis,
+    });
+
+    if (hasRecognition) {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
+      
+      recognition.onresult = (event: SpeechRecognitionEvent) => {
+        const results = event.results;
+        let finalTranscript = '';
+        let interimTranscript = '';
+        
+        for (let i = event.resultIndex; i < results.length; i++) {
+          const transcript = results[i][0].transcript;
+          if (results[i].isFinal) {
+            finalTranscript += transcript;
+          } else {
+            interimTranscript += transcript;
+          }
+        }
+        
+        if (finalTranscript && editor) {
+          // Insert the transcribed text at current cursor position
+          editor.chain().focus().insertContent(finalTranscript + ' ').run();
+        }
+      };
+      
+      recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+        console.error('Speech recognition error:', event.error);
+        setIsListening(false);
+      };
+      
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+      
+      recognitionRef.current = recognition;
+    }
+
+    if (hasSynthesis) {
+      synthRef.current = window.speechSynthesis;
+    }
+
+    return () => {
+      // Cleanup
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+      if (synthRef.current) {
+        synthRef.current.cancel();
+      }
+    };
+  }, [editor]);
+
   // Handle image upload
   const handleImageUpload = useCallback(async (file: File) => {
     if (!editor) return;
@@ -294,6 +372,71 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
       onChange(newMarkdown);
     }
   }, [onChange]);
+
+  // Toggle Speech-to-Text (dictation)
+  const toggleSpeechToText = useCallback(() => {
+    if (!recognitionRef.current) {
+      console.warn('Speech recognition not supported');
+      return;
+    }
+
+    if (isListening) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    } else {
+      try {
+        recognitionRef.current.start();
+        setIsListening(true);
+      } catch (error) {
+        console.error('Failed to start speech recognition:', error);
+      }
+    }
+  }, [isListening]);
+
+  // Toggle Text-to-Speech (read aloud)
+  const toggleTextToSpeech = useCallback(() => {
+    if (!synthRef.current) {
+      console.warn('Speech synthesis not supported');
+      return;
+    }
+
+    if (isSpeaking) {
+      synthRef.current.cancel();
+      setIsSpeaking(false);
+      return;
+    }
+
+    // Get text content - prefer plain text from editor
+    let textToRead = '';
+    if (editor) {
+      // Get text content without HTML tags
+      textToRead = editor.getText();
+    } else if (isMarkdownMode) {
+      textToRead = markdownContent;
+    }
+
+    if (!textToRead.trim()) {
+      return;
+    }
+
+    const utterance = new SpeechSynthesisUtterance(textToRead);
+    utterance.lang = 'en-US';
+    utterance.rate = 1;
+    utterance.pitch = 1;
+    
+    utterance.onend = () => {
+      setIsSpeaking(false);
+    };
+    
+    utterance.onerror = (event) => {
+      console.error('Speech synthesis error:', event.error);
+      setIsSpeaking(false);
+    };
+
+    utteranceRef.current = utterance;
+    synthRef.current.speak(utterance);
+    setIsSpeaking(true);
+  }, [isSpeaking, editor, isMarkdownMode, markdownContent]);
 
   // Toggle format between HTML and Markdown storage
   const toggleFormat = useCallback(() => {
@@ -601,6 +744,38 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           >
             <Redo className="w-4 h-4" />
           </ToolbarButton>
+
+          <ToolbarDivider />
+
+          {/* Speech-to-Text */}
+          {speechSupported.recognition && (
+            <ToolbarButton
+              onClick={toggleSpeechToText}
+              isActive={isListening}
+              title={isListening ? 'Stop Dictation' : 'Start Dictation (Voice to Text)'}
+            >
+              {isListening ? (
+                <StopCircle className="w-4 h-4 text-red-500" />
+              ) : (
+                <Mic className="w-4 h-4" />
+              )}
+            </ToolbarButton>
+          )}
+
+          {/* Text-to-Speech */}
+          {speechSupported.synthesis && (
+            <ToolbarButton
+              onClick={toggleTextToSpeech}
+              isActive={isSpeaking}
+              title={isSpeaking ? 'Stop Reading' : 'Read Aloud (Text to Speech)'}
+            >
+              {isSpeaking ? (
+                <StopCircle className="w-4 h-4 text-red-500" />
+              ) : (
+                <Volume2 className="w-4 h-4" />
+              )}
+            </ToolbarButton>
+          )}
         </div>
       )}
 
