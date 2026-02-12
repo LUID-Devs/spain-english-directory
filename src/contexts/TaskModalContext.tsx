@@ -1,7 +1,9 @@
-import React, { createContext, useContext, useState, ReactNode, useEffect, useRef, useCallback } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect, useRef, useCallback, Suspense } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import TaskDetailModal from '@/components/TaskDetailModal';
 import { useGetTaskQuery } from '@/hooks/useApi';
+
+// Lazy load TaskDetailModal to reduce initial bundle size
+const TaskDetailModal = React.lazy(() => import('@/components/TaskDetailModal'));
 
 interface TaskModalContextType {
   openTaskModal: (taskId: number, projectId?: number, editMode?: boolean) => void;
@@ -131,13 +133,15 @@ export const TaskModalProvider: React.FC<TaskModalProviderProps> = ({ children }
 
       {/* Global Task Detail Modal */}
       {currentTaskId && (
-        <TaskDetailModal
-          isOpen={isTaskModalOpen}
-          onClose={closeTaskModal}
-          taskId={currentTaskId}
-          projectId={currentProjectId}
-          editMode={editMode}
-        />
+        <Suspense fallback={null}>
+          <TaskDetailModal
+            isOpen={isTaskModalOpen}
+            onClose={closeTaskModal}
+            taskId={currentTaskId}
+            projectId={currentProjectId}
+            editMode={editMode}
+          />
+        </Suspense>
       )}
     </TaskModalContext.Provider>
   );
