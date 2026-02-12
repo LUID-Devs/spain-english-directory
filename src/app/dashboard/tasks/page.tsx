@@ -476,114 +476,208 @@ const TasksPage = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Tasks Table */}
+      {/* Tasks Table / Cards */}
       <Card>
-        <CardHeader>
-          <CardTitle>Tasks ({sortedTasks.length})</CardTitle>
-          <CardDescription>
-            Your tasks organized by priority and status
-          </CardDescription>
+        <CardHeader className="p-4 sm:p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-base sm:text-lg">Tasks ({sortedTasks.length})</CardTitle>
+              <CardDescription className="text-xs sm:text-sm">
+                Your tasks organized by priority and status
+              </CardDescription>
+            </div>
+            {sortedTasks.length > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={toggleAllSelection}
+                className="gap-2"
+              >
+                {selectedTasks.size === sortedTasks.length ? (
+                  <>
+                    <X className="h-4 w-4" />
+                    <span className="hidden sm:inline">Deselect All</span>
+                  </>
+                ) : (
+                  <>
+                    <CheckSquare className="h-4 w-4" />
+                    <span className="hidden sm:inline">Select All</span>
+                  </>
+                )}
+              </Button>
+            )}
+          </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0 sm:p-6 sm:pt-0">
           {sortedTasks.length > 0 ? (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-10">
-                    <Checkbox 
-                      checked={selectedTasks.size > 0 && selectedTasks.size === sortedTasks.length}
-                      onCheckedChange={toggleAllSelection}
-                      aria-label="Select all tasks"
-                    />
-                  </TableHead>
-                  <TableHead>Task</TableHead>
-                  <TableHead>Priority</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Due Date</TableHead>
-                  <TableHead>Project</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+            <>
+              {/* Mobile: Card-based layout */}
+              <div className="sm:hidden divide-y divide-border">
                 {sortedTasks.map((task) => (
-                  <TableRow 
+                  <div
                     key={task.id}
-                    className={selectedTasks.has(task.id) ? "bg-muted/50" : ""}
+                    className={`w-full p-4 text-left hover:bg-accent/50 transition-colors ${selectedTasks.has(task.id) ? 'bg-primary/5' : ''}`}
                   >
-                    <TableCell className="w-10">
+                    <div className="flex items-start gap-3 mb-2">
                       <Checkbox 
                         checked={selectedTasks.has(task.id)}
                         onCheckedChange={() => {}}
                         onClick={(e) => toggleTaskSelection(task.id, e as unknown as React.MouseEvent)}
+                        className="mt-1"
                         aria-label={`Select task ${task.title}`}
                       />
-                    </TableCell>
-                    <TableCell>
-                      <div>
-                        <button 
-                          onClick={() => openTaskModal(task.id)}
-                          className="font-medium hover:underline text-left"
-                        >
+                      <button
+                        onClick={() => openTaskModal(task.id)}
+                        className="flex-1 text-left"
+                      >
+                        <h4 className="font-medium text-foreground line-clamp-2">
                           {task.title}
-                        </button>
-                        {task.description && (
-                          <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-                            {task.description}
-                          </p>
-                        )}
-                        {task.tags && (
-                          <div className="flex flex-wrap gap-1 mt-2">
-                            {task.tags.split(",").map((tag, i) => (
-                              <Badge key={i} variant="outline" className="text-xs">
-                                {tag.trim()}
-                              </Badge>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={getPriorityVariant(task.priority)}>
+                        </h4>
+                      </button>
+                      <Badge variant={getPriorityVariant(task.priority)} className="shrink-0">
                         {task.priority}
                       </Badge>
-                    </TableCell>
-                    <TableCell>
+                    </div>
+                    {task.description && (
+                      <p className="text-sm text-muted-foreground mt-1 line-clamp-2 pl-7">
+                        {task.description}
+                      </p>
+                    )}
+                    <div className="flex items-center gap-2 flex-wrap pl-7 mt-2">
                       <Badge variant={getStatusVariant(task.status)}>
                         {task.status}
                       </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {task.dueDate ? (
+                      {task.dueDate && (
                         <span className={cn(
-                          "text-sm",
+                          "text-xs",
                           new Date(task.dueDate) < new Date() && task.status !== 'Completed'
                             ? "text-destructive font-medium"
                             : "text-muted-foreground"
                         )}>
                           {new Date(task.dueDate).toLocaleDateString()}
                         </span>
-                      ) : (
-                        <span className="text-muted-foreground">No date</span>
                       )}
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-muted-foreground">
-                        {projects?.find(p => p.id === task.projectId)?.name || 'No project'}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        onClick={() => openTaskModal(task.id)}
-                      >
-                        View
-                      </Button>
-                    </TableCell>
-                  </TableRow>
+                      {task.projectId && (
+                        <span className="text-xs text-muted-foreground">
+                          {projects?.find(p => p.id === task.projectId)?.name || 'No project'}
+                        </span>
+                      )}
+                    </div>
+                    {task.tags && (
+                      <div className="flex flex-wrap gap-1 mt-2 pl-7">
+                        {task.tags.split(",").map((tag, i) => (
+                          <Badge key={i} variant="outline" className="text-xs">
+                            {tag.trim()}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 ))}
-              </TableBody>
-            </Table>
+              </div>
+
+              {/* Desktop: Table layout */}
+              <div className="hidden sm:block overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-10">
+                        <Checkbox 
+                          checked={selectedTasks.size > 0 && selectedTasks.size === sortedTasks.length}
+                          onCheckedChange={toggleAllSelection}
+                          aria-label="Select all tasks"
+                        />
+                      </TableHead>
+                      <TableHead>Task</TableHead>
+                      <TableHead>Priority</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Due Date</TableHead>
+                      <TableHead>Project</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {sortedTasks.map((task) => (
+                      <TableRow 
+                        key={task.id}
+                        className={selectedTasks.has(task.id) ? "bg-muted/50" : ""}
+                      >
+                        <TableCell className="w-10">
+                          <Checkbox 
+                            checked={selectedTasks.has(task.id)}
+                            onCheckedChange={() => {}}
+                            onClick={(e) => toggleTaskSelection(task.id, e as unknown as React.MouseEvent)}
+                            aria-label={`Select task ${task.title}`}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <div>
+                            <button 
+                              onClick={() => openTaskModal(task.id)}
+                              className="font-medium hover:underline text-left"
+                            >
+                              {task.title}
+                            </button>
+                            {task.description && (
+                              <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                                {task.description}
+                              </p>
+                            )}
+                            {task.tags && (
+                              <div className="flex flex-wrap gap-1 mt-2">
+                                {task.tags.split(",").map((tag, i) => (
+                                  <Badge key={i} variant="outline" className="text-xs">
+                                    {tag.trim()}
+                                  </Badge>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant={getPriorityVariant(task.priority)}>
+                            {task.priority}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant={getStatusVariant(task.status)}>
+                            {task.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          {task.dueDate ? (
+                            <span className={cn(
+                              "text-sm",
+                              new Date(task.dueDate) < new Date() && task.status !== 'Completed'
+                                ? "text-destructive font-medium"
+                                : "text-muted-foreground"
+                            )}>
+                              {new Date(task.dueDate).toLocaleDateString()}
+                            </span>
+                          ) : (
+                            <span className="text-muted-foreground">No date</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-muted-foreground">
+                            {projects?.find(p => p.id === task.projectId)?.name || 'No project'}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => openTaskModal(task.id)}
+                          >
+                            View
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
           ) : (
             <div className="text-center py-8">
               <CheckSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
