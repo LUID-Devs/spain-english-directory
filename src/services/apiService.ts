@@ -994,6 +994,11 @@ class ApiService {
     });
   }
 
+  async getValidParentGoals(goalId: number, organizationId: number): Promise<{ id: number; title: string }[]> {
+    const response = await this.request<{ success: boolean; validParents: { id: number; title: string }[] }>(`/goals/${goalId}/valid-parents?organizationId=${organizationId}`);
+    return response.validParents;
+  }
+
   // Goal Templates
   async getGoalTemplates(organizationId?: number, category?: string): Promise<GoalTemplate[]> {
     const params = new URLSearchParams();
@@ -1101,6 +1106,7 @@ export interface Goal {
   completedAt?: string;
   organizationId: number;
   projectId?: number;
+  parentGoalId?: number | null; // Parent goal for hierarchy (null = top-level)
   templateId?: number;
   createdBy: number;
   createdAt: string;
@@ -1114,12 +1120,23 @@ export interface Goal {
     username: string;
     profilePictureUrl?: string;
   };
+  parentGoal?: {
+    id: number;
+    title: string;
+  } | null;
+  childGoals?: {
+    id: number;
+    title: string;
+    status: string;
+    progress: number;
+  }[];
   template?: {
     id: number;
     name: string;
   };
   _count?: {
     linkedTasks: number;
+    childGoals: number;
   };
 }
 
