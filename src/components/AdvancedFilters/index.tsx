@@ -439,6 +439,7 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
                       size="icon"
                       className="h-6 w-6 opacity-0 group-hover:opacity-100"
                       onClick={(e) => deleteSavedFilter(saved.id, e)}
+                      aria-label={`Delete saved filter ${saved.name}`}
                     >
                       <Trash2 className="h-3 w-3 text-destructive" />
                     </Button>
@@ -555,6 +556,7 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
                   size="icon"
                   onClick={() => removeFilter(filter.id)}
                   className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                  aria-label="Remove filter"
                 >
                   <X className="h-4 w-4" />
                 </Button>

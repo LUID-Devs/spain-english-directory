@@ -67,6 +67,8 @@ const MissionControlPage = () => {
     blockedAgents: agents?.filter((a: any) => a.status === "blocked").length || 0,
     pendingTasks: agents?.reduce((sum: number, a: any) => sum + (a._count?.assignedTasks || 0), 0) || 0,
     onlineAgents: monitoringData?.agents?.filter((a) => a.isOnline).length || 0,
+    awayAgents: monitoringData?.agents?.filter((a) => a.heartbeatStatus === "away").length || 0,
+    offlineAgents: monitoringData?.agents?.filter((a) => a.heartbeatStatus === "offline").length || 0,
   };
 
   // WebSocket handlers
@@ -185,7 +187,7 @@ const MissionControlPage = () => {
                 <p className="text-xs sm:text-sm font-medium text-muted-foreground">Online Now</p>
                 <p className="text-xl sm:text-2xl font-bold text-green-600">{stats.onlineAgents}</p>
                 <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">
-                  {stats.activeAgents} active, {stats.idleAgents} idle
+                  {stats.awayAgents} away, {stats.offlineAgents} offline
                 </p>
               </div>
               <div className="h-8 w-8 sm:h-10 sm:w-10 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center flex-shrink-0">

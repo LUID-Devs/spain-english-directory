@@ -6,31 +6,19 @@ import {
 import { useAuth } from "@/app/authProvider";
 import { useGetProjectsQuery, useGetTasksByUserQuery } from "@/hooks/useApi";
 import { useGlobalStore } from "@/stores/globalStore";
-import React from "react";
+import React, { Suspense } from "react";
 import Header from "@/components/Header";
-// TODO: Consider lazy-loading charts for better initial load performance
-// Recharts adds ~150KB to the bundle
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Cell,
-  Legend,
-  Pie,
-  PieChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
 import { SubscriptionStatus } from "@/components/subscription/SubscriptionStatus";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Clock, CheckSquare, AlertCircle, User, Briefcase } from "lucide-react";
+import { CheckSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTaskModal } from "@/contexts/TaskModalContext";
+
+// Lazy load charts to reduce initial bundle size
+const DashboardCharts = React.lazy(() => import("@/components/DashboardCharts"));
 
 // Helper functions for styling
 const getStatusVariant = (status: string) => {
@@ -61,8 +49,6 @@ const getPriorityVariant = (priority: string) => {
       return 'outline';
   }
 };
-
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
 const DashboardPage = () => {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
@@ -204,20 +190,6 @@ const DashboardPage = () => {
     count: statusCount[key],
   }));
 
-  const chartColors = isDarkMode
-    ? {
-        bar: "#8884d8",
-        barGrid: "#303030",
-        pieFill: "#4A90E2",
-        text: "#FFFFFF",
-      }
-    : {
-        bar: "#8884d8",
-        barGrid: "#E0E0E0",
-        pieFill: "#82ca9d",
-        text: "#000000",
-      };
-
   return (
     <div className="container h-full w-full bg-background">
       <Header name="Project Management Dashboard" />
@@ -334,6 +306,8 @@ const DashboardPage = () => {
                   {(tasks || []).slice(0, 5).map((task) => (
                     <button
                       key={task.id}
+                      data-task-card
+                      data-task-id={task.id}
                       onClick={() => openTaskModal(task.id)}
                       className="w-full p-4 text-left hover:bg-accent/50 transition-colors"
                     >
@@ -377,8 +351,12 @@ const DashboardPage = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {(tasks || []).slice(0, 5).map((task) => (
-                        <TableRow key={task.id}>
+                      {(tasks || []).slice(0, 5).map((task, index) => (
+                        <TableRow 
+                          key={task.id}
+                          data-task-card
+                          data-task-id={task.id}
+                        >
                           <TableCell>
                             <div>
                               <button
@@ -446,79 +424,13 @@ const DashboardPage = () => {
             )}
           </CardContent>
         </Card>
-      <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader className="p-4 sm:p-6">
-            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-              <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5" />
-              Task Priority Distribution
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-3 sm:p-6 sm:pt-0">
-          {taskDistribution.length > 0 ? (
-            <ResponsiveContainer width="100%" height={220} className="sm:!h-[280px] md:!h-[300px]">
-              <BarChart data={taskDistribution}>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke={chartColors.barGrid}
-                />
-                <XAxis dataKey="name" stroke={chartColors.text} />
-                <YAxis stroke={chartColors.text} />
-                <Tooltip
-                  contentStyle={{
-                    width: "min-content",
-                    height: "min-content",
-                  }}
-                />
-                <Legend />
-                <Bar dataKey="count" fill={chartColors.bar} />
-              </BarChart>
-            </ResponsiveContainer>
-          ) : (
-            <div className="flex items-center justify-center h-64 text-muted-foreground">
-              <div className="text-center">
-                <p>No tasks assigned to you yet</p>
-                <p className="text-sm mt-1">Start by creating your first task!</p>
-              </div>
-            </div>
-          )}
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="p-4 sm:p-6">
-            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-              <Briefcase className="h-4 w-4 sm:h-5 sm:w-5" />
-              Project Status Overview
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-3 sm:p-6 sm:pt-0">
-          {projectStatus.length > 0 ? (
-            <ResponsiveContainer width="100%" height={220} className="sm:!h-[280px] md:!h-[300px]">
-              <PieChart>
-                <Pie dataKey="count" data={projectStatus} fill="#82ca9d" label>
-                  {projectStatus.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={COLORS[index % COLORS.length]}
-                    />
-                  ))}
-                </Pie>
-                <Tooltip />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
-          ) : (
-            <div className="flex items-center justify-center h-64 text-muted-foreground">
-              <div className="text-center">
-                <p>No projects available</p>
-                <p className="text-sm mt-1">Create your first project to get started!</p>
-              </div>
-            </div>
-          )}
-          </CardContent>
-        </Card>
-       
-      </div>
+      <Suspense fallback={<div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
+        <DashboardCharts
+          taskDistribution={taskDistribution}
+          projectStatus={projectStatus}
+          isDarkMode={isDarkMode}
+        />
+      </Suspense>
     </div>
   );
 };

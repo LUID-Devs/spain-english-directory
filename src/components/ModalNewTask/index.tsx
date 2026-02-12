@@ -295,6 +295,16 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
       return;
     }
 
+    // Validate due date is not before start date
+    if (startDate && dueDate) {
+      const start = new Date(startDate);
+      const due = new Date(dueDate);
+      if (due < start) {
+        toast.error("Due date cannot be earlier than start date");
+        return;
+      }
+    }
+
     try {
       const taskData = {
         title,

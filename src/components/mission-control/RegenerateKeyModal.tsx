@@ -90,6 +90,7 @@ export function RegenerateKeyModal({ isOpen, onClose, agent }: RegenerateKeyModa
                   variant="outline"
                   size="icon"
                   onClick={handleCopyKey}
+                  aria-label={copied ? "API key copied" : "Copy API key"}
                 >
                   {copied ? (
                     <Check className="h-4 w-4 text-green-500" />

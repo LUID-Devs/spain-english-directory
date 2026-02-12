@@ -152,6 +152,16 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
   const autoSave = useCallback(async (formData: typeof editForm) => {
     if (!isInitializedRef.current) return;
 
+    // Validate due date is not before start date
+    if (formData.startDate && formData.dueDate) {
+      const start = new Date(formData.startDate);
+      const due = new Date(formData.dueDate);
+      if (due < start) {
+        toast.error("Due date cannot be earlier than start date");
+        return;
+      }
+    }
+
     setIsSaving(true);
     try {
       await updateTask({
