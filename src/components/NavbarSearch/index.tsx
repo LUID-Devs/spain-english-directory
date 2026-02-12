@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect, useCallback, useImperativeHandle, forwardRef } from "react";
 import { Search, Settings2, X, Users, Briefcase, CheckSquare, User, Clock } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import debounce from "lodash/debounce";
@@ -22,12 +22,16 @@ interface NavbarSearchProps {
   onResultClick?: () => void;
 }
 
-const NavbarSearch: React.FC<NavbarSearchProps> = ({
+export interface NavbarSearchRef {
+  focus: () => void;
+}
+
+const NavbarSearch = forwardRef<NavbarSearchRef, NavbarSearchProps>(({
   className = "",
   placeholder = "Search projects, tasks, users…",
   autoFocus = false,
   onResultClick,
-}) => {
+}, ref) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentFilters, setCurrentFilters] = useState<SearchFilters>({});
   const [isAdvancedModalOpen, setIsAdvancedModalOpen] = useState(false);
@@ -202,6 +206,22 @@ const NavbarSearch: React.FC<NavbarSearchProps> = ({
     setShowResults(false);
     onResultClick?.();
   };
+
+  // Expose focus method to parent via ref
+  useImperativeHandle(ref, () => ({
+    focus: () => {
+      if (searchInputRef.current) {
+        searchInputRef.current.focus();
+        // Show suggestions if there's text
+        if (searchTerm.length >= 2 && searchTerm.length < 3) {
+          setShowSuggestions(true);
+        }
+        if (searchTerm.length >= 3) {
+          setShowResults(true);
+        }
+      }
+    },
+  }));
 
   return (
     <>
@@ -513,6 +533,8 @@ const NavbarSearch: React.FC<NavbarSearchProps> = ({
       />
     </>
   );
-};
+});
+
+NavbarSearch.displayName = 'NavbarSearch';
 
 export default NavbarSearch;

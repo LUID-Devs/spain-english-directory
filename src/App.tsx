@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect } from 'react';
+import React, { Suspense, useEffect, useState, useCallback } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { useGlobalStore } from '@/stores/globalStore';
@@ -7,8 +7,10 @@ import DashboardWrapper from '@/app/dashboardWrapper';
 import { SubscriptionProvider } from '@/components/SubscriptionProvider';
 import { useQuickAddTask } from '@/hooks/useQuickAddTask';
 import { useCommandPalette } from '@/hooks/useCommandPalette';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import QuickAddTaskModal from '@/components/QuickAddTaskModal';
 import CommandPalette from '@/components/CommandPalette';
+import KeyboardShortcutsHelp from '@/components/KeyboardShortcutsHelp';
 
 // Auth Components (eager imports for immediate auth flow)
 import LoginPage from '@/pages/auth/LoginPage';
@@ -50,7 +52,17 @@ const CookiePolicy = React.lazy(() => import('@/pages/legal/CookiePolicy'));
 function App() {
   const { isDarkMode } = useGlobalStore();
   const { isOpen, open, close } = useQuickAddTask();
-  const { isOpen: isCommandPaletteOpen, close: closeCommandPalette } = useCommandPalette();
+  const { isOpen: isCommandPaletteOpen, open: openCommandPalette, close: closeCommandPalette } = useCommandPalette();
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
+
+  // Initialize keyboard shortcuts (search is handled by Navbar directly)
+  useKeyboardShortcuts({
+    onShowHelp: () => setIsHelpOpen(true),
+    onCreateTask: open,
+    onFocusSearch: () => {}, // Handled by Navbar
+    onOpenCommandPalette: openCommandPalette,
+    enabled: true,
+  });
 
   useEffect(() => {
     if (isDarkMode) {
@@ -137,6 +149,9 @@ function App() {
       
       {/* Global Command Palette */}
       <CommandPalette isOpen={isCommandPaletteOpen} onClose={closeCommandPalette} />
+      
+      {/* Keyboard Shortcuts Help Modal */}
+      <KeyboardShortcutsHelp isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)} />
     </AuthProvider>
   );
 }

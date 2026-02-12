@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Settings, Menu, Moon, Sun, User, LogOut, X, Search } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useGlobalStore } from "@/stores/globalStore";
 import { useCurrentUser } from "@/stores/userStore";
 import { useAuth } from "@/app/authProvider";
-import NavbarSearch from "@/components/NavbarSearch";
+import NavbarSearchComponent from "@/components/NavbarSearch";
 import WorkspaceSwitcher from "@/components/WorkspaceSwitcher";
 import { Button } from "@/components/ui/button";
 
@@ -14,6 +14,7 @@ const Navbar = () => {
   const [showMobileSearch, setShowMobileSearch] = useState(false);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const { isSidebarCollapsed, isDarkMode, toggleSidebar, toggleDarkMode } = useGlobalStore();
+  const navbarSearchRef = useRef<NavbarSearchRef>(null);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -25,6 +26,29 @@ const Navbar = () => {
 
     mediaQuery.addEventListener('change', handleChange);
     return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
+
+  // Handle / shortcut for search focus
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't trigger if user is typing in an input
+      const activeElement = document.activeElement;
+      const isTyping =
+        activeElement?.tagName === 'INPUT' ||
+        activeElement?.tagName === 'TEXTAREA' ||
+        activeElement?.getAttribute('contenteditable') === 'true';
+
+      // Don't trigger if modal is open
+      const isModalOpen = document.querySelector('[role="dialog"]') !== null;
+
+      if (e.key === '/' && !isTyping && !isModalOpen) {
+        e.preventDefault();
+        navbarSearchRef.current?.focus();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   const auth = useAuth();
@@ -79,7 +103,8 @@ const Navbar = () => {
 
         {/* Search Bar - Responsive width */}
         <div className="hidden sm:flex h-min w-[180px] sm:w-[220px] md:w-[280px] lg:w-[350px]">
-          <NavbarSearch
+          <NavbarSearchComponent
+            ref={navbarSearchRef}
             className="w-full"
             placeholder="Search\u2026"
           />
@@ -274,7 +299,7 @@ const Navbar = () => {
 
               {/* Search Input */}
               <div className="p-4">
-                <NavbarSearch
+                <NavbarSearchComponent
                   className="w-full"
                   placeholder="Search tasks, projects\u2026"
                   autoFocus

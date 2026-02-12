@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { CheckSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTaskModal } from "@/contexts/TaskModalContext";
+import { useKeyboardNavigation } from "@/hooks/useKeyboardNavigation";
 
 // Lazy load charts to reduce initial bundle size
 const DashboardCharts = React.lazy(() => import("@/components/DashboardCharts"));
@@ -53,6 +54,26 @@ const getPriorityVariant = (priority: string) => {
 const DashboardPage = () => {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const { openTaskModal } = useTaskModal();
+  
+  // Keyboard navigation for task list
+  const { selectedIndex } = useKeyboardNavigation({
+    itemSelector: '[data-task-card]',
+    onSelect: (element) => {
+      // Remove previous selections
+      document.querySelectorAll('[data-task-card]').forEach(el => {
+        el.classList.remove('keyboard-selected');
+      });
+      // Add selection to current element
+      element.classList.add('keyboard-selected');
+    },
+    onOpen: (element) => {
+      const taskId = element.getAttribute('data-task-id');
+      if (taskId) {
+        openTaskModal(parseInt(taskId, 10));
+      }
+    },
+    enabled: true,
+  });
   
   // Improved user ID resolution - use database userId first, then fallback to sub
   let userId: number | null = null;
