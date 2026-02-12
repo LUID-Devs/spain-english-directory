@@ -2,7 +2,7 @@ import { Task, useGetTasksQuery, useGetProjectStatusesQuery, Status, useReorderT
 import React, { useState, useMemo, useCallback } from "react";
 import { toast } from "sonner";
 import TaskCard from "@/components/TaskCard";
-import { Grid3X3, List, Search, FileText, AlertTriangle, GripVertical } from "lucide-react";
+import { Grid3X3, List, Search, FileText, AlertTriangle, GripVertical, ChevronLeft, ChevronRight } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -97,6 +97,8 @@ const DraggableTaskItem = React.memo(({
   );
 });
 
+const DEFAULT_ITEMS_PER_PAGE = 20;
+
 const ListView = ({
   id,
   tasks: propTasks,
@@ -131,6 +133,8 @@ const ListView = ({
   const [filterBy, setFilterBy] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [tempTasks, setTempTasks] = useState<Task[] | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(DEFAULT_ITEMS_PER_PAGE);
 
   const [reorderTasks] = useReorderTasksMutation();
 
@@ -222,6 +226,18 @@ const ListView = ({
     return filtered;
   }, [tasks, tempTasks, searchQuery, filterBy, sortBy, isManualSort]);
 
+  // Pagination logic
+  const totalTasks = filteredAndSortedTasks.length;
+  const totalPages = Math.max(1, Math.ceil(totalTasks / itemsPerPage));
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage, totalTasks);
+  const paginatedTasks = filteredAndSortedTasks.slice(startIndex, endIndex);
+
+  // Reset to page 1 when filters, search, sort, or items per page changes
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, filterBy, sortBy, itemsPerPage]);
+
   // Clear temp tasks when sort changes
   React.useEffect(() => {
     setTempTasks(null);
@@ -267,7 +283,8 @@ const ListView = ({
             <div>
               <CardTitle className="text-xl sm:text-2xl">Task List</CardTitle>
               <CardDescription>
-                {filteredAndSortedTasks.length} task{filteredAndSortedTasks.length !== 1 ? 's' : ''} found
+                {totalTasks} task{totalTasks !== 1 ? 's' : ''} found
+                {totalPages > 1 && ` • Showing ${startIndex + 1}-${endIndex} of ${totalTasks}`}
                 {isManualSort && " (drag to reorder)"}
               </CardDescription>
             </div>
@@ -320,6 +337,25 @@ const ListView = ({
                 </SelectContent>
               </Select>
 
+              {/* Items Per Page */}
+              <Select 
+                value={String(itemsPerPage)} 
+                onValueChange={(value) => {
+                  setItemsPerPage(Number(value));
+                  setCurrentPage(1); // Reset to first page when changing page size
+                }}
+              >
+                <SelectTrigger className="w-[110px] hidden sm:flex">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="10">10 / page</SelectItem>
+                  <SelectItem value="20">20 / page</SelectItem>
+                  <SelectItem value="50">50 / page</SelectItem>
+                  <SelectItem value="100">100 / page</SelectItem>
+                </SelectContent>
+              </Select>
+
               {/* View Mode Toggle */}
               <div className="flex items-center gap-1 ml-auto">
                 <Button
@@ -365,11 +401,11 @@ const ListView = ({
             : "space-y-4",
           isManualSort && "pl-8" // Add padding for drag handles
         )}>
-          {filteredAndSortedTasks.map((task: Task, index: number) => (
+          {paginatedTasks.map((task: Task, index: number) => (
             <DraggableTaskItem
               key={task.id}
               task={task}
-              index={index}
+              index={startIndex + index}
               viewMode={viewMode}
               isManualSort={isManualSort}
               moveTask={moveTask}
@@ -377,6 +413,65 @@ const ListView = ({
             />
           ))}
         </div>
+      )}
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">
+                Page {currentPage} of {totalPages}
+              </p>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                >
+                  <ChevronLeft className="h-4 w-4 mr-1" />
+                  Previous
+                </Button>
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    // Show pages around current page
+                    let pageNum;
+                    if (totalPages <= 5) {
+                      pageNum = i + 1;
+                    } else if (currentPage <= 3) {
+                      pageNum = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      pageNum = totalPages - 4 + i;
+                    } else {
+                      pageNum = currentPage - 2 + i;
+                    }
+                    return (
+                      <Button
+                        key={pageNum}
+                        variant={currentPage === pageNum ? "default" : "outline"}
+                        size="sm"
+                        className="w-8 h-8 p-0"
+                        onClick={() => setCurrentPage(pageNum)}
+                      >
+                        {pageNum}
+                      </Button>
+                    );
+                  })}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                  <ChevronRight className="h-4 w-4 ml-1" />
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       )}
     </div>
   );
