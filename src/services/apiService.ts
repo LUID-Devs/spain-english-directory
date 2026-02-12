@@ -682,6 +682,71 @@ class ApiService {
     return this.request<Team[]>('/teams');
   }
 
+  // ==================== CYCLES ====================
+
+  async getTeamCycles(teamId: number, status?: string): Promise<{ teamId: number; cycles: Cycle[] }> {
+    const params = new URLSearchParams();
+    if (status) params.append('status', status);
+    const queryString = params.toString();
+    return this.request<{ teamId: number; cycles: Cycle[] }>(`/teams/${teamId}/cycles${queryString ? `?${queryString}` : ''}`);
+  }
+
+  async getCycle(cycleId: number): Promise<CycleWithDetails> {
+    return this.request<CycleWithDetails>(`/teams/cycles/${cycleId}`);
+  }
+
+  async createCycle(teamId: number, cycle: Partial<Cycle>, skipOverlapCheck?: boolean): Promise<{ message: string; cycle: Cycle }> {
+    return this.request<{ message: string; cycle: Cycle }>(`/teams/${teamId}/cycles`, {
+      method: 'POST',
+      body: JSON.stringify({ ...cycle, skipOverlapCheck }),
+    });
+  }
+
+  async updateCycle(cycleId: number, cycle: Partial<Cycle>, skipOverlapCheck?: boolean): Promise<{ message: string; cycle: Cycle }> {
+    return this.request<{ message: string; cycle: Cycle }>(`/teams/cycles/${cycleId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ ...cycle, skipOverlapCheck }),
+    });
+  }
+
+  async startCycleNow(cycleId: number): Promise<{ message: string; cycle: Cycle }> {
+    return this.request<{ message: string; cycle: Cycle }>(`/teams/cycles/${cycleId}/start-now`, {
+      method: 'POST',
+    });
+  }
+
+  async completeCycle(cycleId: number, autoRollover?: boolean): Promise<{ message: string; cycle: Cycle; rolledOverTasks: number[]; nextCycleId?: number }> {
+    return this.request<{ message: string; cycle: Cycle; rolledOverTasks: number[]; nextCycleId?: number }>(`/teams/cycles/${cycleId}/complete`, {
+      method: 'POST',
+      body: JSON.stringify({ autoRollover }),
+    });
+  }
+
+  async cancelCycle(cycleId: number, moveTasksTo?: number): Promise<{ message: string; cycle: Cycle; tasksMoved: number }> {
+    return this.request<{ message: string; cycle: Cycle; tasksMoved: number }>(`/teams/cycles/${cycleId}/cancel`, {
+      method: 'POST',
+      body: JSON.stringify({ moveTasksTo }),
+    });
+  }
+
+  async getTeamCycleSettings(teamId: number): Promise<{ teamId: number; settings: CycleSettings }> {
+    return this.request<{ teamId: number; settings: CycleSettings }>(`/teams/${teamId}/cycle-settings`);
+  }
+
+  async updateTeamCycleSettings(teamId: number, settings: Partial<CycleSettings>): Promise<{ message: string; teamId: number; settings: CycleSettings }> {
+    return this.request<{ message: string; teamId: number; settings: CycleSettings }>(`/teams/${teamId}/cycle-settings`, {
+      method: 'PATCH',
+      body: JSON.stringify(settings),
+    });
+  }
+
+  async assignTaskToCycle(taskId: number, cycleId: number | null): Promise<{ message: string; task: { id: number; title: string; cycleId: number | null; cycle?: Cycle } }> {
+    return this.request<{ message: string; task: { id: number; title: string; cycleId: number | null; cycle?: Cycle } }>(`/teams/tasks/${taskId}/cycle`, {
+      method: 'POST',
+      body: JSON.stringify({ cycleId }),
+    });
+  }
+
   // Search
   async search(query: string): Promise<SearchResults> {
     const params = new URLSearchParams({ 
@@ -1155,4 +1220,69 @@ export interface WorkloadAlertsResponse {
     warningCount: number;
     infoCount: number;
   };
+}
+
+// ==================== CYCLE TYPES ====================
+
+export type CycleStatus = 'upcoming' | 'active' | 'completed' | 'cancelled';
+
+export interface Cycle {
+  id: number;
+  teamId: number;
+  name: string;
+  description?: string;
+  startDate: string;
+  endDate: string;
+  status: CycleStatus;
+  cooldownEnabled: boolean;
+  autoCreated?: boolean;
+  startedAt?: string;
+  completedAt?: string;
+  cancelledAt?: string;
+  createdAt: string;
+  updatedAt: string;
+  taskCount?: number;
+}
+
+export interface CycleWithDetails extends Cycle {
+  tasks: {
+    id: number;
+    title: string;
+    status: string;
+    priority: string;
+    assignedUserId?: number;
+    points?: number;
+  }[];
+  team: {
+    id: number;
+    teamName: string;
+    cyclesEnabled: boolean;
+  };
+  stats: {
+    totalTasks: number;
+    completedTasks: number;
+    inProgressTasks: number;
+    todoTasks: number;
+    totalPoints: number;
+  };
+}
+
+export interface CycleSettings {
+  cyclesEnabled: boolean;
+  cycleDurationWeeks: number;
+  cycleStartDay: string;
+  cooldownDays: number;
+  upcomingCyclesCount: number;
+}
+
+export interface OverlappingCycle {
+  id: number;
+  name: string;
+  startDate: string;
+  endDate: string;
+}
+
+export interface CycleOverlapError {
+  message: string;
+  overlappingCycles: OverlappingCycle[];
 }
