@@ -32,6 +32,7 @@ const SettingsPage = React.lazy(() => import('@/app/dashboard/settings/page'));
 const TimelinePage = React.lazy(() => import('@/pages/dashboard/timeline/TimelinePage'));
 const MissionControlPage = React.lazy(() => import('@/pages/dashboard/mission-control/MissionControlPage'));
 const WorkloadDashboardPage = React.lazy(() => import('@/pages/dashboard/workload/WorkloadDashboardPage'));
+const GoalsPage = React.lazy(() => import('@/pages/dashboard/goals/GoalsPage'));
 
 // Priority Pages (lazy loaded)
 const HighPriorityPage = React.lazy(() => import('@/pages/dashboard/priority/HighPriorityPage'));
@@ -155,6 +156,11 @@ function App() {
                 <Route path="workload" element={
                   <RouteErrorBoundary componentName="Workload Dashboard">
                     <WorkloadDashboardPage />
+                  </RouteErrorBoundary>
+                } />
+                <Route path="goals" element={
+                  <RouteErrorBoundary componentName="Goals">
+                    <GoalsPage />
                   </RouteErrorBoundary>
                 } />
 
