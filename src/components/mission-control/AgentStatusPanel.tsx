@@ -101,7 +101,7 @@ export const AgentStatusPanel: React.FC<AgentStatusPanelProps> = ({
         </div>
       </CardHeader>
       <CardContent className="p-4 sm:p-6 pt-0">
-        <div className="grid gap-3">
+        <div className="grid gap-2 sm:gap-3">
           {agents.length === 0 ? (
             <p className="text-muted-foreground text-center py-8">No agents configured</p>
           ) : (
@@ -119,7 +119,7 @@ export const AgentStatusPanel: React.FC<AgentStatusPanelProps> = ({
               return (
                 <div
                   key={agent.id}
-                  className="flex items-center gap-3 p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
+                  className="flex items-center gap-2 sm:gap-3 p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
                 >
                   {/* Avatar with online indicator */}
                   <div className="relative">
@@ -150,7 +150,7 @@ export const AgentStatusPanel: React.FC<AgentStatusPanelProps> = ({
                     )}
 
                     {/* Status Row */}
-                    <div className="flex items-center gap-3 mt-1">
+                    <div className="flex items-center gap-2 sm:gap-3 mt-1">
                       <div className={`flex items-center gap-1 text-xs ${onlineColor}`}>
                         <OnlineIcon className="h-3 w-3" />
                         <span>{agent.isOnline ? "Online" : agent.lastHeartbeat ? "Away" : "Offline"}</span>

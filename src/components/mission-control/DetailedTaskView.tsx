@@ -224,7 +224,7 @@ export const DetailedTaskView: React.FC<DetailedTaskViewProps> = ({
         <CardContent className="p-4">
           <div className="flex flex-col gap-4">
             {/* Search and Main Filters */}
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -389,7 +389,7 @@ export const DetailedTaskView: React.FC<DetailedTaskViewProps> = ({
                   return (
                     <div
                       key={assignment.id}
-                      className="group flex items-start gap-3 p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors cursor-pointer"
+                      className="group flex items-start gap-2 sm:gap-3 p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors cursor-pointer"
                       onClick={() => {
                         setSelectedTaskId(assignment.task.id);
                         setSelectedProjectId(assignment.task.project?.id);
