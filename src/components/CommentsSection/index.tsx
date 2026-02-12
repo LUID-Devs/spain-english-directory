@@ -24,7 +24,7 @@ interface CommentsSectionProps {
 }
 
 const CommentsSection: React.FC<CommentsSectionProps> = ({ taskId }) => {
-  const { data: comments, isLoading, error } = useGetTaskCommentsQuery(taskId);
+  const { data: comments, isLoading, error, refetch } = useGetTaskCommentsQuery(taskId);
   const [createComment, { isLoading: isCreating }] = useCreateCommentMutation();
   const [updateComment, { isLoading: isUpdating }] = useUpdateCommentMutation();
   const [deleteComment, { isLoading: isDeleting }] = useDeleteCommentMutation();
