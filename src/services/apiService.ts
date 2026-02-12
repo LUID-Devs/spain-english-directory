@@ -32,6 +32,7 @@ export enum Status {
   WorkInProgress = "Work In Progress",
   UnderReview = "Under Review",
   Completed = "Completed",
+  Archived = "Archived",
 }
 
 export interface TaskStatus {

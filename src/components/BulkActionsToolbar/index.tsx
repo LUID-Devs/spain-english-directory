@@ -34,6 +34,7 @@ const STATUS_OPTIONS: { value: string; label: string }[] = [
   { value: Status.WorkInProgress, label: "Work In Progress" },
   { value: Status.UnderReview, label: "Under Review" },
   { value: Status.Completed, label: "Completed" },
+  { value: Status.Archived, label: "Archived" },
 ];
 
 const BulkActionsToolbar: React.FC<BulkActionsToolbarProps> = ({
