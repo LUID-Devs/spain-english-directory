@@ -273,11 +273,23 @@ const SettingsPage = () => {
     setIsPasswordLoading(true);
     
     try {
-      // TODO: Implement actual password change API call
-      console.log("Password change requested", passwordForm);
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const headers = await getAuthHeaders();
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/change-password`, {
+        method: 'POST',
+        credentials: 'include',
+        headers,
+        body: JSON.stringify({
+          currentPassword: passwordForm.currentPassword,
+          newPassword: passwordForm.newPassword,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setPasswordErrors([data.message || data.error || "Failed to change password. Please try again."]);
+        return;
+      }
       
       // Reset form and close dialog
       setPasswordForm({
@@ -287,7 +299,8 @@ const SettingsPage = () => {
       });
       setIsPasswordDialogOpen(false);
       
-      // TODO: Show success toast
+      // Show success toast using alert for now (toast system can be added later)
+      alert("Password changed successfully!");
     } catch (error) {
       setPasswordErrors(["Failed to change password. Please try again."]);
     } finally {
@@ -299,17 +312,38 @@ const SettingsPage = () => {
     setIsProfileLoading(true);
     
     try {
-      // TODO: Implement actual profile update API call
-      console.log("Profile update requested", profileForm);
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      if (!user?.userId) {
+        console.error("No user ID found");
+        return;
+      }
+
+      const headers = await getAuthHeaders();
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/users/${user.userId}/profile`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers,
+        body: JSON.stringify({
+          username: profileForm.username,
+          email: profileForm.email,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.message || "Failed to update profile. Please try again.");
+        return;
+      }
       
       setIsProfileDialogOpen(false);
       
-      // TODO: Show success toast and update user data
+      // Refresh auth context to get updated user data
+      await refreshAuth();
+      
+      alert("Profile updated successfully!");
     } catch (error) {
       console.error("Profile update error:", error);
+      alert("Failed to update profile. Please try again.");
     } finally {
       setIsProfileLoading(false);
     }
