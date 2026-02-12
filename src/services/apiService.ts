@@ -7,6 +7,8 @@ export interface Project {
   endDate?: string;
   archived?: boolean;
   archivedAt?: string;
+  createdAt?: string;
+  updatedAt?: string;
   isFavorited?: boolean;
   statistics?: {
     totalTasks: number;
