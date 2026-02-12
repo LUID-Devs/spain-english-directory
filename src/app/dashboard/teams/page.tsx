@@ -27,6 +27,15 @@ const columns: GridColDef[] = [
   { field: "teamName", headerName: "Team Name", minWidth: 120, flex: 1 },
   { field: "productOwnerUsername", headerName: "Product Owner", minWidth: 120, flex: 1 },
   { field: "projectManagerUsername", headerName: "Project Manager", minWidth: 120, flex: 1 },
+  { 
+    field: "memberCount", 
+    headerName: "Members", 
+    width: 90, 
+    minWidth: 80, 
+    flex: 0,
+    type: "number",
+    valueGetter: (value: any) => value ?? 0,
+  },
 ];
 
 // Mobile card view for a single team
@@ -41,7 +50,13 @@ const TeamCard = ({ team }: { team: any }) => (
         </div>
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold text-foreground truncate">{team.teamName}</h3>
-          <p className="text-xs text-muted-foreground mt-0.5">Team ID: {team.id}</p>
+          <div className="flex items-center gap-2 mt-0.5">
+            <p className="text-xs text-muted-foreground">Team ID: {team.id}</p>
+            <span className="text-xs text-muted-foreground">•</span>
+            <p className="text-xs text-muted-foreground">
+              {team.memberCount ?? 0} {team.memberCount === 1 ? 'member' : 'members'}
+            </p>
+          </div>
         </div>
       </div>
 
@@ -157,22 +172,39 @@ const Teams = () => {
         </CardHeader>
       </Card>
 
-      {/* Stats Card */}
-      <Card>
-        <CardContent className="p-4 sm:p-6">
-          <div className="flex items-center gap-3 sm:gap-4">
-            <div className="p-2 sm:p-3 rounded-full bg-gray-100 dark:bg-gray-900/20 flex-shrink-0">
-              <Users className="h-5 w-5 sm:h-6 sm:w-6 text-gray-600 dark:text-gray-400" />
+      {/* Stats Cards */}
+      <div className="grid grid-cols-2 gap-4">
+        <Card>
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="p-2 sm:p-3 rounded-full bg-gray-100 dark:bg-gray-900/20 flex-shrink-0">
+                <Users className="h-5 w-5 sm:h-6 sm:w-6 text-gray-600 dark:text-gray-400" />
+              </div>
+              <div>
+                <p className="text-xs sm:text-sm font-medium text-muted-foreground">Total Teams</p>
+                <p className="text-2xl sm:text-3xl font-bold text-gray-600 dark:text-gray-400">
+                  {teams.length}
+                </p>
+              </div>
             </div>
-            <div>
-              <p className="text-xs sm:text-sm font-medium text-muted-foreground">Total Teams</p>
-              <p className="text-2xl sm:text-3xl font-bold text-gray-600 dark:text-gray-400">
-                {teams.length}
-              </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="p-2 sm:p-3 rounded-full bg-blue-100 dark:bg-blue-900/20 flex-shrink-0">
+                <Users className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div>
+                <p className="text-xs sm:text-sm font-medium text-muted-foreground">Total Members</p>
+                <p className="text-2xl sm:text-3xl font-bold text-blue-600 dark:text-blue-400">
+                  {teams.reduce((sum: number, team: any) => sum + (team.memberCount || 0), 0)}
+                </p>
+              </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Mobile: Card View */}
       <div className="md:hidden">

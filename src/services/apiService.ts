@@ -190,10 +190,15 @@ export interface SearchSuggestion {
 }
 
 export interface Team {
-  teamId: number;
+  id: number;
   teamName: string;
   productOwnerUserId?: number;
   projectManagerUserId?: number;
+  productOwnerUsername?: string;
+  projectManagerUsername?: string;
+  memberCount?: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 // AI Task Parsing Types
