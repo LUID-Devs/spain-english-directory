@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useGetTaskQuery, useUpdateTaskMutation, useGetUsersQuery, useUploadTaskDescriptionImageMutation, useGetProjectStatusesQuery } from "@/hooks/useApi";
 import { toast } from "sonner";
-import { Calendar, User, Flag, Clock, Paperclip, Tag, CircleDot, Loader2, Image, Share2, Bot, X } from "lucide-react";
+import { Calendar, User, Flag, Clock, Paperclip, Tag, CircleDot, Loader2, Image, Share2, Bot, X, HelpCircle } from "lucide-react";
 import CommentsSection from "@/components/CommentsSection";
 import AttachmentsSection from "@/components/AttachmentsSection";
 import RichTextEditor from "@/components/RichTextEditor";
@@ -24,6 +24,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 interface TaskDetailModalProps {
   isOpen: boolean;
@@ -408,10 +413,42 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                 <div className="grid grid-cols-2 lg:grid-cols-1 gap-3 lg:gap-4">
                   {/* Status */}
                   <div className="space-y-1 lg:space-y-2">
-                    <Label className="flex items-center gap-2 text-foreground font-medium text-xs lg:text-sm">
-                      <CircleDot className="h-3 w-3 lg:h-4 lg:w-4" />
-                      Status
-                    </Label>
+                    <div className="flex items-center gap-2">
+                      <Label className="flex items-center gap-2 text-foreground font-medium text-xs lg:text-sm">
+                        <CircleDot className="h-3 w-3 lg:h-4 lg:w-4" />
+                        Status
+                      </Label>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button type="button" className="text-muted-foreground hover:text-foreground transition-colors">
+                            <HelpCircle className="h-3 w-3 lg:h-4 lg:w-4" />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-72" align="start">
+                          <div className="space-y-3">
+                            <h4 className="font-medium text-sm">Task Status</h4>
+                            <div className="space-y-2 text-xs">
+                              <div className="flex items-start gap-2">
+                                <span className="font-semibold shrink-0">To Do:</span>
+                                <span className="text-muted-foreground">Work that hasn&apos;t started yet. The starting point for new tasks.</span>
+                              </div>
+                              <div className="flex items-start gap-2">
+                                <span className="font-semibold shrink-0">In Progress:</span>
+                                <span className="text-muted-foreground">Actively being worked on. Update regularly with progress.</span>
+                              </div>
+                              <div className="flex items-start gap-2">
+                                <span className="font-semibold shrink-0">Under Review:</span>
+                                <span className="text-muted-foreground">Work complete, awaiting review or approval from others.</span>
+                              </div>
+                              <div className="flex items-start gap-2">
+                                <span className="font-semibold shrink-0">Completed:</span>
+                                <span className="text-muted-foreground">Fully done and approved. The final state of finished work.</span>
+                              </div>
+                            </div>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
                     <Select
                       value={editForm.status}
                       onValueChange={(value) => handleFieldChange('status', value)}
@@ -431,10 +468,46 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
 
                   {/* Priority */}
                   <div className="space-y-1 lg:space-y-2">
-                    <Label className="flex items-center gap-2 text-foreground font-medium text-xs lg:text-sm">
-                      <Flag className="h-3 w-3 lg:h-4 lg:w-4" />
-                      Priority
-                    </Label>
+                    <div className="flex items-center gap-2">
+                      <Label className="flex items-center gap-2 text-foreground font-medium text-xs lg:text-sm">
+                        <Flag className="h-3 w-3 lg:h-4 lg:w-4" />
+                        Priority
+                      </Label>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button type="button" className="text-muted-foreground hover:text-foreground transition-colors">
+                            <HelpCircle className="h-3 w-3 lg:h-4 lg:w-4" />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-72" align="start">
+                          <div className="space-y-3">
+                            <h4 className="font-medium text-sm">Understanding Priority Levels</h4>
+                            <div className="space-y-2 text-xs">
+                              <div className="flex items-start gap-2">
+                                <span className="font-semibold text-red-600 shrink-0">Urgent:</span>
+                                <span className="text-muted-foreground">Critical issues blocking work. Drop everything and handle immediately.</span>
+                              </div>
+                              <div className="flex items-start gap-2">
+                                <span className="font-semibold text-orange-600 shrink-0">High:</span>
+                                <span className="text-muted-foreground">Important tasks with near-term deadlines. Prioritize these.</span>
+                              </div>
+                              <div className="flex items-start gap-2">
+                                <span className="font-semibold text-yellow-600 shrink-0">Medium:</span>
+                                <span className="text-muted-foreground">Standard work items. Complete after urgent/high priority.</span>
+                              </div>
+                              <div className="flex items-start gap-2">
+                                <span className="font-semibold text-blue-600 shrink-0">Low:</span>
+                                <span className="text-muted-foreground">Nice-to-have improvements. Tackle when time permits.</span>
+                              </div>
+                              <div className="flex items-start gap-2">
+                                <span className="font-semibold text-gray-600 shrink-0">Backlog:</span>
+                                <span className="text-muted-foreground">Ideas for the future. Not scheduled yet.</span>
+                              </div>
+                            </div>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
                     <Select
                       value={editForm.priority}
                       onValueChange={(value) => handleFieldChange('priority', value as Priority)}
@@ -454,10 +527,46 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
 
                   {/* Type */}
                   <div className="space-y-1 lg:space-y-2">
-                    <Label className="flex items-center gap-2 text-foreground font-medium text-xs lg:text-sm">
-                      <Tag className="h-3 w-3 lg:h-4 lg:w-4" />
-                      Type
-                    </Label>
+                    <div className="flex items-center gap-2">
+                      <Label className="flex items-center gap-2 text-foreground font-medium text-xs lg:text-sm">
+                        <Tag className="h-3 w-3 lg:h-4 lg:w-4" />
+                        Type
+                      </Label>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button type="button" className="text-muted-foreground hover:text-foreground transition-colors">
+                            <HelpCircle className="h-3 w-3 lg:h-4 lg:w-4" />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-72" align="start">
+                          <div className="space-y-3">
+                            <h4 className="font-medium text-sm">Task Types</h4>
+                            <div className="space-y-2 text-xs">
+                              <div className="flex items-start gap-2">
+                                <span className="font-semibold shrink-0">Feature:</span>
+                                <span className="text-muted-foreground">New functionality or enhancement to the product.</span>
+                              </div>
+                              <div className="flex items-start gap-2">
+                                <span className="font-semibold shrink-0">Bug:</span>
+                                <span className="text-muted-foreground">Something that is broken and needs fixing.</span>
+                              </div>
+                              <div className="flex items-start gap-2">
+                                <span className="font-semibold shrink-0">Improvement:</span>
+                                <span className="text-muted-foreground">Optimization or enhancement to existing functionality.</span>
+                              </div>
+                              <div className="flex items-start gap-2">
+                                <span className="font-semibold shrink-0">Documentation:</span>
+                                <span className="text-muted-foreground">User guides, API docs, or internal documentation.</span>
+                              </div>
+                              <div className="flex items-start gap-2">
+                                <span className="font-semibold shrink-0">Testing:</span>
+                                <span className="text-muted-foreground">QA, automated tests, or manual testing tasks.</span>
+                              </div>
+                            </div>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
                     <Select
                       value={editForm.taskType || "none"}
                       onValueChange={(value) => handleFieldChange('taskType', value === "none" ? undefined : value as TaskType)}

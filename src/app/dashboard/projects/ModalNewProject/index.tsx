@@ -7,7 +7,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertTriangle, Loader2, FolderPlus, Calendar, FileText } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { AlertTriangle, Loader2, FolderPlus, Calendar, FileText, HelpCircle, Lock, Globe } from "lucide-react";
 
 type Props = {
   isOpen: boolean;
@@ -91,10 +96,29 @@ const ModalNewProject = ({ isOpen, onClose }: Props) => {
 
         {/* Project Name */}
         <div className="space-y-2">
-          <Label htmlFor="projectName" className="flex items-center gap-2">
-            <FolderPlus className="h-4 w-4 text-muted-foreground" />
-            Project Name *
-          </Label>
+          <div className="flex items-center gap-2">
+            <Label htmlFor="projectName" className="flex items-center gap-2">
+              <FolderPlus className="h-4 w-4 text-muted-foreground" />
+              Project Name *
+            </Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button type="button" className="text-muted-foreground hover:text-foreground transition-colors">
+                  <HelpCircle className="h-4 w-4" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-72" align="start">
+                <div className="space-y-2">
+                  <h4 className="font-medium text-sm">Project Name Tips</h4>
+                  <ul className="space-y-1 text-xs text-muted-foreground">
+                    <li>• Use a clear, descriptive name</li>
+                    <li>• Include version or phase if applicable (e.g., "v2" or "Phase 1")</li>
+                    <li>• Keep it concise but informative</li>
+                  </ul>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
           <Input
             id="projectName"
             type="text"
@@ -104,14 +128,37 @@ const ModalNewProject = ({ isOpen, onClose }: Props) => {
             className="h-11"
             autoFocus
           />
+          <p className="text-xs text-muted-foreground">
+            Choose a name that clearly describes the project&apos;s purpose.
+          </p>
         </div>
 
         {/* Description */}
         <div className="space-y-2">
-          <Label htmlFor="description" className="flex items-center gap-2">
-            <FileText className="h-4 w-4 text-muted-foreground" />
-            Description
-          </Label>
+          <div className="flex items-center gap-2">
+            <Label htmlFor="description" className="flex items-center gap-2">
+              <FileText className="h-4 w-4 text-muted-foreground" />
+              Description
+            </Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button type="button" className="text-muted-foreground hover:text-foreground transition-colors">
+                  <HelpCircle className="h-4 w-4" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-72" align="start">
+                <div className="space-y-2">
+                  <h4 className="font-medium text-sm">What to Include</h4>
+                  <ul className="space-y-1 text-xs text-muted-foreground">
+                    <li>• Project goals and objectives</li>
+                    <li>• Key deliverables</li>
+                    <li>• Target audience or stakeholders</li>
+                    <li>• Any constraints or requirements</li>
+                  </ul>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
           <Textarea
             id="description"
             placeholder="What is this project about? (optional)"
@@ -120,14 +167,37 @@ const ModalNewProject = ({ isOpen, onClose }: Props) => {
             rows={3}
             className="resize-none"
           />
+          <p className="text-xs text-muted-foreground">
+            Optional but recommended. Helps team members understand the project scope.
+          </p>
         </div>
 
         {/* Date Range */}
         <div className="space-y-2">
-          <Label className="flex items-center gap-2">
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-            Project Timeline *
-          </Label>
+          <div className="flex items-center gap-2">
+            <Label className="flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              Project Timeline *
+            </Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button type="button" className="text-muted-foreground hover:text-foreground transition-colors">
+                  <HelpCircle className="h-4 w-4" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-72" align="start">
+                <div className="space-y-2">
+                  <h4 className="font-medium text-sm">Setting Timelines</h4>
+                  <ul className="space-y-1 text-xs text-muted-foreground">
+                    <li>• Start date: When work officially begins</li>
+                    <li>• End date: Target completion deadline</li>
+                    <li>• Can be adjusted later as needed</li>
+                    <li>• Used for progress tracking and reporting</li>
+                  </ul>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1">
               <span className="text-xs text-muted-foreground">Start Date</span>
@@ -150,6 +220,9 @@ const ModalNewProject = ({ isOpen, onClose }: Props) => {
               />
             </div>
           </div>
+          <p className="text-xs text-muted-foreground">
+            Define the project duration. All tasks within this project should fall within these dates.
+          </p>
         </div>
 
         {/* Action Buttons */}
