@@ -7,6 +7,7 @@ import { useCurrentUser } from "@/stores/userStore";
 import { useAuth } from "@/app/authProvider";
 import NavbarSearchComponent from "@/components/NavbarSearch";
 import WorkspaceSwitcher from "@/components/WorkspaceSwitcher";
+import { NotificationBell } from "@/components/NotificationBell";
 import { Button } from "@/components/ui/button";
 
 const Navbar = () => {
@@ -148,6 +149,9 @@ const Navbar = () => {
             </motion.div>
           </AnimatePresence>
         </Button>
+
+        {/* Notification Bell */}
+        <NotificationBell />
 
         {/* Settings Link */}
         <Button variant="ghost" size="sm" asChild className="hidden sm:flex min-h-[44px] min-w-[44px] p-2" aria-label="Settings">

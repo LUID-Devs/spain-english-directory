@@ -1111,6 +1111,49 @@ class ApiService {
       body: JSON.stringify({ newAssigneeId }),
     });
   }
+
+  // ==================== USER NOTIFICATIONS API ====================
+
+  async getUserNotifications(params?: { limit?: number; offset?: number; includeRead?: boolean }): Promise<{
+    success: boolean;
+    notifications: UserNotification[];
+    pagination: { total: number; limit: number; offset: number; hasMore: boolean };
+  }> {
+    const queryParams = new URLSearchParams();
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    if (params?.offset) queryParams.append('offset', params.offset.toString());
+    if (params?.includeRead) queryParams.append('includeRead', 'true');
+    
+    return this.request<{ success: boolean; notifications: UserNotification[]; pagination: { total: number; limit: number; offset: number; hasMore: boolean } }>(
+      `/api/user-notifications?${queryParams.toString()}`
+    );
+  }
+
+  async getUnreadNotificationCount(): Promise<{ success: boolean; unreadCount: number }> {
+    return this.request<{ success: boolean; unreadCount: number }>('/api/user-notifications/unread-count');
+  }
+
+  async markNotificationAsRead(notificationId: number): Promise<{ success: boolean; message: string }> {
+    return this.request<{ success: boolean; message: string }>(`/api/user-notifications/${notificationId}/read`, {
+      method: 'PUT',
+    });
+  }
+
+  async markAllNotificationsAsRead(): Promise<{ success: boolean; message: string }> {
+    return this.request<{ success: boolean; message: string }>('/api/user-notifications/read-all', {
+      method: 'PUT',
+    });
+  }
+
+  async dismissNotification(notificationId: number): Promise<{ success: boolean; message: string }> {
+    return this.request<{ success: boolean; message: string }>(`/api/user-notifications/${notificationId}/dismiss`, {
+      method: 'PUT',
+    });
+  }
+
+  async getNotificationSettings(): Promise<{ success: boolean; settings: NotificationSettings }> {
+    return this.request<{ success: boolean; settings: NotificationSettings }>('/api/user-notifications/settings');
+  }
 }
 
 export const apiService = new ApiService();
@@ -1269,6 +1312,48 @@ export interface WorkloadAlertsResponse {
     warningCount: number;
     infoCount: number;
   };
+}
+
+// ==================== USER NOTIFICATIONS TYPES ====================
+
+export interface UserNotification {
+  id: number;
+  userId: number;
+  organizationId: number;
+  type: 'workload_overload' | 'workload_warning' | 'out_of_office_conflict' | 'task_reassigned' | 'task_assigned' | 'unassigned_tasks' | 'cycle_deadline' | string;
+  title: string;
+  message: string;
+  taskId?: number;
+  triggeredByUserId?: number;
+  read: boolean;
+  readAt?: string;
+  dismissed: boolean;
+  dismissedAt?: string;
+  delivered: boolean;
+  deliveredAt?: string;
+  metadata?: any;
+  createdAt: string;
+  updatedAt: string;
+  task?: {
+    id: number;
+    title: string;
+    status: string | null;
+    priority: string | null;
+  };
+  triggeredBy?: {
+    userId: number;
+    username: string;
+    profilePictureUrl?: string;
+  };
+}
+
+export interface NotificationSettings {
+  emailNotifications: boolean;
+  pushNotifications: boolean;
+  workloadAlerts: boolean;
+  taskAssignmentAlerts: boolean;
+  dailyDigest: boolean;
+  weeklyDigest: boolean;
 }
 
 // ==================== CYCLE TYPES ====================
