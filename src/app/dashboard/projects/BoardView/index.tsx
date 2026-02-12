@@ -698,13 +698,51 @@ const Task = React.memo(({ task, onTaskSelect }: TaskProps) => {
   };
 
   const handleConfirmDelete = async () => {
+    // Store task data for potential restoration
+    const taskToRestore = { ...task };
+    const taskTitle = task.title;
+    
     try {
       await deleteTask(task.id).unwrap();
       setShowDeleteModal(false);
+      
+      // Show undo toast with 10 second timeout
+      toast.success(`Task "${taskTitle}" deleted`, {
+        duration: 10000,
+        action: {
+          label: "Undo",
+          onClick: async () => {
+            try {
+              // Prepare task data for recreation (exclude id, createdAt, updatedAt)
+              const { id, createdAt, updatedAt, comments, attachments, ...taskData } = taskToRestore;
+              
+              // Recreate the task
+              const restoredTask = await createTask(taskData).unwrap();
+              
+              toast.success(`Task "${taskTitle}" restored successfully!`, {
+                duration: 3000,
+              });
+              
+              // Open the restored task in edit mode
+              onTaskSelect({ taskId: restoredTask.id, editMode: true });
+            } catch (restoreError: any) {
+              console.error('Failed to restore task:', restoreError);
+              toast.error('Failed to restore task. Please try again.', {
+                duration: 5000,
+              });
+            }
+          },
+        },
+        onAutoClose: () => {
+          // Task is permanently deleted after toast closes
+          console.log(`Task ${taskTitle} permanently deleted`);
+        },
+      });
     } catch (error: any) {
       console.error('Failed to delete task:', error);
-      // You could add a toast notification here
-      alert(error?.data?.message || 'Failed to delete task. Please try again.');
+      toast.error(error?.data?.message || 'Failed to delete task. Please try again.', {
+        duration: 5000,
+      });
       setShowDeleteModal(false);
     }
   };

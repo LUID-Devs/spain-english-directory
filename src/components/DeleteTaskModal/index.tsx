@@ -59,7 +59,7 @@ const DeleteTaskModal: React.FC<DeleteTaskModalProps> = ({
             <span className="font-semibold">"{taskTitle}"</span>?
           </p>
           <p className="text-xs sm:text-sm text-muted-foreground">
-            This action cannot be undone. The task and all its data will be permanently removed.
+            You'll have 10 seconds to undo this action after deletion. The task will be permanently removed after that.
           </p>
         </div>
 
