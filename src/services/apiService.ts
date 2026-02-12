@@ -981,6 +981,41 @@ class ApiService {
       method: 'DELETE',
     });
   }
+
+  // ==================== WORKLOAD API ====================
+
+  async getTeamWorkload(): Promise<TeamWorkloadResponse> {
+    return this.request<TeamWorkloadResponse>('/api/workload');
+  }
+
+  async getWorkloadAlerts(): Promise<WorkloadAlertsResponse> {
+    return this.request<WorkloadAlertsResponse>('/api/workload/alerts');
+  }
+
+  async updateWorkloadSettings(settings: Partial<WorkloadSettings>): Promise<{ success: boolean; settings: WorkloadSettings }> {
+    return this.request<{ success: boolean; settings: WorkloadSettings }>('/api/workload/settings', {
+      method: 'PATCH',
+      body: JSON.stringify(settings),
+    });
+  }
+
+  async updateMemberCapacity(userId: number, data: {
+    dailyCapacity?: number;
+    isOutOfOffice?: boolean;
+    outOfOfficeUntil?: string | null;
+  }): Promise<{ success: boolean; member: { userId: number; username: string; email: string; dailyCapacity: number; isOutOfOffice: boolean } }> {
+    return this.request<{ success: boolean; member: { userId: number; username: string; email: string; dailyCapacity: number; isOutOfOffice: boolean } }>(`/api/workload/members/${userId}/capacity`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async reassignTask(taskId: number, newAssigneeId: number | null): Promise<{ success: boolean; task: { id: number; title: string; newAssignee: string | null } }> {
+    return this.request<{ success: boolean; task: { id: number; title: string; newAssignee: string | null } }>(`/api/workload/tasks/${taskId}/reassign`, {
+      method: 'POST',
+      body: JSON.stringify({ newAssigneeId }),
+    });
+  }
 }
 
 export const apiService = new ApiService();
@@ -1043,4 +1078,80 @@ export interface GoalTemplate {
   createdBy?: number;
   createdAt: string;
   updatedAt: string;
+}
+
+// ==================== WORKLOAD TYPES ====================
+
+export interface WorkloadSettings {
+  capacityMetric: 'task_count' | 'time_estimate' | 'story_points';
+  defaultCapacity: number;
+  warningThreshold: number;
+  dangerThreshold: number;
+  showUnassigned: boolean;
+  showOutOfOffice: boolean;
+}
+
+export interface WorkloadTask {
+  id: number;
+  title: string;
+  status: string;
+  priority: string;
+  projectName?: string;
+  dueDate?: string;
+}
+
+export interface WorkloadMember {
+  memberId: number;
+  username: string;
+  email: string;
+  profilePictureUrl?: string;
+  role: string;
+  capacity: number;
+  currentLoad: number;
+  capacityPercent: number;
+  status: 'green' | 'yellow' | 'red';
+  isOutOfOffice: boolean;
+  outOfOfficeUntil?: string;
+  hasConflict: boolean;
+  tasks: WorkloadTask[];
+}
+
+export interface WorkloadAlert {
+  type: 'overloaded' | 'warning' | 'out_of_office_conflict' | 'unassigned';
+  severity: 'danger' | 'warning' | 'info';
+  message: string;
+  userId?: number;
+  username?: string;
+  currentLoad?: number;
+  capacity?: number;
+  outOfOfficeUntil?: string;
+  count?: number;
+}
+
+export interface TeamWorkloadResponse {
+  success: boolean;
+  settings: WorkloadSettings;
+  members: WorkloadMember[];
+  unassigned: {
+    count: number;
+    tasks: WorkloadTask[];
+  };
+  summary: {
+    totalMembers: number;
+    overloadedMembers: number;
+    warningMembers: number;
+    outOfOfficeMembers: number;
+    unassignedTasks: number;
+    conflicts: number;
+  };
+}
+
+export interface WorkloadAlertsResponse {
+  success: boolean;
+  alerts: WorkloadAlert[];
+  summary: {
+    dangerCount: number;
+    warningCount: number;
+    infoCount: number;
+  };
 }
