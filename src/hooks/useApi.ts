@@ -1832,7 +1832,88 @@ export const useReorderStatusesMutation = () => {
   return [mutationWrapper, { isLoading: false }];
 };
 
+// ==================== SAVED VIEWS HOOKS ====================
+
+export const useGetProjectViewsQuery = (projectId: number | undefined, options: { skip?: boolean } = {}) => {
+  const [views, setViews] = useState<SavedView[] | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const fetchViews = useCallback(async () => {
+    if (!projectId || options.skip) return;
+
+    try {
+      setIsLoading(true);
+      const data = await apiService.getProjectViews(projectId);
+      setViews(data);
+      setError(null);
+    } catch (err) {
+      console.error('Failed to fetch saved views:', err);
+      setError(err instanceof Error ? err : new Error('Failed to fetch saved views'));
+    } finally {
+      setIsLoading(false);
+    }
+  }, [projectId, options.skip]);
+
+  useEffect(() => {
+    fetchViews();
+  }, [fetchViews]);
+
+  return {
+    data: views,
+    isLoading,
+    error,
+    refetch: fetchViews,
+  };
+};
+
+export const useCreateViewMutation = () => {
+  const createView = useCallback(async ({ projectId, name, filters, isDefault, isShared }: {
+    projectId: number;
+    name: string;
+    filters: SavedView['filters'];
+    isDefault?: boolean;
+    isShared?: boolean;
+  }) => {
+    return apiService.createView(projectId, { name, filters, isDefault, isShared });
+  }, []);
+
+  return [createView, { isLoading: false }] as const;
+};
+
+export const useUpdateViewMutation = () => {
+  const updateView = useCallback(async ({ viewId, data }: {
+    viewId: number;
+    data: Partial<{
+      name: string;
+      filters: SavedView['filters'];
+      isDefault: boolean;
+      isShared: boolean;
+    }>;
+  }) => {
+    return apiService.updateView(viewId, data);
+  }, []);
+
+  return [updateView, { isLoading: false }] as const;
+};
+
+export const useDeleteViewMutation = () => {
+  const deleteView = useCallback(async (viewId: number) => {
+    return apiService.deleteView(viewId);
+  }, []);
+
+  return [deleteView, { isLoading: false }] as const;
+};
+
+export const useSetDefaultViewMutation = () => {
+  const setDefaultView = useCallback(async (viewId: number) => {
+    return apiService.setDefaultView(viewId);
+  }, []);
+
+  return [setDefaultView, { isLoading: false }] as const;
+};
+
 // Export types and enums
 export { Status, Priority, TaskType } from '@/services/apiService';
-export type { Task, Project, User, Comment, Attachment, UserWithStats, TaskStatus } from '@/services/apiService';
+export type { Task, Project, User, Comment, Attachment, UserWithStats, TaskStatus, SavedView } from '@/services/apiService';
 

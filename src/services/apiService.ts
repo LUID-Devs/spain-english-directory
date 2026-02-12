@@ -57,6 +57,24 @@ export enum TaskType {
   Chore = "Chore",
 }
 
+export interface SavedView {
+  id: number;
+  name: string;
+  projectId: number;
+  userId: number;
+  organizationId: number;
+  filters: {
+    priority?: string | null;
+    status?: string | null;
+    assigneeId?: number | null;
+    searchQuery?: string | null;
+  };
+  isDefault: boolean;
+  isShared: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface User {
   userId: number;
   username: string;
@@ -816,6 +834,57 @@ class ApiService {
       method: 'PATCH',
       body: JSON.stringify({ taskIds, projectId }),
     });
+  }
+
+  // ==================== SAVED VIEWS ====================
+
+  async getProjectViews(projectId: number): Promise<SavedView[]> {
+    const response = await this.request<{ success: boolean; views: SavedView[] }>(`/projects/${projectId}/views`);
+    return response.views;
+  }
+
+  async getDefaultView(projectId: number): Promise<SavedView | null> {
+    const response = await this.request<{ success: boolean; view: SavedView | null }>(`/projects/${projectId}/views/default`);
+    return response.view;
+  }
+
+  async createView(projectId: number, data: {
+    name: string;
+    filters: SavedView['filters'];
+    isDefault?: boolean;
+    isShared?: boolean;
+  }): Promise<SavedView> {
+    const response = await this.request<{ success: boolean; view: SavedView }>(`/projects/${projectId}/views`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+    return response.view;
+  }
+
+  async updateView(viewId: number, data: Partial<{
+    name: string;
+    filters: SavedView['filters'];
+    isDefault: boolean;
+    isShared: boolean;
+  }>): Promise<SavedView> {
+    const response = await this.request<{ success: boolean; view: SavedView }>(`/views/${viewId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+    return response.view;
+  }
+
+  async deleteView(viewId: number): Promise<void> {
+    await this.request<{ success: boolean }>(`/views/${viewId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async setDefaultView(viewId: number): Promise<SavedView> {
+    const response = await this.request<{ success: boolean; view: SavedView }>(`/views/${viewId}/set-default`, {
+      method: 'POST',
+    });
+    return response.view;
   }
 }
 

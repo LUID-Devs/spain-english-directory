@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
   Clock,
   Filter,
@@ -14,6 +14,13 @@ import {
   Download,
   FileSpreadsheet,
   FileJson,
+  Bookmark,
+  BookmarkPlus,
+  MoreHorizontal,
+  Star,
+  Trash2,
+  Edit3,
+  Eye,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -34,8 +41,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { Priority } from "@/hooks/useApi";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Priority, SavedView, useGetProjectViewsQuery, useCreateViewMutation, useUpdateViewMutation, useDeleteViewMutation, useSetDefaultViewMutation } from "@/hooks/useApi";
 
 export type FilterState = {
   priority: string | null;
@@ -71,6 +94,46 @@ const ProjectHeader = ({
   availableAssignees,
 }: Props) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
+  const [isManageDialogOpen, setIsManageDialogOpen] = useState(false);
+  const [viewName, setViewName] = useState("");
+  const [isDefault, setIsDefault] = useState(false);
+  const [isShared, setIsShared] = useState(false);
+  const [editingView, setEditingView] = useState<SavedView | null>(null);
+  const [selectedViewId, setSelectedViewId] = useState<number | null>(null);
+
+  const projectIdNum = parseInt(projectId || '0');
+  
+  const { data: savedViews, isLoading: viewsLoading, refetch: refetchViews } = useGetProjectViewsQuery(
+    projectIdNum || undefined,
+    { skip: !projectIdNum }
+  );
+  const [createView] = useCreateViewMutation();
+  const [updateView] = useUpdateViewMutation();
+  const [deleteView] = useDeleteViewMutation();
+  const [setDefaultView] = useSetDefaultViewMutation();
+
+  // Load default view on mount
+  useEffect(() => {
+    if (savedViews && savedViews.length > 0 && selectedViewId === null) {
+      const defaultView = savedViews.find(v => v.isDefault);
+      if (defaultView) {
+        applyView(defaultView);
+      }
+    }
+  }, [savedViews]);
+
+  const applyView = useCallback((view: SavedView) => {
+    setSelectedViewId(view.id);
+    onFiltersChange({
+      priority: view.filters.priority || null,
+      status: view.filters.status || null,
+      assigneeId: view.filters.assigneeId || null,
+    });
+    if (view.filters.searchQuery) {
+      onSearchChange(view.filters.searchQuery);
+    }
+  }, [onFiltersChange, onSearchChange]);
 
   const handleShare = () => {
     const projectUrl = `${window.location.origin}/dashboard/projects/${projectId}`;
@@ -84,12 +147,12 @@ const ProjectHeader = ({
   const handleExportCSV = async () => {
     try {
       toast.info("Preparing CSV export...");
-      const filters: { projectId?: number; status?: string; assigneeId?: number } = {};
-      if (projectId && projectId !== '0') filters.projectId = parseInt(projectId);
-      if (filters.status) filters.status = filters.status;
-      if (filters.assigneeId !== undefined && filters.assigneeId !== null) filters.assigneeId = filters.assigneeId;
+      const exportFilters: { projectId?: number; status?: string; assigneeId?: number } = {};
+      if (projectId && projectId !== '0') exportFilters.projectId = parseInt(projectId);
+      if (filters.status) exportFilters.status = filters.status;
+      if (filters.assigneeId !== null) exportFilters.assigneeId = filters.assigneeId;
 
-      const blob = await apiService.exportTasksCSV(filters);
+      const blob = await apiService.exportTasksCSV(exportFilters);
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -108,12 +171,12 @@ const ProjectHeader = ({
   const handleExportJSON = async () => {
     try {
       toast.info("Preparing JSON export...");
-      const filters: { projectId?: number; status?: string; assigneeId?: number } = {};
-      if (projectId && projectId !== '0') filters.projectId = parseInt(projectId);
-      if (filters.status) filters.status = filters.status;
-      if (filters.assigneeId !== undefined && filters.assigneeId !== null) filters.assigneeId = filters.assigneeId;
+      const exportFilters: { projectId?: number; status?: string; assigneeId?: number } = {};
+      if (projectId && projectId !== '0') exportFilters.projectId = parseInt(projectId);
+      if (filters.status) exportFilters.status = filters.status;
+      if (filters.assigneeId !== null) exportFilters.assigneeId = filters.assigneeId;
 
-      const blob = await apiService.exportTasksJSON(filters);
+      const blob = await apiService.exportTasksJSON(exportFilters);
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -135,12 +198,231 @@ const ProjectHeader = ({
       status: null,
       assigneeId: null,
     });
+    onSearchChange("");
+    setSelectedViewId(null);
+  };
+
+  const handleSaveView = async () => {
+    if (!viewName.trim()) {
+      toast.error("Please enter a view name");
+      return;
+    }
+
+    try {
+      if (editingView) {
+        await updateView({
+          viewId: editingView.id,
+          data: {
+            name: viewName,
+            filters: {
+              priority: filters.priority,
+              status: filters.status,
+              assigneeId: filters.assigneeId,
+              searchQuery,
+            },
+            isDefault,
+            isShared,
+          },
+        });
+        toast.success("View updated successfully");
+      } else {
+        await createView({
+          projectId: projectIdNum,
+          name: viewName,
+          filters: {
+            priority: filters.priority,
+            status: filters.status,
+            assigneeId: filters.assigneeId,
+            searchQuery,
+          },
+          isDefault,
+          isShared,
+        });
+        toast.success("View saved successfully");
+      }
+      setIsSaveDialogOpen(false);
+      setViewName("");
+      setIsDefault(false);
+      setIsShared(false);
+      setEditingView(null);
+      refetchViews();
+    } catch (error: any) {
+      toast.error(error.message || "Failed to save view");
+    }
+  };
+
+  const handleDeleteView = async (viewId: number) => {
+    try {
+      await deleteView(viewId);
+      toast.success("View deleted successfully");
+      refetchViews();
+      if (selectedViewId === viewId) {
+        setSelectedViewId(null);
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Failed to delete view");
+    }
+  };
+
+  const handleSetDefault = async (viewId: number) => {
+    try {
+      await setDefaultView(viewId);
+      toast.success("Default view set successfully");
+      refetchViews();
+    } catch (error: any) {
+      toast.error(error.message || "Failed to set default view");
+    }
+  };
+
+  const handleEditView = (view: SavedView) => {
+    setEditingView(view);
+    setViewName(view.name);
+    setIsDefault(view.isDefault);
+    setIsShared(view.isShared);
+    setIsSaveDialogOpen(true);
+    setIsManageDialogOpen(false);
+  };
+
+  const openSaveDialog = () => {
+    setEditingView(null);
+    setViewName("");
+    setIsDefault(false);
+    setIsShared(false);
+    setIsSaveDialogOpen(true);
   };
 
   const activeFiltersCount = [filters.priority, filters.status, filters.assigneeId].filter(Boolean).length;
+  const currentView = savedViews?.find(v => v.id === selectedViewId);
 
   return (
     <div className="container mx-auto px-4 py-4 sm:p-6 space-y-4 sm:space-y-6">
+      {/* Save View Dialog */}
+      <Dialog open={isSaveDialogOpen} onOpenChange={setIsSaveDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{editingView ? "Edit View" : "Save Current View"}</DialogTitle>
+            <DialogDescription>
+              {editingView 
+                ? "Update your saved view settings." 
+                : "Save your current filter and search configuration as a named view."}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="viewName">View Name</Label>
+              <Input
+                id="viewName"
+                placeholder="e.g., High Priority Bugs"
+                value={viewName}
+                onChange={(e) => setViewName(e.target.value)}
+              />
+            </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="isDefault"
+                checked={isDefault}
+                onCheckedChange={(checked) => setIsDefault(checked as boolean)}
+              />
+              <Label htmlFor="isDefault" className="text-sm cursor-pointer">
+                Set as default view for this project
+              </Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="isShared"
+                checked={isShared}
+                onCheckedChange={(checked) => setIsShared(checked as boolean)}
+              />
+              <Label htmlFor="isShared" className="text-sm cursor-pointer">
+                Share with team members
+              </Label>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsSaveDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveView}>
+              {editingView ? "Update View" : "Save View"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Manage Views Dialog */}
+      <Dialog open={isManageDialogOpen} onOpenChange={setIsManageDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Manage Saved Views</DialogTitle>
+            <DialogDescription>
+              Edit, set default, or delete your saved views.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2 py-4 max-h-[400px] overflow-y-auto">
+            {savedViews?.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-4">
+                No saved views yet.
+              </p>
+            ) : (
+              savedViews?.map((view) => (
+                <div
+                  key={view.id}
+                  className={cn(
+                    "flex items-center justify-between p-3 rounded-lg border",
+                    selectedViewId === view.id ? "border-primary bg-primary/5" : "border-border"
+                  )}
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    {view.isDefault && <Star className="h-4 w-4 text-yellow-500 shrink-0" />}
+                    {view.isShared && <Eye className="h-4 w-4 text-blue-500 shrink-0" />}
+                    <span className="font-medium truncate">{view.name}</span>
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0"
+                      onClick={() => applyView(view)}
+                    >
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                    {!view.isDefault && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0"
+                        onClick={() => handleSetDefault(view.id)}
+                      >
+                        <Star className="h-4 w-4" />
+                      </Button>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0"
+                      onClick={() => handleEditView(view)}
+                    >
+                      <Edit3 className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0 text-destructive"
+                      onClick={() => handleDeleteView(view.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+          <DialogFooter>
+            <Button onClick={() => setIsManageDialogOpen(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Header */}
       <Card>
         <CardHeader className="p-4 sm:p-6">
@@ -194,6 +476,57 @@ const ProjectHeader = ({
 
             {/* Controls */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+              {/* Saved Views Dropdown */}
+              {savedViews && savedViews.length > 0 && (
+                <Select
+                  value={selectedViewId?.toString() || "custom"}
+                  onValueChange={(value) => {
+                    if (value === "custom") {
+                      handleClearFilters();
+                    } else if (value === "manage") {
+                      setIsManageDialogOpen(true);
+                    } else {
+                      const view = savedViews.find(v => v.id.toString() === value);
+                      if (view) applyView(view);
+                    }
+                  }}
+                >
+                  <SelectTrigger className="w-full sm:w-44">
+                    <Bookmark className="h-4 w-4 mr-2 shrink-0" />
+                    <SelectValue placeholder="Select view">
+                      {currentView ? currentView.name : "Custom View"}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="custom">
+                      <span className="text-muted-foreground">Custom View</span>
+                    </SelectItem>
+                    {savedViews.map((view) => (
+                      <SelectItem key={view.id} value={view.id.toString()}>
+                        <div className="flex items-center gap-2">
+                          {view.isDefault && <Star className="h-3 w-3 text-yellow-500" />}
+                          {view.isShared && <Eye className="h-3 w-3 text-blue-500" />}
+                          {view.name}
+                        </div>
+                      </SelectItem>
+                    ))}
+                    <SelectItem value="manage">
+                      <span className="text-primary">Manage views...</span>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+
+              {/* Save View Button */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={openSaveDialog}
+                title="Save current view"
+              >
+                <BookmarkPlus className="h-4 w-4" />
+              </Button>
+
               {/* Filter Popover */}
               <Popover open={isFilterOpen} onOpenChange={setIsFilterOpen}>
                 <PopoverTrigger asChild>
@@ -280,7 +613,7 @@ const ProjectHeader = ({
                         onValueChange={(value) =>
                           onFiltersChange({
                             ...filters,
-                            assigneeId: value === "all" ? null : parseInt(value),
+                            assigneeId: value === "all" ? null : value === "unassigned" ? 0 : parseInt(value),
                           })
                         }
                       >
@@ -337,21 +670,23 @@ const ProjectHeader = ({
                   </Button>
                 )}
               </div>
-
-              {/* Filter and Share Buttons */}
-              <div className="flex items-center gap-2">
-                {/* Filter Popover is above */}
-              </div>
             </div>
           </div>
 
           {/* Active Filters Display */}
-          {(activeFiltersCount > 0 || searchQuery) && (
+          {(activeFiltersCount > 0 || searchQuery || currentView) && (
             <div className="flex items-center gap-2 mt-4 pt-4 border-t flex-wrap">
-              <span className="text-sm text-muted-foreground">Active filters:</span>
+              <span className="text-sm text-muted-foreground">Active:</span>
+              {currentView && (
+                <Badge variant="default" className="flex items-center gap-1">
+                  <Bookmark className="h-3 w-3" />
+                  {currentView.name}
+                  {currentView.isDefault && <Star className="h-3 w-3 ml-1" />}
+                </Badge>
+              )}
               {searchQuery && (
                 <Badge variant="secondary" className="flex items-center gap-1">
-                  Search: "{searchQuery}"
+                  Search: &quot;{searchQuery}&quot;
                   <button onClick={() => onSearchChange("")} className="ml-1 hover:text-foreground">
                     <X className="h-3 w-3" />
                   </button>
@@ -389,6 +724,17 @@ const ProjectHeader = ({
                     <X className="h-3 w-3" />
                   </button>
                 </Badge>
+              )}
+              {!currentView && (activeFiltersCount > 0 || searchQuery) && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-auto p-1 text-xs text-muted-foreground hover:text-foreground"
+                  onClick={handleClearFilters}
+                >
+                  <X className="h-3 w-3 mr-1" />
+                  Clear all
+                </Button>
               )}
             </div>
           )}
