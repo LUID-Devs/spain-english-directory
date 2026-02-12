@@ -6,7 +6,9 @@ import AuthProvider from '@/app/authProvider';
 import DashboardWrapper from '@/app/dashboardWrapper';
 import { SubscriptionProvider } from '@/components/SubscriptionProvider';
 import { useQuickAddTask } from '@/hooks/useQuickAddTask';
+import { useCommandPalette } from '@/hooks/useCommandPalette';
 import QuickAddTaskModal from '@/components/QuickAddTaskModal';
+import CommandPalette from '@/components/CommandPalette';
 
 // Auth Components (eager imports for immediate auth flow)
 import LoginPage from '@/pages/auth/LoginPage';
@@ -48,6 +50,7 @@ const CookiePolicy = React.lazy(() => import('@/pages/legal/CookiePolicy'));
 function App() {
   const { isDarkMode } = useGlobalStore();
   const { isOpen, open, close } = useQuickAddTask();
+  const { isOpen: isCommandPaletteOpen, close: closeCommandPalette } = useCommandPalette();
 
   useEffect(() => {
     if (isDarkMode) {
@@ -131,6 +134,9 @@ function App() {
 
       {/* Global Quick Add Task Modal */}
       <QuickAddTaskModal isOpen={isOpen} onClose={close} />
+      
+      {/* Global Command Palette */}
+      <CommandPalette isOpen={isCommandPaletteOpen} onClose={closeCommandPalette} />
     </AuthProvider>
   );
 }
