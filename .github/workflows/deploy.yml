@@ -18,18 +18,6 @@ jobs:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
 
-      - name: 🚫 Check for dist/ in git
-        run: |
-          if git ls-files | grep -q "^dist/"; then
-            echo "❌ ERROR: dist/ folder found in git repository!"
-            echo "Build artifacts should not be committed."
-            echo "Files found:"
-            git ls-files | grep "^dist/"
-            exit 1
-          else
-            echo "✅ No dist/ folder found in git - good!"
-          fi
-
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v4
         with:

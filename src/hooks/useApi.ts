@@ -652,16 +652,15 @@ export const useGetTaskQuery = (taskId: number, options: { skip?: boolean } = {}
   const [isLoading, setIsLoading] = useState(false);
   const [error, setTaskError] = useState<string | null>(null);
   const hasFetchedRef = useRef(false);
-  const taskIdRef = useRef(taskId);
-  const skipRef = useRef(options.skip);
+  const lastTaskIdRef = useRef<number | null>(null);
   
-  const fetchTask = useCallback(async () => {
-    if (skipRef.current || !taskIdRef.current) return;
+  const fetchTask = useCallback(async (id: number = taskId) => {
+    if (options.skip || !id) return;
     
     try {
       setIsLoading(true);
       setTaskError(null);
-      const taskData = await apiService.getTask(taskIdRef.current);
+      const taskData = await apiService.getTask(id);
       setTask(taskData);
     } catch (error) {
       console.error('Failed to fetch task:', error);
@@ -669,22 +668,19 @@ export const useGetTaskQuery = (taskId: number, options: { skip?: boolean } = {}
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [taskId, options.skip]);
 
   useEffect(() => {
     // Reset fetch flag when taskId changes
-    if (taskIdRef.current !== taskId) {
+    if (lastTaskIdRef.current !== taskId) {
       hasFetchedRef.current = false;
+      lastTaskIdRef.current = taskId;
     }
-    
-    // Update refs
-    taskIdRef.current = taskId;
-    skipRef.current = options.skip;
     
     // Only fetch once on mount unless taskId or skip changes
     if (!hasFetchedRef.current && !options.skip && taskId) {
       hasFetchedRef.current = true;
-      fetchTask();
+      fetchTask(taskId);
     }
   }, [taskId, options.skip, fetchTask]);
 
@@ -693,7 +689,7 @@ export const useGetTaskQuery = (taskId: number, options: { skip?: boolean } = {}
     isLoading,
     isError: !!error,
     error: error ? new Error(error) : null,
-    refetch: fetchTask,
+    refetch: () => fetchTask(taskId),
   };
 };
 
