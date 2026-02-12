@@ -11,6 +11,7 @@ import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import QuickAddTaskModal from '@/components/QuickAddTaskModal';
 import CommandPalette from '@/components/CommandPalette';
 import KeyboardShortcutsHelp from '@/components/KeyboardShortcutsHelp';
+import RouteErrorBoundary from '@/components/RouteErrorBoundary';
 
 // Auth Components (eager imports for immediate auth flow)
 import LoginPage from '@/pages/auth/LoginPage';
@@ -100,24 +101,88 @@ function App() {
             <SubscriptionProvider>
               <DashboardWrapper>
                 <Routes>
-                <Route index element={<DashboardPage />} />
-                <Route path="projects" element={<ProjectsPage />} />
-                <Route path="projects/:id" element={<ProjectDetailPage />} />
-                <Route path="tasks" element={<TasksPage />} />
-                <Route path="tasks/:id" element={<TaskDetailPage />} />
-                <Route path="teams" element={<TeamsPage />} />
-                <Route path="users" element={<UsersPage />} />
-                <Route path="settings" element={<SettingsPage />} />
-                <Route path="timeline" element={<TimelinePage />} />
-                <Route path="mission-control" element={<MissionControlPage />} />
+                <Route index element={
+                  <RouteErrorBoundary componentName="Dashboard">
+                    <DashboardPage />
+                  </RouteErrorBoundary>
+                } />
+                <Route path="projects" element={
+                  <RouteErrorBoundary componentName="Projects">
+                    <ProjectsPage />
+                  </RouteErrorBoundary>
+                } />
+                <Route path="projects/:id" element={
+                  <RouteErrorBoundary componentName="Project Detail">
+                    <ProjectDetailPage />
+                  </RouteErrorBoundary>
+                } />
+                <Route path="tasks" element={
+                  <RouteErrorBoundary componentName="Tasks">
+                    <TasksPage />
+                  </RouteErrorBoundary>
+                } />
+                <Route path="tasks/:id" element={
+                  <RouteErrorBoundary componentName="Task Detail">
+                    <TaskDetailPage />
+                  </RouteErrorBoundary>
+                } />
+                <Route path="teams" element={
+                  <RouteErrorBoundary componentName="Teams">
+                    <TeamsPage />
+                  </RouteErrorBoundary>
+                } />
+                <Route path="users" element={
+                  <RouteErrorBoundary componentName="Users">
+                    <UsersPage />
+                  </RouteErrorBoundary>
+                } />
+                <Route path="settings" element={
+                  <RouteErrorBoundary componentName="Settings">
+                    <SettingsPage />
+                  </RouteErrorBoundary>
+                } />
+                <Route path="timeline" element={
+                  <RouteErrorBoundary componentName="Timeline">
+                    <TimelinePage />
+                  </RouteErrorBoundary>
+                } />
+                <Route path="mission-control" element={
+                  <RouteErrorBoundary componentName="Mission Control">
+                    <MissionControlPage />
+                  </RouteErrorBoundary>
+                } />
 
                 {/* Priority Routes */}
-                <Route path="priority/high" element={<HighPriorityPage />} />
-                <Route path="priority/urgent" element={<UrgentPriorityPage />} />
-                <Route path="priority/medium" element={<MediumPriorityPage />} />
-                <Route path="priority/low" element={<LowPriorityPage />} />
-                <Route path="priority/backlog" element={<BacklogPriorityPage />} />
-                <Route path="archived-tasks" element={<ArchivedTasksPage />} />
+                <Route path="priority/high" element={
+                  <RouteErrorBoundary componentName="High Priority">
+                    <HighPriorityPage />
+                  </RouteErrorBoundary>
+                } />
+                <Route path="priority/urgent" element={
+                  <RouteErrorBoundary componentName="Urgent Priority">
+                    <UrgentPriorityPage />
+                  </RouteErrorBoundary>
+                } />
+                <Route path="priority/medium" element={
+                  <RouteErrorBoundary componentName="Medium Priority">
+                    <MediumPriorityPage />
+                  </RouteErrorBoundary>
+                } />
+                <Route path="priority/low" element={
+                  <RouteErrorBoundary componentName="Low Priority">
+                    <LowPriorityPage />
+                  </RouteErrorBoundary>
+                } />
+                <Route path="priority/backlog" element={
+                  <RouteErrorBoundary componentName="Backlog">
+                    <BacklogPriorityPage />
+                  </RouteErrorBoundary>
+                } />
+                <Route path="archived-tasks" element={
+                  <RouteErrorBoundary componentName="Archived Tasks">
+                    <ArchivedTasksPage />
+                  </RouteErrorBoundary>
+                } />
                 </Routes>
               </DashboardWrapper>
             </SubscriptionProvider>
