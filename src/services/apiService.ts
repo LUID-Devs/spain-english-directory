@@ -460,6 +460,103 @@ class ApiService {
     });
   }
 
+  // Task Export
+  async exportTasksCSV(filters?: { projectId?: number; status?: string; assignedUserId?: number }): Promise<Blob> {
+    const params = new URLSearchParams();
+    if (filters?.projectId) params.append('projectId', filters.projectId.toString());
+    if (filters?.status) params.append('status', filters.status);
+    if (filters?.assignedUserId) params.append('assignedUserId', filters.assignedUserId.toString());
+    
+    const queryString = params.toString();
+    const url = `${this.baseUrl}/tasks/export/csv${queryString ? `?${queryString}` : ''}`;
+
+    // Get Cognito access token if available
+    let authHeader: Record<string, string> = {};
+    try {
+      const { fetchAuthSession } = await import('aws-amplify/auth');
+      const session = await fetchAuthSession();
+
+      if (session?.tokens?.accessToken) {
+        authHeader['Authorization'] = `Bearer ${session.tokens.accessToken}`;
+      }
+
+      if (session?.tokens?.idToken) {
+        authHeader['X-ID-Token'] = `${session.tokens.idToken}`;
+      }
+    } catch (error) {
+      console.log('[API SERVICE] No Cognito session, using session cookies only');
+    }
+
+    // Add organization context header if available
+    const activeOrgId = localStorage.getItem('activeOrganizationId');
+    if (activeOrgId) {
+      authHeader['X-Organization-Id'] = activeOrgId;
+    }
+
+    const response = await fetch(url, {
+      credentials: 'include',
+      headers: authHeader,
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        window.location.href = '/auth/login';
+        throw new Error('Authentication required');
+      }
+      throw new Error(`API Error: ${response.status} ${response.statusText}`);
+    }
+
+    return response.blob();
+  }
+
+  async exportTasksJSON(filters?: { projectId?: number; status?: string; assignedUserId?: number }): Promise<Blob> {
+    const params = new URLSearchParams();
+    if (filters?.projectId) params.append('projectId', filters.projectId.toString());
+    if (filters?.status) params.append('status', filters.status);
+    if (filters?.assignedUserId) params.append('assignedUserId', filters.assignedUserId.toString());
+    
+    const queryString = params.toString();
+    const url = `${this.baseUrl}/tasks/export/json${queryString ? `?${queryString}` : ''}`;
+
+    // Get Cognito access token if available
+    let authHeader: Record<string, string> = {};
+    try {
+      const { fetchAuthSession } = await import('aws-amplify/auth');
+      const session = await fetchAuthSession();
+
+      if (session?.tokens?.accessToken) {
+        authHeader['Authorization'] = `Bearer ${session.tokens.accessToken}`;
+      }
+
+      if (session?.tokens?.idToken) {
+        authHeader['X-ID-Token'] = `${session.tokens.idToken}`;
+      }
+    } catch (error) {
+      console.log('[API SERVICE] No Cognito session, using session cookies only');
+    }
+
+    // Add organization context header if available
+    const activeOrgId = localStorage.getItem('activeOrganizationId');
+    if (activeOrgId) {
+      authHeader['X-Organization-Id'] = activeOrgId;
+    }
+
+    const response = await fetch(url, {
+      credentials: 'include',
+      headers: authHeader,
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        window.location.href = '/auth/login';
+        throw new Error('Authentication required');
+      }
+      throw new Error(`API Error: ${response.status} ${response.statusText}`);
+    }
+
+    return response.blob();
+  }
+
   // Comments
   async getTaskComments(taskId: number): Promise<Comment[]> {
     return this.request<Comment[]>(`/tasks/${taskId}/comments`);

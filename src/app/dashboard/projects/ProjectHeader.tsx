@@ -11,6 +11,9 @@ import {
   Folder,
   X,
   Check,
+  Download,
+  FileSpreadsheet,
+  FileJson,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,6 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { apiService } from "@/services/apiService";
 import {
   Popover,
   PopoverContent,
@@ -75,6 +79,54 @@ const ProjectHeader = ({
     }).catch(() => {
       toast.error("Failed to copy link");
     });
+  };
+
+  const handleExportCSV = async () => {
+    try {
+      toast.info("Preparing CSV export...");
+      const filters: { projectId?: number; status?: string; assigneeId?: number } = {};
+      if (projectId && projectId !== '0') filters.projectId = parseInt(projectId);
+      if (filters.status) filters.status = filters.status;
+      if (filters.assigneeId !== undefined && filters.assigneeId !== null) filters.assigneeId = filters.assigneeId;
+
+      const blob = await apiService.exportTasksCSV(filters);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `tasks-export-${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      toast.success("CSV exported successfully");
+    } catch (error) {
+      console.error("Export error:", error);
+      toast.error("Failed to export CSV");
+    }
+  };
+
+  const handleExportJSON = async () => {
+    try {
+      toast.info("Preparing JSON export...");
+      const filters: { projectId?: number; status?: string; assigneeId?: number } = {};
+      if (projectId && projectId !== '0') filters.projectId = parseInt(projectId);
+      if (filters.status) filters.status = filters.status;
+      if (filters.assigneeId !== undefined && filters.assigneeId !== null) filters.assigneeId = filters.assigneeId;
+
+      const blob = await apiService.exportTasksJSON(filters);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `tasks-export-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      toast.success("JSON exported successfully");
+    } catch (error) {
+      console.error("Export error:", error);
+      toast.error("Failed to export JSON");
+    }
   };
 
   const handleClearFilters = () => {
@@ -251,8 +303,18 @@ const ProjectHeader = ({
               </Popover>
 
               {/* Share Button */}
-              <Button variant="ghost" size="sm" onClick={handleShare}>
+              <Button variant="ghost" size="sm" onClick={handleShare} title="Share project">
                 <Share className="h-4 w-4" />
+              </Button>
+
+              {/* Export CSV Button */}
+              <Button variant="ghost" size="sm" onClick={handleExportCSV} title="Export as CSV">
+                <FileSpreadsheet className="h-4 w-4" />
+              </Button>
+
+              {/* Export JSON Button */}
+              <Button variant="ghost" size="sm" onClick={handleExportJSON} title="Export as JSON">
+                <FileJson className="h-4 w-4" />
               </Button>
 
               {/* Search Input */}
