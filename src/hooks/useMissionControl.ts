@@ -462,6 +462,7 @@ export const useActivityFeed = (organizationId?: number, limit = 50) => {
 export interface AgentWithOnlineStatus extends Agent {
   isOnline: boolean;
   lastSeenSeconds: number | null;
+  heartbeatStatus: "online" | "away" | "offline";
 }
 
 export interface MonitoringData {
