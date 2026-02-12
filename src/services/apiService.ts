@@ -1077,6 +1077,30 @@ class ApiService {
     });
   }
 
+  // ==================== GOAL-CYCLE INTEGRATION API (Task #267) ====================
+
+  async linkCyclesToGoal(goalId: number, cycleIds: number[], contributionWeights?: number[]): Promise<{ success: boolean; links: any[]; message: string }> {
+    return this.request<{ success: boolean; links: any[]; message: string }>(`/goals/${goalId}/link-cycles`, {
+      method: 'POST',
+      body: JSON.stringify({ cycleIds, contributionWeights }),
+    });
+  }
+
+  async unlinkCyclesFromGoal(goalId: number, cycleIds: number[]): Promise<{ success: boolean; deletedCount: number; message: string }> {
+    return this.request<{ success: boolean; deletedCount: number; message: string }>(`/goals/${goalId}/link-cycles`, {
+      method: 'DELETE',
+      body: JSON.stringify({ cycleIds }),
+    });
+  }
+
+  async getGoalCycles(goalId: number): Promise<{ success: boolean; goalId: number; cycles: LinkedCycle[] }> {
+    return this.request<{ success: boolean; goalId: number; cycles: LinkedCycle[] }>(`/goals/${goalId}/cycles`);
+  }
+
+  async getCycleGoals(cycleId: number): Promise<{ success: boolean; cycleId: number; goals: LinkedGoal[] }> {
+    return this.request<{ success: boolean; cycleId: number; goals: LinkedGoal[] }>(`/api/teams/cycles/${cycleId}/goals`);
+  }
+
   // ==================== WORKLOAD API ====================
 
   async getTeamWorkload(): Promise<TeamWorkloadResponse> {
@@ -1213,6 +1237,17 @@ export interface Goal {
     linkedTasks: number;
     childGoals: number;
   };
+  // Goal-Cycle Integration (Task #267)
+  linkedCycles?: {
+    cycle: {
+      id: number;
+      name: string;
+      status: string;
+      startDate: string;
+      endDate: string;
+    };
+    contributionWeight: number;
+  }[];
 }
 
 export interface GoalTemplate {
@@ -1236,6 +1271,32 @@ export interface GoalTemplate {
   createdBy?: number;
   createdAt: string;
   updatedAt: string;
+}
+
+// ==================== GOAL-CYCLE INTEGRATION TYPES (Task #267) ====================
+
+export interface LinkedCycle {
+  id: number;
+  name: string;
+  status: 'upcoming' | 'active' | 'completed' | 'cancelled';
+  startDate: string;
+  endDate: string;
+  contributionWeight: number;
+  progress: number;
+  totalTasks: number;
+  completedTasks: number;
+}
+
+export interface LinkedGoal {
+  id: number;
+  title: string;
+  status: 'active' | 'completed' | 'archived';
+  priority: 'urgent' | 'high' | 'medium' | 'low';
+  progress: number;
+  targetDate?: string;
+  goalType: 'company' | 'team' | 'individual';
+  visibility: 'public' | 'team' | 'private';
+  contributionWeight: number;
 }
 
 // ==================== WORKLOAD TYPES ====================
