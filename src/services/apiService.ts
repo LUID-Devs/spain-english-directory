@@ -143,6 +143,7 @@ export interface Task {
   startDate?: string;
   dueDate?: string;
   points?: number;
+  order?: number;
   projectId: number;
   authorUserId?: number;
   assignedUserId?: number;
@@ -641,6 +642,14 @@ class ApiService {
     return this.request<{ message: string; assignment: any }>(`/tasks/${taskId}/assign-agents`, {
       method: 'POST',
       body: JSON.stringify({ agentIds: [agentId], status: status || 'To Do' }),
+    });
+  }
+
+  // Task reordering for drag & drop
+  async reorderTasks(tasks: { taskId: number; order: number }[]): Promise<{ success: boolean; message: string }> {
+    return this.request<{ success: boolean; message: string }>('/tasks/reorder', {
+      method: 'POST',
+      body: JSON.stringify({ tasks }),
     });
   }
 }

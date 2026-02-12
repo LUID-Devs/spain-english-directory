@@ -430,6 +430,42 @@ export const useUpdateTaskMutation = () => {
   return [mutationWrapper, { isLoading: false }];
 };
 
+export const useReorderTasksMutation = () => {
+  const { setTasks } = useApiStore();
+
+  const reorderTasks = useCallback(async (taskOrders: { taskId: number; order: number }[]) => {
+    // Get fresh state
+    const currentTasks = useApiStore.getState().tasks.data;
+    const originalTasks = currentTasks ? [...currentTasks] : null;
+
+    // Optimistic update - immediately reorder in UI
+    if (currentTasks) {
+      const reorderedTasks = currentTasks.map(t => {
+        const orderUpdate = taskOrders.find(o => o.taskId === t.id);
+        return orderUpdate ? { ...t, order: orderUpdate.order } : t;
+      });
+      setTasks(reorderedTasks);
+    }
+
+    try {
+      const result = await apiService.reorderTasks(taskOrders);
+      return result;
+    } catch (error) {
+      // Rollback on error
+      if (originalTasks) {
+        setTasks(originalTasks);
+      }
+      throw error;
+    }
+  }, [setTasks]);
+
+  const mutationWrapper = useCallback((args: { taskOrders: { taskId: number; order: number }[] }) => ({
+    unwrap: () => reorderTasks(args.taskOrders)
+  }), [reorderTasks]);
+
+  return [mutationWrapper, { isLoading: false }];
+};
+
 export const useUploadTaskDescriptionImageMutation = () => {
   const uploadImage = useCallback(({ formData }: { formData: FormData }) => {
     const promise = apiService.uploadTaskDescriptionImage(formData);

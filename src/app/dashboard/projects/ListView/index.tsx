@@ -1,12 +1,15 @@
-import { Task, useGetTasksQuery, useGetProjectStatusesQuery, Status } from "@/hooks/useApi";
-import React, { useState, useMemo } from "react";
+import { Task, useGetTasksQuery, useGetProjectStatusesQuery, Status, useReorderTasksMutation } from "@/hooks/useApi";
+import React, { useState, useMemo, useCallback } from "react";
+import { toast } from "sonner";
 import TaskCard from "@/components/TaskCard";
-import { Grid3X3, List, Search, FileText, AlertTriangle } from "lucide-react";
+import { Grid3X3, List, Search, FileText, AlertTriangle, GripVertical } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { useDrag, useDrop } from "react-dnd";
+import type { DragSourceMonitor, DropTargetMonitor } from 'react-dnd';
 
 type Props = {
   id: string;
@@ -17,7 +20,82 @@ type Props = {
 };
 
 type ViewMode = "grid" | "list";
-type SortOption = "priority" | "dueDate" | "title" | "status";
+type SortOption = "priority" | "dueDate" | "title" | "status" | "manual";
+
+// Drag item type
+const ITEM_TYPE = "task";
+
+// Draggable Task Item Component
+interface DraggableTaskItemProps {
+  task: Task;
+  index: number;
+  viewMode: ViewMode;
+  isManualSort: boolean;
+  moveTask: (dragIndex: number, hoverIndex: number) => void;
+  onDrop: (taskId: number, newOrder: number) => void;
+}
+
+const DraggableTaskItem = React.memo(({
+  task,
+  index,
+  viewMode,
+  isManualSort,
+  moveTask,
+  onDrop
+}: DraggableTaskItemProps) => {
+  const [{ isDragging }, drag, preview] = useDrag(() => ({
+    type: ITEM_TYPE,
+    item: { id: task.id, index },
+    collect: (monitor: DragSourceMonitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+    canDrag: isManualSort,
+  }), [task.id, index, isManualSort]);
+
+  const [, drop] = useDrop(() => ({
+    accept: ITEM_TYPE,
+    hover: (item: { id: number; index: number }, monitor: DropTargetMonitor) => {
+      if (!monitor.isOver({ shallow: true })) return;
+      
+      const dragIndex = item.index;
+      const hoverIndex = index;
+
+      if (dragIndex === hoverIndex) return;
+
+      moveTask(dragIndex, hoverIndex);
+      item.index = hoverIndex;
+    },
+    drop: (item: { id: number; index: number }) => {
+      onDrop(item.id, item.index);
+    },
+  }), [index, moveTask, onDrop]);
+
+  return (
+    <div
+      ref={(node) => {
+        if (isManualSort) {
+          preview(drop(node));
+        }
+      }}
+      className={cn(
+        "relative group",
+        viewMode === "list" ? "max-w-none" : "",
+        isDragging && "opacity-50"
+      )}
+    >
+      {isManualSort && (
+        <div
+          ref={(node) => drag(node)}
+          className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-6 cursor-grab active:cursor-grabbing p-1 rounded hover:bg-accent opacity-0 group-hover:opacity-100 transition-opacity"
+          title="Drag to reorder"
+        >
+          <GripVertical className="h-4 w-4 text-muted-foreground" />
+        </div>
+      )}
+      <TaskCard task={task} />
+    </div>
+  );
+});
 
 const ListView = ({
   id,
@@ -52,11 +130,51 @@ const ListView = ({
   const [sortBy, setSortBy] = useState<SortOption>("priority");
   const [filterBy, setFilterBy] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [tempTasks, setTempTasks] = useState<Task[] | null>(null);
+
+  const [reorderTasks] = useReorderTasksMutation();
+
+  const isManualSort = sortBy === "manual";
 
   const priorityOrder = { "Urgent": 0, "High": 1, "Medium": 2, "Low": 3, "Backlog": 4 };
 
+  // Handle task reordering during drag
+  const moveTask = useCallback((dragIndex: number, hoverIndex: number) => {
+    if (!tasks) return;
+    
+    const currentTasks = tempTasks || tasks;
+    const draggedTask = currentTasks[dragIndex];
+    
+    const newTasks = [...currentTasks];
+    newTasks.splice(dragIndex, 1);
+    newTasks.splice(hoverIndex, 0, draggedTask);
+    
+    setTempTasks(newTasks);
+  }, [tasks, tempTasks]);
+
+  // Handle drop - save to backend
+  const handleDrop = useCallback(async (taskId: number, newIndex: number) => {
+    if (!tasks || !tempTasks) return;
+    
+    // Calculate new orders for all affected tasks
+    const taskOrders = tempTasks.map((task, idx) => ({
+      taskId: task.id,
+      order: idx,
+    }));
+
+    try {
+      await (reorderTasks as any)({ taskOrders }).unwrap();
+      setTempTasks(null); // Clear temp state after successful save
+      toast.success("Task order saved");
+    } catch (error) {
+      console.error("Failed to reorder tasks:", error);
+      toast.error("Failed to save task order");
+      setTempTasks(null); // Reset on error
+    }
+  }, [tasks, tempTasks, reorderTasks]);
+
   const filteredAndSortedTasks = useMemo(() => {
-    let filtered = tasks || [];
+    let filtered = tempTasks || tasks || [];
 
     // Apply search filter
     if (searchQuery) {
@@ -71,29 +189,43 @@ const ListView = ({
       filtered = filtered.filter(task => (task.status || "To Do") === filterBy);
     }
 
-    // Apply sorting
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case "priority":
-          const aPriority = priorityOrder[a.priority as keyof typeof priorityOrder] ?? 5;
-          const bPriority = priorityOrder[b.priority as keyof typeof priorityOrder] ?? 5;
-          return aPriority - bPriority;
-        case "dueDate":
-          if (!a.dueDate && !b.dueDate) return 0;
-          if (!a.dueDate) return 1;
-          if (!b.dueDate) return -1;
-          return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
-        case "title":
-          return a.title.localeCompare(b.title);
-        case "status":
-          return (a.status || "To Do").localeCompare(b.status || "To Do");
-        default:
-          return 0;
-      }
-    });
+    // Apply sorting (skip if manual sort - use tempTasks order)
+    if (!isManualSort) {
+      filtered = [...filtered].sort((a, b) => {
+        switch (sortBy) {
+          case "priority":
+            const aPriority = priorityOrder[a.priority as keyof typeof priorityOrder] ?? 5;
+            const bPriority = priorityOrder[b.priority as keyof typeof priorityOrder] ?? 5;
+            return aPriority - bPriority;
+          case "dueDate":
+            if (!a.dueDate && !b.dueDate) return 0;
+            if (!a.dueDate) return 1;
+            if (!b.dueDate) return -1;
+            return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+          case "title":
+            return a.title.localeCompare(b.title);
+          case "status":
+            return (a.status || "To Do").localeCompare(b.status || "To Do");
+          default:
+            return 0;
+        }
+      });
+    } else {
+      // Manual sort - sort by order field, fallback to id for stable sorting
+      filtered = [...filtered].sort((a, b) => {
+        const orderA = a.order ?? a.id;
+        const orderB = b.order ?? b.id;
+        return orderA - orderB;
+      });
+    }
 
     return filtered;
-  }, [tasks, searchQuery, filterBy, sortBy]);
+  }, [tasks, tempTasks, searchQuery, filterBy, sortBy, isManualSort]);
+
+  // Clear temp tasks when sort changes
+  React.useEffect(() => {
+    setTempTasks(null);
+  }, [sortBy]);
 
   if (isLoading) {
     return (
@@ -136,6 +268,7 @@ const ListView = ({
               <CardTitle className="text-xl sm:text-2xl">Task List</CardTitle>
               <CardDescription>
                 {filteredAndSortedTasks.length} task{filteredAndSortedTasks.length !== 1 ? 's' : ''} found
+                {isManualSort && " (drag to reorder)"}
               </CardDescription>
             </div>
           </div>
@@ -175,7 +308,7 @@ const ListView = ({
 
               {/* Sort */}
               <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortOption)}>
-                <SelectTrigger className="w-full sm:w-[140px]">
+                <SelectTrigger className={cn("w-full sm:w-[140px]", isManualSort && "border-primary")}>
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
                 <SelectContent>
@@ -183,6 +316,7 @@ const ListView = ({
                   <SelectItem value="dueDate">Due Date</SelectItem>
                   <SelectItem value="title">Title</SelectItem>
                   <SelectItem value="status">Status</SelectItem>
+                  <SelectItem value="manual">Manual Order 🖐️</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -228,12 +362,19 @@ const ListView = ({
         <div className={cn(
           viewMode === "grid" 
             ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6" 
-            : "space-y-4"
+            : "space-y-4",
+          isManualSort && "pl-8" // Add padding for drag handles
         )}>
-          {filteredAndSortedTasks.map((task: Task) => (
-            <div key={task.id} className={viewMode === "list" ? "max-w-none" : ""}>
-              <TaskCard task={task} />
-            </div>
+          {filteredAndSortedTasks.map((task: Task, index: number) => (
+            <DraggableTaskItem
+              key={task.id}
+              task={task}
+              index={index}
+              viewMode={viewMode}
+              isManualSort={isManualSort}
+              moveTask={moveTask}
+              onDrop={handleDrop}
+            />
           ))}
         </div>
       )}
