@@ -5,6 +5,8 @@ import { useGlobalStore } from '@/stores/globalStore';
 import AuthProvider from '@/app/authProvider';
 import DashboardWrapper from '@/app/dashboardWrapper';
 import { SubscriptionProvider } from '@/components/SubscriptionProvider';
+import { useQuickAddTask } from '@/hooks/useQuickAddTask';
+import QuickAddTaskModal from '@/components/QuickAddTaskModal';
 
 // Auth Components (eager imports for immediate auth flow)
 import LoginPage from '@/pages/auth/LoginPage';
@@ -44,6 +46,7 @@ const CookiePolicy = React.lazy(() => import('@/pages/legal/CookiePolicy'));
 
 function App() {
   const { isDarkMode } = useGlobalStore();
+  const { isOpen, open, close } = useQuickAddTask();
 
   useEffect(() => {
     if (isDarkMode) {
@@ -123,6 +126,9 @@ function App() {
         richColors
         closeButton
       />
+
+      {/* Global Quick Add Task Modal */}
+      <QuickAddTaskModal isOpen={isOpen} onClose={close} />
     </AuthProvider>
   );
 }
