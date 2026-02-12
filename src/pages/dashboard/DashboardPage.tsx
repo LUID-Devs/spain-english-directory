@@ -4,7 +4,7 @@ import {
   Task,
 } from "@/hooks/useApi";
 import { useAuth } from "@/app/authProvider";
-import { useGetProjectsQuery, useGetTasksByUserQuery } from "@/hooks/useApi";
+import { useGetProjectsQuery, useGetTasksByUserQuery, useGetUsersQuery } from "@/hooks/useApi";
 import { useGlobalStore } from "@/stores/globalStore";
 import React, { Suspense } from "react";
 import Header from "@/components/Header";
@@ -13,10 +13,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CheckSquare } from "lucide-react";
+import { CheckSquare, Square } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTaskModal } from "@/contexts/TaskModalContext";
 import { useKeyboardNavigation } from "@/hooks/useKeyboardNavigation";
+import BulkActionsToolbar from "@/components/BulkActionsToolbar";
+import BulkDeleteConfirmationModal from "@/components/BulkDeleteConfirmationModal";
+import { apiService } from "@/services/apiService";
+import { toast } from "sonner";
+import { useState, useCallback } from "react";
 
 // Lazy load charts to reduce initial bundle size
 const DashboardCharts = React.lazy(() => import("@/components/DashboardCharts"));
@@ -55,6 +60,11 @@ const DashboardPage = () => {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const { openTaskModal } = useTaskModal();
   
+  // Bulk selection state
+  const [selectedTaskIds, setSelectedTaskIds] = useState<Set<number>>(new Set());
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  
   // Keyboard navigation for task list
   const { selectedIndex } = useKeyboardNavigation({
     itemSelector: '[data-task-card]',
@@ -91,9 +101,117 @@ const DashboardPage = () => {
     data: tasks,
     isLoading: tasksLoading,
     isError: tasksError,
+    refetch: refetchTasks,
   } = useGetTasksByUserQuery(userId, { skip: userId === null || !isAuthenticated });
   const { data: projects, isLoading: isProjectsLoading, isError: projectsError } =
     useGetProjectsQuery();
+  const { data: users } = useGetUsersQuery({}, { skip: !isAuthenticated });
+
+  // Bulk selection handlers
+  const handleSelectTask = useCallback((taskId: number, selected: boolean) => {
+    setSelectedTaskIds(prev => {
+      const newSet = new Set(prev);
+      if (selected) {
+        newSet.add(taskId);
+      } else {
+        newSet.delete(taskId);
+      }
+      return newSet;
+    });
+  }, []);
+
+  const handleSelectAll = useCallback(() => {
+    if (!tasks) return;
+    const visibleTasks = tasks.slice(0, 5); // Only select visible tasks
+    if (selectedTaskIds.size === visibleTasks.length) {
+      setSelectedTaskIds(new Set());
+    } else {
+      setSelectedTaskIds(new Set(visibleTasks.map(t => t.id)));
+    }
+  }, [tasks, selectedTaskIds.size]);
+
+  const handleClearSelection = useCallback(() => {
+    setSelectedTaskIds(new Set());
+  }, []);
+
+  // Bulk action handlers
+  const handleBulkStatusChange = useCallback(async (status: string) => {
+    if (selectedTaskIds.size === 0) return;
+    setIsProcessing(true);
+    try {
+      const result = await apiService.bulkUpdateTaskStatus(Array.from(selectedTaskIds), status);
+      toast.success(result.message);
+      setSelectedTaskIds(new Set());
+      refetchTasks();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to update tasks");
+    } finally {
+      setIsProcessing(false);
+    }
+  }, [selectedTaskIds, refetchTasks]);
+
+  const handleBulkAssign = useCallback(async (userId: number | null) => {
+    if (selectedTaskIds.size === 0) return;
+    setIsProcessing(true);
+    try {
+      const result = await apiService.bulkAssignTasks(Array.from(selectedTaskIds), userId);
+      toast.success(result.message);
+      setSelectedTaskIds(new Set());
+      refetchTasks();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to assign tasks");
+    } finally {
+      setIsProcessing(false);
+    }
+  }, [selectedTaskIds, refetchTasks]);
+
+  const handleBulkDelete = useCallback(async () => {
+    if (selectedTaskIds.size === 0) return;
+    setIsProcessing(true);
+    try {
+      const result = await apiService.bulkDeleteTasks(Array.from(selectedTaskIds));
+      toast.success(result.message);
+      setSelectedTaskIds(new Set());
+      setIsDeleteModalOpen(false);
+      refetchTasks();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to delete tasks");
+    } finally {
+      setIsProcessing(false);
+    }
+  }, [selectedTaskIds, refetchTasks]);
+
+  const handleBulkArchive = useCallback(async () => {
+    if (selectedTaskIds.size === 0) return;
+    setIsProcessing(true);
+    try {
+      const result = await apiService.bulkArchiveTasks(Array.from(selectedTaskIds));
+      toast.success(result.message);
+      setSelectedTaskIds(new Set());
+      refetchTasks();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to archive tasks");
+    } finally {
+      setIsProcessing(false);
+    }
+  }, [selectedTaskIds, refetchTasks]);
+
+  const handleBulkUnarchive = useCallback(async () => {
+    if (selectedTaskIds.size === 0) return;
+    setIsProcessing(true);
+    try {
+      const result = await apiService.bulkUnarchiveTasks(Array.from(selectedTaskIds));
+      toast.success(result.message);
+      setSelectedTaskIds(new Set());
+      refetchTasks();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to unarchive tasks");
+    } finally {
+      setIsProcessing(false);
+    }
+  }, [selectedTaskIds, refetchTasks]);
+
+  const selectedTasks = (tasks || []).filter(t => selectedTaskIds.has(t.id));
 
   const isDarkMode = useGlobalStore((state) => state.isDarkMode);
 
@@ -309,15 +427,39 @@ const DashboardPage = () => {
       </div>
       <Card className="mb-4 sm:mb-6">
           <CardHeader className="p-4 sm:p-6">
-            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-              <CheckSquare className="h-4 w-4 sm:h-5 sm:w-5" />
-              Your Recent Tasks
-            </CardTitle>
-            {(tasks || []).length > 0 && (
-              <p className="text-xs sm:text-sm text-muted-foreground">
-                Showing {Math.min((tasks || []).length, 5)} of {(tasks || []).length} tasks
-              </p>
-            )}
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                  <CheckSquare className="h-4 w-4 sm:h-5 sm:w-5" />
+                  Your Recent Tasks
+                </CardTitle>
+                {(tasks || []).length > 0 && (
+                  <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+                    Showing {Math.min((tasks || []).length, 5)} of {(tasks || []).length} tasks
+                  </p>
+                )}
+              </div>
+              {(tasks || []).length > 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleSelectAll}
+                  className="gap-2"
+                >
+                  {selectedTaskIds.size === Math.min((tasks || []).length, 5) ? (
+                    <>
+                      <Square className="h-4 w-4" />
+                      Deselect All
+                    </>
+                  ) : (
+                    <>
+                      <CheckSquare className="h-4 w-4" />
+                      Select All
+                    </>
+                  )}
+                </Button>
+              )}
+            </div>
           </CardHeader>
           <CardContent className="p-0 sm:p-6 sm:pt-0">
             {(tasks || []).length > 0 ? (
@@ -325,22 +467,33 @@ const DashboardPage = () => {
                 {/* Mobile: Card-based layout */}
                 <div className="sm:hidden divide-y divide-border">
                   {(tasks || []).slice(0, 5).map((task) => (
-                    <button
+                    <div
                       key={task.id}
                       data-task-card
                       data-task-id={task.id}
-                      onClick={() => openTaskModal(task.id)}
-                      className="w-full p-4 text-left hover:bg-accent/50 transition-colors"
+                      className={`w-full p-4 text-left hover:bg-accent/50 transition-colors ${selectedTaskIds.has(task.id) ? 'bg-primary/5' : ''}`}
                     >
-                      <div className="flex items-start justify-between gap-3 mb-2">
-                        <h4 className="font-medium text-foreground line-clamp-2 flex-1">
-                          {task.title}
-                        </h4>
+                      <div className="flex items-start gap-3 mb-2">
+                        <input
+                          type="checkbox"
+                          checked={selectedTaskIds.has(task.id)}
+                          onChange={(e) => handleSelectTask(task.id, e.target.checked)}
+                          className="mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                        <button
+                          onClick={() => openTaskModal(task.id)}
+                          className="flex-1 text-left"
+                        >
+                          <h4 className="font-medium text-foreground line-clamp-2">
+                            {task.title}
+                          </h4>
+                        </button>
                         <Badge variant={getPriorityVariant(task.priority)} className="shrink-0">
                           {task.priority}
                         </Badge>
                       </div>
-                      <div className="flex items-center gap-2 flex-wrap">
+                      <div className="flex items-center gap-2 flex-wrap pl-7">
                         <Badge variant={getStatusVariant(task.status)}>
                           {task.status}
                         </Badge>
@@ -355,7 +508,7 @@ const DashboardPage = () => {
                           </span>
                         )}
                       </div>
-                    </button>
+                    </div>
                   ))}
                 </div>
 
@@ -364,6 +517,9 @@ const DashboardPage = () => {
                   <Table>
                     <TableHeader>
                       <TableRow>
+                        <TableHead className="w-10">
+                          <span className="sr-only">Select</span>
+                        </TableHead>
                         <TableHead>Task</TableHead>
                         <TableHead>Priority</TableHead>
                         <TableHead>Status</TableHead>
@@ -377,7 +533,16 @@ const DashboardPage = () => {
                           key={task.id}
                           data-task-card
                           data-task-id={task.id}
+                          className={selectedTaskIds.has(task.id) ? 'bg-primary/5' : ''}
                         >
+                          <TableCell>
+                            <input
+                              type="checkbox"
+                              checked={selectedTaskIds.has(task.id)}
+                              onChange={(e) => handleSelectTask(task.id, e.target.checked)}
+                              className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                            />
+                          </TableCell>
                           <TableCell>
                             <div>
                               <button
@@ -452,6 +617,28 @@ const DashboardPage = () => {
           isDarkMode={isDarkMode}
         />
       </Suspense>
+
+      {/* Bulk Actions Toolbar */}
+      <BulkActionsToolbar
+        selectedTasks={selectedTasks}
+        onClearSelection={handleClearSelection}
+        onStatusChange={handleBulkStatusChange}
+        onAssign={handleBulkAssign}
+        onDelete={() => setIsDeleteModalOpen(true)}
+        onArchive={handleBulkArchive}
+        onUnarchive={handleBulkUnarchive}
+        users={users || []}
+        isProcessing={isProcessing}
+      />
+
+      {/* Bulk Delete Confirmation Modal */}
+      <BulkDeleteConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleBulkDelete}
+        taskCount={selectedTaskIds.size}
+        isDeleting={isProcessing}
+      />
     </div>
   );
 };

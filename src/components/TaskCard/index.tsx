@@ -20,9 +20,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useTaskModal } from "@/contexts/TaskModalContext";
+import { Checkbox } from "@/components/ui/checkbox";
 
 type Props = {
   task: Task;
+  isSelected?: boolean;
+  onSelect?: (taskId: number, selected: boolean) => void;
+  selectionMode?: boolean;
 };
 
 const PRIORITY_CONFIGS = {
@@ -66,10 +70,22 @@ const getStatusConfig = (status: string) => {
   return STATUS_CONFIGS[status as keyof typeof STATUS_CONFIGS] || DEFAULT_STATUS_CONFIG;
 };
 
-const TaskCard = React.memo(({ task }: Props) => {
+const TaskCard = React.memo(({ task, isSelected = false, onSelect, selectionMode = false }: Props) => {
   const { openTaskModal } = useTaskModal();
   const taskTagsSplit = task.tags ? task.tags.split(",") : [];
   const numberOfComments = (task.comments && task.comments.length) || 0;
+
+  const handleClick = (e: React.MouseEvent) => {
+    // If clicking the checkbox or if in selection mode with modifier key, don't open modal
+    if ((e.target as HTMLElement).closest('[data-checkbox]')) {
+      return;
+    }
+    openTaskModal(task.id);
+  };
+
+  const handleCheckboxChange = (checked: boolean) => {
+    onSelect?.(task.id, checked);
+  };
 
   const getDueDateStatus = () => {
     if (!task.dueDate) return null;
@@ -96,10 +112,21 @@ const TaskCard = React.memo(({ task }: Props) => {
   
   return (
     <Card
-      onClick={() => openTaskModal(task.id)}
-      className="group cursor-pointer transition-all duration-200 hover:shadow-md"
+      onClick={handleClick}
+      className={`group cursor-pointer transition-all duration-200 hover:shadow-md ${isSelected ? 'ring-2 ring-primary' : ''}`}
     >
       <CardContent className="p-4 space-y-3">
+        {/* Selection checkbox */}
+        {selectionMode && (
+          <div className="flex items-center gap-2 pb-2 border-b border-border/50" data-checkbox>
+            <Checkbox
+              checked={isSelected}
+              onCheckedChange={handleCheckboxChange}
+              className="h-4 w-4"
+            />
+            <span className="text-xs text-muted-foreground">Select</span>
+          </div>
+        )}
         {/* Attachment preview */}
         {task.attachments && task.attachments.length > 0 && (
           <div className="relative rounded-md overflow-hidden -mx-1 -mt-1">

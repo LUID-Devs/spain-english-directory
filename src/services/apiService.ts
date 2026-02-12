@@ -769,31 +769,38 @@ class ApiService {
   }
 
   // Bulk Actions
-  async bulkUpdateTaskStatus(taskIds: number[], status: string): Promise<{ success: boolean; message: string; updatedCount: number }> {
-    return this.request<{ success: boolean; message: string; updatedCount: number }>('/tasks/bulk/status', {
-      method: 'PATCH',
+  async bulkUpdateTaskStatus(taskIds: number[], status: string): Promise<{ success: boolean; message: string; updatedCount: number; status: string }> {
+    return this.request<{ success: boolean; message: string; updatedCount: number; status: string }>('/tasks/bulk/status', {
+      method: 'POST',
       body: JSON.stringify({ taskIds, status }),
     });
   }
 
-  async bulkAssignAgents(taskIds: number[], agentIds: number[]): Promise<{ success: boolean; message: string; updatedCount: number }> {
-    return this.request<{ success: boolean; message: string; updatedCount: number }>('/tasks/bulk/assign', {
+  async bulkAssignTasks(taskIds: number[], assignedUserId: number | null): Promise<{ success: boolean; message: string; updatedCount: number; assignedUserId: number | null }> {
+    return this.request<{ success: boolean; message: string; updatedCount: number; assignedUserId: number | null }>('/tasks/bulk/assign', {
       method: 'POST',
-      body: JSON.stringify({ taskIds, agentIds }),
+      body: JSON.stringify({ taskIds, assignedUserId }),
     });
   }
 
   async bulkDeleteTasks(taskIds: number[]): Promise<{ success: boolean; message: string; deletedCount: number }> {
-    return this.request<{ success: boolean; message: string; deletedCount: number }>('/tasks/bulk', {
-      method: 'DELETE',
+    return this.request<{ success: boolean; message: string; deletedCount: number }>('/tasks/bulk/delete', {
+      method: 'POST',
       body: JSON.stringify({ taskIds }),
     });
   }
 
-  async bulkUpdateTags(taskIds: number[], tags: string, mode: 'add' | 'remove' | 'set' = 'set'): Promise<{ success: boolean; message: string; updatedCount: number }> {
-    return this.request<{ success: boolean; message: string; updatedCount: number }>('/tasks/bulk/tags', {
-      method: 'PATCH',
-      body: JSON.stringify({ taskIds, tags, mode }),
+  async bulkArchiveTasks(taskIds: number[]): Promise<{ success: boolean; message: string; archivedCount: number }> {
+    return this.request<{ success: boolean; message: string; archivedCount: number }>('/tasks/bulk/archive', {
+      method: 'POST',
+      body: JSON.stringify({ taskIds }),
+    });
+  }
+
+  async bulkUnarchiveTasks(taskIds: number[]): Promise<{ success: boolean; message: string; unarchivedCount: number }> {
+    return this.request<{ success: boolean; message: string; unarchivedCount: number }>('/tasks/bulk/unarchive', {
+      method: 'POST',
+      body: JSON.stringify({ taskIds }),
     });
   }
 
