@@ -296,6 +296,11 @@ export const useGetTaskCommentsQuery = (taskId: number) => {
   }, [setTaskComments]);
 
   useEffect(() => {
+    // Reset fetch flag when taskId changes
+    if (taskIdRef.current !== taskId) {
+      hasFetchedRef.current = false;
+    }
+    
     // Update refs
     taskIdRef.current = taskId;
     
@@ -667,6 +672,11 @@ export const useGetTaskQuery = (taskId: number, options: { skip?: boolean } = {}
   }, []);
 
   useEffect(() => {
+    // Reset fetch flag when taskId changes
+    if (taskIdRef.current !== taskId) {
+      hasFetchedRef.current = false;
+    }
+    
     // Update refs
     taskIdRef.current = taskId;
     skipRef.current = options.skip;
@@ -1539,6 +1549,11 @@ export const useGetTaskAttachmentsQuery = (taskId: number) => {
   }, [setTaskAttachments]);
 
   useEffect(() => {
+    // Reset fetch flag when taskId changes
+    if (taskIdRef.current !== taskId) {
+      hasFetchedRef.current = false;
+    }
+    
     // Update refs
     taskIdRef.current = taskId;
     

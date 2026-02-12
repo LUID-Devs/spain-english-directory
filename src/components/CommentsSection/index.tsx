@@ -131,7 +131,14 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ taskId }) => {
   if (error) {
     return (
       <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-4">
-        <p className="text-destructive">Failed to load comments</p>
+        <p className="text-destructive font-medium">Failed to load comments</p>
+        <p className="text-destructive/80 text-sm mt-1">{error.message}</p>
+        <button
+          onClick={() => refetch()}
+          className="mt-2 text-sm text-primary hover:text-primary/80 underline"
+        >
+          Try again
+        </button>
       </div>
     );
   }
