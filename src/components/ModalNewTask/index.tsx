@@ -1,4 +1,4 @@
-import { Priority, Status, useCreateTaskMutation, useGetUsersQuery, useGetAgentsQuery, useGetProjectsQuery, useGetProjectStatusesQuery, useUploadTaskDescriptionImageMutation } from "@/hooks/useApi";
+import { Priority, Status, useCreateTaskMutation, useGetUsersQuery, useGetAgentsQuery, useGetProjectsQuery, useGetProjectStatusesQuery, useUploadTaskDescriptionImageMutation, useGetTasksByUserQuery } from "@/hooks/useApi";
 import { useCurrentUser } from "@/stores/userStore";
 import { useSubscription } from "@/stores/subscriptionStore";
 import { apiService, ParsedTaskData } from "@/services/apiService";
@@ -24,7 +24,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import RichTextEditor from "@/components/RichTextEditor";
-import { Image, Sparkles, Loader2, ChevronDown, ChevronUp, Coins, Bot } from "lucide-react";
+import { Image, Sparkles, Loader2, ChevronDown, ChevronUp, Coins, Bot, HelpCircle, PartyPopper, Lightbulb, CheckCircle2 } from "lucide-react";
+import confetti from "canvas-confetti";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 // Configure marked for safe HTML output
 marked.setOptions({
@@ -53,6 +59,12 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
   const {data: projects} = useGetProjectsQuery({}, {
     skip: !isOpen, // Only load when modal is open
   });
+  
+  // Fetch user's tasks to detect first task creation
+  const {data: userTasks} = useGetTasksByUserQuery(currentUser?.userId || null, {
+    skip: !isOpen || !currentUser?.userId,
+  });
+  const isFirstTask = userTasks && userTasks.length === 0;
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -79,6 +91,12 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
     confidence: number;
   } | null>(null);
   const [isSuggestingDueDate, setIsSuggestingDueDate] = useState(false);
+  
+  // First task celebration state
+  const [showCelebration, setShowCelebration] = useState(false);
+  
+  // Quick tips visibility
+  const [showQuickTips, setShowQuickTips] = useState(true);
 
   // Reset form to initial state
   const resetForm = () => {
@@ -236,6 +254,36 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
     }
   };
 
+  // Celebration effect for first task
+  const triggerCelebration = () => {
+    // Fire confetti from multiple angles
+    const duration = 3000;
+    const end = Date.now() + duration;
+
+    const colors = ["#6366f1", "#8b5cf6", "#ec4899", "#10b981", "#f59e0b"];
+
+    (function frame() {
+      confetti({
+        particleCount: 5,
+        angle: 60,
+        spread: 55,
+        origin: { x: 0 },
+        colors: colors,
+      });
+      confetti({
+        particleCount: 5,
+        angle: 120,
+        spread: 55,
+        origin: { x: 1 },
+        colors: colors,
+      });
+
+      if (Date.now() < end) {
+        requestAnimationFrame(frame);
+      }
+    })();
+  };
+
   // Reset form when modal opens
   useEffect(() => {
     if (isOpen) {
@@ -332,7 +380,18 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
         }
       }
       
-      onClose();
+      // Check if this is the first task and show celebration
+      if (isFirstTask) {
+        triggerCelebration();
+        setShowCelebration(true);
+        // Delay closing to show celebration
+        setTimeout(() => {
+          setShowCelebration(false);
+          onClose();
+        }, 3500);
+      } else {
+        onClose();
+      }
     } catch (error) {
       toast.error("Failed to create task");
     }
@@ -433,6 +492,48 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
             </div>
           </div>
 
+          {/* Quick Tips - Collapsible */}
+          {showQuickTips && (
+            <div className="rounded-lg border border-blue-200 bg-blue-50/50 dark:border-blue-900 dark:bg-blue-950/30 p-4">
+              <div className="flex items-start gap-3">
+                <Lightbulb className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-medium text-sm text-blue-900 dark:text-blue-100">Quick Tips for Great Tasks</h4>
+                    <button
+                      type="button"
+                      onClick={() => setShowQuickTips(false)}
+                      className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200"
+                    >
+                      <span className="sr-only">Dismiss</span>
+                      <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                  </div>
+                  <ul className="mt-2 space-y-1 text-xs text-blue-700 dark:text-blue-300">
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="h-3 w-3 shrink-0" />
+                      Be specific: &quot;Fix login bug on mobile&quot; vs &quot;Fix bugs&quot;
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="h-3 w-3 shrink-0" />
+                      Include a deadline to keep work on track
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="h-3 w-3 shrink-0" />
+                      Use descriptions for context and requirements
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="h-3 w-3 shrink-0" />
+                      Assign to someone or an AI agent to get it done
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Title */}
           <div className="space-y-2">
             <Label htmlFor="title" className="text-foreground font-medium">
@@ -442,9 +543,12 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter a clear, descriptive title"
+              placeholder="e.g., Review Q3 marketing budget by Friday"
               required
             />
+            <p className="text-xs text-muted-foreground">
+              A clear title helps everyone understand what needs to be done at a glance.
+            </p>
           </div>
 
           {/* Description */}
@@ -485,9 +589,45 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label className="text-foreground font-medium">
-                Priority <span className="text-destructive">*</span>
-              </Label>
+              <div className="flex items-center gap-2">
+                <Label className="text-foreground font-medium">
+                  Priority <span className="text-destructive">*</span>
+                </Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button type="button" className="text-muted-foreground hover:text-foreground transition-colors">
+                      <HelpCircle className="h-4 w-4" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-72" align="start">
+                    <div className="space-y-3">
+                      <h4 className="font-medium text-sm">Understanding Priority Levels</h4>
+                      <div className="space-y-2 text-xs">
+                        <div className="flex items-start gap-2">
+                          <span className="font-semibold text-red-600 shrink-0">Urgent:</span>
+                          <span className="text-muted-foreground">Critical issues blocking work. Drop everything and handle immediately.</span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="font-semibold text-orange-600 shrink-0">High:</span>
+                          <span className="text-muted-foreground">Important tasks with near-term deadlines. Prioritize these.</span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="font-semibold text-yellow-600 shrink-0">Medium:</span>
+                          <span className="text-muted-foreground">Standard work items. Complete after urgent/high priority.</span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="font-semibold text-blue-600 shrink-0">Low:</span>
+                          <span className="text-muted-foreground">Nice-to-have improvements. Tackle when time permits.</span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="font-semibold text-gray-600 shrink-0">Backlog:</span>
+                          <span className="text-muted-foreground">Ideas for the future. Not scheduled yet.</span>
+                        </div>
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
               <Select
                 value={priority}
                 onValueChange={(value) => setPriority(Priority[value as keyof typeof Priority])}
@@ -732,6 +872,25 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
             )}
           </div>
         </form>
+
+        {/* First Task Celebration Overlay */}
+        {showCelebration && (
+          <div className="absolute inset-0 bg-background/95 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in duration-300">
+            <div className="text-center space-y-4 p-6 animate-in zoom-in-95 duration-500">
+              <div className="mx-auto w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center">
+                <PartyPopper className="h-10 w-10 text-primary" />
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold text-foreground">🎉 First Task Created!</h3>
+                <p className="text-muted-foreground mt-2">You&apos;re on your way to better task management.</p>
+              </div>
+              <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                <CheckCircle2 className="h-4 w-4 text-green-500" />
+                <span>Keep up the momentum!</span>
+              </div>
+            </div>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );
