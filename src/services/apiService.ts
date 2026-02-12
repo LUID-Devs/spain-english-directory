@@ -994,6 +994,7 @@ export interface Goal {
   status: 'active' | 'completed' | 'archived';
   priority: 'urgent' | 'high' | 'medium' | 'low';
   progress: number;
+  calculatedProgress?: number; // Computed on backend to handle division by zero for goals with no linked tasks
   startDate?: string;
   targetDate?: string;
   completedAt?: string;
