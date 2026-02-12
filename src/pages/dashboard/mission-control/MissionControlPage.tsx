@@ -21,6 +21,7 @@ import {
   Sunrise,
   ListTodo,
   Filter,
+  Target,
 } from "lucide-react";
 import { 
   AgentGrid, 
@@ -32,6 +33,7 @@ import {
   DetailedTaskView,
 } from "@/components/mission-control";
 import { CreateAgentModal } from "@/components/mission-control/CreateAgentModal";
+import { GoalTemplatesQuickCreate } from "@/components/GoalTemplatesQuickCreate";
 import { 
   useAgents, 
   useMonitoringData,
@@ -47,6 +49,7 @@ import { useAuth } from "@/app/authProvider";
 const MissionControlPage = () => {
   const [activeTab, setActiveTab] = useState("agents");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isGoalTemplateModalOpen, setIsGoalTemplateModalOpen] = useState(false);
   const { activeOrganization, user } = useAuth();
   
   // Fetch data
@@ -125,14 +128,25 @@ const MissionControlPage = () => {
             )}
           </Badge>
           {canManageAgents && (
-            <Button 
-              onClick={() => setIsCreateModalOpen(true)} 
-              className="flex items-center justify-center gap-2 text-sm"
-              size="default"
-            >
-              <Plus className="h-4 w-4 flex-shrink-0" />
-              <span className="whitespace-nowrap">Create Agent</span>
-            </Button>
+            <>
+              <Button 
+                onClick={() => setIsGoalTemplateModalOpen(true)} 
+                variant="outline"
+                className="flex items-center justify-center gap-2 text-sm"
+                size="default"
+              >
+                <Target className="h-4 w-4 flex-shrink-0" />
+                <span className="whitespace-nowrap">Quick Goal</span>
+              </Button>
+              <Button 
+                onClick={() => setIsCreateModalOpen(true)} 
+                className="flex items-center justify-center gap-2 text-sm"
+                size="default"
+              >
+                <Plus className="h-4 w-4 flex-shrink-0" />
+                <span className="whitespace-nowrap">Create Agent</span>
+              </Button>
+            </>
           )}
         </div>
       </div>
@@ -346,6 +360,13 @@ const MissionControlPage = () => {
       <CreateAgentModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
+      />
+
+      {/* Goal Templates Quick Create Modal */}
+      <GoalTemplatesQuickCreate
+        isOpen={isGoalTemplateModalOpen}
+        onClose={() => setIsGoalTemplateModalOpen(false)}
+        organizationId={activeOrganization?.id}
       />
     </div>
   );

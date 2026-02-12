@@ -886,6 +886,158 @@ class ApiService {
     });
     return response.view;
   }
+
+  // ==================== GOALS & GOAL TEMPLATES ====================
+
+  async getGoals(organizationId: number, filters?: { projectId?: number; status?: string }): Promise<Goal[]> {
+    const params = new URLSearchParams();
+    params.append('organizationId', organizationId.toString());
+    if (filters?.projectId) params.append('projectId', filters.projectId.toString());
+    if (filters?.status) params.append('status', filters.status);
+    
+    const response = await this.request<{ success: boolean; goals: Goal[] }>(`/goals?${params.toString()}`);
+    return response.goals;
+  }
+
+  async getGoal(goalId: number): Promise<Goal> {
+    const response = await this.request<{ success: boolean; goal: Goal }>(`/goals/${goalId}`);
+    return response.goal;
+  }
+
+  async createGoal(goal: Partial<Goal>): Promise<Goal> {
+    const response = await this.request<{ success: boolean; goal: Goal; message: string }>('/goals', {
+      method: 'POST',
+      body: JSON.stringify(goal),
+    });
+    return response.goal;
+  }
+
+  async updateGoal(goalId: number, data: Partial<Goal>): Promise<Goal> {
+    const response = await this.request<{ success: boolean; goal: Goal }>(`/goals/${goalId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+    return response.goal;
+  }
+
+  async deleteGoal(goalId: number): Promise<void> {
+    await this.request<{ success: boolean }>(`/goals/${goalId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // Goal Templates
+  async getGoalTemplates(organizationId?: number, category?: string): Promise<GoalTemplate[]> {
+    const params = new URLSearchParams();
+    if (organizationId) params.append('organizationId', organizationId.toString());
+    if (category) params.append('category', category);
+    
+    const response = await this.request<{ success: boolean; templates: GoalTemplate[] }>(`/goals/templates/all?${params.toString()}`);
+    return response.templates;
+  }
+
+  async getGoalTemplate(templateId: number): Promise<GoalTemplate> {
+    const response = await this.request<{ success: boolean; template: GoalTemplate }>(`/goals/templates/${templateId}`);
+    return response.template;
+  }
+
+  async createGoalFromTemplate(
+    templateId: number, 
+    data: {
+      title?: string;
+      organizationId: number;
+      projectId?: number;
+      customDescription?: string;
+      customTargetDate?: string;
+    }
+  ): Promise<Goal> {
+    const response = await this.request<{ success: boolean; goal: Goal; templateUsed: string }>(`/goals/templates/${templateId}/create-goal`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+    return response.goal;
+  }
+
+  async createGoalTemplate(template: Partial<GoalTemplate>): Promise<GoalTemplate> {
+    const response = await this.request<{ success: boolean; template: GoalTemplate }>('/goals/templates', {
+      method: 'POST',
+      body: JSON.stringify(template),
+    });
+    return response.template;
+  }
+
+  async updateGoalTemplate(templateId: number, data: Partial<GoalTemplate>): Promise<GoalTemplate> {
+    const response = await this.request<{ success: boolean; template: GoalTemplate }>(`/goals/templates/${templateId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+    return response.template;
+  }
+
+  async deleteGoalTemplate(templateId: number): Promise<void> {
+    await this.request<{ success: boolean }>(`/goals/templates/${templateId}`, {
+      method: 'DELETE',
+    });
+  }
 }
 
 export const apiService = new ApiService();
+
+// ==================== GOAL TYPES ====================
+
+export interface Goal {
+  id: number;
+  title: string;
+  description?: string;
+  status: 'active' | 'completed' | 'archived';
+  priority: 'urgent' | 'high' | 'medium' | 'low';
+  progress: number;
+  startDate?: string;
+  targetDate?: string;
+  completedAt?: string;
+  organizationId: number;
+  projectId?: number;
+  templateId?: number;
+  createdBy: number;
+  createdAt: string;
+  updatedAt: string;
+  project?: {
+    id: number;
+    name: string;
+  };
+  creator?: {
+    userId: number;
+    username: string;
+    profilePictureUrl?: string;
+  };
+  template?: {
+    id: number;
+    name: string;
+  };
+  _count?: {
+    linkedTasks: number;
+  };
+}
+
+export interface GoalTemplate {
+  id: number;
+  name: string;
+  description?: string;
+  category: 'general' | 'sprint' | 'quarterly' | 'project' | 'personal';
+  defaultTitle?: string;
+  defaultDescription?: string;
+  defaultPriority: 'urgent' | 'high' | 'medium' | 'low';
+  defaultDurationDays?: number;
+  taskTemplates?: Array<{
+    title: string;
+    description?: string;
+    priority: string;
+    estimatedHours?: number;
+  }>;
+  isSystem: boolean;
+  isActive: boolean;
+  organizationId?: number;
+  createdBy?: number;
+  createdAt: string;
+  updatedAt: string;
+}

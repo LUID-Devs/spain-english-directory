@@ -1913,7 +1913,150 @@ export const useSetDefaultViewMutation = () => {
   return [setDefaultView, { isLoading: false }] as const;
 };
 
+// ==================== GOAL HOOKS ====================
+
+export const useGetGoalsQuery = (
+  params: { organizationId: number; projectId?: number; status?: string } | undefined,
+  options: { skip?: boolean } = {}
+) => {
+  const [goals, setGoals] = useState<import('@/services/apiService').Goal[]>([]);
+  const [isLoading, setIsLoading] = useState(!options.skip);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    if (options.skip || !params?.organizationId) {
+      setIsLoading(false);
+      return;
+    }
+
+    const fetchGoals = async () => {
+      try {
+        setIsLoading(true);
+        const data = await apiService.getGoals(params.organizationId, {
+          projectId: params.projectId,
+          status: params.status,
+        });
+        setGoals(data);
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error('Failed to fetch goals'));
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchGoals();
+  }, [params?.organizationId, params?.projectId, params?.status, options.skip]);
+
+  return { data: goals, isLoading, error };
+};
+
+export const useGetGoalTemplatesQuery = (
+  params: { organizationId?: number; category?: string } | undefined,
+  options: { skip?: boolean } = {}
+) => {
+  const [templates, setTemplates] = useState<import('@/services/apiService').GoalTemplate[]>([]);
+  const [isLoading, setIsLoading] = useState(!options.skip);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    if (options.skip) {
+      setIsLoading(false);
+      return;
+    }
+
+    const fetchTemplates = async () => {
+      try {
+        setIsLoading(true);
+        const data = await apiService.getGoalTemplates(params?.organizationId, params?.category);
+        setTemplates(data);
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error('Failed to fetch templates'));
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchTemplates();
+  }, [params?.organizationId, params?.category, options.skip]);
+
+  return { data: templates, isLoading, error };
+};
+
+export const useCreateGoalFromTemplateMutation = () => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const createGoalFromTemplate = useCallback(async ({
+    templateId,
+    data,
+  }: {
+    templateId: number;
+    data: {
+      title?: string;
+      organizationId: number;
+      projectId?: number;
+      customDescription?: string;
+      customTargetDate?: string;
+    };
+  }) => {
+    setIsLoading(true);
+    try {
+      const result = await apiService.createGoalFromTemplate(templateId, data);
+      return result;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const mutationWrapper = useCallback((args: any) => ({
+    unwrap: () => createGoalFromTemplate(args),
+  }), [createGoalFromTemplate]);
+
+  return [mutationWrapper, { isLoading }] as const;
+};
+
+export const useCreateGoalMutation = () => {
+  const createGoal = useCallback(async (goal: Partial<import('@/services/apiService').Goal>) => {
+    return apiService.createGoal(goal);
+  }, []);
+
+  const mutationWrapper = useCallback((args: any) => ({
+    unwrap: () => createGoal(args),
+  }), [createGoal]);
+
+  return [mutationWrapper, { isLoading: false }] as const;
+};
+
+export const useUpdateGoalMutation = () => {
+  const updateGoal = useCallback(async ({
+    goalId,
+    data,
+  }: {
+    goalId: number;
+    data: Partial<import('@/services/apiService').Goal>;
+  }) => {
+    return apiService.updateGoal(goalId, data);
+  }, []);
+
+  const mutationWrapper = useCallback((args: any) => ({
+    unwrap: () => updateGoal(args),
+  }), [updateGoal]);
+
+  return [mutationWrapper, { isLoading: false }] as const;
+};
+
+export const useDeleteGoalMutation = () => {
+  const deleteGoal = useCallback(async (goalId: number) => {
+    return apiService.deleteGoal(goalId);
+  }, []);
+
+  const mutationWrapper = useCallback((args: any) => ({
+    unwrap: () => deleteGoal(args),
+  }), [deleteGoal]);
+
+  return [mutationWrapper, { isLoading: false }] as const;
+};
+
 // Export types and enums
 export { Status, Priority, TaskType } from '@/services/apiService';
-export type { Task, Project, User, Comment, Attachment, UserWithStats, TaskStatus, SavedView } from '@/services/apiService';
+export type { Task, Project, User, Comment, Attachment, UserWithStats, TaskStatus, SavedView, Goal, GoalTemplate } from '@/services/apiService';
 
