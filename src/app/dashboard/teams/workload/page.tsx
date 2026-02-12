@@ -3,7 +3,7 @@ import { useAuth } from "@/app/authProvider";
 import { fetchAuthSession } from 'aws-amplify/auth';
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { useGetTasksQuery, useUpdateTaskMutation, Task } from "@/hooks/useApi";
+import { useGetTasksQuery, useUpdateTaskMutation, useGetProjectsQuery, Task } from "@/hooks/useApi";
 import type { DropTargetMonitor, DragSourceMonitor } from 'react-dnd';
 import { toast } from "sonner";
 import {
@@ -18,12 +18,15 @@ import {
   LayoutGrid,
   Calendar,
   AlertTriangle,
+  Filter,
+  X,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
 import { format, isPast, isToday, isTomorrow } from "date-fns";
@@ -90,10 +93,17 @@ const TeamWorkloadPage = () => {
   const { activeOrganization, user } = useAuth();
   const [members, setMembers] = useState<WorkspaceMember[]>([]);
   const [isLoadingMembers, setIsLoadingMembers] = useState(true);
+  const [selectedProjectId, setSelectedProjectId] = useState<string>("all");
   const [updateTask] = useUpdateTaskMutation();
 
   // Fetch all tasks for the organization
   const { data: tasks, isLoading: isLoadingTasks, refetch: refetchTasks } = useGetTasksQuery(
+    { organizationId: activeOrganization?.id },
+    { skip: !activeOrganization?.id }
+  );
+
+  // Fetch projects for filter dropdown
+  const { data: projects, isLoading: isLoadingProjects } = useGetProjectsQuery(
     { organizationId: activeOrganization?.id },
     { skip: !activeOrganization?.id }
   );
@@ -131,12 +141,19 @@ const TeamWorkloadPage = () => {
     fetchMembers();
   }, [activeOrganization?.id]);
 
+  // Filter tasks by selected project
+  const filteredTasks = useMemo(() => {
+    if (!tasks) return [];
+    if (selectedProjectId === "all") return tasks;
+    return tasks.filter(task => task.projectId === Number(selectedProjectId));
+  }, [tasks, selectedProjectId]);
+
   // Calculate workload data for each member
   const workloadData: MemberWorkload[] = useMemo(() => {
-    if (!tasks || !members.length) return [];
+    if (!filteredTasks || !members.length) return [];
 
     return members.map(member => {
-      const memberTasks = tasks.filter(task => 
+      const memberTasks = filteredTasks.filter(task =>
         task.assignedUsers?.some(u => u.userId === member.userId) ||
         task.assignedUserId === member.userId
       );
@@ -149,12 +166,13 @@ const TeamWorkloadPage = () => {
           if (!t.dueDate || t.status === 'Completed') return false;
           return isPast(new Date(t.dueDate)) && !isToday(new Date(t.dueDate));
         }).length,
-        highPriority: memberTasks.filter(t => 
+        highPriority: memberTasks.filter(t =>
           t.priority === 'Urgent' || t.priority === 'High'
         ).length,
       };
 
-      // Calculate capacity (assume 8 tasks is 100% capacity)
+      // Calculate capacity (assume 5 tasks is 100% capacity)
+      // Green: < 60%, Yellow: 60-80%, Red: > 80%
       const capacity = Math.min((stats.inProgress / 5) * 100, 100);
 
       return {
@@ -164,7 +182,7 @@ const TeamWorkloadPage = () => {
         capacity,
       };
     }).sort((a, b) => b.capacity - a.capacity); // Sort by workload (highest first)
-  }, [tasks, members]);
+  }, [filteredTasks, members]);
 
   // Handle task reassignment via drag-drop
   const handleTaskReassign = async (taskId: number, newAssigneeId: number) => {
@@ -200,7 +218,7 @@ const TeamWorkloadPage = () => {
     }), { total: 0, inProgress: 0, completed: 0, overdue: 0, highPriority: 0 });
   }, [workloadData]);
 
-  const isLoading = isLoadingMembers || isLoadingTasks;
+  const isLoading = isLoadingMembers || isLoadingTasks || isLoadingProjects;
 
   if (isLoading) {
     return (
@@ -246,6 +264,37 @@ const TeamWorkloadPage = () => {
                 Drag and drop tasks to reassign team members
               </p>
             </div>
+          </div>
+
+          {/* Project Filter */}
+          <div className="flex items-center gap-2">
+            <Filter className="h-4 w-4 text-muted-foreground" />
+            <Select
+              value={selectedProjectId}
+              onValueChange={setSelectedProjectId}
+            >
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="Filter by project" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Projects</SelectItem>
+                {projects?.map((project) => (
+                  <SelectItem key={project.id} value={String(project.id)}>
+                    {project.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {selectedProjectId !== "all" && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setSelectedProjectId("all")}
+                className="h-9 w-9"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
           </div>
         </div>
 
@@ -348,7 +397,16 @@ const MemberColumn = ({ workload, onTaskReassign, currentUserId }: MemberColumnP
   }));
 
   const { member, tasks, stats, capacity } = workload;
-  const isOverCapacity = capacity >= 80;
+
+  // Capacity color: Green (< 60%), Yellow (60-80%), Red (> 80%)
+  const getCapacityColor = (cap: number) => {
+    if (cap < 60) return { bar: "bg-green-500", text: "text-green-600", border: "border-green-200", bg: "bg-green-50" };
+    if (cap <= 80) return { bar: "bg-yellow-500", text: "text-yellow-600", border: "border-yellow-200", bg: "bg-yellow-50" };
+    return { bar: "bg-red-500", text: "text-red-600", border: "border-red-200", bg: "bg-red-50" };
+  };
+
+  const capacityColors = getCapacityColor(capacity);
+  const isOverCapacity = capacity > 80;
   const isAtRisk = stats.overdue > 0 || stats.highPriority > 2;
 
   return (
@@ -357,7 +415,7 @@ const MemberColumn = ({ workload, onTaskReassign, currentUserId }: MemberColumnP
       className={cn(
         "w-[320px] flex-shrink-0 transition-all duration-200",
         isOver && "ring-2 ring-primary ring-offset-2",
-        isOverCapacity && "border-orange-300"
+        isOverCapacity && capacityColors.border
       )}
     >
       <CardHeader className="pb-3">
@@ -388,23 +446,20 @@ const MemberColumn = ({ workload, onTaskReassign, currentUserId }: MemberColumnP
             </div>
             <p className="text-xs text-muted-foreground truncate">{member.user?.email}</p>
             
-            {/* Capacity Bar */}
+            {/* Capacity Bar with Green/Yellow/Red colors */}
             <div className="mt-2">
               <div className="flex items-center justify-between text-xs mb-1">
                 <span className="text-muted-foreground">Capacity</span>
-                <span className={cn(
-                  isOverCapacity ? "text-orange-500 font-medium" : "text-muted-foreground"
-                )}>
+                <span className={cn("font-medium", capacityColors.text)}>
                   {Math.round(capacity)}%
                 </span>
               </div>
-              <Progress 
-                value={capacity} 
-                className={cn(
-                  "h-1.5",
-                  isOverCapacity && "bg-orange-100"
-                )}
-              />
+              <div className={cn("h-2 rounded-full bg-gray-100 overflow-hidden")}>
+                <div
+                  className={cn("h-full rounded-full transition-all duration-300", capacityColors.bar)}
+                  style={{ width: `${capacity}%` }}
+                />
+              </div>
             </div>
           </div>
         </div>
