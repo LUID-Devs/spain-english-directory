@@ -671,9 +671,28 @@ class ApiService {
     });
   }
 
-  async removeOrganizationMember(organizationId: number, userId: number): Promise<{ message: string }> {
-    return this.request<{ message: string }>(`/organizations/${organizationId}/members/${userId}`, {
+  async getMemberTasks(organizationId: number, userId: number): Promise<{
+    totalCount: number;
+    activeCycleTasks: any[];
+    upcomingCycleTasks: any[];
+    noCycleTasks: any[];
+    otherTasks: any[];
+    allTasks: any[];
+  }> {
+    return this.request<{
+      totalCount: number;
+      activeCycleTasks: any[];
+      upcomingCycleTasks: any[];
+      noCycleTasks: any[];
+      otherTasks: any[];
+      allTasks: any[];
+    }>(`/organizations/${organizationId}/members/${userId}/tasks`);
+  }
+
+  async removeOrganizationMember(organizationId: number, userId: number, unassignTasks?: boolean): Promise<{ message: string; data?: { removed: boolean; tasksUnassigned: number; tasksRemaining: number } }> {
+    return this.request<{ message: string; data?: { removed: boolean; tasksUnassigned: number; tasksRemaining: number } }>(`/organizations/${organizationId}/members/${userId}`, {
       method: 'DELETE',
+      body: JSON.stringify({ unassignTasks }),
     });
   }
 

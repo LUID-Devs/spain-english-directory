@@ -1,4 +1,4 @@
-import { useGetUsersWithStatsQuery, useInviteUserMutation, useUpdateUserRoleMutation, useRemoveOrganizationMemberMutation, UserWithStats } from "@/hooks/useApi";
+import { useGetUsersWithStatsQuery, useInviteUserMutation, useUpdateUserRoleMutation, useRemoveOrganizationMemberMutation, useGetMemberTasksQuery, UserWithStats } from "@/hooks/useApi";
 import { useUserStore } from "@/stores/userStore";
 import React, { useState } from "react";
 import UserCard from "@/components/UserCard";
@@ -55,25 +55,37 @@ const UsersPage = () => {
   const [updateUserRole] = useUpdateUserRoleMutation();
   const [removeOrganizationMember] = useRemoveOrganizationMemberMutation();
   const { currentUser } = useUserStore();
+  
+  // Get current organization ID
+  const currentOrganizationId = currentUser?.activeOrganizationId || 
+    (typeof window !== 'undefined' ? Number(localStorage.getItem('activeOrganizationId')) : null);
+  
+  // Fetch member tasks when remove dialog is opened
+  const { data: memberTasks, isLoading: isLoadingTasks, refetch: refetchMemberTasks } = useGetMemberTasksQuery(
+    currentOrganizationId,
+    selectedUser?.userId || null
+  );
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
   const [isRemoveDialogOpen, setIsRemoveDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserWithStats | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-
-  // Get current organization ID
-  const currentOrganizationId = currentUser?.activeOrganizationId || 
-    (typeof window !== 'undefined' ? Number(localStorage.getItem('activeOrganizationId')) : null);
+  const [unassignTasks, setUnassignTasks] = useState(false);
 
   const handleManageRole = (user: UserWithStats) => {
     setSelectedUser(user);
     setIsRoleModalOpen(true);
   };
 
-  const handleRemoveMember = (user: UserWithStats) => {
+  const handleRemoveMember = async (user: UserWithStats) => {
     setSelectedUser(user);
+    setUnassignTasks(false);
     setIsRemoveDialogOpen(true);
+    // Fetch member tasks
+    if (currentOrganizationId) {
+      await refetchMemberTasks();
+    }
   };
 
   const confirmRemoveMember = async () => {
@@ -82,13 +94,15 @@ const UsersPage = () => {
     try {
       await removeOrganizationMember({ 
         organizationId: currentOrganizationId, 
-        userId: selectedUser.userId 
+        userId: selectedUser.userId,
+        unassignTasks
       }).unwrap();
       
       // Refetch users list
       refetch();
       setIsRemoveDialogOpen(false);
       setSelectedUser(null);
+      setUnassignTasks(false);
     } catch (error) {
       console.error("Failed to remove member:", error);
     }
@@ -486,7 +500,7 @@ const UsersPage = () => {
 
       {/* Remove Member Confirmation Dialog */}
       <Dialog open={isRemoveDialogOpen} onOpenChange={setIsRemoveDialogOpen}>
-        <DialogContent>
+        <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-red-500" />
@@ -494,19 +508,120 @@ const UsersPage = () => {
             </DialogTitle>
             <DialogDescription>
               Are you sure you want to remove <strong>{selectedUser?.username}</strong> from the organization?
-              This action cannot be undone. The user will lose access to all projects and tasks.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => { setIsRemoveDialogOpen(false); setSelectedUser(null); }}>
+          
+          {isLoadingTasks ? (
+            <div className="py-4 flex items-center justify-center">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+              <span className="ml-2 text-sm text-muted-foreground">Checking assigned tasks...</span>
+            </div>
+          ) : memberTasks && memberTasks.totalCount > 0 ? (
+            <div className="py-4 space-y-4">
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-amber-900">
+                      {selectedUser?.username} has {memberTasks.totalCount} assigned task{memberTasks.totalCount !== 1 ? 's' : ''}
+                    </p>
+                    
+                    {memberTasks.activeCycleTasks.length > 0 && (
+                      <p className="text-sm text-amber-800">
+                        • {memberTasks.activeCycleTasks.length} in active cycle
+                      </p>
+                    )}
+                    {memberTasks.upcomingCycleTasks.length > 0 && (
+                      <p className="text-sm text-amber-800">
+                        • {memberTasks.upcomingCycleTasks.length} in upcoming cycle{memberTasks.upcomingCycleTasks.length !== 1 ? 's' : ''}
+                      </p>
+                    )}
+                    {memberTasks.noCycleTasks.length > 0 && (
+                      <p className="text-sm text-amber-800">
+                        • {memberTasks.noCycleTasks.length} not in any cycle
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+              
+              <div className="space-y-3">
+                <p className="text-sm font-medium text-foreground">How would you like to proceed?</p>
+                
+                <div className="space-y-2">
+                  <label className="flex items-start gap-3 p-3 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors">
+                    <input
+                      type="radio"
+                      name="removeAction"
+                      checked={!unassignTasks}
+                      onChange={() => setUnassignTasks(false)}
+                      className="mt-1"
+                    />
+                    <div>
+                      <p className="text-sm font-medium">Reassign tasks first</p>
+                      <p className="text-xs text-muted-foreground">
+                        Cancel and go to workload to reassign tasks before removing
+                      </p>
+                    </div>
+                  </label>
+                  
+                  <label className="flex items-start gap-3 p-3 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors">
+                    <input
+                      type="radio"
+                      name="removeAction"
+                      checked={unassignTasks}
+                      onChange={() => setUnassignTasks(true)}
+                      className="mt-1"
+                    />
+                    <div>
+                      <p className="text-sm font-medium">Unassign all tasks and remove</p>
+                      <p className="text-xs text-muted-foreground">
+                        Tasks will remain but become unassigned. This action cannot be undone.
+                      </p>
+                    </div>
+                  </label>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="py-4">
+              <p className="text-sm text-muted-foreground">
+                This user has no assigned tasks. They will lose access to all projects and data.
+              </p>
+            </div>
+          )}
+          
+          <DialogFooter className="gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => { 
+                setIsRemoveDialogOpen(false); 
+                setSelectedUser(null);
+                setUnassignTasks(false);
+              }}
+            >
               Cancel
             </Button>
-            <Button
-              onClick={confirmRemoveMember}
-              variant="destructive"
-            >
-              Remove Member
-            </Button>
+            
+            {memberTasks && memberTasks.totalCount > 0 && !unassignTasks ? (
+              <Button
+                variant="default"
+                onClick={() => {
+                  setIsRemoveDialogOpen(false);
+                  window.location.href = '/dashboard/teams/workload';
+                }}
+              >
+                Go to Workload
+              </Button>
+            ) : (
+              <Button
+                onClick={confirmRemoveMember}
+                variant="destructive"
+                disabled={isLoadingTasks}
+              >
+                {unassignTasks ? 'Unassign & Remove' : 'Remove Member'}
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>

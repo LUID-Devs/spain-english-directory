@@ -1358,12 +1358,55 @@ export const useUpdateUserRoleMutation = () => {
   return [mutationWrapper, { isLoading: false }];
 };
 
+export const useGetMemberTasksQuery = (organizationId: number | null, userId: number | null) => {
+  const [data, setData] = useState<{
+    totalCount: number;
+    activeCycleTasks: any[];
+    upcomingCycleTasks: any[];
+    noCycleTasks: any[];
+    otherTasks: any[];
+    allTasks: any[];
+  } | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchMemberTasks = useCallback(async () => {
+    if (!organizationId || !userId) return;
+
+    try {
+      setIsLoading(true);
+      setError(null);
+      const result = await apiService.getMemberTasks(organizationId, userId);
+      setData(result);
+      return result;
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch member tasks');
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [organizationId, userId]);
+
+  useEffect(() => {
+    if (organizationId && userId) {
+      fetchMemberTasks();
+    }
+  }, [organizationId, userId, fetchMemberTasks]);
+
+  return {
+    data,
+    isLoading,
+    error,
+    refetch: fetchMemberTasks,
+  };
+};
+
 export const useRemoveOrganizationMemberMutation = () => {
-  const removeOrganizationMember = useCallback(async (data: { organizationId: number; userId: number }) => {
-    const loadingToast = toast.loading('Removing member...');
+  const removeOrganizationMember = useCallback(async (data: { organizationId: number; userId: number; unassignTasks?: boolean }) => {
+    const loadingToast = toast.loading(data.unassignTasks ? 'Removing member and unassigning tasks...' : 'Removing member...');
     
     try {
-      const result = await apiService.removeOrganizationMember(data.organizationId, data.userId);
+      const result = await apiService.removeOrganizationMember(data.organizationId, data.userId, data.unassignTasks);
       toast.success('Member removed successfully!', { id: loadingToast });
       
       // Dispatch event to trigger refetch of users list
@@ -1378,7 +1421,7 @@ export const useRemoveOrganizationMemberMutation = () => {
     }
   }, []);
 
-  const mutationWrapper = useCallback((args: { organizationId: number; userId: number }) => ({
+  const mutationWrapper = useCallback((args: { organizationId: number; userId: number; unassignTasks?: boolean }) => ({
     unwrap: () => removeOrganizationMember(args)
   }), [removeOrganizationMember]);
 
