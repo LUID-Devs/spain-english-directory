@@ -767,6 +767,49 @@ class ApiService {
       body: JSON.stringify({ tasks }),
     });
   }
+
+  // Bulk Actions
+  async bulkUpdateTaskStatus(taskIds: number[], status: string): Promise<{ success: boolean; message: string; updatedCount: number }> {
+    return this.request<{ success: boolean; message: string; updatedCount: number }>('/tasks/bulk/status', {
+      method: 'PATCH',
+      body: JSON.stringify({ taskIds, status }),
+    });
+  }
+
+  async bulkAssignAgents(taskIds: number[], agentIds: number[]): Promise<{ success: boolean; message: string; updatedCount: number }> {
+    return this.request<{ success: boolean; message: string; updatedCount: number }>('/tasks/bulk/assign', {
+      method: 'POST',
+      body: JSON.stringify({ taskIds, agentIds }),
+    });
+  }
+
+  async bulkDeleteTasks(taskIds: number[]): Promise<{ success: boolean; message: string; deletedCount: number }> {
+    return this.request<{ success: boolean; message: string; deletedCount: number }>('/tasks/bulk', {
+      method: 'DELETE',
+      body: JSON.stringify({ taskIds }),
+    });
+  }
+
+  async bulkUpdateTags(taskIds: number[], tags: string, mode: 'add' | 'remove' | 'set' = 'set'): Promise<{ success: boolean; message: string; updatedCount: number }> {
+    return this.request<{ success: boolean; message: string; updatedCount: number }>('/tasks/bulk/tags', {
+      method: 'PATCH',
+      body: JSON.stringify({ taskIds, tags, mode }),
+    });
+  }
+
+  async bulkUpdateDueDate(taskIds: number[], dueDate: string | null): Promise<{ success: boolean; message: string; updatedCount: number }> {
+    return this.request<{ success: boolean; message: string; updatedCount: number }>('/tasks/bulk/due-date', {
+      method: 'PATCH',
+      body: JSON.stringify({ taskIds, dueDate }),
+    });
+  }
+
+  async bulkMoveToProject(taskIds: number[], projectId: number): Promise<{ success: boolean; message: string; updatedCount: number }> {
+    return this.request<{ success: boolean; message: string; updatedCount: number }>('/tasks/bulk/move-project', {
+      method: 'PATCH',
+      body: JSON.stringify({ taskIds, projectId }),
+    });
+  }
 }
 
 export const apiService = new ApiService();
