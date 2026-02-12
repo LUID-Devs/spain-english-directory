@@ -146,6 +146,7 @@ const Sidebar = () => {
             <SidebarLink href="/dashboard/projects" icon={Briefcase} label="Projects" />
             <SidebarLink href="/dashboard/timeline" icon={Activity} label="Timeline" />
             <SidebarLink href="/dashboard/mission-control" icon={Bot} label="Mission Control" />
+            <SidebarLink href="/dashboard/archived-tasks" icon={Archive} label="Archived Tasks" />
           </nav>
         </div>
 

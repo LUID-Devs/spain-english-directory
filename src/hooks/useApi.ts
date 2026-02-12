@@ -594,19 +594,20 @@ export const useGetTeamsQuery = (params: any = undefined, options: { skip?: bool
 };
 
 // Hook for tasks query by project
-export const useGetTasksQuery = (params: { projectId: number }, options: { skip?: boolean } = {}) => {
+export const useGetTasksQuery = (params: { projectId: number; archived?: boolean }, options: { skip?: boolean } = {}) => {
   const { tasks, setTasks, setLoading, setError } = useApiStore();
   const prevProjectIdRef = useRef(params.projectId);
   const projectIdRef = useRef(params.projectId);
+  const archivedRef = useRef(params.archived);
   const skipRef = useRef(options.skip);
-  
+
   const fetchTasks = useCallback(async () => {
     if (skipRef.current || !projectIdRef.current) return;
-    
+
     try {
       setLoading('tasks', true);
-      console.log('🔄 Fetching tasks for projectId:', projectIdRef.current);
-      const tasksData = await apiService.getTasks(projectIdRef.current);
+      console.log('🔄 Fetching tasks for projectId:', projectIdRef.current, 'archived:', archivedRef.current);
+      const tasksData = await apiService.getTasks(projectIdRef.current, { archived: archivedRef.current });
       setTasks(tasksData);
     } catch (error) {
       console.error('Failed to fetch tasks:', error);
@@ -620,15 +621,16 @@ export const useGetTasksQuery = (params: { projectId: number }, options: { skip?
     // Update refs
     const projectIdChanged = prevProjectIdRef.current !== params.projectId;
     projectIdRef.current = params.projectId;
+    archivedRef.current = params.archived;
     skipRef.current = options.skip;
-    
-    // Fetch on mount or when projectId changes
+
+    // Fetch on mount or when projectId or archived changes
     if (!options.skip && params.projectId && (projectIdChanged || prevProjectIdRef.current === params.projectId)) {
       console.log('🚀 Project ID changed from', prevProjectIdRef.current, 'to', params.projectId, '- fetching tasks');
       prevProjectIdRef.current = params.projectId;
       fetchTasks();
     }
-  }, [params.projectId, options.skip, fetchTasks]);
+  }, [params.projectId, params.archived, options.skip, fetchTasks]);
 
   return {
     data: tasks.data,
@@ -715,6 +717,90 @@ export const useDeleteTaskMutation = () => {
   const mutationWrapper = useCallback((taskId: number) => ({
     unwrap: () => deleteTask(taskId)
   }), [deleteTask]);
+
+  return [mutationWrapper, { isLoading: false }];
+};
+
+export const useArchiveTaskMutation = () => {
+  const { tasks, setTasks } = useApiStore();
+
+  const archiveTask = useCallback(async (taskId: number) => {
+    const loadingToast = toast.loading('Archiving task...');
+
+    // Store original task for rollback
+    const originalTask = tasks.data?.find(task => task.id === taskId);
+
+    // Optimistically update task as archived
+    if (tasks.data) {
+      const updatedTasks = tasks.data.map(task =>
+        task.id === taskId ? { ...task, archivedAt: new Date().toISOString() } : task
+      );
+      setTasks(updatedTasks);
+    }
+
+    try {
+      const result = await apiService.archiveTask(taskId);
+      toast.success('Task archived successfully!', { id: loadingToast });
+      return result;
+    } catch (error) {
+      // Rollback on error
+      if (tasks.data && originalTask) {
+        const revertedTasks = tasks.data.map(task =>
+          task.id === taskId ? originalTask : task
+        );
+        setTasks(revertedTasks);
+      }
+      toast.error('Failed to archive task', { id: loadingToast });
+      throw error;
+    }
+  }, [tasks.data, setTasks]);
+
+  // Return the function that returns a mutation object with unwrap method
+  const mutationWrapper = useCallback((taskId: number) => ({
+    unwrap: () => archiveTask(taskId)
+  }), [archiveTask]);
+
+  return [mutationWrapper, { isLoading: false }];
+};
+
+export const useUnarchiveTaskMutation = () => {
+  const { tasks, setTasks } = useApiStore();
+
+  const unarchiveTask = useCallback(async (taskId: number) => {
+    const loadingToast = toast.loading('Unarchiving task...');
+
+    // Store original task for rollback
+    const originalTask = tasks.data?.find(task => task.id === taskId);
+
+    // Optimistically update task as unarchived
+    if (tasks.data) {
+      const updatedTasks = tasks.data.map(task =>
+        task.id === taskId ? { ...task, archivedAt: undefined } : task
+      );
+      setTasks(updatedTasks);
+    }
+
+    try {
+      const result = await apiService.unarchiveTask(taskId);
+      toast.success('Task unarchived successfully!', { id: loadingToast });
+      return result;
+    } catch (error) {
+      // Rollback on error
+      if (tasks.data && originalTask) {
+        const revertedTasks = tasks.data.map(task =>
+          task.id === taskId ? originalTask : task
+        );
+        setTasks(revertedTasks);
+      }
+      toast.error('Failed to unarchive task', { id: loadingToast });
+      throw error;
+    }
+  }, [tasks.data, setTasks]);
+
+  // Return the function that returns a mutation object with unwrap method
+  const mutationWrapper = useCallback((taskId: number) => ({
+    unwrap: () => unarchiveTask(taskId)
+  }), [unarchiveTask]);
 
   return [mutationWrapper, { isLoading: false }];
 };

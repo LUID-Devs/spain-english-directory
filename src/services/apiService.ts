@@ -147,6 +147,7 @@ export interface Task {
   projectId: number;
   authorUserId?: number;
   assignedUserId?: number;
+  archivedAt?: string;
 
   author?: User;
   assignee?: User;
@@ -414,8 +415,12 @@ class ApiService {
   }
 
   // Tasks
-  async getTasks(projectId: number): Promise<Task[]> {
-    return this.request<Task[]>(`/tasks?projectId=${projectId}`);
+  async getTasks(projectId: number, filters?: { archived?: boolean }): Promise<Task[]> {
+    let url = `/tasks?projectId=${projectId}`;
+    if (filters?.archived !== undefined) {
+      url += `&archived=${filters.archived}`;
+    }
+    return this.request<Task[]>(url);
   }
 
   async getTask(taskId: number): Promise<Task> {
@@ -555,6 +560,19 @@ class ApiService {
     }
 
     return response.blob();
+  }
+
+  // Task Archive
+  async archiveTask(taskId: number): Promise<{ message: string; task: Task }> {
+    return this.request<{ message: string; task: Task }>(`/tasks/${taskId}/archive`, {
+      method: 'PATCH',
+    });
+  }
+
+  async unarchiveTask(taskId: number): Promise<{ message: string; task: Task }> {
+    return this.request<{ message: string; task: Task }>(`/tasks/${taskId}/unarchive`, {
+      method: 'PATCH',
+    });
   }
 
   // Comments
