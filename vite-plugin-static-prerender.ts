@@ -1,0 +1,306 @@
+import { Plugin } from 'vite';
+import * as fs from 'fs';
+import * as path from 'path';
+
+/**
+ * Vite plugin to inject static HTML content for public pages
+ * This fixes SEO by ensuring search engines see actual content
+ */
+export function staticPrerenderPlugin(): Plugin {
+  const publicPages: Record<string, { title: string; description: string; content: string }> = {
+    '/landing': {
+      title: 'TaskLuid - Task Management Platform',
+      description: 'A modern task management platform designed to help you organize, track, and complete projects efficiently.',
+      content: `
+        <div class="min-h-screen bg-black text-white flex flex-col">
+          <div class="flex-1 flex items-center justify-center px-4">
+            <div class="text-center">
+              <p class="text-sm text-neutral-500 mb-2">Part of Luid Suite</p>
+              <h1 class="text-4xl font-bold bg-gradient-to-r from-gray-400 to-gray-400 bg-clip-text text-transparent mb-6">
+                TaskLuid
+              </h1>
+              <p class="text-gray-300 mb-8 max-w-md mx-auto">
+                A modern task management platform designed to help you organize, track, and complete projects efficiently.
+              </p>
+              <div class="space-x-4 mb-8">
+                <a href="/auth/login" class="inline-block px-6 py-3 bg-gradient-to-r from-gray-500 to-gray-500 text-white rounded-lg hover:from-gray-600 hover:to-gray-600 transition-all duration-300">
+                  Sign In
+                </a>
+                <a href="/auth/register" class="inline-block px-6 py-3 border border-gray-500 text-gray-400 rounded-lg hover:bg-gray-500/10 transition-all duration-300">
+                  Sign Up
+                </a>
+              </div>
+              <p class="text-xs text-neutral-500">
+                Built by an independent developer
+              </p>
+            </div>
+          </div>
+          <footer class="border-t border-neutral-800 py-6 px-4">
+            <div class="max-w-4xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+              <p class="text-sm text-neutral-500">
+                &copy; 2026 Luid Suite
+              </p>
+              <div class="flex gap-6 text-sm">
+                <a href="/privacy" class="text-neutral-400 hover:text-gray-400 transition-colors">Privacy Policy</a>
+                <a href="/terms" class="text-neutral-400 hover:text-gray-400 transition-colors">Terms of Service</a>
+                <a href="/cookies" class="text-neutral-400 hover:text-gray-400 transition-colors">Cookie Policy</a>
+              </div>
+            </div>
+          </footer>
+        </div>
+      `
+    },
+    '/auth/login': {
+      title: 'Sign In - TaskLuid',
+      description: 'Sign in to your TaskLuid account to manage your tasks and projects.',
+      content: `
+        <div class="min-h-screen bg-black text-white flex items-center justify-center px-4">
+          <div class="text-center max-w-md w-full">
+            <h1 class="text-3xl font-bold mb-2">Welcome Back</h1>
+            <p class="text-gray-400 mb-8">Sign in to your TaskLuid account</p>
+            <div class="space-y-4">
+              <input type="email" placeholder="Email" class="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500" />
+              <input type="password" placeholder="Password" class="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500" />
+              <button class="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium transition-colors">
+                Sign In
+              </button>
+            </div>
+            <div class="mt-6 text-sm text-gray-400">
+              <a href="/auth/forgot-password" class="hover:text-white transition-colors">Forgot password?</a>
+              <span class="mx-2">·</span>
+              <a href="/auth/register" class="hover:text-white transition-colors">Create account</a>
+            </div>
+          </div>
+        </div>
+      `
+    },
+    '/auth/register': {
+      title: 'Sign Up - TaskLuid',
+      description: 'Create your TaskLuid account and start managing your tasks efficiently.',
+      content: `
+        <div class="min-h-screen bg-black text-white flex items-center justify-center px-4">
+          <div class="text-center max-w-md w-full">
+            <h1 class="text-3xl font-bold mb-2">Create Account</h1>
+            <p class="text-gray-400 mb-8">Start your journey with TaskLuid</p>
+            <div class="space-y-4">
+              <input type="text" placeholder="Full Name" class="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500" />
+              <input type="email" placeholder="Email" class="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500" />
+              <input type="password" placeholder="Password" class="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500" />
+              <button class="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium transition-colors">
+                Create Account
+              </button>
+            </div>
+            <p class="mt-6 text-sm text-gray-400">
+              Already have an account? <a href="/auth/login" class="hover:text-white transition-colors">Sign in</a>
+            </p>
+          </div>
+        </div>
+      `
+    },
+    '/auth/forgot-password': {
+      title: 'Forgot Password - TaskLuid',
+      description: 'Reset your TaskLuid account password.',
+      content: `
+        <div class="min-h-screen bg-black text-white flex items-center justify-center px-4">
+          <div class="text-center max-w-md w-full">
+            <h1 class="text-3xl font-bold mb-2">Forgot Password</h1>
+            <p class="text-gray-400 mb-8">Enter your email to reset your password</p>
+            <div class="space-y-4">
+              <input type="email" placeholder="Email" class="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500" />
+              <button class="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium transition-colors">
+                Send Reset Link
+              </button>
+            </div>
+            <p class="mt-6 text-sm text-gray-400">
+              Remember your password? <a href="/auth/login" class="hover:text-white transition-colors">Sign in</a>
+            </p>
+          </div>
+        </div>
+      `
+    },
+    '/pricing': {
+      title: 'Pricing - TaskLuid',
+      description: 'Choose the right plan for your team. Free and paid plans available.',
+      content: `
+        <div class="min-h-screen bg-black text-white">
+          <div class="container mx-auto px-4 py-16">
+            <h1 class="text-4xl font-bold text-center mb-4">Simple, Transparent Pricing</h1>
+            <p class="text-gray-400 text-center mb-12 max-w-2xl mx-auto">Choose the plan that fits your needs</p>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
+              <div class="border border-gray-800 rounded-lg p-6">
+                <h3 class="text-xl font-semibold mb-2">Free</h3>
+                <p class="text-3xl font-bold mb-4">$0<span class="text-lg text-gray-400">/month</span></p>
+                <ul class="space-y-2 text-gray-400 mb-6">
+                  <li>Up to 3 projects</li>
+                  <li>Basic task management</li>
+                  <li>Email notifications</li>
+                </ul>
+                <a href="/auth/register" class="block w-full text-center px-4 py-2 border border-gray-600 rounded-lg hover:bg-gray-800 transition-colors">Get Started</a>
+              </div>
+              <div class="border border-blue-500 rounded-lg p-6 relative">
+                <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-500 text-xs px-3 py-1 rounded-full">Popular</span>
+                <h3 class="text-xl font-semibold mb-2">Pro</h3>
+                <p class="text-3xl font-bold mb-4">$12<span class="text-lg text-gray-400">/month</span></p>
+                <ul class="space-y-2 text-gray-400 mb-6">
+                  <li>Unlimited projects</li>
+                  <li>Advanced analytics</li>
+                  <li>Priority support</li>
+                  <li>Team collaboration</li>
+                </ul>
+                <a href="/auth/register" class="block w-full text-center px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">Get Started</a>
+              </div>
+              <div class="border border-gray-800 rounded-lg p-6">
+                <h3 class="text-xl font-semibold mb-2">Enterprise</h3>
+                <p class="text-3xl font-bold mb-4">Custom</p>
+                <ul class="space-y-2 text-gray-400 mb-6">
+                  <li>Everything in Pro</li>
+                  <li>SSO & SAML</li>
+                  <li>Dedicated support</li>
+                  <li>Custom integrations</li>
+                </ul>
+                <a href="/auth/register" class="block w-full text-center px-4 py-2 border border-gray-600 rounded-lg hover:bg-gray-800 transition-colors">Contact Sales</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      `
+    },
+    '/privacy': {
+      title: 'Privacy Policy - TaskLuid',
+      description: 'Learn how TaskLuid collects, uses, and protects your personal information.',
+      content: `
+        <div class="min-h-screen bg-black text-white">
+          <div class="container mx-auto px-4 py-16 max-w-3xl">
+            <h1 class="text-4xl font-bold mb-8">Privacy Policy</h1>
+            <div class="prose prose-invert max-w-none">
+              <p class="text-gray-400 mb-6">Last updated: February 2026</p>
+              <h2 class="text-2xl font-semibold mt-8 mb-4">1. Information We Collect</h2>
+              <p class="text-gray-300 mb-4">We collect information you provide directly to us, including your name, email address, and any other information you choose to provide.</p>
+              <h2 class="text-2xl font-semibold mt-8 mb-4">2. How We Use Your Information</h2>
+              <p class="text-gray-300 mb-4">We use the information we collect to provide, maintain, and improve our services, and to communicate with you.</p>
+              <h2 class="text-2xl font-semibold mt-8 mb-4">3. Data Security</h2>
+              <p class="text-gray-300 mb-4">We implement appropriate technical and organizational measures to protect your personal information.</p>
+              <h2 class="text-2xl font-semibold mt-8 mb-4">4. Contact Us</h2>
+              <p class="text-gray-300 mb-4">If you have any questions about this Privacy Policy, please contact us.</p>
+            </div>
+          </div>
+        </div>
+      `
+    },
+    '/terms': {
+      title: 'Terms of Service - TaskLuid',
+      description: 'Read the Terms of Service for using TaskLuid.',
+      content: `
+        <div class="min-h-screen bg-black text-white">
+          <div class="container mx-auto px-4 py-16 max-w-3xl">
+            <h1 class="text-4xl font-bold mb-8">Terms of Service</h1>
+            <div class="prose prose-invert max-w-none">
+              <p class="text-gray-400 mb-6">Last updated: February 2026</p>
+              <h2 class="text-2xl font-semibold mt-8 mb-4">1. Acceptance of Terms</h2>
+              <p class="text-gray-300 mb-4">By accessing or using TaskLuid, you agree to be bound by these Terms of Service.</p>
+              <h2 class="text-2xl font-semibold mt-8 mb-4">2. Use of Service</h2>
+              <p class="text-gray-300 mb-4">You agree to use the service only for lawful purposes and in accordance with these Terms.</p>
+              <h2 class="text-2xl font-semibold mt-8 mb-4">3. Account Security</h2>
+              <p class="text-gray-300 mb-4">You are responsible for maintaining the confidentiality of your account credentials.</p>
+              <h2 class="text-2xl font-semibold mt-8 mb-4">4. Termination</h2>
+              <p class="text-gray-300 mb-4">We may terminate or suspend your account at any time for violations of these terms.</p>
+            </div>
+          </div>
+        </div>
+      `
+    },
+    '/cookies': {
+      title: 'Cookie Policy - TaskLuid',
+      description: 'Learn about how TaskLuid uses cookies.',
+      content: `
+        <div class="min-h-screen bg-black text-white">
+          <div class="container mx-auto px-4 py-16 max-w-3xl">
+            <h1 class="text-4xl font-bold mb-8">Cookie Policy</h1>
+            <div class="prose prose-invert max-w-none">
+              <p class="text-gray-400 mb-6">Last updated: February 2026</p>
+              <h2 class="text-2xl font-semibold mt-8 mb-4">What Are Cookies</h2>
+              <p class="text-gray-300 mb-4">Cookies are small text files that are stored on your device when you visit a website.</p>
+              <h2 class="text-2xl font-semibold mt-8 mb-4">How We Use Cookies</h2>
+              <p class="text-gray-300 mb-4">We use cookies to enhance your experience, analyze site usage, and assist in our marketing efforts.</p>
+              <h2 class="text-2xl font-semibold mt-8 mb-4">Types of Cookies We Use</h2>
+              <p class="text-gray-300 mb-4"><strong>Essential cookies:</strong> Required for the website to function properly.</p>
+              <p class="text-gray-300 mb-4"><strong>Analytics cookies:</strong> Help us understand how visitors interact with our website.</p>
+              <h2 class="text-2xl font-semibold mt-8 mb-4">Managing Cookies</h2>
+              <p class="text-gray-300 mb-4">You can control cookies through your browser settings.</p>
+            </div>
+          </div>
+        </div>
+      `
+    }
+  };
+
+  return {
+    name: 'static-prerender',
+    apply: 'build',
+    closeBundle() {
+      const distPath = path.resolve(process.cwd(), 'dist');
+      
+      Object.entries(publicPages).forEach(([route, data]) => {
+        const routePath = route === '/' ? '' : route;
+        const fullPath = path.join(distPath, routePath, 'index.html');
+        const dir = path.dirname(fullPath);
+        
+        // Ensure directory exists
+        if (!fs.existsSync(dir)) {
+          fs.mkdirSync(dir, { recursive: true });
+        }
+        
+        // Generate HTML with static content
+        const html = `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover" />
+    <title>${data.title}</title>
+    <meta name="description" content="${data.description}" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#000000" />
+    <script type="module" crossorigin src="/assets/index-NGKz0lpI.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-DAX6_Dz5.css" />
+  </head>
+  <body>
+    <div id="root">${data.content}</div>
+  </body>
+</html>`;
+        
+        fs.writeFileSync(fullPath, html);
+        console.log(`[static-prerender] Generated ${route} (${Buffer.byteLength(html, 'utf8')} bytes)`);
+      });
+      
+      // Also generate root index.html with landing page content
+      const rootHtml = publicPages['/landing'];
+      const rootPath = path.join(distPath, 'index.html');
+      const rootContent = `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover" />
+    <title>${rootHtml.title}</title>
+    <meta name="description" content="${rootHtml.description}" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#000000" />
+    <script type="module" crossorigin src="/assets/index-NGKz0lpI.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-DAX6_Dz5.css" />
+  </head>
+  <body>
+    <div id="root">${rootHtml.content}</div>
+  </body>
+</html>`;
+      fs.writeFileSync(rootPath, rootContent);
+      console.log(`[static-prerender] Generated / (${Buffer.byteLength(rootContent, 'utf8')} bytes)`);
+    }
+  };
+}
