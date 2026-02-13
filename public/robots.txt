@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://taskluid.com/sitemap.xml
+
+# Disallow auth pages from indexing
+Disallow: /auth/
+Disallow: /dashboard/
+Disallow: /tasks/
+Disallow: /projects/
+Disallow: /settings/
+Disallow: /profile/
+Disallow: /admin/
+Disallow: /mission-control/
+Disallow: /notifications/
+Disallow: /team/
