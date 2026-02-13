@@ -182,7 +182,11 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, viewMode = "grid" })
                     <div className="flex items-center gap-1.5">
                       <Clock className="h-4 w-4 flex-shrink-0" />
                       <span className="whitespace-nowrap">
-                        {project.updatedAt ? format(new Date(project.updatedAt), "MMM d") : "Unknown"}
+                        {project.updatedAt 
+                          ? format(new Date(project.updatedAt), "MMM d") 
+                          : project.createdAt 
+                            ? format(new Date(project.createdAt), "MMM d")
+                            : "Unknown"}
                       </span>
                     </div>
 
@@ -439,7 +443,11 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, viewMode = "grid" })
                   <span className="text-muted-foreground">Last Update</span>
                 </div>
                 <p className="text-sm font-bold text-foreground mt-1">
-                  {project.updatedAt ? format(new Date(project.updatedAt), "MMM d") : "Unknown"}
+                  {project.updatedAt 
+                    ? format(new Date(project.updatedAt), "MMM d") 
+                    : project.createdAt 
+                      ? format(new Date(project.createdAt), "MMM d")
+                      : "Unknown"}
                 </p>
               </div>
             </div>
