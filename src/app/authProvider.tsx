@@ -76,8 +76,10 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const authStart = Date.now();
     console.log('[AUTH] Starting auth check at:', authStart, 'attempt:', attempt);
     
-    // Clear any previous errors
-    setError(null);
+    // Clear any previous errors on first attempt only
+    if (attempt === 1) {
+      setError(null);
+    }
 
     // Declare Cognito variables in function scope so they're available in all catch blocks
     let cognitoSession: any = null;
@@ -86,21 +88,33 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       // First, try to get Cognito session (for OAuth users)
       try {
-      
-        cognitoSession = await fetchAuthSession({ forceRefresh: attempt > 1 });
+        // Use forceRefresh only on retry attempts and not too frequently
+        const shouldRefresh = attempt > 1 && attempt < maxAttempts;
+        console.log('[AUTH] Fetching Cognito session (forceRefresh:', shouldRefresh, ')');
+        
+        cognitoSession = await fetchAuthSession({ forceRefresh: shouldRefresh });
 
         if (cognitoSession?.tokens?.accessToken) {
-          console.log('[AUTH] Cognito session found!');
-          cognitoUser = await getCurrentUser();
-          console.log('[AUTH] Cognito user:', cognitoUser.username);
+          console.log('[AUTH] ✅ Cognito session found with valid tokens');
+          try {
+            cognitoUser = await getCurrentUser();
+            console.log('[AUTH] ✅ Cognito user retrieved:', cognitoUser.username);
+          } catch (userError) {
+            console.warn('[AUTH] Could not get current user, but session is valid:', userError);
+          }
+        } else {
+          console.log('[AUTH] Cognito session exists but no valid tokens');
         }
-      } catch (cognitoError) {
-        console.log('[AUTH] No Cognito session found');
+      } catch (cognitoError: any) {
+        console.log('[AUTH] No Cognito session found:', cognitoError?.message || cognitoError);
       }
 
-      // Add timeout to prevent hanging (increased to 10s for slow backend responses)
+      // Add timeout to prevent hanging (15s for slow backend responses during OAuth)
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      const timeoutId = setTimeout(() => {
+        console.warn('[AUTH] Backend status request timed out after 15s');
+        controller.abort();
+      }, 15000);
 
       try {
         // Build headers with Cognito tokens if available
@@ -110,18 +124,23 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
         if (cognitoSession?.tokens?.accessToken) {
           headers['Authorization'] = `Bearer ${cognitoSession.tokens.accessToken}`;
+          console.log('[AUTH] Adding Authorization header with access token');
         }
 
         // Also send ID token which contains email and other user attributes
         if (cognitoSession?.tokens?.idToken) {
           headers['X-ID-Token'] = `${cognitoSession.tokens.idToken}`;
+          console.log('[AUTH] Adding X-ID-Token header');
         }
 
+        console.log('[AUTH] Calling backend /auth/status endpoint...');
         const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/status`, {
           credentials: 'include', // Still send cookies for traditional auth
           signal: controller.signal,
           headers,
         });
+        
+        console.log('[AUTH] Backend /auth/status response status:', response.status);
 
         const authEnd = Date.now();
         console.log('[AUTH] Auth request completed in:', authEnd - authStart, 'ms');

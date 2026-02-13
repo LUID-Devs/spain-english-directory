@@ -38,13 +38,14 @@ const OAuthCallbackPage: React.FC = () => {
     });
 
     // Give Amplify time to process the URL params, then check
-    // Increased to 3000ms to ensure OAuth flow completes fully
+    // Increased to 4000ms to ensure OAuth flow completes fully
     const timeoutId = setTimeout(() => {
       if (!isProcessing) {
         isProcessing = true;
+        console.log('[OAUTH CALLBACK] Initial timeout reached, starting callback handler...');
         handleOAuthCallback();
       }
-    }, 3000);
+    }, 4000);
 
     return () => {
       hubListenerCancelToken();
@@ -56,17 +57,21 @@ const OAuthCallbackPage: React.FC = () => {
     try {
       console.log('[OAUTH CALLBACK] Starting callback handler');
 
-      // Retry logic to wait for tokens
+      // Retry logic to wait for tokens with exponential backoff
       let session = null;
       let attempts = 0;
-      const maxAttempts = 15;
+      const maxAttempts = 20; // Increased from 15
+      const startTime = Date.now();
 
       while (attempts < maxAttempts) {
-        await new Promise(resolve => setTimeout(resolve, 800));
+        // Exponential backoff: 500ms, 800ms, 1100ms, etc.
+        const delay = Math.min(500 + (attempts * 300), 2000);
+        await new Promise(resolve => setTimeout(resolve, delay));
 
         try {
           console.log(`[OAUTH CALLBACK] Attempt ${attempts + 1}/${maxAttempts} - fetching session...`);
-          session = await fetchAuthSession({ forceRefresh: true });
+          // Only force refresh after first attempt
+          session = await fetchAuthSession({ forceRefresh: attempts > 0 });
 
           console.log('[OAUTH CALLBACK] Session response:', {
             hasTokens: !!session.tokens,
@@ -75,7 +80,8 @@ const OAuthCallbackPage: React.FC = () => {
           });
 
           if (session.tokens?.accessToken) {
-            console.log('[OAUTH CALLBACK] ✅ Session tokens retrieved successfully!');
+            const elapsed = Date.now() - startTime;
+            console.log(`[OAUTH CALLBACK] ✅ Session tokens retrieved successfully after ${elapsed}ms!`);
             break;
           }
         } catch (err) {
@@ -86,7 +92,8 @@ const OAuthCallbackPage: React.FC = () => {
       }
 
       if (!session?.tokens?.accessToken) {
-        console.error('[OAUTH CALLBACK] ❌ No tokens after all attempts');
+        const elapsed = Date.now() - startTime;
+        console.error(`[OAUTH CALLBACK] ❌ No tokens after ${maxAttempts} attempts (${elapsed}ms)`);
         throw new Error('No tokens received from OAuth after multiple attempts');
       }
 
@@ -113,7 +120,7 @@ const OAuthCallbackPage: React.FC = () => {
       // Wait for backend to sync user data before redirecting
       // This prevents race condition where dashboard checks auth before backend is ready
       console.log('[OAUTH CALLBACK] Waiting for backend sync before redirect...');
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise(resolve => setTimeout(resolve, 2500)); // Increased from 1500ms
 
       setStatus('success');
 
@@ -121,7 +128,7 @@ const OAuthCallbackPage: React.FC = () => {
       setTimeout(() => {
         console.log('[OAUTH CALLBACK] Redirecting to dashboard...');
         navigate('/dashboard');
-      }, 1000);
+      }, 1500); // Increased from 1000ms
     } catch (err) {
       console.error('OAuth callback error:', err);
       setStatus('error');
