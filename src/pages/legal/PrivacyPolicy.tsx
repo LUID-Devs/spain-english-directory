@@ -1,7 +1,13 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 const PrivacyPolicy = () => {
+  const [lastUpdated, setLastUpdated] = useState('February 2026');
+
+  useEffect(() => {
+    setLastUpdated(new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }));
+  }, []);
+
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Header */}
@@ -26,7 +32,7 @@ const PrivacyPolicy = () => {
           Privacy Policy
         </h1>
 
-        <p className="text-neutral-400 mb-8">Last updated: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+        <p className="text-neutral-400 mb-8" suppressHydrationWarning>Last updated: {lastUpdated}</p>
 
         <div className="prose prose-invert max-w-none space-y-8">
           <section>

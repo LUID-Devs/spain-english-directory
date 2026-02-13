@@ -1,7 +1,16 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 const LandingPage = () => {
+  // Use state to prevent hydration mismatch with dynamic year
+  const [year, setYear] = useState(2026);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setYear(new Date().getFullYear());
+    setMounted(true);
+  }, []);
+
   return (
     <div className="min-h-screen bg-black text-white flex flex-col">
       {/* Main Content */}
@@ -37,8 +46,8 @@ const LandingPage = () => {
       {/* Footer */}
       <footer className="border-t border-neutral-800 py-6 px-4">
         <div className="max-w-4xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-neutral-500">
-            &copy; {new Date().getFullYear()} Luid Suite
+          <p className="text-sm text-neutral-500" suppressHydrationWarning>
+            &copy; {mounted ? year : 2026} Luid Suite
           </p>
           <div className="flex gap-6 text-sm">
             <Link to="/privacy" className="text-neutral-400 hover:text-gray-400 transition-colors">
