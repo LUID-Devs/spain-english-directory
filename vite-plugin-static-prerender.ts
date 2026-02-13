@@ -271,6 +271,25 @@ export function staticPrerenderPlugin(): Plugin {
       // Get the actual asset filenames from the build output
       const assets = getAssetFilenames(distPath);
       
+      // Generate auth/index.html that redirects to /auth/login
+      const authDir = path.join(distPath, 'auth');
+      if (!fs.existsSync(authDir)) {
+        fs.mkdirSync(authDir, { recursive: true });
+      }
+      const authRedirectHtml = `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="refresh" content="0; url=/auth/login" />
+    <title>Redirecting...</title>
+  </head>
+  <body>
+    <p>Redirecting to <a href="/auth/login">login page</a>...</p>
+  </body>
+</html>`;
+      fs.writeFileSync(path.join(authDir, 'index.html'), authRedirectHtml);
+      console.log(`[static-prerender] Generated /auth/ redirect to /auth/login`);
+      
       Object.entries(publicPages).forEach(([route, data]) => {
         const routePath = route === '/' ? '' : route;
         const fullPath = path.join(distPath, routePath, 'index.html');
