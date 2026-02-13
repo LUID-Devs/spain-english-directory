@@ -1455,10 +1455,12 @@ export const useRemoveOrganizationMemberMutation = () => {
 };
 
 // Search hooks
-export const useSearchQuery = (query: string, options: { skip?: boolean } = {}) => {
+export const useSearchQuery = (query: string, options: { skip?: boolean; debounceMs?: number } = {}) => {
   const [searchResults, setSearchResults] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { debounceMs = 300 } = options;
   
   const search = useCallback(async (searchQuery?: string) => {
     const queryToUse = searchQuery || query;
@@ -1481,14 +1483,29 @@ export const useSearchQuery = (query: string, options: { skip?: boolean } = {}) 
   }, [query, options.skip]);
 
   useEffect(() => {
+    // Clear any pending debounced search
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+      debounceRef.current = null;
+    }
+
     // Search whenever query changes (if not skipped and query is valid)
     if (!options.skip && query.trim() && query.length >= 3) {
-      search();
+      debounceRef.current = setTimeout(() => {
+        search();
+      }, debounceMs);
     } else if (options.skip || !query.trim()) {
       setSearchResults(null);
       setError(null);
     }
-  }, [query, options.skip, search]);
+
+    // Cleanup debounce on unmount or query change
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+    };
+  }, [query, options.skip, debounceMs, search]);
 
   return {
     data: searchResults,
@@ -1499,12 +1516,14 @@ export const useSearchQuery = (query: string, options: { skip?: boolean } = {}) 
   };
 };
 
-export const useAdvancedSearchQuery = (params: any, options: { skip?: boolean } = {}) => {
+export const useAdvancedSearchQuery = (params: any, options: { skip?: boolean; debounceMs?: number } = {}) => {
   const [searchResults, setSearchResults] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const paramsRef = useRef(params);
   const skipRef = useRef(options.skip);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { debounceMs = 300 } = options;
   
   const search = useCallback(async () => {
     if (skipRef.current || !paramsRef.current) {
@@ -1530,14 +1549,29 @@ export const useAdvancedSearchQuery = (params: any, options: { skip?: boolean } 
     paramsRef.current = params;
     skipRef.current = options.skip;
     
+    // Clear any pending debounced search
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+      debounceRef.current = null;
+    }
+    
     // Search whenever params change (if not skipped and params are valid)
     if (!options.skip && params && Object.keys(params).length > 0) {
-      search();
+      debounceRef.current = setTimeout(() => {
+        search();
+      }, debounceMs);
     } else if (options.skip || !params || Object.keys(params).length === 0) {
       setSearchResults(null);
       setError(null);
     }
-  }, [JSON.stringify(params), options.skip, search]);
+
+    // Cleanup debounce on unmount or params change
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+    };
+  }, [JSON.stringify(params), options.skip, debounceMs, search]);
 
   return {
     data: searchResults,
@@ -1548,12 +1582,14 @@ export const useAdvancedSearchQuery = (params: any, options: { skip?: boolean } 
   };
 };
 
-export const useGetSearchSuggestionsQuery = (params: { query: string; type?: string }, options: { skip?: boolean; refetchOnMountOrArgChange?: boolean } = {}) => {
+export const useGetSearchSuggestionsQuery = (params: { query: string; type?: string }, options: { skip?: boolean; refetchOnMountOrArgChange?: boolean; debounceMs?: number } = {}) => {
   const [suggestions, setSuggestions] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const paramsRef = useRef(params);
   const skipRef = useRef(options.skip);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { debounceMs = 150 } = options; // Shorter debounce for suggestions (more responsive)
   
   const fetchSuggestions = useCallback(async () => {
     if (!paramsRef.current.query.trim() || skipRef.current) {
@@ -1579,14 +1615,29 @@ export const useGetSearchSuggestionsQuery = (params: { query: string; type?: str
     paramsRef.current = params;
     skipRef.current = options.skip;
     
+    // Clear any pending debounced fetch
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+      debounceRef.current = null;
+    }
+    
     // Fetch whenever params change (if not skipped and query is valid)
     if (!options.skip && params.query.trim()) {
-      fetchSuggestions();
+      debounceRef.current = setTimeout(() => {
+        fetchSuggestions();
+      }, debounceMs);
     } else if (options.skip || !params.query.trim()) {
       setSuggestions(null);
       setError(null);
     }
-  }, [params.query, params.type, options.skip, fetchSuggestions]);
+
+    // Cleanup debounce on unmount or params change
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+    };
+  }, [params.query, params.type, options.skip, debounceMs, fetchSuggestions]);
 
   return {
     data: suggestions,
