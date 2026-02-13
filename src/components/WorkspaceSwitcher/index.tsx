@@ -1,10 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../app/authProvider';
 import { ChevronDown, Check, Building2, User, Plus, UserPlus, Settings } from 'lucide-react';
 import CreateWorkspaceModal from '../CreateWorkspaceModal';
 import InviteToWorkspaceModal from '../InviteToWorkspaceModal';
 
 const WorkspaceSwitcher: React.FC = () => {
+  const navigate = useNavigate();
   const { organizations, activeOrganization, switchWorkspace } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -35,8 +37,8 @@ const WorkspaceSwitcher: React.FC = () => {
       await switchWorkspace(orgId);
       // Store active org in localStorage for API service
       localStorage.setItem('activeOrganizationId', orgId.toString());
-      // Refresh the page to reload data with new workspace context
-      window.location.reload();
+      // Soft reload to reload data with new workspace context
+      navigate(0);
     } catch (error) {
       console.error('Failed to switch workspace:', error);
     } finally {

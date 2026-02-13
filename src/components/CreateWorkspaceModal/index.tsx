@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../app/authProvider';
 import { fetchAuthSession } from 'aws-amplify/auth';
 import { Loader2, Building2, FileText, AlertTriangle } from 'lucide-react';
@@ -15,6 +16,7 @@ interface CreateWorkspaceModalProps {
 }
 
 const CreateWorkspaceModal: React.FC<CreateWorkspaceModalProps> = ({ isOpen, onClose }) => {
+  const navigate = useNavigate();
   const { refreshAuth } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -70,8 +72,8 @@ const CreateWorkspaceModal: React.FC<CreateWorkspaceModalProps> = ({ isOpen, onC
         // Reset form
         setFormData({ name: '', description: '' });
         onClose();
-        // Reload to show new workspace in dropdown
-        window.location.reload();
+        // Soft reload to show new workspace in dropdown
+        navigate(0);
       } else {
         setError(data.message || 'Failed to create workspace');
       }

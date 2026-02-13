@@ -49,7 +49,8 @@ class ErrorBoundary extends Component<Props, State> {
   };
 
   handleReload = () => {
-    window.location.reload();
+    // Use browser history API for soft reload instead of full page reload
+    window.history.go(0);
   };
 
   handleGoHome = () => {

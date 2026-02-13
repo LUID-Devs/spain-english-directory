@@ -174,10 +174,10 @@ const UsersPage = () => {
         <Alert variant="destructive">
           <AlertDescription>
             Error loading team members. Please try again.
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => window.location.reload()}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => refetch()}
               className="ml-4"
             >
               Retry

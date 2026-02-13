@@ -5,6 +5,7 @@ import {
 } from "@/hooks/useApi";
 import { useAuth } from "@/app/authProvider";
 import { useGetProjectsQuery, useGetTasksByUserQuery, useGetUsersQuery } from "@/hooks/useApi";
+import { useNavigate } from "react-router-dom";
 import { useGlobalStore } from "@/stores/globalStore";
 import React, { Suspense } from "react";
 import Header from "@/components/Header";
@@ -59,6 +60,7 @@ const getPriorityVariant = (priority: string) => {
 };
 
 const DashboardPage = () => {
+  const navigate = useNavigate();
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const { openTaskModal } = useTaskModal();
   
@@ -258,7 +260,7 @@ const DashboardPage = () => {
             <p className="text-muted-foreground mb-4 text-sm">This may be a temporary network issue</p>
             <div className="space-x-2">
               <button
-                onClick={() => window.location.reload()}
+                onClick={() => navigate(0)}
                 className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90"
               >
                 Retry
