@@ -12,7 +12,16 @@ import ErrorBoundary from '@/components/ErrorBoundary'
 configureAmplify();
 const queryClient = new QueryClient();
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+const rootElement = document.getElementById('root');
+
+if (!rootElement) {
+  throw new Error('Root element not found');
+}
+
+// Check if we have prerendered content (SSR/SSG)
+const hasPrerenderedContent = rootElement.innerHTML.trim().length > 0;
+
+const app = (
   <React.StrictMode>
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
@@ -21,5 +30,13 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         </BrowserRouter>
       </QueryClientProvider>
     </ErrorBoundary>
-  </React.StrictMode>,
-)
+  </React.StrictMode>
+);
+
+if (hasPrerenderedContent) {
+  // Hydrate the prerendered content to preserve SEO and reduce flicker
+  ReactDOM.hydrateRoot(rootElement, app);
+} else {
+  // Standard client-side rendering for non-prerendered pages
+  ReactDOM.createRoot(rootElement).render(app);
+}
