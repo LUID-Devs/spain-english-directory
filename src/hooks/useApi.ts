@@ -282,7 +282,7 @@ export const useGetTaskCommentsQuery = (taskId: number) => {
   
   const fetchComments = useCallback(async () => {
     if (!taskIdRef.current) {
-      console.warn('[useGetTaskCommentsQuery] No taskId provided');
+      // Silently return if no taskId provided - this is expected behavior
       return;
     }
     

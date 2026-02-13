@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
@@ -376,7 +377,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   // Toggle Speech-to-Text (dictation)
   const toggleSpeechToText = useCallback(() => {
     if (!recognitionRef.current) {
-      console.warn('Speech recognition not supported');
+      toast.error('Speech recognition is not supported in your browser');
       return;
     }
 
@@ -396,7 +397,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   // Toggle Text-to-Speech (read aloud)
   const toggleTextToSpeech = useCallback(() => {
     if (!synthRef.current) {
-      console.warn('Speech synthesis not supported');
+      toast.error('Text-to-speech is not supported in your browser');
       return;
     }
 

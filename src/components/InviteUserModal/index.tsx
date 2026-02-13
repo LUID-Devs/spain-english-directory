@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Modal from "@/components/Modal";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,7 +11,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Info } from "lucide-react";
+import { Info, Loader2 } from "lucide-react";
+import { useGetTeamsQuery } from "@/hooks/useApi";
+
+interface Team {
+  id: number;
+  name: string;
+  description?: string;
+}
 
 interface InviteUserModalProps {
   isOpen: boolean;
@@ -25,10 +32,22 @@ interface InviteUserModalProps {
 
 const InviteUserModal = ({ isOpen, onClose, onInvite }: InviteUserModalProps) => {
   const [email, setEmail] = useState("");
-  const [teamId, setTeamId] = useState("1");
+  const [teamId, setTeamId] = useState("");
   const [role, setRole] = useState("member");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<{ email?: string }>({});
+  
+  // Fetch teams dynamically from API
+  const { data: teams, isLoading: isLoadingTeams, isError: isTeamsError } = useGetTeamsQuery(undefined, {
+    skip: !isOpen, // Only fetch when modal is open
+  });
+
+  // Set default team when teams load
+  useEffect(() => {
+    if (teams && teams.length > 0 && !teamId) {
+      setTeamId(String(teams[0].id));
+    }
+  }, [teams, teamId]);
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -52,6 +71,12 @@ const InviteUserModal = ({ isOpen, onClose, onInvite }: InviteUserModalProps) =>
       return;
     }
 
+    // Validate teamId is selected
+    if (!teamId || teamId === "") {
+      setErrors({ email: "Please select a team" });
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -63,7 +88,7 @@ const InviteUserModal = ({ isOpen, onClose, onInvite }: InviteUserModalProps) =>
 
       // Reset form
       setEmail("");
-      setTeamId("1");
+      setTeamId(teams && teams.length > 0 ? String(teams[0].id) : "");
       setRole("member");
       onClose();
     } catch (error) {
@@ -76,7 +101,7 @@ const InviteUserModal = ({ isOpen, onClose, onInvite }: InviteUserModalProps) =>
 
   const handleClose = () => {
     setEmail("");
-    setTeamId("1");
+    setTeamId(teams && teams.length > 0 ? String(teams[0].id) : "");
     setRole("member");
     setErrors({});
     onClose();
@@ -119,17 +144,44 @@ const InviteUserModal = ({ isOpen, onClose, onInvite }: InviteUserModalProps) =>
 
           <div className="space-y-2">
             <Label htmlFor="teamId">Team</Label>
-            <Select value={teamId} onValueChange={setTeamId} disabled={isSubmitting}>
+            <Select 
+              value={teamId} 
+              onValueChange={setTeamId} 
+              disabled={isSubmitting || isLoadingTeams}
+            >
               <SelectTrigger>
-                <SelectValue placeholder="Select a team" />
+                {isLoadingTeams ? (
+                  <span className="flex items-center gap-2 text-muted-foreground">
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                    Loading teams...
+                  </span>
+                ) : (
+                  <SelectValue placeholder="Select a team" />
+                )}
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="1">Default Team</SelectItem>
-                <SelectItem value="2">Development Team</SelectItem>
-                <SelectItem value="3">Design Team</SelectItem>
-                <SelectItem value="4">Marketing Team</SelectItem>
+                {isTeamsError ? (
+                  <SelectItem value="" disabled>
+                    Failed to load teams
+                  </SelectItem>
+                ) : teams && teams.length > 0 ? (
+                  teams.map((team: Team) => (
+                    <SelectItem key={team.id} value={String(team.id)}>
+                      {team.name}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <SelectItem value="" disabled>
+                    No teams available
+                  </SelectItem>
+                )}
               </SelectContent>
             </Select>
+            {isTeamsError && (
+              <p className="text-sm text-destructive">
+                Failed to load teams. Please try again.
+              </p>
+            )}
           </div>
         </div>
 
@@ -154,7 +206,7 @@ const InviteUserModal = ({ isOpen, onClose, onInvite }: InviteUserModalProps) =>
             </Button>
             <Button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || isTeamsError || !teamId}
               className="flex-1"
             >
               {isSubmitting ? "Sending..." : "Send Invitation"}

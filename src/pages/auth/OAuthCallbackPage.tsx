@@ -90,7 +90,8 @@ const OAuthCallbackPage: React.FC = () => {
           }
         });
       } catch (backendError) {
-        console.warn('Backend notification failed, but auth succeeded:', backendError);
+        // Backend notification failed, but auth succeeded - continue silently
+        // This is non-critical and can happen during normal operation
       }
 
       // Refresh auth state in the app

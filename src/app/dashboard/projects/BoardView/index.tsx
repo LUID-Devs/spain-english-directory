@@ -710,7 +710,7 @@ const Task = React.memo(({ task, onTaskSelect }: TaskProps) => {
       window.dispatchEvent(new CustomEvent('taskUpdated'));
     } catch (error: any) {
       console.error('Failed to duplicate task:', error);
-      alert(error?.data?.message || 'Failed to duplicate task. Please try again.');
+      toast.error(error?.data?.message || 'Failed to duplicate task. Please try again.');
     }
   };
 
