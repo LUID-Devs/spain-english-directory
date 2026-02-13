@@ -26,7 +26,7 @@ const TaskDetailPage = ({ params }: Props) => {
   const { id } = React.use(params);
   const taskId = parseInt(id);
 
-  const { data: task, isLoading, error } = useGetTaskQuery(taskId);
+  const { data: task, isLoading, error, refetch } = useGetTaskQuery(taskId);
   const { data: users = [] } = useGetUsersQuery();
   const [updateTask, { isLoading: isUpdating }] = useUpdateTaskMutation();
 
@@ -139,7 +139,56 @@ const TaskDetailPage = ({ params }: Props) => {
     );
   }
 
-  if (error || !task) {
+  if (isLoading) {
+    return (
+      <div className="p-8 max-w-4xl mx-auto">
+        <div className="animate-pulse">
+          <div className="h-8 bg-muted rounded w-1/4 mb-4"></div>
+          <div className="h-12 bg-muted rounded w-3/4 mb-6"></div>
+          <div className="space-y-3">
+            <div className="h-4 bg-muted rounded w-full"></div>
+            <div className="h-4 bg-muted rounded w-5/6"></div>
+            <div className="h-4 bg-muted rounded w-4/6"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-8 max-w-4xl mx-auto">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-foreground mb-4">
+            Error Loading Task
+          </h1>
+          <p className="text-muted-foreground mb-2">
+            We encountered an error while loading this task.
+          </p>
+          <p className="text-destructive text-sm mb-6">
+            {error.message || "Unknown error occurred"}
+          </p>
+          <div className="flex items-center justify-center gap-3">
+            <button
+              onClick={() => refetch()}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+            >
+              Try Again
+            </button>
+            <Link
+              href="/dashboard/projects"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-muted text-foreground rounded-lg hover:bg-accent transition-colors"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to Projects
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!task) {
     return (
       <div className="p-8 max-w-4xl mx-auto">
         <div className="text-center">
@@ -266,8 +315,20 @@ const TaskDetailPage = ({ params }: Props) => {
         <div className="mb-6">
           <h3 className="text-lg font-semibold text-foreground mb-3">Description</h3>
           {!isEditing ? (
-            <div className="text-muted-foreground whitespace-pre-wrap">
-              {task.description || "No description provided."}
+            <div className="text-muted-foreground">
+              {task.description ? (
+                // Check if description contains HTML tags
+                task.description.includes('<') && task.description.includes('>') ? (
+                  <div 
+                    className="prose prose-sm max-w-none dark:prose-invert"
+                    dangerouslySetInnerHTML={{ __html: task.description }}
+                  />
+                ) : (
+                  <div className="whitespace-pre-wrap">{task.description}</div>
+                )
+              ) : (
+                <p className="text-muted-foreground/60 italic">No description provided.</p>
+              )}
             </div>
           ) : (
             <textarea
