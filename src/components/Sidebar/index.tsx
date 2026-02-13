@@ -148,6 +148,7 @@ const Sidebar = () => {
             <SidebarLink href="/dashboard/goals" icon={Flag} label="Goals" />
             <SidebarLink href="/dashboard/timeline" icon={Activity} label="Timeline" />
             <SidebarLink href="/dashboard/mission-control" icon={Bot} label="Mission Control" />
+            <SidebarLink href="/dashboard/automation" icon={Zap} label="Automation" />
             <SidebarLink href="/dashboard/archived-tasks" icon={Archive} label="Archived Tasks" />
           </nav>
         </div>

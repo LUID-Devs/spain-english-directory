@@ -42,6 +42,7 @@ const MediumPriorityPage = React.lazy(() => import('@/pages/dashboard/priority/M
 const LowPriorityPage = React.lazy(() => import('@/pages/dashboard/priority/LowPriorityPage'));
 const BacklogPriorityPage = React.lazy(() => import('@/pages/dashboard/priority/BacklogPriorityPage'));
 const ArchivedTasksPage = React.lazy(() => import('@/app/dashboard/archived-tasks/page'));
+const AutomationPage = React.lazy(() => import('@/pages/dashboard/automation/AutomationPage'));
 
 // Other Pages (lazy loaded)
 const LandingPage = React.lazy(() => import('@/pages/landing/LandingPage'));
@@ -199,6 +200,11 @@ function App() {
                 <Route path="archived-tasks" element={
                   <RouteErrorBoundary componentName="Archived Tasks">
                     <ArchivedTasksPage />
+                  </RouteErrorBoundary>
+                } />
+                <Route path="automation" element={
+                  <RouteErrorBoundary componentName="Automation">
+                    <AutomationPage />
                   </RouteErrorBoundary>
                 } />
                 </Routes>

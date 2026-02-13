@@ -1192,6 +1192,67 @@ class ApiService {
   async getTaskPullRequests(taskId: number): Promise<{ success: boolean; data: GitLink[]; count: number }> {
     return this.request<{ success: boolean; data: GitLink[]; count: number }>(`/api/tasks/${taskId}/git-links/pull-requests`);
   }
+
+  // ==================== AUTOMATION API ====================
+
+  async getAutomationRules(organizationId: number): Promise<{ success: boolean; data: AutomationRule[] }> {
+    return this.request<{ success: boolean; data: AutomationRule[] }>(`/api/automation/rules?organizationId=${organizationId}`);
+  }
+
+  async getAutomationRule(ruleId: number, organizationId: number): Promise<{ success: boolean; data: AutomationRuleWithExecutions }> {
+    return this.request<{ success: boolean; data: AutomationRuleWithExecutions }>(`/api/automation/rules/${ruleId}?organizationId=${organizationId}`);
+  }
+
+  async createAutomationRule(rule: CreateAutomationRuleRequest): Promise<{ success: boolean; data: AutomationRule }> {
+    return this.request<{ success: boolean; data: AutomationRule }>('/api/automation/rules', {
+      method: 'POST',
+      body: JSON.stringify(rule),
+    });
+  }
+
+  async updateAutomationRule(ruleId: number, updates: Partial<CreateAutomationRuleRequest>): Promise<{ success: boolean; data: AutomationRule }> {
+    return this.request<{ success: boolean; data: AutomationRule }>(`/api/automation/rules/${ruleId}`, {
+      method: 'PUT',
+      body: JSON.stringify(updates),
+    });
+  }
+
+  async deleteAutomationRule(ruleId: number): Promise<{ success: boolean; message: string }> {
+    return this.request<{ success: boolean; message: string }>(`/api/automation/rules/${ruleId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async testAutomationRule(ruleId: number, testTaskId?: number): Promise<{ success: boolean; message: string }> {
+    return this.request<{ success: boolean; message: string }>(`/api/automation/rules/${ruleId}/test`, {
+      method: 'POST',
+      body: JSON.stringify({ testTaskId }),
+    });
+  }
+
+  async getAutomationExecutions(params?: { organizationId?: number; ruleId?: number; limit?: number; offset?: number }): Promise<{
+    success: boolean;
+    data: AutomationExecution[];
+    pagination: { total: number; limit: number; offset: number; hasMore: boolean };
+  }> {
+    const queryParams = new URLSearchParams();
+    if (params?.organizationId) queryParams.append('organizationId', params.organizationId.toString());
+    if (params?.ruleId) queryParams.append('ruleId', params.ruleId.toString());
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    if (params?.offset) queryParams.append('offset', params.offset.toString());
+
+    return this.request<{ success: boolean; data: AutomationExecution[]; pagination: { total: number; limit: number; offset: number; hasMore: boolean } }>(
+      `/api/automation/executions?${queryParams.toString()}`
+    );
+  }
+
+  async getAutomationTriggerTypes(): Promise<{ success: boolean; data: AutomationTriggerType[] }> {
+    return this.request<{ success: boolean; data: AutomationTriggerType[] }>('/api/automation/triggers');
+  }
+
+  async getAutomationActionTypes(): Promise<{ success: boolean; data: AutomationActionType[] }> {
+    return this.request<{ success: boolean; data: AutomationActionType[] }>('/api/automation/actions');
+  }
 }
 
 export const apiService = new ApiService();
@@ -1517,4 +1578,114 @@ export interface GitLink {
   integrationConfigId?: number;
   gitCreatedAt: string;
   createdAt: string;
+}
+
+// ==================== AUTOMATION TYPES ====================
+
+export interface AutomationTriggerType {
+  type: string;
+  name: string;
+  description: string;
+}
+
+export interface AutomationActionType {
+  type: string;
+  name: string;
+  description: string;
+}
+
+export interface TriggerConfig {
+  projectId?: number;
+  statusFrom?: string;
+  statusTo?: string;
+  priority?: string;
+  assignedToUserId?: number;
+  assignedToAgentId?: number;
+  dueDateHours?: number;
+}
+
+export interface ActionConfig {
+  // For notification.send
+  message?: string;
+  recipientAgentIds?: number[];
+  notifyAssigneeAgent?: boolean;
+  notifyAuthorAgent?: boolean;
+  
+  // For webhook.call
+  webhookUrl?: string;
+  headers?: Record<string, string>;
+  
+  // For task.status.update
+  newStatus?: string;
+  
+  // For task.assign
+  assignToAgentId?: number;
+  
+  // For task.comment.add
+  commentText?: string;
+  commentAsAgentId?: number;
+  
+  // For integration.send
+  integrationConfigId?: number;
+}
+
+export interface AutomationRule {
+  id: number;
+  organizationId: number;
+  name: string;
+  description?: string;
+  triggerType: string;
+  triggerConfig: TriggerConfig;
+  actionType: string;
+  actionConfig: ActionConfig;
+  isActive: boolean;
+  executionCount: number;
+  lastExecutedAt?: string;
+  errorCount: number;
+  lastError?: string;
+  createdBy: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AutomationRuleWithExecutions extends AutomationRule {
+  executions: AutomationExecutionSummary[];
+}
+
+export interface AutomationExecutionSummary {
+  id: number;
+  status: string;
+  startedAt: string;
+  completedAt?: string;
+  error?: string;
+  durationMs?: number;
+}
+
+export interface AutomationExecution {
+  id: number;
+  ruleId: number;
+  taskId?: number;
+  triggerEvent: string;
+  triggerPayload: Record<string, any>;
+  status: 'pending' | 'running' | 'completed' | 'failed' | 'skipped';
+  result?: Record<string, any>;
+  error?: string;
+  startedAt: string;
+  completedAt?: string;
+  durationMs?: number;
+  rule: {
+    name: string;
+    triggerType: string;
+    actionType: string;
+  };
+}
+
+export interface CreateAutomationRuleRequest {
+  name: string;
+  description?: string;
+  triggerType: string;
+  triggerConfig: TriggerConfig;
+  actionType: string;
+  actionConfig: ActionConfig;
+  organizationId: number;
 }
