@@ -1404,6 +1404,53 @@ class ApiService {
 
     return this.request<ProjectTimeReport>(`/api/projects/${projectId}/time-reports?${queryParams.toString()}`);
   }
+
+  // ==================== TIMELINE (CI/CD) ====================
+
+  async getTimeline(params?: {
+    limit?: number;
+    offset?: number;
+    eventTypes?: string[];
+    categories?: string[];
+    taskId?: number;
+    projectId?: number;
+    fromDate?: string;
+    toDate?: string;
+  }): Promise<{ events: TimelineEvent[]; pagination: { total: number; limit: number; offset: number; hasMore: boolean } }> {
+    const queryParams = new URLSearchParams();
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    if (params?.offset) queryParams.append('offset', params.offset.toString());
+    if (params?.eventTypes?.length) params.eventTypes.forEach(t => queryParams.append('eventTypes', t));
+    if (params?.categories?.length) params.categories.forEach(c => queryParams.append('categories', c));
+    if (params?.taskId) queryParams.append('taskId', params.taskId.toString());
+    if (params?.projectId) queryParams.append('projectId', params.projectId.toString());
+    if (params?.fromDate) queryParams.append('fromDate', params.fromDate);
+    if (params?.toDate) queryParams.append('toDate', params.toDate);
+
+    return this.request(`/api/timeline?${queryParams.toString()}`);
+  }
+
+  async getTaskTimeline(taskId: number, params?: { limit?: number; offset?: number }): Promise<{ events: TimelineEvent[]; pagination: { total: number; limit: number; offset: number; hasMore: boolean } }> {
+    const queryParams = new URLSearchParams();
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    if (params?.offset) queryParams.append('offset', params.offset.toString());
+
+    return this.request(`/api/timeline/task/${taskId}?${queryParams.toString()}`);
+  }
+
+  async getRecentTimelineEvents(hours?: number): Promise<{ categories: Record<TimelineEventCategory, TimelineEvent[]> }> {
+    const queryParams = new URLSearchParams();
+    if (hours) queryParams.append('hours', hours.toString());
+
+    return this.request(`/api/timeline/recent?${queryParams.toString()}`);
+  }
+
+  async getTimelineStats(days?: number): Promise<{ stats: TimelineStats }> {
+    const queryParams = new URLSearchParams();
+    if (days) queryParams.append('days', days.toString());
+
+    return this.request(`/api/timeline/stats?${queryParams.toString()}`);
+  }
 }
 
 export const apiService = new ApiService();
@@ -1932,4 +1979,59 @@ export interface CreateAutomationRuleRequest {
   actionType: string;
   actionConfig: ActionConfig;
   organizationId: number;
+}
+
+// ==================== TIMELINE TYPES ====================
+
+export type TimelineEventType = 
+  | 'task_assigned'
+  | 'task_started'
+  | 'task_completed'
+  | 'status_changed'
+  | 'commit_pushed'
+  | 'pr_opened'
+  | 'pr_merged'
+  | 'pr_closed'
+  | 'build_started'
+  | 'build_completed'
+  | 'deploy_started'
+  | 'deploy_completed'
+  | 'comment_added'
+  | 'agent_handoff';
+
+export type TimelineEventCategory = 'task' | 'git' | 'deployment' | 'ci' | 'system';
+
+export type ActorType = 'agent' | 'user' | 'system' | 'git';
+
+export interface TimelineEvent {
+  id: number;
+  organizationId: number;
+  taskId?: number;
+  projectId?: number;
+  eventType: TimelineEventType;
+  eventCategory: TimelineEventCategory;
+  actorType: ActorType;
+  actorId?: number;
+  actorName: string;
+  actorAvatar?: string;
+  title: string;
+  description?: string;
+  taskLink?: string;
+  prLink?: string;
+  commitLink?: string;
+  deploymentLink?: string;
+  commitSha?: string;
+  prNumber?: number;
+  branchName?: string;
+  status?: 'success' | 'failure' | 'pending' | 'in_progress';
+  metadata: Record<string, any>;
+  occurredAt: string;
+  createdAt: string;
+}
+
+export interface TimelineStats {
+  totalEvents: number;
+  eventsByCategory: Record<TimelineEventCategory, number>;
+  eventsByType: Record<string, number>;
+  topActors: { actorName: string; count: number }[];
 }
