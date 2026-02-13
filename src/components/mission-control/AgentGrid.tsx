@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Clock, CheckCircle, AlertCircle, Loader2, MoreVertical, Pencil, Key, Trash2 } from "lucide-react";
+import { Clock, CheckCircle, AlertCircle, Loader2, MoreVertical, Pencil, Key, Trash2, Bot, Plus, Sparkles } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { EditAgentModal } from "./EditAgentModal";
 import { DeleteAgentModal } from "./DeleteAgentModal";
@@ -74,8 +74,55 @@ export const AgentGrid: React.FC<AgentGridProps> = ({ agents, isLoading, canMana
   if (!agents || agents.length === 0) {
     return (
       <Card className="mx-0 sm:mx-0">
-        <CardContent className="flex items-center justify-center h-48 sm:h-64 px-4">
-          <p className="text-muted-foreground text-sm sm:text-base text-center">No agents configured yet</p>
+        <CardContent className="flex flex-col items-center justify-center h-64 sm:h-80 px-4 sm:px-6 text-center">
+          {/* Icon with gradient background */}
+          <div className="relative mb-6">
+            <div className="absolute inset-0 bg-primary/10 rounded-full blur-xl"></div>
+            <div className="relative bg-gradient-to-br from-primary/20 to-primary/5 rounded-full p-6 w-24 h-24 mx-auto flex items-center justify-center">
+              <Bot className="h-12 w-12 text-primary" />
+            </div>
+          </div>
+
+          {/* Title */}
+          <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-2">
+            No AI Agents Yet
+          </h3>
+
+          {/* Description */}
+          <p className="text-sm sm:text-base text-muted-foreground mb-6 max-w-sm">
+            Create your first AI agent to automate tasks, streamline workflows, and boost productivity.
+          </p>
+
+          {/* CTA Button - only shown if user can manage agents */}
+          {canManageAgents && (
+            <Button
+              size="lg"
+              className="gap-2"
+              onClick={() => {
+                // Dispatch a custom event that MissionControlPage can listen for
+                window.dispatchEvent(new CustomEvent('openCreateAgentModal'));
+              }}
+            >
+              <Plus className="h-5 w-5" />
+              Create Your First Agent
+            </Button>
+          )}
+
+          {/* Feature highlights */}
+          <div className="mt-6 flex flex-wrap justify-center gap-4 text-xs text-muted-foreground">
+            <div className="flex items-center gap-1.5">
+              <Sparkles className="h-3.5 w-3.5 text-amber-500" />
+              <span>Automate tasks</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Sparkles className="h-3.5 w-3.5 text-blue-500" />
+              <span>24/7 availability</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Sparkles className="h-3.5 w-3.5 text-green-500" />
+              <span>Smart workflows</span>
+            </div>
+          </div>
         </CardContent>
       </Card>
     );
