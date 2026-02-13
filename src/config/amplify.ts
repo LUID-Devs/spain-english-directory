@@ -4,6 +4,13 @@ import { Amplify } from 'aws-amplify';
  * Configure AWS Amplify for Google OAuth through Cognito
  */
 export const configureAmplify = () => {
+  const redirectUri = import.meta.env.VITE_COGNITO_REDIRECT_URI;
+  
+  // Validate required environment variables
+  if (!redirectUri) {
+    console.error("[configureAmplify] VITE_COGNITO_REDIRECT_URI is not configured! OAuth redirects may fail.");
+  }
+  
   Amplify.configure({
     Auth: {
       Cognito: {
@@ -14,9 +21,9 @@ export const configureAmplify = () => {
             // Remove https:// prefix from domain
             domain: (import.meta.env.VITE_COGNITO_DOMAIN || 'https://us-east-1spqxbs7w9.auth.us-east-1.amazoncognito.com').replace('https://', ''),
             scopes: ['openid', 'email', 'profile'],
-            redirectSignIn: [import.meta.env.VITE_COGNITO_REDIRECT_URI || 'http://localhost:3000/auth/callback'],
+            redirectSignIn: [redirectUri || ''],
             redirectSignOut: [
-              (import.meta.env.VITE_COGNITO_REDIRECT_URI || 'http://localhost:3000/auth/callback').replace('/auth/callback', '/auth/login')
+              (redirectUri || '').replace('/auth/callback', '/auth/login')
             ],
             responseType: 'code',
           },

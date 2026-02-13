@@ -3,8 +3,13 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 const API_BASE = (
   import.meta.env.VITE_API_BASE_URL ||
   import.meta.env.VITE_API_URL ||
-  "http://localhost:8000"
+  ""
 ).replace(/\/$/, "");
+
+// Validate API base URL is configured
+if (!API_BASE) {
+  console.error("[useMissionControl] VITE_API_BASE_URL is not configured! API calls will fail.");
+}
 
 const getAuthHeaders = async (): Promise<Record<string, string>> => {
   const headers: Record<string, string> = {};

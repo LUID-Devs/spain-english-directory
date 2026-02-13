@@ -4,8 +4,13 @@ import { io, Socket } from "socket.io-client";
 const SOCKET_URL = (
   import.meta.env.VITE_API_BASE_URL ||
   import.meta.env.VITE_API_URL ||
-  "http://localhost:8000"
+  ""
 ).replace(/\/$/, "");
+
+// Validate socket URL is configured
+if (!SOCKET_URL) {
+  console.error("[useWebSocket] VITE_API_BASE_URL is not configured! WebSocket connections will fail.");
+}
 
 interface UseWebSocketOptions {
   organizationId?: number;
