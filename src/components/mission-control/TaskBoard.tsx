@@ -1,11 +1,13 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo, useCallback, Suspense } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Loader2, AlertCircle, AlertTriangle } from "lucide-react";
 import { useAgentTasks, useUpdateTaskAssignmentStatus } from "@/hooks/useMissionControl";
-import TaskDetailModal from "@/components/TaskDetailModal";
 import { toast } from "sonner";
+
+// Lazy load TaskDetailModal to reduce bundle size
+const TaskDetailModal = React.lazy(() => import("@/components/TaskDetailModal"));
 
 interface TaskAssignment {
   id: number;
@@ -352,17 +354,19 @@ export const TaskBoard: React.FC = () => {
       })}
 
       {/* Task Detail Modal */}
-      <TaskDetailModal
-        isOpen={selectedTaskId !== null}
-        onClose={() => {
-          setSelectedTaskId(null);
-          setSelectedProjectId(undefined);
-          // Refresh data when modal closes to reflect any changes
-          refetch();
-        }}
-        taskId={selectedTaskId || 0}
-        projectId={selectedProjectId}
-      />
+      <Suspense fallback={null}>
+        <TaskDetailModal
+          isOpen={selectedTaskId !== null}
+          onClose={() => {
+            setSelectedTaskId(null);
+            setSelectedProjectId(undefined);
+            // Refresh data when modal closes to reflect any changes
+            refetch();
+          }}
+          taskId={selectedTaskId || 0}
+          projectId={selectedProjectId}
+        />
+      </Suspense>
     </div>
   );
 };

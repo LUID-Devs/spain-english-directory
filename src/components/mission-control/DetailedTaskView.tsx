@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, Suspense } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -34,7 +34,9 @@ import {
 } from "lucide-react";
 import { format, formatDistanceToNow, parseISO } from "date-fns";
 import { TaskAssignment } from "@/hooks/useMissionControl";
-import TaskDetailModal from "@/components/TaskDetailModal";
+
+// Lazy load TaskDetailModal to reduce bundle size
+const TaskDetailModal = React.lazy(() => import("@/components/TaskDetailModal"));
 
 interface DetailedTaskViewProps {
   assignments: TaskAssignment[];
@@ -509,15 +511,17 @@ export const DetailedTaskView: React.FC<DetailedTaskViewProps> = ({
       </Card>
 
       {/* Task Detail Modal */}
-      <TaskDetailModal
-        isOpen={selectedTaskId !== null}
-        onClose={() => {
-          setSelectedTaskId(null);
-          setSelectedProjectId(undefined);
-        }}
-        taskId={selectedTaskId || 0}
-        projectId={selectedProjectId}
-      />
+      <Suspense fallback={null}>
+        <TaskDetailModal
+          isOpen={selectedTaskId !== null}
+          onClose={() => {
+            setSelectedTaskId(null);
+            setSelectedProjectId(undefined);
+          }}
+          taskId={selectedTaskId || 0}
+          projectId={selectedProjectId}
+        />
+      </Suspense>
     </div>
   );
 };

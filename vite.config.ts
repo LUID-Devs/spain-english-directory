@@ -48,6 +48,8 @@ export default defineConfig({
           'oidc-vendor': ['oidc-client-ts', 'react-oidc-context'],
           // UI Primitives (Radix) - common UI components
           'ui-primitives': ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-popover', '@radix-ui/react-avatar', '@radix-ui/react-separator', '@radix-ui/react-select', '@radix-ui/react-tabs', '@radix-ui/react-scroll-area'],
+          // Charts library (recharts is large)
+          'charts-vendor': ['recharts'],
         },
       },
     },

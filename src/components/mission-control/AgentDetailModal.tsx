@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import {
   Dialog,
   DialogContent,
@@ -41,7 +41,9 @@ import {
 } from "@/hooks/useMissionControl";
 import { useActivityFeed } from "@/hooks/useMissionControl";
 import { useAuth } from "@/app/authProvider";
-import TaskDetailModal from "@/components/TaskDetailModal";
+
+// Lazy load TaskDetailModal to reduce bundle size
+const TaskDetailModal = React.lazy(() => import("@/components/TaskDetailModal"));
 
 interface AgentDetailModalProps {
   isOpen: boolean;
@@ -577,11 +579,13 @@ export const AgentDetailModal: React.FC<AgentDetailModalProps> = ({
       </Dialog>
 
       {/* Task Detail Modal */}
-      <TaskDetailModal
-        isOpen={selectedTaskId !== null}
-        onClose={() => setSelectedTaskId(null)}
-        taskId={selectedTaskId || 0}
-      />
+      <Suspense fallback={null}>
+        <TaskDetailModal
+          isOpen={selectedTaskId !== null}
+          onClose={() => setSelectedTaskId(null)}
+          taskId={selectedTaskId || 0}
+        />
+      </Suspense>
     </>
   );
 };
