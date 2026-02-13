@@ -5,6 +5,9 @@ import Header from "@/components/Header";
 import UserCard from "@/components/UserCard";
 import InviteUserModal from "@/components/InviteUserModal";
 import RoleManagementModal from "@/components/RoleManagementModal";
+import { EmptyState } from "@/components/EmptyState";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   DataGrid,
   GridColDef,
@@ -14,6 +17,7 @@ import {
 } from "@mui/x-data-grid";
 
 import { dataGridClassNames, dataGridSxStyles } from "@/lib/utils";
+import { Users, Loader2, AlertCircle, UserPlus, Mail } from "lucide-react";
 
 const CustomToolBar = () => (
   <GridToolbarContainer className="toolbar flex gap-2">
@@ -46,7 +50,7 @@ const columns: GridColDef[] = [
 ];
 
 const Users = () => {
-  const { data: users, isLoading, isError } = useGetUsersWithStatsQuery();
+  const { data: users, isLoading, isError, refetch } = useGetUsersWithStatsQuery();
   const [inviteUser] = useInviteUserMutation();
   const [updateUserRole] = useUpdateUserRoleMutation();
   const isDarkMode = useGlobalStore().isDarkMode;
@@ -84,8 +88,82 @@ const Users = () => {
     }
   };
 
-  if (isLoading) return <div>Loading...</div>;
-  if (isError || !users) return <div>Error fetching users</div>;
+  // Loading State
+  if (isLoading) {
+    return (
+      <div className="container mx-auto p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Team Members</h1>
+            <p className="text-muted-foreground">Manage team members and their roles</p>
+          </div>
+        </div>
+        <Card>
+          <CardContent className="flex items-center justify-center h-96">
+            <div className="text-center space-y-4">
+              <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
+              <p className="text-muted-foreground">Loading team members...</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Error State
+  if (isError) {
+    return (
+      <div className="container mx-auto p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Team Members</h1>
+            <p className="text-muted-foreground">Manage team members and their roles</p>
+          </div>
+          <Button onClick={() => setIsInviteModalOpen(true)}>
+            <UserPlus className="h-4 w-4 mr-2" />
+            Invite User
+          </Button>
+        </div>
+        <EmptyState
+          icon={AlertCircle}
+          title="Failed to load team members"
+          description="We couldn't load the team member list. Please try again."
+          action={{
+            label: "Try Again",
+            onClick: () => refetch(),
+          }}
+        />
+      </div>
+    );
+  }
+
+  // Empty State - No Users
+  if (!users || users.length === 0) {
+    return (
+      <div className="container mx-auto p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Team Members</h1>
+            <p className="text-muted-foreground">Manage team members and their roles</p>
+          </div>
+        </div>
+        <EmptyState
+          icon={Users}
+          title="No team members yet"
+          description="Invite team members to collaborate on projects. They'll appear here once they join."
+          action={{
+            label: "Invite First Member",
+            onClick: () => setIsInviteModalOpen(true),
+          }}
+        />
+        <InviteUserModal
+          isOpen={isInviteModalOpen}
+          onClose={() => setIsInviteModalOpen(false)}
+          onInvite={handleInviteUser}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="flex w-full flex-col p-8">
@@ -116,8 +194,9 @@ const Users = () => {
           </div>
           <button
             onClick={() => setIsInviteModalOpen(true)}
-            className="rounded-lg bg-primary px-4 py-2 text-primary-foreground hover:bg-primary/90"
+            className="rounded-lg bg-primary px-4 py-2 text-primary-foreground hover:bg-primary/90 flex items-center gap-2"
           >
+            <Mail className="h-4 w-4" />
             Invite User
           </button>
         </div>
