@@ -37,8 +37,12 @@ FROM nginx:alpine
 # Copy built files from builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Copy nginx configuration
-COPY nginx.conf /etc/nginx/nginx.conf
+# Copy nginx configuration template
+# The nginx image will process .template files with envsubst
+COPY nginx.conf /etc/nginx/templates/nginx.conf.template
+
+# Set default backend host (can be overridden at runtime)
+ENV BACKEND_HOST=task-luid-backend:8000
 
 # Create a health check endpoint
 RUN echo '<!DOCTYPE html><html><body>healthy</body></html>' > /usr/share/nginx/html/health
