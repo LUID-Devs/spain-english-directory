@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/app/authProvider';
 import { useGetProjectsQuery, useGetTasksByUserQuery } from '@/hooks/useApi';
 import Header from '@/components/Header';
@@ -14,6 +15,7 @@ import {
 } from 'lucide-react';
 
 const TimelinePage = () => {
+  const navigate = useNavigate();
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const [filterType, setFilterType] = useState<ActivityType | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -232,7 +234,7 @@ const TimelinePage = () => {
           <div className="text-center">
             <p className="text-destructive mb-4 text-sm sm:text-base">Authentication required</p>
             <button
-              onClick={() => window.location.href = '/auth/login'}
+              onClick={() => navigate('/auth/login')}
               className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90 text-sm sm:text-base"
             >
               Go to Login

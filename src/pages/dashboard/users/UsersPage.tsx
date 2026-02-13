@@ -1,6 +1,7 @@
 import { useGetUsersWithStatsQuery, useInviteUserMutation, useUpdateUserRoleMutation, useRemoveOrganizationMemberMutation, useGetMemberTasksQuery, UserWithStats } from "@/hooks/useApi";
 import { useUserStore } from "@/stores/userStore";
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import UserCard from "@/components/UserCard";
 import InviteUserModal from "@/components/InviteUserModal";
 import RoleManagementModal from "@/components/RoleManagementModal";
@@ -50,6 +51,7 @@ const getRoleBadge = (role: string) => {
 };
 
 const UsersPage = () => {
+  const navigate = useNavigate();
   const { data: users, isLoading, isError, refetch } = useGetUsersWithStatsQuery();
   const [inviteUser] = useInviteUserMutation();
   const [updateUserRole] = useUpdateUserRoleMutation();
@@ -608,7 +610,7 @@ const UsersPage = () => {
                 variant="default"
                 onClick={() => {
                   setIsRemoveDialogOpen(false);
-                  window.location.href = '/dashboard/teams/workload';
+                  navigate('/dashboard/teams/workload');
                 }}
               >
                 Go to Workload

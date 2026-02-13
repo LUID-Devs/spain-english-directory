@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AlertCircle, RefreshCw, WifiOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,6 +10,7 @@ import { useAuth } from '@/app/authProvider';
  * Use this in your app to display auth errors to users
  */
 export const AuthErrorDisplay: React.FC = () => {
+  const navigate = useNavigate();
   const { error, clearError, refreshAuth } = useAuth();
 
   if (!error) return null;
@@ -58,7 +60,7 @@ export const AuthErrorDisplay: React.FC = () => {
             )}
             <Button 
               variant="outline" 
-              onClick={() => window.location.href = '/auth/login'}
+              onClick={() => navigate('/auth/login')}
               className="flex-1"
             >
               Go to Login

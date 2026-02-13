@@ -238,7 +238,7 @@ const DashboardPage = () => {
           <div className="text-center">
             <p className="text-destructive mb-4">Authentication required</p>
             <button
-              onClick={() => window.location.href = '/auth/login'}
+              onClick={() => navigate('/auth/login')}
               className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90"
             >
               Go to Login
@@ -266,7 +266,7 @@ const DashboardPage = () => {
                 Retry
               </button>
               <button
-                onClick={() => window.location.href = '/auth/logout'}
+                onClick={() => navigate('/auth/logout')}
                 className="px-4 py-2 bg-muted text-foreground rounded hover:bg-accent"
               >
                 Sign Out
