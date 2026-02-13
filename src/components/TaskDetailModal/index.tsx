@@ -95,6 +95,11 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
   // Initialize form when task data loads
   useEffect(() => {
     if (task && !isInitializedRef.current) {
+      // Fix: Derive assignedUserId from assignee object if assignedUserId is not directly available
+      // This ensures the assignee dropdown shows the correct user even if the API response
+      // has inconsistent data between assignedUserId and assignee fields
+      const resolvedAssignedUserId = task.assignedUserId || task.assignee?.userId || undefined;
+      
       setEditForm({
         title: task.title || "",
         description: task.description || "",
@@ -105,7 +110,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
         startDate: task.startDate ? task.startDate.split('T')[0] : "",
         dueDate: task.dueDate ? task.dueDate.split('T')[0] : "",
         points: task.points || 0,
-        assignedUserId: task.assignedUserId || undefined,
+        assignedUserId: resolvedAssignedUserId,
       });
       isInitializedRef.current = true;
     }
