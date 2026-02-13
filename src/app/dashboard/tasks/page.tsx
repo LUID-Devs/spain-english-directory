@@ -30,11 +30,25 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Search, CheckSquare, AlertCircle, Trash2, Tag, Calendar, FolderKanban, UserCheck, X, ChevronDown } from "lucide-react";
+import { 
+  Search, 
+  CheckSquare, 
+  AlertCircle, 
+  Trash2, 
+  FolderKanban, 
+  UserCheck, 
+  X, 
+  ChevronDown,
+  Share2,
+  ArrowUp,
+  ArrowDown,
+  Check,
+  Filter
+} from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useTaskModal } from "@/contexts/TaskModalContext";
-import { AdvancedFilters } from "@/components/AdvancedFilters";
+import AdvancedFilters from "@/components/AdvancedFilters";
 import { apiService } from "@/services/apiService";
 import { toast } from "sonner";
 
@@ -69,21 +83,46 @@ const getPriorityVariant = (priority: string) => {
   }
 };
 
+// Sort options
+const sortOptions = [
+  { value: 'priority', label: 'Priority' },
+  { value: 'status', label: 'Status' },
+  { value: 'dueDate', label: 'Due Date' },
+  { value: 'title', label: 'Title' },
+  { value: 'createdAt', label: 'Created' },
+];
+
 const TasksPage = () => {
   const { currentUser } = useCurrentUser();
   const userId = currentUser?.userId ?? null;
   const { openTaskModal } = useTaskModal();
   const lastSelectedRef = useRef<number | null>(null);
   
-  // Search and filter state
-  const [searchTerm, setSearchTerm] = useState("");
+  // URL Search Params for sharing views
+  const [searchParams, setSearchParams] = useSearchParams();
+  
+  // Get initial values from URL or defaults
+  const initialSearch = searchParams.get('search') || '';
+  const initialSortBy = searchParams.get('sortBy') || 'priority';
+  const initialSortOrder = (searchParams.get('sortOrder') as 'asc' | 'desc') || 'asc';
+  
+  // Local state synced with URL
+  const [searchTerm, setSearchTerm] = useState(initialSearch);
+  const [sortBy, setSortBy] = useState(initialSortBy);
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>(initialSortOrder);
+  
+  // Filter state (local, will sync count to URL)
   const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
   const [activeFilterCount, setActiveFilterCount] = useState(0);
+  
+  // Track if we need to update URL (debounce search)
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   // Bulk selection state
   const [selectedTasks, setSelectedTasks] = useState<Set<number>>(new Set());
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isBulkProcessing, setIsBulkProcessing] = useState(false);
+  const [showShareToast, setShowShareToast] = useState(false);
   
   const {
     data: tasks,
@@ -96,7 +135,7 @@ const TasksPage = () => {
   const { data: users } = useGetUsersQuery();
   const { data: agents } = useGetAgentsQuery();
 
-  // Get unique statuses from user's tasks (combines default + any custom statuses)
+  // Get unique statuses from user's tasks
   const availableStatuses = useMemo(() => {
     const defaultStatuses = Object.values(Status);
     if (!tasks || tasks.length === 0) return defaultStatuses;
@@ -106,16 +145,61 @@ const TasksPage = () => {
     return allStatuses;
   }, [tasks]);
 
-  // Combine advanced filters with search term
-  const displayTasks = useMemo(() => {
-    // Start with advanced filter results, or all tasks if no filters
-    const baseTasks = filteredTasks.length > 0 || activeFilterCount > 0 
-      ? filteredTasks 
-      : (tasks || []);
+  // Update URL when search/sort changes
+  const updateURLParams = useCallback((updates: Record<string, string>) => {
+    const newParams = new URLSearchParams(searchParams);
     
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value && value !== 'priority' && value !== 'asc') {
+        // Don't store defaults
+        newParams.set(key, value);
+      } else if (newParams.has(key)) {
+        newParams.delete(key);
+      }
+    });
+    
+    setSearchParams(newParams, { replace: true });
+  }, [searchParams, setSearchParams]);
+
+  // Handle search with URL sync
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchTerm(value);
+    
+    // Debounce URL update
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+    
+    searchTimeoutRef.current = setTimeout(() => {
+      updateURLParams({ search: value });
+    }, 300);
+  }, [updateURLParams]);
+
+  // Handle sort with URL sync
+  const handleSortChange = useCallback((newSortBy: string) => {
+    let newOrder: 'asc' | 'desc';
+    
+    if (sortBy === newSortBy) {
+      // Toggle order if same field
+      newOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+    } else {
+      // Default to ascending for new field
+      newOrder = 'asc';
+    }
+    
+    setSortBy(newSortBy);
+    setSortOrder(newOrder);
+    updateURLParams({ sortBy: newSortBy, sortOrder: newOrder });
+  }, [sortBy, sortOrder, updateURLParams]);
+
+  // Filter and sort tasks
+  const displayTasks = useMemo(() => {
+    // Start with filtered tasks from AdvancedFilters, or all tasks
+    const baseTasks = activeFilterCount > 0 ? filteredTasks : (tasks || []);
+    
+    // Apply search term
     if (!searchTerm) return baseTasks;
     
-    // Apply search term on top of filters
     return baseTasks.filter((task) => {
       const matchesSearch = 
         task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -125,23 +209,43 @@ const TasksPage = () => {
     });
   }, [tasks, filteredTasks, activeFilterCount, searchTerm]);
 
-  // Sort tasks by priority then status
+  // Sort tasks
   const sortedTasks = useMemo(() => {
-    const priorityOrder = { 'Urgent': 1, 'High': 2, 'Medium': 3, 'Low': 4, 'Backlog': 5 };
-    const statusOrder = { 'TODO': 1, 'Work In Progress': 2, 'Under Review': 3, 'Completed': 4 };
+    const priorityOrder: Record<string, number> = { 'Urgent': 1, 'High': 2, 'Medium': 3, 'Low': 4, 'Backlog': 5 };
+    const statusOrder: Record<string, number> = { 'To Do': 1, 'Work In Progress': 2, 'Under Review': 3, 'Completed': 4 };
     
     return [...displayTasks].sort((a, b) => {
-      const aPriority = priorityOrder[a.priority as keyof typeof priorityOrder] || 5;
-      const bPriority = priorityOrder[b.priority as keyof typeof priorityOrder] || 5;
-      if (aPriority !== bPriority) return aPriority - bPriority;
+      let comparison = 0;
       
-      const aStatus = statusOrder[a.status as keyof typeof statusOrder] || 5;
-      const bStatus = statusOrder[b.status as keyof typeof statusOrder] || 5;
-      return aStatus - bStatus;
+      switch (sortBy) {
+        case 'priority':
+          comparison = (priorityOrder[a.priority] || 5) - (priorityOrder[b.priority] || 5);
+          break;
+        case 'status':
+          comparison = (statusOrder[a.status] || 5) - (statusOrder[b.status] || 5);
+          break;
+        case 'dueDate':
+          const aDate = a.dueDate ? new Date(a.dueDate).getTime() : Infinity;
+          const bDate = b.dueDate ? new Date(b.dueDate).getTime() : Infinity;
+          comparison = aDate - bDate;
+          break;
+        case 'title':
+          comparison = a.title.localeCompare(b.title);
+          break;
+        case 'createdAt':
+          const aCreated = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+          const bCreated = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+          comparison = aCreated - bCreated;
+          break;
+        default:
+          comparison = 0;
+      }
+      
+      return sortOrder === 'asc' ? comparison : -comparison;
     });
-  }, [displayTasks]);
+  }, [displayTasks, sortBy, sortOrder]);
 
-  // Bulk selection handlers (defined after sortedTasks)
+  // Bulk selection handlers
   const toggleTaskSelection = useCallback((taskId: number, event?: React.MouseEvent) => {
     setSelectedTasks(prev => {
       const newSet = new Set(prev);
@@ -177,10 +281,8 @@ const TasksPage = () => {
   const toggleAllSelection = useCallback(() => {
     setSelectedTasks(prev => {
       if (prev.size === sortedTasks.length) {
-        // Deselect all
         return new Set();
       } else {
-        // Select all
         return new Set(sortedTasks.map(t => t.id));
       }
     });
@@ -261,15 +363,43 @@ const TasksPage = () => {
     }
   };
 
-  // Handle filtered tasks from AdvancedFilters
-  const handleFilterChange = (newFilteredTasks: Task[]) => {
-    setFilteredTasks(newFilteredTasks);
-  };
+  // Share view handler
+  const handleShareView = useCallback(() => {
+    navigator.clipboard.writeText(window.location.href);
+    setShowShareToast(true);
+    setTimeout(() => setShowShareToast(false), 2000);
+    toast.success("View URL copied to clipboard!");
+  }, []);
 
-  // Handle active filter count change
-  const handleActiveFiltersChange = (count: number) => {
+  // Clear all filters
+  const handleClearAll = useCallback(() => {
+    setSearchTerm('');
+    setSortBy('priority');
+    setSortOrder('asc');
+    setSearchParams(new URLSearchParams(), { replace: true });
+    toast.info("All filters cleared");
+  }, [setSearchParams]);
+
+  // Handle filter changes from AdvancedFilters
+  const handleFilterChange = useCallback((newFilteredTasks: Task[]) => {
+    setFilteredTasks(newFilteredTasks);
+  }, []);
+
+  const handleActiveFiltersChange = useCallback((count: number) => {
     setActiveFilterCount(count);
-  };
+    // Store filter count in URL for sharing awareness
+    const newParams = new URLSearchParams(searchParams);
+    if (count > 0) {
+      newParams.set('filters', count.toString());
+    } else {
+      newParams.delete('filters');
+    }
+    setSearchParams(newParams, { replace: true });
+  }, [searchParams, setSearchParams]);
+
+  const hasActiveFilters = searchTerm !== '' || activeFilterCount > 0;
+  const showingCount = sortedTasks.length;
+  const totalCount = (tasks || []).length;
 
   if (tasksLoading) {
     return (
@@ -317,14 +447,10 @@ const TasksPage = () => {
     );
   }
 
-  const hasActiveFilters = searchTerm || activeFilterCount > 0;
-  const showingCount = sortedTasks.length;
-  const totalCount = tasks.length;
-
   return (
     <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">My Tasks</h1>
           <p className="text-muted-foreground">
@@ -334,6 +460,43 @@ const TasksPage = () => {
             }
           </p>
         </div>
+        
+        <div className="flex items-center gap-2">
+          {/* Clear All Button */}
+          {hasActiveFilters && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleClearAll}
+              className="gap-1"
+            >
+              <X className="h-4 w-4" />
+              Clear All
+            </Button>
+          )}
+          
+          {/* Share View Button */}
+          {hasActiveFilters && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleShareView}
+              className="gap-2"
+            >
+              {showShareToast ? (
+                <>
+                  <Check className="h-4 w-4" />
+                  Copied!
+                </>
+              ) : (
+                <>
+                  <Share2 className="h-4 w-4" />
+                  Share View
+                </>
+              )}
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Search and Filters */}
@@ -341,7 +504,7 @@ const TasksPage = () => {
         <CardHeader>
           <CardTitle>Search & Filter</CardTitle>
           <CardDescription>
-            Use advanced filters to find exactly what you need, or save custom views for later
+            Filters are now persisted in the URL — share your view with teammates!
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -351,9 +514,19 @@ const TasksPage = () => {
             <Input
               placeholder="Search by title, description, or tags..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => handleSearchChange(e.target.value)}
               className="pl-10"
             />
+            {searchTerm && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6"
+                onClick={() => handleSearchChange('')}
+              >
+                <X className="h-3 w-3" />
+              </Button>
+            )}
           </div>
 
           {/* Advanced Filters */}
@@ -365,6 +538,30 @@ const TasksPage = () => {
             onFilterChange={handleFilterChange}
             onActiveFiltersChange={handleActiveFiltersChange}
           />
+
+          {/* Sort Controls */}
+          <div className="flex items-center gap-3 pt-3 border-t flex-wrap">
+            <span className="text-sm font-medium text-muted-foreground flex items-center gap-1">
+              <ArrowUp className="h-3 w-3" />
+              Sort by:
+            </span>
+            <div className="flex items-center gap-2 flex-wrap">
+              {sortOptions.map((option) => (
+                <Button
+                  key={option.value}
+                  variant={sortBy === option.value ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => handleSortChange(option.value)}
+                  className="gap-1 h-8"
+                >
+                  {option.label}
+                  {sortBy === option.value && (
+                    sortOrder === 'asc' ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />
+                  )}
+                </Button>
+              ))}
+            </div>
+          </div>
         </CardContent>
       </Card>
 
@@ -483,7 +680,7 @@ const TasksPage = () => {
             <div>
               <CardTitle className="text-base sm:text-lg">Tasks ({sortedTasks.length})</CardTitle>
               <CardDescription className="text-xs sm:text-sm">
-                Your tasks organized by priority and status
+                Sorted by {sortOptions.find(o => o.value === sortBy)?.label} ({sortOrder === 'asc' ? 'ascending' : 'descending'})
               </CardDescription>
             </div>
             {sortedTasks.length > 0 && (
@@ -691,6 +888,11 @@ const TasksPage = () => {
                   ? "Try adjusting your search or filters"
                   : "Tasks assigned to you will appear here"}
               </p>
+              {hasActiveFilters && (
+                <Button onClick={handleClearAll}>
+                  Clear All Filters
+                </Button>
+              )}
               {!hasActiveFilters && (
                 <Button asChild>
                   <Link to="/dashboard/projects">
