@@ -77,31 +77,31 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ activity }) => {
   };
 
   return (
-    <div className="p-6 hover:bg-accent transition-colors">
-      <div className="flex items-start space-x-4">
+    <div className="p-4 sm:p-6 hover:bg-accent transition-colors">
+      <div className="flex items-start space-x-3 sm:space-x-4">
         {/* Activity Icon */}
-        <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${getActivityColor(activity.type)}`}>
+        <div className={`flex-shrink-0 flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 ${getActivityColor(activity.type)}`}>
           {getActivityIcon(activity.type)}
         </div>
 
         {/* Activity Content */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between">
-            <div>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-0">
+            <div className="flex-1 min-w-0">
               <h4 className="text-sm font-medium text-foreground">
                 {activity.title}
               </h4>
-              <p className="text-sm text-muted-foreground mt-1">
+              <p className="text-sm text-muted-foreground mt-1 line-clamp-2 sm:line-clamp-none">
                 {activity.description}
               </p>
             </div>
-            <time className="text-xs text-muted-foreground whitespace-nowrap ml-4">
+            <time className="text-xs text-muted-foreground whitespace-nowrap sm:ml-4">
               {format(activity.timestamp, 'HH:mm')}
             </time>
           </div>
 
           {/* Metadata */}
-          <div className="mt-2 flex items-center space-x-4 text-xs text-muted-foreground">
+          <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
             <span className="flex items-center">
               <Users className="h-3 w-3 mr-1" />
               {activity.user.name}
@@ -115,7 +115,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ activity }) => {
             {activity.metadata?.projectName && (
               <span className="flex items-center">
                 <FolderPlus className="h-3 w-3 mr-1" />
-                {activity.metadata.projectName}
+                <span className="truncate max-w-[120px] sm:max-w-[200px]">{activity.metadata.projectName}</span>
               </span>
             )}
           </div>

@@ -214,12 +214,12 @@ const TimelinePage = () => {
   // Show loading while authenticating or fetching data
   if (authLoading || tasksLoading || projectsLoading) {
     return (
-      <div className="container h-full w-[100%] bg-background p-8">
+      <div className="container h-full w-full bg-background px-4 py-4 sm:p-8">
         <Header name="Timeline" />
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-muted-foreground">
+            <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground text-sm sm:text-base">
               {authLoading ? "Authenticating..." : "Loading activity timeline..."}
             </p>
           </div>
@@ -231,14 +231,14 @@ const TimelinePage = () => {
   // Redirect to login if not authenticated
   if (!isAuthenticated || !user) {
     return (
-      <div className="container h-full w-[100%] bg-background p-8">
+      <div className="container h-full w-full bg-background px-4 py-4 sm:p-8">
         <Header name="Timeline" />
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
-            <p className="text-destructive mb-4">Authentication required</p>
+            <p className="text-destructive mb-4 text-sm sm:text-base">Authentication required</p>
             <button
               onClick={() => window.location.href = '/auth/login'}
-              className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90"
+              className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90 text-sm sm:text-base"
             >
               Go to Login
             </button>
@@ -342,12 +342,12 @@ const TimelinePage = () => {
       {/* Timeline Activities */}
       <div className="space-y-4 sm:space-y-6">
         {Object.entries(groupedActivities).length === 0 ? (
-          <div className="bg-card border border-border rounded-lg p-12 shadow text-center">
-            <Sparkles className="h-16 w-16 text-muted-foreground/50 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-foreground mb-2">
+          <div className="bg-card border border-border rounded-lg p-6 sm:p-12 shadow text-center">
+            <Sparkles className="h-12 w-12 sm:h-16 sm:w-16 text-muted-foreground/50 mx-auto mb-4" />
+            <h3 className="text-base sm:text-lg font-medium text-foreground mb-2">
               No Recent Activity
             </h3>
-            <p className="text-muted-foreground mb-6">
+            <p className="text-muted-foreground mb-6 text-sm sm:text-base">
               {searchQuery ?
                 `No activities found matching "${searchQuery}"` :
                 "Start creating tasks and projects to see your activity timeline."
@@ -356,7 +356,7 @@ const TimelinePage = () => {
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+                className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors text-sm sm:text-base"
               >
                 Clear Search
               </button>
@@ -366,13 +366,13 @@ const TimelinePage = () => {
           Object.entries(groupedActivities).map(([dateGroup, activities]) => (
             <div key={dateGroup} className="bg-card border border-border rounded-lg shadow">
               {/* Date Header */}
-              <div className="px-6 py-4 border-b border-border">
+              <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-border">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-foreground">
+                  <h3 className="text-base sm:text-lg font-semibold text-foreground">
                     {dateGroup}
                   </h3>
-                  <span className="text-sm text-muted-foreground flex items-center">
-                    <TrendingUp className="h-4 w-4 mr-1" />
+                  <span className="text-xs sm:text-sm text-muted-foreground flex items-center">
+                    <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                     {activities.length} {activities.length === 1 ? 'activity' : 'activities'}
                   </span>
                 </div>
