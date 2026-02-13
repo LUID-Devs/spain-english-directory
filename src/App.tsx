@@ -3,7 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import NotFoundPage from '@/pages/NotFoundPage';
 import { Toaster } from 'sonner';
 import { useGlobalStore } from '@/stores/globalStore';
-import AuthProvider from '@/app/authProvider';
+import AuthProvider, { useAuth } from '@/app/authProvider';
 import DashboardWrapper from '@/app/dashboardWrapper';
 import { SubscriptionProvider } from '@/components/SubscriptionProvider';
 import { useQuickAddTask } from '@/hooks/useQuickAddTask';
@@ -13,6 +13,7 @@ import QuickAddTaskModal from '@/components/QuickAddTaskModal';
 import CommandPalette from '@/components/CommandPalette';
 import KeyboardShortcutsHelp from '@/components/KeyboardShortcutsHelp';
 import RouteErrorBoundary from '@/components/RouteErrorBoundary';
+import AuthErrorDisplay from '@/components/AuthErrorDisplay';
 
 // Auth Components (eager imports for immediate auth flow)
 import LoginPage from '@/pages/auth/LoginPage';
@@ -55,7 +56,8 @@ const PrivacyPolicy = React.lazy(() => import('@/pages/legal/PrivacyPolicy'));
 const TermsOfService = React.lazy(() => import('@/pages/legal/TermsOfService'));
 const CookiePolicy = React.lazy(() => import('@/pages/legal/CookiePolicy'));
 
-function App() {
+// Inner app component that can use auth context
+function AppContent() {
   const { isDarkMode } = useGlobalStore();
   const { isOpen, open, close } = useQuickAddTask();
   const { isOpen: isCommandPaletteOpen, open: openCommandPalette, close: closeCommandPalette } = useCommandPalette();
@@ -79,7 +81,8 @@ function App() {
   }, [isDarkMode]);
 
   return (
-    <AuthProvider>
+    <>
+      <AuthErrorDisplay />
       <Suspense fallback={<div className="flex items-center justify-center h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
         <Routes>
           {/* Public Routes */}
@@ -244,6 +247,15 @@ function App() {
       
       {/* Keyboard Shortcuts Help Modal */}
       <KeyboardShortcutsHelp isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)} />
+    </>
+  );
+}
+
+// Main App component with AuthProvider
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
     </AuthProvider>
   );
 }

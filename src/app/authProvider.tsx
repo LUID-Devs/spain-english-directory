@@ -20,16 +20,24 @@ interface Organization {
   role?: string;
 }
 
+interface AuthError {
+  message: string;
+  type: 'network' | 'auth' | 'unknown';
+  retryable: boolean;
+}
+
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  error: AuthError | null;
   organizations: Organization[];
   activeOrganization: Organization | null;
   login: () => void;
   logout: () => void;
   refreshAuth: () => Promise<void>;
   switchWorkspace: (organizationId: number) => Promise<void>;
+  clearError: () => void;
 }
 
 const AuthContext = React.createContext<AuthContextType | null>(null);
@@ -37,11 +45,16 @@ const AuthContext = React.createContext<AuthContextType | null>(null);
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<AuthError | null>(null);
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [activeOrganization, setActiveOrganization] = useState<Organization | null>(null);
   const userRef = useRef<User | null>(null);
   const authCheckInFlightRef = useRef<Promise<void> | null>(null);
   const navigate = useNavigate();
+
+  const clearError = useCallback(() => {
+    setError(null);
+  }, []);
 
   useEffect(() => {
     userRef.current = user;
@@ -62,6 +75,9 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const runAuthCheck = async () => {
     const authStart = Date.now();
     console.log('[AUTH] Starting auth check at:', authStart);
+    
+    // Clear any previous errors
+    setError(null);
 
     // Declare Cognito variables in function scope so they're available in all catch blocks
     let cognitoSession: any = null;
@@ -164,6 +180,38 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (error) {
       const authEnd = Date.now();
       console.error('[AUTH] Auth check failed after:', authEnd - authStart, 'ms', error);
+
+      // Determine error type for user feedback
+      let authError: AuthError;
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          authError = {
+            message: 'Authentication request timed out. Please check your connection and try again.',
+            type: 'network',
+            retryable: true
+          };
+        } else if (error.message?.includes('fetch') || error.message?.includes('network')) {
+          authError = {
+            message: 'Network error. Please check your internet connection.',
+            type: 'network',
+            retryable: true
+          };
+        } else {
+          authError = {
+            message: 'Authentication failed. Please try again.',
+            type: 'unknown',
+            retryable: true
+          };
+        }
+      } else {
+        authError = {
+          message: 'An unexpected error occurred. Please try again.',
+          type: 'unknown',
+          retryable: true
+        };
+      }
+      
+      setError(authError);
 
       if (cognitoUser) {
         // Keep user authenticated client-side if backend status endpoint is temporarily slow
@@ -273,12 +321,14 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     user,
     isAuthenticated: !!user,
     isLoading,
+    error,
     organizations,
     activeOrganization,
     login,
     logout,
     refreshAuth: checkAuthStatus,
     switchWorkspace,
+    clearError,
   };
 
   // Always render children - let individual pages handle auth requirements
