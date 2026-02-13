@@ -73,10 +73,10 @@ jobs:
           cd /opt/task-luid/task-luid-web
           
           echo "📦 Pulling latest image..."
-          docker compose pull frontend
+          docker compose pull taskluid-frontend
           
           echo "🔄 Restarting frontend..."
-          docker compose up -d --force-recreate frontend
+          docker compose up -d --force-recreate taskluid-frontend
           
           echo "⏳ Waiting for startup..."
           sleep 10
@@ -85,7 +85,7 @@ jobs:
         run: |
           echo "Checking frontend health..."
           for i in {1..6}; do
-            if curl -f http://localhost:3000/health || curl -f http://localhost:3000; then
+            if curl -f http://localhost:3000/health 2>/dev/null || curl -f http://localhost:3000 2>/dev/null; then
               echo "✅ Frontend is healthy!"
               exit 0
             fi
