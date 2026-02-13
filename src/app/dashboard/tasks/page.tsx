@@ -224,19 +224,21 @@ const TasksPage = () => {
         case 'status':
           comparison = (statusOrder[a.status] || 5) - (statusOrder[b.status] || 5);
           break;
-        case 'dueDate':
+        case 'dueDate': {
           const aDate = a.dueDate ? new Date(a.dueDate).getTime() : Infinity;
           const bDate = b.dueDate ? new Date(b.dueDate).getTime() : Infinity;
           comparison = aDate - bDate;
           break;
+        }
         case 'title':
           comparison = a.title.localeCompare(b.title);
           break;
-        case 'createdAt':
+        case 'createdAt': {
           const aCreated = a.createdAt ? new Date(a.createdAt).getTime() : 0;
           const bCreated = b.createdAt ? new Date(b.createdAt).getTime() : 0;
           comparison = aCreated - bCreated;
           break;
+        }
         default:
           comparison = 0;
       }

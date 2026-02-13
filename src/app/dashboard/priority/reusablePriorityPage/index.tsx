@@ -86,7 +86,9 @@ const ReusablePriorityPage = ({ priority }: Props) => {
   const auth = useAuth();
   const { currentUser, isLoading: userLoading } = useCurrentUser();
   const priorityColors = getPriorityColors(priority);
-  const PriorityIcon = getPriorityIcon(priority);
+  
+  // Select the icon component based on priority (lowercase to avoid React treating it as a component)
+  const priorityIcon = getPriorityIcon(priority);
   
   // Improved user ID resolution with better debugging
   let userId: number | null = null;
@@ -155,7 +157,7 @@ const ReusablePriorityPage = ({ priority }: Props) => {
         <Card className={cn("border-2", priorityColors.border, priorityColors.bg)}>
           <CardHeader className="p-4 sm:p-6">
             <div className="flex items-center gap-3">
-              <PriorityIcon className={cn("h-6 w-6 sm:h-8 sm:w-8 flex-shrink-0", priorityColors.text)} />
+              {React.createElement(priorityIcon, { className: cn("h-6 w-6 sm:h-8 sm:w-8 flex-shrink-0", priorityColors.text) })}
               <div className="min-w-0">
                 <CardTitle className={cn("text-xl sm:text-2xl md:text-3xl truncate", priorityColors.text)}>
                   {priority} Priority Tasks
@@ -185,7 +187,7 @@ const ReusablePriorityPage = ({ priority }: Props) => {
         <Card className={cn("border-2", priorityColors.border, priorityColors.bg)}>
           <CardHeader className="p-4 sm:p-6">
             <div className="flex items-center gap-3">
-              <PriorityIcon className={cn("h-6 w-6 sm:h-8 sm:w-8 flex-shrink-0", priorityColors.text)} />
+              {React.createElement(priorityIcon, { className: cn("h-6 w-6 sm:h-8 sm:w-8 flex-shrink-0", priorityColors.text) })}
               <div className="min-w-0">
                 <CardTitle className={cn("text-xl sm:text-2xl md:text-3xl truncate", priorityColors.text)}>
                   {priority} Priority Tasks
@@ -223,7 +225,7 @@ const ReusablePriorityPage = ({ priority }: Props) => {
         <Card className={cn("border-2", priorityColors.border, priorityColors.bg)}>
           <CardHeader className="p-4 sm:p-6">
             <div className="flex items-center gap-3">
-              <PriorityIcon className={cn("h-6 w-6 sm:h-8 sm:w-8 flex-shrink-0", priorityColors.text)} />
+              {React.createElement(priorityIcon, { className: cn("h-6 w-6 sm:h-8 sm:w-8 flex-shrink-0", priorityColors.text) })}
               <div className="min-w-0">
                 <CardTitle className={cn("text-xl sm:text-2xl md:text-3xl truncate", priorityColors.text)}>
                   {priority} Priority Tasks
@@ -276,7 +278,7 @@ const ReusablePriorityPage = ({ priority }: Props) => {
           <CardHeader className="p-4 sm:p-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="flex items-center gap-3 min-w-0">
-                <PriorityIcon className={cn("h-6 w-6 sm:h-8 sm:w-8 flex-shrink-0", priorityColors.text)} />
+                {React.createElement(priorityIcon, { className: cn("h-6 w-6 sm:h-8 sm:w-8 flex-shrink-0", priorityColors.text) })}
                 <div className="min-w-0">
                   <CardTitle className={cn("text-xl sm:text-2xl md:text-3xl truncate", priorityColors.text)}>
                     {priority} Priority Tasks
@@ -323,7 +325,7 @@ const ReusablePriorityPage = ({ priority }: Props) => {
         <CardHeader className="p-4 sm:p-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-3 min-w-0">
-              <PriorityIcon className={cn("h-6 w-6 sm:h-8 sm:w-8 flex-shrink-0", priorityColors.text)} />
+              {React.createElement(priorityIcon, { className: cn("h-6 w-6 sm:h-8 sm:w-8 flex-shrink-0", priorityColors.text) })}
               <div className="min-w-0">
                 <CardTitle className={cn("text-xl sm:text-2xl md:text-3xl truncate", priorityColors.text)}>
                   {priority} Priority Tasks
@@ -352,7 +354,7 @@ const ReusablePriorityPage = ({ priority }: Props) => {
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center gap-3 sm:gap-4">
               <div className={cn("p-2 sm:p-3 rounded-full flex-shrink-0", priorityColors.bg)}>
-                <PriorityIcon className={cn("h-5 w-5 sm:h-6 sm:w-6", priorityColors.text)} />
+                {React.createElement(priorityIcon, { className: cn("h-5 w-5 sm:h-6 sm:w-6", priorityColors.text) })}
               </div>
               <div className="min-w-0">
                 <p className="text-xs sm:text-sm font-medium text-muted-foreground truncate">

@@ -36,7 +36,7 @@ const CreateWorkspaceModal: React.FC<CreateWorkspaceModalProps> = ({ isOpen, onC
 
     try {
       // Get auth headers
-      let headers: HeadersInit = {
+      const headers: HeadersInit = {
         'Content-Type': 'application/json',
       };
 

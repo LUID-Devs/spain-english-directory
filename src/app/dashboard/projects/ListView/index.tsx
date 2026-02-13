@@ -197,10 +197,11 @@ const ListView = ({
     if (!isManualSort) {
       filtered = [...filtered].sort((a, b) => {
         switch (sortBy) {
-          case "priority":
+          case "priority": {
             const aPriority = priorityOrder[a.priority as keyof typeof priorityOrder] ?? 5;
             const bPriority = priorityOrder[b.priority as keyof typeof priorityOrder] ?? 5;
             return aPriority - bPriority;
+          }
           case "dueDate":
             if (!a.dueDate && !b.dueDate) return 0;
             if (!a.dueDate) return 1;

@@ -280,7 +280,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.log('[AUTH] Switching workspace to:', organizationId);
 
       // Get Cognito tokens for auth header
-      let headers: HeadersInit = {
+      const headers: HeadersInit = {
         'Content-Type': 'application/json',
       };
 

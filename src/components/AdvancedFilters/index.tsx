@@ -158,11 +158,12 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
         }
         return false;
       }
-      case "tags":
+      case "tags": {
         if (!task.tags) return false;
         const taskTags = task.tags.toLowerCase().split(",").map((t) => t.trim());
         const filterTag = (filter.value as string).toLowerCase();
         return taskTags.includes(filterTag);
+      }
       default:
         return true;
     }
