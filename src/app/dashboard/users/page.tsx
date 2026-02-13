@@ -1,6 +1,7 @@
 import { useGetUsersWithStatsQuery, useInviteUserMutation, useUpdateUserRoleMutation, UserWithStats } from "@/hooks/useApi";
 import React, { useState } from "react";
 import { useGlobalStore } from "@/stores/globalStore";
+import { toast } from "sonner";
 import Header from "@/components/Header";
 import UserCard from "@/components/UserCard";
 import InviteUserModal from "@/components/InviteUserModal";
@@ -66,9 +67,10 @@ const Users = () => {
   }) => {
     try {
       await inviteUser(invitationData).unwrap();
-      alert("Invitation sent successfully!");
+      toast.success("Invitation sent successfully!");
     } catch (error) {
       console.error("Failed to send invitation:", error);
+      toast.error("Failed to send invitation. Please try again.");
       throw error;
     }
   };
@@ -81,9 +83,10 @@ const Users = () => {
   const handleUpdateRole = async (userId: number, newRole: string) => {
     try {
       await updateUserRole({ userId, role: newRole }).unwrap();
-      alert("User role updated successfully!");
+      toast.success("User role updated successfully!");
     } catch (error) {
       console.error("Failed to update user role:", error);
+      toast.error("Failed to update user role. Please try again.");
       throw error;
     }
   };

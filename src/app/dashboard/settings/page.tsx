@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/app/authProvider";
 import { fetchAuthSession, signInWithRedirect } from 'aws-amplify/auth';
+import { toast } from "sonner";
 import { SubscriptionDashboard } from "@/components/subscription/SubscriptionDashboard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -299,8 +300,8 @@ const SettingsPage = () => {
       });
       setIsPasswordDialogOpen(false);
       
-      // Show success toast using alert for now (toast system can be added later)
-      alert("Password changed successfully!");
+      // Show success toast
+      toast.success("Password changed successfully!");
     } catch (error) {
       setPasswordErrors(["Failed to change password. Please try again."]);
     } finally {
@@ -331,7 +332,7 @@ const SettingsPage = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        alert(data.message || "Failed to update profile. Please try again.");
+        toast.error(data.message || "Failed to update profile. Please try again.");
         return;
       }
       
@@ -340,10 +341,10 @@ const SettingsPage = () => {
       // Refresh auth context to get updated user data
       await refreshAuth();
       
-      alert("Profile updated successfully!");
+      toast.success("Profile updated successfully!");
     } catch (error) {
       console.error("Profile update error:", error);
-      alert("Failed to update profile. Please try again.");
+      toast.error("Failed to update profile. Please try again.");
     } finally {
       setIsProfileLoading(false);
     }
@@ -361,7 +362,7 @@ const SettingsPage = () => {
       // The OAuthCallbackPage will handle the response
     } catch (error) {
       console.error("Failed to initiate Google authentication:", error);
-      alert("Failed to initiate Google authentication. Please try again.");
+      toast.error("Failed to initiate Google authentication. Please try again.");
     }
   };
 

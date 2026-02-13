@@ -23,6 +23,16 @@ import {
   X
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 interface AttachmentsSectionProps {
   taskId: number;
@@ -49,7 +59,7 @@ const AttachmentsSection: React.FC<AttachmentsSectionProps> = ({ taskId }) => {
     for (const file of Array.from(files)) {
       // Validate file size (10MB limit)
       if (file.size > 10 * 1024 * 1024) {
-        alert(`File "${file.name}" is too large. Maximum size is 10MB.`);
+        toast.error(`File "${file.name}" is too large. Maximum size is 10MB.`);
         continue;
       }
 
@@ -83,7 +93,7 @@ const AttachmentsSection: React.FC<AttachmentsSectionProps> = ({ taskId }) => {
         });
       } catch (error) {
         console.error("Failed to upload attachment:", error);
-        alert(`Failed to upload "${file.name}". Please try again.`);
+        toast.error(`Failed to upload "${file.name}". Please try again.`);
 
         // Clear progress on error
         setUploadProgress(prev => {
@@ -112,22 +122,29 @@ const AttachmentsSection: React.FC<AttachmentsSectionProps> = ({ taskId }) => {
     }
   };
 
+  const [attachmentToDelete, setAttachmentToDelete] = useState<Attachment | null>(null);
+
   const handleDeleteAttachment = async (attachment: Attachment) => {
     if (!currentUserId) return;
+    setAttachmentToDelete(attachment);
+  };
 
-    if (window.confirm(`Are you sure you want to delete "${attachment.fileName}"?`)) {
-      try {
-        await deleteAttachment({
-          attachmentId: attachment.id,
-          userId: currentUserId,
-          taskId
-        }).unwrap();
+  const confirmDeleteAttachment = async () => {
+    if (!attachmentToDelete || !currentUserId) return;
 
-        // No refetch needed - optimistic update handles this
-      } catch (error) {
-        console.error("Failed to delete attachment:", error);
-        alert("Failed to delete attachment. Please try again.");
-      }
+    try {
+      await deleteAttachment({
+        attachmentId: attachmentToDelete.id,
+        userId: currentUserId,
+        taskId
+      }).unwrap();
+      toast.success(`"${attachmentToDelete.fileName}" deleted successfully`);
+      // No refetch needed - optimistic update handles this
+    } catch (error) {
+      console.error("Failed to delete attachment:", error);
+      toast.error("Failed to delete attachment. Please try again.");
+    } finally {
+      setAttachmentToDelete(null);
     }
   };
 
@@ -283,6 +300,26 @@ const AttachmentsSection: React.FC<AttachmentsSectionProps> = ({ taskId }) => {
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={!!attachmentToDelete} onOpenChange={() => setAttachmentToDelete(null)}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Delete Attachment</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete "{attachmentToDelete?.fileName}"? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAttachmentToDelete(null)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={confirmDeleteAttachment} disabled={isDeleting}>
+              {isDeleting ? 'Deleting...' : 'Delete'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
