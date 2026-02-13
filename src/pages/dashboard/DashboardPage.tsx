@@ -225,14 +225,10 @@ const DashboardPage = () => {
   
   // Redirect to login if not authenticated
   if (!isAuthenticated || !user) {
-    console.log('[DASHBOARD] Auth check failed:', { isAuthenticated, user, authLoading });
-
     // Don't redirect immediately if still loading
     if (authLoading) {
       return <DashboardSkeleton />;
     }
-
-    console.log('[DASHBOARD] User not authenticated, redirecting to login...');
     return (
       <div className="container h-full w-[100%] bg-background p-8">
         <Header name="Project Management Dashboard" />

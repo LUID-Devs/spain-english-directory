@@ -33,11 +33,8 @@ const LoginPage = () => {
   // Listen for OAuth callback
   useEffect(() => {
     const hubListenerCancelToken = Hub.listen('auth', async ({ payload }) => {
-      console.log('[LOGIN PAGE] Auth event:', payload.event);
-
       switch (payload.event) {
         case 'signInWithRedirect':
-          console.log('[LOGIN PAGE] OAuth sign-in successful!');
           setLoading(true);
           await refreshAuth();
           navigate('/dashboard');

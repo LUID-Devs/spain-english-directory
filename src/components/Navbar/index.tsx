@@ -63,7 +63,6 @@ const Navbar = () => {
   if (!currentUser) return null;
 
   const currentUserDetails = currentUser?.userDetails;
-  console.log('Navbar - Auth & User Data:', auth.user?.sub, currentUser, currentUserDetails);
   return (
     <>
     <motion.div

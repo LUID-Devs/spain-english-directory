@@ -23,7 +23,6 @@ const RegisterPage = () => {
   // Redirect if already authenticated
   useEffect(() => {
     if (!authLoading && isAuthenticated && user && !hasRedirected) {
-      console.log('[REGISTER PAGE] User already authenticated, redirecting to dashboard...', user);
       setHasRedirected(true);
       navigate('/dashboard', { replace: true });
     }

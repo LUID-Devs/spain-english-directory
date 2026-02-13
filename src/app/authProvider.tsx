@@ -60,22 +60,12 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     userRef.current = user;
   }, [user]);
 
-  // Debug timing
-  useEffect(() => {
-    if (import.meta.env.DEV) {
-      console.log('[AUTH] AuthProvider mounted at:', Date.now());
-    }
-  }, []);
-
   const checkAuthStatus = useCallback(async () => {
     if (authCheckInFlightRef.current) {
       return authCheckInFlightRef.current;
     }
 
     const runAuthCheck = async (attempt = 1, maxAttempts = 3) => {
-    const authStart = Date.now();
-    console.log('[AUTH] Starting auth check at:', authStart, 'attempt:', attempt);
-    
     // Clear any previous errors on first attempt only
     if (attempt === 1) {
       setError(null);
@@ -90,29 +80,22 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       try {
         // Use forceRefresh only on retry attempts and not too frequently
         const shouldRefresh = attempt > 1 && attempt < maxAttempts;
-        console.log('[AUTH] Fetching Cognito session (forceRefresh:', shouldRefresh, ')');
-        
         cognitoSession = await fetchAuthSession({ forceRefresh: shouldRefresh });
 
         if (cognitoSession?.tokens?.accessToken) {
-          console.log('[AUTH] ✅ Cognito session found with valid tokens');
           try {
             cognitoUser = await getCurrentUser();
-            console.log('[AUTH] ✅ Cognito user retrieved:', cognitoUser.username);
           } catch (userError) {
-            console.warn('[AUTH] Could not get current user, but session is valid:', userError);
+            // Could not get current user, but session is valid
           }
-        } else {
-          console.log('[AUTH] Cognito session exists but no valid tokens');
         }
       } catch (cognitoError: any) {
-        console.log('[AUTH] No Cognito session found:', cognitoError?.message || cognitoError);
+        // No Cognito session found
       }
 
       // Add timeout to prevent hanging (15s for slow backend responses during OAuth)
       const controller = new AbortController();
       const timeoutId = setTimeout(() => {
-        console.warn('[AUTH] Backend status request timed out after 15s');
         controller.abort();
       }, 15000);
 
@@ -124,48 +107,35 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
         if (cognitoSession?.tokens?.accessToken) {
           headers['Authorization'] = `Bearer ${cognitoSession.tokens.accessToken}`;
-          console.log('[AUTH] Adding Authorization header with access token');
         }
 
         // Also send ID token which contains email and other user attributes
         if (cognitoSession?.tokens?.idToken) {
           headers['X-ID-Token'] = `${cognitoSession.tokens.idToken}`;
-          console.log('[AUTH] Adding X-ID-Token header');
         }
 
-        console.log('[AUTH] Calling backend /auth/status endpoint...');
         const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/status`, {
           credentials: 'include', // Still send cookies for traditional auth
           signal: controller.signal,
           headers,
         });
-        
-        console.log('[AUTH] Backend /auth/status response status:', response.status);
-
-        const authEnd = Date.now();
-        console.log('[AUTH] Auth request completed in:', authEnd - authStart, 'ms');
 
         if (response.ok) {
           const data = await response.json();
-          console.log('[AUTH] Backend response:', data);
 
           // If backend returns user data, use it
           if (data.user && data.isAuthenticated) {
             setUser(data.user);
-            console.log('[AUTH] User authenticated from backend:', data.user.username || data.user.email || data.user.sub);
 
             // Set organizations and active organization
             if (data.organizations) {
               setOrganizations(data.organizations);
-              console.log('[AUTH] Organizations loaded:', data.organizations.length);
             }
             if (data.activeOrganization) {
               setActiveOrganization(data.activeOrganization);
-              console.log('[AUTH] Active organization:', data.activeOrganization.name);
             }
           } else if (cognitoUser) {
             // Fallback to Cognito user data if backend doesn't return user
-            console.log('[AUTH] Using Cognito user data as fallback');
             setUser({
               sub: cognitoUser.userId,
               email: cognitoUser.username,
@@ -176,11 +146,9 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             setUser(null);
             setOrganizations([]);
             setActiveOrganization(null);
-            console.log('[AUTH] No user data available');
           }
         } else if (cognitoUser) {
           // If backend request fails but we have Cognito session, use Cognito data
-          console.warn('[AUTH] Backend request failed with status:', response.status, '- using Cognito fallback user');
           setUser({
             sub: cognitoUser.userId,
             email: cognitoUser.username,
@@ -191,7 +159,6 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           // If we have Cognito user but backend doesn't know about them yet,
           // retry after a short delay (user might be in process of being created)
           if (cognitoUser && attempt < maxAttempts) {
-            console.log(`[AUTH] Backend doesn't recognize user yet, retrying in ${attempt * 500}ms...`);
             await new Promise(resolve => setTimeout(resolve, attempt * 500));
             return runAuthCheck(attempt + 1, maxAttempts);
           }
@@ -199,22 +166,17 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setUser(null);
           setOrganizations([]);
           setActiveOrganization(null);
-          console.log('[AUTH] User not authenticated');
         }
       } finally {
         clearTimeout(timeoutId);
       }
     } catch (error) {
-      const authEnd = Date.now();
-      console.error('[AUTH] Auth check failed after:', authEnd - authStart, 'ms', error);
-      
       // If this is a network error and we have retries left, try again
       if (attempt < maxAttempts && cognitoUser) {
         const isNetworkError = error instanceof Error && 
           (error.name === 'AbortError' || error.message?.includes('fetch') || error.message?.includes('network'));
         
         if (isNetworkError) {
-          console.log(`[AUTH] Network error, retrying in ${attempt * 800}ms...`);
           await new Promise(resolve => setTimeout(resolve, attempt * 800));
           return runAuthCheck(attempt + 1, maxAttempts);
         }
@@ -254,7 +216,6 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (cognitoUser) {
         // Keep user authenticated client-side if backend status endpoint is temporarily slow
-        console.warn('[AUTH] Preserving Cognito user after auth status failure');
         setUser({
           sub: cognitoUser.userId,
           email: cognitoUser.username,
@@ -266,7 +227,6 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     } finally {
       setIsLoading(false);
-      console.log('[AUTH] Auth loading complete at:', Date.now());
     }
     };
 
@@ -293,9 +253,8 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       // Sign out from Cognito if there's a Cognito session
       try {
         await signOut();
-        console.log('[AUTH] Signed out from Cognito');
       } catch (cognitoError) {
-        console.log('[AUTH] No Cognito session to sign out from');
+        // No Cognito session to sign out from
       }
 
       // Also logout from backend (for traditional auth)
@@ -316,8 +275,6 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const switchWorkspace = async (organizationId: number) => {
     try {
-      console.log('[AUTH] Switching workspace to:', organizationId);
-
       // Get Cognito tokens for auth header
       const headers: HeadersInit = {
         'Content-Type': 'application/json',
@@ -332,7 +289,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           headers['X-ID-Token'] = `${session.tokens.idToken}`;
         }
       } catch (e) {
-        console.log('[AUTH] No Cognito session for workspace switch');
+        // No Cognito session for workspace switch
       }
 
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/organizations/switch`, {
@@ -346,7 +303,6 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const data = await response.json();
         if (data.success && data.data?.activeOrganization) {
           setActiveOrganization(data.data.activeOrganization);
-          console.log('[AUTH] Workspace switched to:', data.data.activeOrganization.name);
         }
       } else {
         console.error('[AUTH] Failed to switch workspace');
