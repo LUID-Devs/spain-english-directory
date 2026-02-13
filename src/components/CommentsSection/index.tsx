@@ -128,6 +128,29 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ taskId }) => {
     }
   };
 
+  // Show loading state when retrying (isLoading takes precedence over error)
+  if (isLoading) {
+    return (
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <MessageSquare className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
+          <h3 className="text-lg font-semibold text-foreground">Comments</h3>
+        </div>
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="animate-pulse">
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 bg-muted rounded-full"></div>
+              <div className="flex-1 space-y-2">
+                <div className="h-4 bg-muted rounded w-1/4"></div>
+                <div className="h-4 bg-muted rounded w-3/4"></div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   if (error) {
     const isAuthError = error.message?.includes('sign in') || error.message?.includes('Authentication');
     const isNetworkError = error.message?.includes('Network') || error.message?.includes('connection');
