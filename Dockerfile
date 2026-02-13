@@ -34,12 +34,18 @@ RUN npm run build
 # Production stage
 FROM nginx:alpine
 
+# Install envsubst for template processing
+RUN apk add --no-cache gettext
+
 # Copy built files from builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
 
 # Copy nginx configuration template
-# The nginx image will process .template files with envsubst
-COPY nginx.conf /etc/nginx/templates/nginx.conf.template
+COPY nginx.conf /etc/nginx/nginx.conf.template
+
+# Copy custom entrypoint script (do NOT overwrite nginx default entrypoint)
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint-custom.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint-custom.sh
 
 # Set default backend host (can be overridden at runtime)
 ENV BACKEND_HOST=task-luid-backend:8000
@@ -54,5 +60,6 @@ EXPOSE 80
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://localhost/health || exit 1
 
-# Start nginx
+# Use custom entrypoint
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint-custom.sh"]
 CMD ["nginx", "-g", "daemon off;"]
