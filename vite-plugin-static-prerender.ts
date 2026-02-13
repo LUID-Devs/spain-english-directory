@@ -259,6 +259,82 @@ export function staticPrerenderPlugin(): Plugin {
           </div>
         </div>
       `
+    },
+    '/features': {
+      title: 'Features - TaskLuid',
+      description: 'Discover TaskLuid features: AI-powered task management, team collaboration, automation, and advanced analytics.',
+      content: `
+        <div class="min-h-screen bg-black text-white">
+          <nav class="border-b border-neutral-800">
+            <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+              <a href="/" class="text-xl font-bold bg-gradient-to-r from-gray-400 to-gray-400 bg-clip-text text-transparent">TaskLuid</a>
+              <div class="flex items-center gap-6">
+                <a href="/pricing" class="text-neutral-400 hover:text-white transition-colors">Pricing</a>
+                <a href="/auth/login" class="text-neutral-400 hover:text-white transition-colors">Sign In</a>
+                <a href="/auth/register" class="px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-500 text-white rounded-lg hover:from-gray-500 hover:to-gray-400 transition-all">Get Started</a>
+              </div>
+            </div>
+          </nav>
+          <section class="py-20 px-4">
+            <div class="max-w-4xl mx-auto text-center">
+              <h1 class="text-5xl md:text-6xl font-bold mb-6">Everything you need to <span class="bg-gradient-to-r from-gray-400 to-gray-200 bg-clip-text text-transparent">ship faster</span></h1>
+              <p class="text-xl text-neutral-400 mb-8 max-w-2xl mx-auto">TaskLuid combines powerful project management with AI assistance to help teams of all sizes deliver their best work.</p>
+              <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="/auth/register" class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-gray-600 to-gray-500 text-white rounded-lg hover:from-gray-500 hover:to-gray-400 transition-all">Start Free Trial</a>
+                <a href="/" class="inline-flex items-center justify-center gap-2 px-8 py-4 border border-neutral-700 text-neutral-300 rounded-lg hover:bg-neutral-800 transition-all">Back to Home</a>
+              </div>
+            </div>
+          </section>
+          <section class="py-20 px-4 border-t border-neutral-800">
+            <div class="max-w-6xl mx-auto">
+              <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold mb-4">Powerful Features</h2>
+                <p class="text-neutral-400 max-w-xl mx-auto">Built for modern teams who need to move fast without breaking things.</p>
+              </div>
+              <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="p-6 rounded-xl border border-neutral-800 bg-neutral-900/50">
+                  <div class="w-12 h-12 rounded-lg bg-neutral-800 flex items-center justify-center mb-4">
+                    <svg class="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+                  </div>
+                  <h3 class="text-lg font-semibold mb-2">Intuitive Task Management</h3>
+                  <p class="text-sm text-neutral-400">Organize tasks with drag-and-drop simplicity. Create projects and track progress.</p>
+                </div>
+                <div class="p-6 rounded-xl border border-neutral-800 bg-neutral-900/50">
+                  <div class="w-12 h-12 rounded-lg bg-neutral-800 flex items-center justify-center mb-4">
+                    <svg class="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                  </div>
+                  <h3 class="text-lg font-semibold mb-2">Team Collaboration</h3>
+                  <p class="text-sm text-neutral-400">Work together seamlessly. Assign tasks and keep everyone aligned.</p>
+                </div>
+                <div class="p-6 rounded-xl border border-neutral-800 bg-neutral-900/50">
+                  <div class="w-12 h-12 rounded-lg bg-neutral-800 flex items-center justify-center mb-4">
+                    <svg class="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                  </div>
+                  <h3 class="text-lg font-semibold mb-2">AI-Powered Automation</h3>
+                  <p class="text-sm text-neutral-400">Let AI handle the routine. Auto-assign tasks and get smart recommendations.</p>
+                </div>
+                <div class="p-6 rounded-xl border border-neutral-800 bg-neutral-900/50">
+                  <div class="w-12 h-12 rounded-lg bg-neutral-800 flex items-center justify-center mb-4">
+                    <svg class="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                  </div>
+                  <h3 class="text-lg font-semibold mb-2">Enterprise Security</h3>
+                  <p class="text-sm text-neutral-400">Bank-level encryption, SSO support, and SOC 2 compliance.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+          <footer class="border-t border-neutral-800 py-8 px-4">
+            <div class="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+              <p class="text-sm text-neutral-500">&copy; 2026 TaskLuid. Part of Luid Suite.</p>
+              <div class="flex gap-6 text-sm">
+                <a href="/privacy" class="text-neutral-400 hover:text-gray-400 transition-colors">Privacy</a>
+                <a href="/terms" class="text-neutral-400 hover:text-gray-400 transition-colors">Terms</a>
+                <a href="/cookies" class="text-neutral-400 hover:text-gray-400 transition-colors">Cookies</a>
+              </div>
+            </div>
+          </footer>
+        </div>
+      `
     }
   };
 

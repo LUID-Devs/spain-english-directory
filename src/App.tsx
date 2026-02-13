@@ -49,6 +49,7 @@ const AutomationPage = React.lazy(() => import('@/pages/dashboard/automation/Aut
 // Other Pages (lazy loaded)
 const LandingPage = React.lazy(() => import('@/pages/landing/LandingPage'));
 const PricingPage = React.lazy(() => import('@/pages/pricing/PricingPage'));
+const FeaturesPage = React.lazy(() => import('@/pages/features/FeaturesPage'));
 const InviteAcceptPage = React.lazy(() => import('@/pages/organizations/invite/InviteAcceptPage'));
 
 // Legal Pages (lazy loaded)
@@ -88,6 +89,7 @@ function AppContent() {
           {/* Public Routes */}
           <Route path="/landing" element={<LandingPage />} />
           <Route path="/pricing" element={<PricingPage />} />
+          <Route path="/features" element={<FeaturesPage />} />
 
           {/* Legal Routes */}
           <Route path="/privacy" element={<PrivacyPolicy />} />
