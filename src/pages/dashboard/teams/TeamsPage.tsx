@@ -13,6 +13,7 @@ import {
   Loader2,
   Building2,
   AlertTriangle,
+  RefreshCw,
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -45,6 +46,7 @@ const TeamsPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [currentUserRole, setCurrentUserRole] = useState<string>('member');
+  const [retryCount, setRetryCount] = useState(0);
 
   const isPersonalWorkspace = activeOrganization?.settings?.isPersonal;
 
@@ -70,6 +72,7 @@ const TeamsPage = () => {
     const fetchMembers = async () => {
       if (!activeOrganization?.id) {
         setIsLoading(false);
+        setError('No active workspace selected');
         return;
       }
 
@@ -78,6 +81,8 @@ const TeamsPage = () => {
 
       try {
         const headers = await getAuthHeaders();
+        console.log('[TeamsPage] Fetching members for organization:', activeOrganization.id);
+        
         const response = await fetch(
           `${import.meta.env.VITE_API_BASE_URL}/organizations/${activeOrganization.id}/members`,
           {
@@ -86,31 +91,43 @@ const TeamsPage = () => {
           }
         );
 
+        console.log('[TeamsPage] Response status:', response.status);
+        
         if (response.ok) {
           const data = await response.json();
+          console.log('[TeamsPage] Response data:', data);
+          
           if (data.success) {
-            setMembers(data.data || []);
+            const membersData = data.data || [];
+            console.log('[TeamsPage] Members loaded:', membersData.length);
+            setMembers(membersData);
+            
             // Find current user's role
-            const currentMember = data.data?.find(
+            const currentMember = membersData.find(
               (m: WorkspaceMember) => m.user?.email?.toLowerCase() === user?.email?.toLowerCase()
             );
             if (currentMember) {
               setCurrentUserRole(currentMember.role);
             }
+          } else {
+            console.error('[TeamsPage] API returned success: false:', data.message);
+            setError(data.message || 'Failed to load members');
           }
         } else {
-          setError('Failed to load members');
+          const errorData = await response.json().catch(() => ({}));
+          console.error('[TeamsPage] API error:', response.status, errorData);
+          setError(errorData.message || `Failed to load members (${response.status})`);
         }
       } catch (err) {
-        console.error('Error fetching members:', err);
-        setError('Failed to load members');
+        console.error('[TeamsPage] Error fetching members:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load members');
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchMembers();
-  }, [activeOrganization?.id, user?.email]);
+  }, [activeOrganization?.id, user?.email, retryCount]);
 
   // Filter members by search query
   const filteredMembers = members.filter(member => {
@@ -201,9 +218,20 @@ const TeamsPage = () => {
 
       {/* Error Alert */}
       {error && (
-        <Alert variant="destructive">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertDescription>{error}</AlertDescription>
+        <Alert variant="destructive" className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="h-4 w-4 flex-shrink-0" />
+            <AlertDescription>{error}</AlertDescription>
+          </div>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => setRetryCount(c => c + 1)}
+            className="gap-2 w-full sm:w-auto border-destructive/50 text-destructive hover:bg-destructive/10"
+          >
+            <RefreshCw className="h-4 w-4" />
+            Retry
+          </Button>
         </Alert>
       )}
 
@@ -281,7 +309,9 @@ const TeamsPage = () => {
                   ? `No members match "${searchQuery}"`
                   : isPersonalWorkspace
                     ? "This is your personal workspace"
-                    : "Invite team members to collaborate on projects"
+                    : members.length === 0 && !isLoading && !error
+                      ? "No members loaded. Try refreshing the page or check your workspace settings."
+                      : "Invite team members to collaborate on projects"
                 }
               </p>
               {!searchQuery && canInvite && (
@@ -293,6 +323,16 @@ const TeamsPage = () => {
               {searchQuery && (
                 <Button variant="outline" onClick={() => setSearchQuery('')}>
                   Clear Search
+                </Button>
+              )}
+              {!searchQuery && members.length === 0 && !isLoading && !error && (
+                <Button 
+                  variant="outline" 
+                  onClick={() => setRetryCount(c => c + 1)}
+                  className="gap-2 mt-2"
+                >
+                  <RefreshCw className="h-4 w-4" />
+                  Refresh
                 </Button>
               )}
             </div>
