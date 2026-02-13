@@ -11,11 +11,12 @@ import {
   User,
   Flag,
   Clock,
-  MessageSquare,
-  Paperclip
+  MessageSquare
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Status, Priority } from "@/hooks/useApi";
+import AttachmentsSection from "@/components/AttachmentsSection";
+import CommentsSection from "@/components/CommentsSection";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -399,58 +400,15 @@ const TaskDetailPage = ({ params }: Props) => {
           </div>
         </div>
 
-        {/* Comments Section */}
-        {task.comments && task.comments.length > 0 && (
-          <div className="border-t border-border pt-6">
-            <div className="flex items-center gap-2 mb-4">
-              <MessageSquare className="h-5 w-5 text-muted-foreground" />
-              <h3 className="text-lg font-semibold text-foreground">
-                Comments ({task.comments.length})
-              </h3>
-            </div>
-            <div className="space-y-4">
-              {task.comments.map((comment) => (
-                <div key={comment.id} className="bg-muted rounded-lg p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="font-medium text-foreground">
-                      {comment.user?.username || "Unknown User"}
-                    </span>
-                    <span className="text-sm text-muted-foreground">
-                      {comment.createdAt && format(new Date(comment.createdAt), "PPP 'at' p")}
-                    </span>
-                  </div>
-                  <div className="text-muted-foreground">
-                    {comment.text}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* Attachments Section */}
-        {task.attachments && task.attachments.length > 0 && (
-          <div className="border-t border-border pt-6 mt-6">
-            <div className="flex items-center gap-2 mb-4">
-              <Paperclip className="h-5 w-5 text-muted-foreground" />
-              <h3 className="text-lg font-semibold text-foreground">
-                Attachments ({task.attachments.length})
-              </h3>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {task.attachments.map((attachment) => (
-                <div key={attachment.id} className="border border-border rounded-lg p-4">
-                  <div className="text-sm font-medium text-foreground mb-1">
-                    {attachment.fileName}
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    {attachment.fileURL}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        <div className="border-t border-border pt-6 mt-6">
+          <AttachmentsSection taskId={taskId} />
+        </div>
+
+        {/* Comments Section */}
+        <div className="border-t border-border pt-6 mt-6">
+          <CommentsSection taskId={taskId} />
+        </div>
       </div>
     </div>
   );
