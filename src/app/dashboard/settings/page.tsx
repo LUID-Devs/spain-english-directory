@@ -14,7 +14,7 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Edit, Key, Shield, User, Mail, Users, Settings as SettingsIcon, Building2, Crown, UserMinus, Loader2, AlertTriangle, LogOut, UserPlus } from "lucide-react";
+import { Edit, Key, Shield, User, Mail, Building2, Crown, Loader2, AlertTriangle, LogOut, UserPlus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import InviteToWorkspaceModal from "@/components/InviteToWorkspaceModal";
 
@@ -55,8 +55,6 @@ const SettingsPage = () => {
   const userSettings = {
     username: user?.preferred_username || user?.username || "Not available",
     email: user?.email || "Not available",
-    teamName: "Development Team",
-    roleName: "Developer",
   };
 
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
@@ -69,8 +67,6 @@ const SettingsPage = () => {
   const [profileForm, setProfileForm] = useState({
     username: userSettings.username,
     email: userSettings.email,
-    teamName: userSettings.teamName,
-    roleName: userSettings.roleName,
   });
   const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
   const [isPasswordLoading, setIsPasswordLoading] = useState(false);
@@ -416,31 +412,7 @@ const SettingsPage = () => {
               </div>
             </div>
             
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">Team</Label>
-              <div className="flex items-center gap-2">
-                <div className="flex-1 p-3 bg-muted rounded-md text-sm">
-                  {userSettings.teamName}
-                </div>
-                <Badge variant="secondary" className="gap-1">
-                  <Users className="h-3 w-3" />
-                  Member
-                </Badge>
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">Role</Label>
-              <div className="flex items-center gap-2">
-                <div className="flex-1 p-3 bg-muted rounded-md text-sm">
-                  {userSettings.roleName}
-                </div>
-                <Badge variant="secondary" className="gap-1">
-                  <SettingsIcon className="h-3 w-3" />
-                  Standard
-                </Badge>
-              </div>
-            </div>
+            {/* Team and Role fields removed - not supported by API */}
           </div>
           
           <div className="pt-4">
@@ -481,25 +453,7 @@ const SettingsPage = () => {
                     />
                   </div>
                   
-                  <div className="space-y-2">
-                    <Label htmlFor="edit-team">Team</Label>
-                    <Input
-                      id="edit-team"
-                      value={profileForm.teamName}
-                      onChange={(e) => setProfileForm(prev => ({ ...prev, teamName: e.target.value }))}
-                      placeholder="Enter team name"
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="edit-role">Role</Label>
-                    <Input
-                      id="edit-role"
-                      value={profileForm.roleName}
-                      onChange={(e) => setProfileForm(prev => ({ ...prev, roleName: e.target.value }))}
-                      placeholder="Enter role"
-                    />
-                  </div>
+                  {/* Team and Role fields removed - API does not support these */}
                 </div>
                 
                 <DialogFooter>
@@ -510,8 +464,6 @@ const SettingsPage = () => {
                       setProfileForm({
                         username: userSettings.username,
                         email: userSettings.email,
-                        teamName: userSettings.teamName,
-                        roleName: userSettings.roleName,
                       });
                     }}
                   >
