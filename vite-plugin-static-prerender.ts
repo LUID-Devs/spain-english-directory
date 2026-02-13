@@ -3,6 +3,34 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 /**
+ * Get the main JS and CSS asset filenames from the dist/assets folder
+ */
+function getAssetFilenames(distPath: string): { js: string; css: string } {
+  const assetsPath = path.join(distPath, 'assets');
+  
+  if (!fs.existsSync(assetsPath)) {
+    console.warn('[static-prerender] Assets folder not found, using fallback names');
+    return { js: 'index.js', css: 'index.css' };
+  }
+  
+  const files = fs.readdirSync(assetsPath);
+  
+  // Find main index JS file (should be like index-XXXXXX.js)
+  const jsFile = files.find(f => f.match(/^index-[A-Za-z0-9_-]+\.js$/) && !f.endsWith('.map'));
+  
+  // Find main index CSS file
+  const cssFile = files.find(f => f.match(/^index-[A-Za-z0-9_-]+\.css$/) && !f.endsWith('.map'));
+  
+  if (!jsFile || !cssFile) {
+    console.warn('[static-prerender] Could not find main assets, using fallback names');
+    return { js: jsFile || 'index.js', css: cssFile || 'index.css' };
+  }
+  
+  console.log(`[static-prerender] Found assets: JS=${jsFile}, CSS=${cssFile}`);
+  return { js: jsFile, css: cssFile };
+}
+
+/**
  * Vite plugin to inject static HTML content for public pages
  * This fixes SEO by ensuring search engines see actual content
  */
@@ -240,6 +268,9 @@ export function staticPrerenderPlugin(): Plugin {
     closeBundle() {
       const distPath = path.resolve(process.cwd(), 'dist');
       
+      // Get the actual asset filenames from the build output
+      const assets = getAssetFilenames(distPath);
+      
       Object.entries(publicPages).forEach(([route, data]) => {
         const routePath = route === '/' ? '' : route;
         const fullPath = path.join(distPath, routePath, 'index.html');
@@ -250,7 +281,7 @@ export function staticPrerenderPlugin(): Plugin {
           fs.mkdirSync(dir, { recursive: true });
         }
         
-        // Generate HTML with static content
+        // Generate HTML with static content and correct asset paths
         const html = `<!DOCTYPE html>
 <html lang="en">
   <head>
@@ -264,8 +295,8 @@ export function staticPrerenderPlugin(): Plugin {
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#000000" />
-    <script type="module" crossorigin src="/assets/index-NGKz0lpI.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-DAX6_Dz5.css" />
+    <script type="module" crossorigin src="/assets/${assets.js}"></script>
+    <link rel="stylesheet" crossorigin href="/assets/${assets.css}" />
   </head>
   <body>
     <div id="root">${data.content}</div>
@@ -292,8 +323,8 @@ export function staticPrerenderPlugin(): Plugin {
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#000000" />
-    <script type="module" crossorigin src="/assets/index-NGKz0lpI.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-DAX6_Dz5.css" />
+    <script type="module" crossorigin src="/assets/${assets.js}"></script>
+    <link rel="stylesheet" crossorigin href="/assets/${assets.css}" />
   </head>
   <body>
     <div id="root">${rootHtml.content}</div>
