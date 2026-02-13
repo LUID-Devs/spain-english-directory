@@ -38,13 +38,13 @@ const OAuthCallbackPage: React.FC = () => {
     });
 
     // Give Amplify time to process the URL params, then check
+    // Increased to 3000ms to ensure OAuth flow completes fully
     const timeoutId = setTimeout(() => {
-    
       if (!isProcessing) {
         isProcessing = true;
         handleOAuthCallback();
       }
-    }, 2000);
+    }, 3000);
 
     return () => {
       hubListenerCancelToken();
@@ -110,12 +110,18 @@ const OAuthCallbackPage: React.FC = () => {
       // Refresh auth state in the app
       await refreshAuth();
 
+      // Wait for backend to sync user data before redirecting
+      // This prevents race condition where dashboard checks auth before backend is ready
+      console.log('[OAUTH CALLBACK] Waiting for backend sync before redirect...');
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
       setStatus('success');
 
-      // Redirect to dashboard after a brief delay
+      // Redirect to dashboard after a brief delay to show success message
       setTimeout(() => {
+        console.log('[OAUTH CALLBACK] Redirecting to dashboard...');
         navigate('/dashboard');
-      }, 1500);
+      }, 1000);
     } catch (err) {
       console.error('OAuth callback error:', err);
       setStatus('error');

@@ -72,9 +72,9 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       return authCheckInFlightRef.current;
     }
 
-    const runAuthCheck = async () => {
+    const runAuthCheck = async (attempt = 1, maxAttempts = 3) => {
     const authStart = Date.now();
-    console.log('[AUTH] Starting auth check at:', authStart);
+    console.log('[AUTH] Starting auth check at:', authStart, 'attempt:', attempt);
     
     // Clear any previous errors
     setError(null);
@@ -87,7 +87,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       // First, try to get Cognito session (for OAuth users)
       try {
       
-        cognitoSession = await fetchAuthSession({ forceRefresh: false });
+        cognitoSession = await fetchAuthSession({ forceRefresh: attempt > 1 });
 
         if (cognitoSession?.tokens?.accessToken) {
           console.log('[AUTH] Cognito session found!');
@@ -169,6 +169,14 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             preferred_username: cognitoUser.username,
           });
         } else {
+          // If we have Cognito user but backend doesn't know about them yet,
+          // retry after a short delay (user might be in process of being created)
+          if (cognitoUser && attempt < maxAttempts) {
+            console.log(`[AUTH] Backend doesn't recognize user yet, retrying in ${attempt * 500}ms...`);
+            await new Promise(resolve => setTimeout(resolve, attempt * 500));
+            return runAuthCheck(attempt + 1, maxAttempts);
+          }
+          
           setUser(null);
           setOrganizations([]);
           setActiveOrganization(null);
@@ -180,6 +188,18 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (error) {
       const authEnd = Date.now();
       console.error('[AUTH] Auth check failed after:', authEnd - authStart, 'ms', error);
+      
+      // If this is a network error and we have retries left, try again
+      if (attempt < maxAttempts && cognitoUser) {
+        const isNetworkError = error instanceof Error && 
+          (error.name === 'AbortError' || error.message?.includes('fetch') || error.message?.includes('network'));
+        
+        if (isNetworkError) {
+          console.log(`[AUTH] Network error, retrying in ${attempt * 800}ms...`);
+          await new Promise(resolve => setTimeout(resolve, attempt * 800));
+          return runAuthCheck(attempt + 1, maxAttempts);
+        }
+      }
 
       // Determine error type for user feedback
       let authError: AuthError;

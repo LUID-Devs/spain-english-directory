@@ -76,12 +76,41 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
 const DashboardWrapper = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, isLoading } = useAuth();
   const navigate = useNavigate();
+  const gracePeriodRef = React.useRef<NodeJS.Timeout | null>(null);
+  const hasCheckedAuth = React.useRef(false);
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      console.log('[DASHBOARD] User not authenticated, redirecting to login...');
-      navigate('/auth/login');
+    // Clear any existing timeout on re-render
+    if (gracePeriodRef.current) {
+      clearTimeout(gracePeriodRef.current);
     }
+
+    // Only redirect after grace period to allow auth state to stabilize
+    // This prevents race conditions during OAuth callback
+    if (!isLoading && !isAuthenticated) {
+      if (!hasCheckedAuth.current) {
+        // First check - wait for grace period
+        console.log('[DASHBOARD] Auth check complete, not authenticated. Waiting grace period before redirect...');
+        hasCheckedAuth.current = true;
+        gracePeriodRef.current = setTimeout(() => {
+          console.log('[DASHBOARD] Grace period expired, redirecting to login...');
+          navigate('/auth/login');
+        }, 2000); // 2 second grace period
+      }
+    } else if (isAuthenticated) {
+      // User is authenticated, clear any pending redirect
+      if (gracePeriodRef.current) {
+        clearTimeout(gracePeriodRef.current);
+        gracePeriodRef.current = null;
+      }
+      hasCheckedAuth.current = false;
+    }
+
+    return () => {
+      if (gracePeriodRef.current) {
+        clearTimeout(gracePeriodRef.current);
+      }
+    };
   }, [isAuthenticated, isLoading, navigate]);
 
   // Show loading while checking authentication
