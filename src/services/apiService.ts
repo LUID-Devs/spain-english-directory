@@ -318,7 +318,20 @@ class ApiService {
           window.location.href = '/auth/login';
           throw new Error('Authentication required');
         }
-        throw new Error(`API Error: ${response.status} ${response.statusText}`);
+        
+        // Try to parse error message from response body
+        let errorMessage = `API Error: ${response.status} ${response.statusText}`;
+        try {
+          const errorData = await response.json();
+          if (errorData && errorData.message) {
+            errorMessage = errorData.message;
+          } else if (errorData && errorData.error) {
+            errorMessage = errorData.error;
+          }
+        } catch {
+          // If parsing fails, use the default error message
+        }
+        throw new Error(errorMessage);
       }
 
       return response.json();

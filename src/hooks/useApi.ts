@@ -291,7 +291,15 @@ export const useGetTaskCommentsQuery = (taskId: number) => {
       setTaskComments(taskIdRef.current.toString(), commentsData);
     } catch (error) {
       console.error('Failed to fetch comments:', error);
-      setTaskComments(taskIdRef.current.toString(), [], false, error instanceof Error ? error.message : 'Failed to fetch comments');
+      let errorMessage = 'Failed to fetch comments';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      } else if (error && typeof error === 'object' && 'message' in error) {
+        errorMessage = String((error as any).message);
+      }
+      setTaskComments(taskIdRef.current.toString(), [], false, errorMessage || 'Failed to fetch comments');
     }
   }, [setTaskComments]);
 
