@@ -29,12 +29,7 @@ const TimelinePage = () => {
     }
   }
   
-  console.log('Timeline Page Debug:', {
-    user,
-    userId,
-    isAuthenticated,
-    authLoading
-  });
+  // Debug logging removed for production
   
   const {
     data: tasks,

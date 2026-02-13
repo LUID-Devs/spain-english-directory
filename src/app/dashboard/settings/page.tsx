@@ -100,7 +100,7 @@ const SettingsPage = () => {
         headers['X-ID-Token'] = `${session.tokens.idToken}`;
       }
     } catch (e) {
-      console.log('No Cognito session');
+      // No Cognito session available
     }
     return headers;
   };
@@ -351,8 +351,6 @@ const SettingsPage = () => {
 
   const handleGoogleConnect = async () => {
     try {
-      console.log("[GOOGLE CONNECT] Initiating Google OAuth flow...");
-      
       // Initiate Google OAuth sign-in through Cognito
       // This will redirect the user to Google for authentication
       await signInWithRedirect({
@@ -362,7 +360,7 @@ const SettingsPage = () => {
       // Note: The page will redirect, so code below won't execute immediately
       // The OAuthCallbackPage will handle the response
     } catch (error) {
-      console.error("[GOOGLE CONNECT] OAuth initiation error:", error);
+      console.error("Failed to initiate Google authentication:", error);
       alert("Failed to initiate Google authentication. Please try again.");
     }
   };

@@ -10,7 +10,6 @@ interface RequestManagerState {
 export const useRequestManager = create<RequestManagerState>((set, get) => ({
   // No caching - always execute the request function directly
   getOrCreateRequest: async <T>(key: string, requestFn: () => Promise<T>): Promise<T> => {
-    console.log('Executing request for:', key);
     return requestFn();
   },
   

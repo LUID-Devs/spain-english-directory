@@ -87,7 +87,7 @@ const InviteAcceptPage: React.FC = () => {
           headers['X-ID-Token'] = `${session.tokens.idToken}`;
         }
       } catch (e) {
-        console.log('No Cognito session');
+        // No Cognito session available
       }
 
       const response = await fetch(

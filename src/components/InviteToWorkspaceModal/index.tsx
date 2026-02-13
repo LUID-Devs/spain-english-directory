@@ -75,7 +75,7 @@ const InviteToWorkspaceModal: React.FC<InviteToWorkspaceModalProps> = ({
           headers['X-ID-Token'] = `${session.tokens.idToken}`;
         }
       } catch (e) {
-        console.log('No Cognito session');
+        // No Cognito session available
       }
 
       const response = await fetch(

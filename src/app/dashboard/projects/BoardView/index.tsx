@@ -747,7 +747,6 @@ const Task = React.memo(({ task, onTaskSelect }: TaskProps) => {
         },
         onAutoClose: () => {
           // Task is permanently deleted after toast closes
-          console.log(`Task ${taskTitle} permanently deleted`);
         },
       });
     } catch (error: any) {

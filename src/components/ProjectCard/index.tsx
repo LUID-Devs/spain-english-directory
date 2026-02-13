@@ -108,7 +108,6 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, viewMode = "grid" })
       if (error?.message === 'Project already favorited' || error?.message === 'Favorite not found') {
         // These errors indicate the frontend state is out of sync with backend
         // The optimistic update will be corrected by the cache invalidation
-        console.log('Favorite state out of sync, cache will refresh');
       } else {
         // For other errors, the mutation itself handles the toast notification
         console.error('Unexpected error toggling favorite:', error);

@@ -266,17 +266,14 @@ class ApiService {
 
       if (session?.tokens?.accessToken) {
         authHeader['Authorization'] = `Bearer ${session.tokens.accessToken}`;
-        console.log('[API SERVICE] Added Authorization header with Cognito access token');
       }
 
       // Also send ID token which contains email and other user attributes
       if (session?.tokens?.idToken) {
         authHeader['X-ID-Token'] = `${session.tokens.idToken}`;
-        console.log('[API SERVICE] Added X-ID-Token header with Cognito ID token');
       }
     } catch (error) {
       // No Cognito session available, continue without token (will use session cookies)
-      console.log('[API SERVICE] No Cognito session, using session cookies only');
     }
 
     // Check if body is FormData - don't set Content-Type for FormData
@@ -305,8 +302,6 @@ class ApiService {
       headers,
     };
 
-    console.log('API Request:', url, config);
-
     try {
       const response = await fetch(url, config);
       
@@ -314,7 +309,6 @@ class ApiService {
         // Handle authentication failures
         if (response.status === 401) {
           // Clear any stored auth state and redirect to login
-          console.log('Authentication failed, redirecting to login...');
           window.location.href = '/auth/login';
           throw new Error('Authentication required');
         }
@@ -528,7 +522,7 @@ class ApiService {
         authHeader['X-ID-Token'] = `${session.tokens.idToken}`;
       }
     } catch (error) {
-      console.log('[API SERVICE] No Cognito session, using session cookies only');
+      // No Cognito session available
     }
 
     // Add organization context header if available
@@ -576,7 +570,7 @@ class ApiService {
         authHeader['X-ID-Token'] = `${session.tokens.idToken}`;
       }
     } catch (error) {
-      console.log('[API SERVICE] No Cognito session, using session cookies only');
+      // No Cognito session available
     }
 
     // Add organization context header if available

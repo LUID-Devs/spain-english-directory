@@ -62,7 +62,7 @@ const TeamsPage = () => {
         headers['X-ID-Token'] = `${session.tokens.idToken}`;
       }
     } catch (e) {
-      console.log('No Cognito session');
+      // No Cognito session available
     }
     return headers;
   };
@@ -81,7 +81,6 @@ const TeamsPage = () => {
 
       try {
         const headers = await getAuthHeaders();
-        console.log('[TeamsPage] Fetching members for organization:', activeOrganization.id);
         
         const response = await fetch(
           `${import.meta.env.VITE_API_BASE_URL}/organizations/${activeOrganization.id}/members`,
@@ -90,16 +89,12 @@ const TeamsPage = () => {
             headers,
           }
         );
-
-        console.log('[TeamsPage] Response status:', response.status);
         
         if (response.ok) {
           const data = await response.json();
-          console.log('[TeamsPage] Response data:', data);
           
           if (data.success) {
             const membersData = data.data || [];
-            console.log('[TeamsPage] Members loaded:', membersData.length);
             setMembers(membersData);
             
             // Find current user's role

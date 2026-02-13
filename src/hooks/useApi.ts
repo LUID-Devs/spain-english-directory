@@ -131,7 +131,6 @@ export const useGetTasksByUserQuery = (userId: number | null, options: { skip?: 
 
   const fetchTasks = useCallback(async () => {
     if (skipRef.current || userIdRef.current === null || userIdRef.current === undefined) {
-      console.log('Skipping task fetch:', { skip: skipRef.current, userId: userIdRef.current });
       return;
     }
 
@@ -144,7 +143,6 @@ export const useGetTasksByUserQuery = (userId: number | null, options: { skip?: 
 
     try {
       setLoading('tasks', true);
-      console.log('Fetching tasks for userId:', userIdRef.current);
       const tasksData = await apiService.getTasksByUser(userIdRef.current);
       setTasks(tasksData);
       return tasksData;
@@ -296,10 +294,8 @@ export const useGetTaskCommentsQuery = (taskId: number) => {
     }
     
     try {
-      console.log(`[useGetTaskCommentsQuery] Fetching comments for task ${taskIdRef.current}`);
       setTaskComments(taskIdRef.current.toString(), [], true);
       const commentsData = await apiService.getTaskComments(taskIdRef.current);
-      console.log(`[useGetTaskCommentsQuery] Successfully fetched ${commentsData?.length || 0} comments`);
       setTaskComments(taskIdRef.current.toString(), commentsData);
     } catch (error) {
       console.error('[useGetTaskCommentsQuery] Failed to fetch comments:', error);
@@ -528,18 +524,15 @@ export const useUpdateProjectMutation = () => {
       const optimisticProjects = projects.data.map(p => 
         String(p.id) === String(projectId) ? { ...p, ...project } : p
       );
-      console.log('⚡ Applying optimistic update');
       setProjects(optimisticProjects);
     }
     
     try {
       const result = await apiService.updateProject(projectId, project);
-      console.log('✅ Server update successful:', result);
       
       // Update with server response data while preserving existing fields
       setTimeout(async () => {
         try {
-          console.log('🔄 Fetching refreshed project data...');
           // Include userId in the request for proper favorite status
           const refreshedProject = await apiService.getProject(projectId, currentUser?.userId);
        
@@ -556,24 +549,22 @@ export const useUpdateProjectMutation = () => {
                 isFavorited: p.isFavorited
               } : p
             );
-            console.log('🔄 Updating projects list with refreshed data (preserving status)');
             setProjects(updatedProjects);
           }
         } catch (error) {
-          console.error('❌ Failed to refresh project:', error);
+          console.error('Failed to refresh project:', error);
         }
       }, 200);
       
       toast.success('Project updated successfully!', { id: loadingToast });
       return result;
     } catch (error: any) {
-      console.error('❌ Server update failed:', error);
+      console.error('Server update failed:', error);
       // Revert optimistic update on error using stored original data
       if (projects.data && originalProject) {
         const revertedProjects = projects.data.map(p => 
           String(p.id) === String(projectId) ? originalProject : p
         );
-        console.log('↩️ Reverting optimistic update');
         setProjects(revertedProjects);
       }
       toast.error('Failed to update project', { id: loadingToast });
@@ -641,7 +632,6 @@ export const useGetTasksQuery = (params: { projectId: number; archived?: boolean
 
     try {
       setLoading('tasks', true);
-      console.log('🔄 Fetching tasks for projectId:', projectIdRef.current, 'archived:', archivedRef.current);
       const tasksData = await apiService.getTasks(projectIdRef.current, { archived: archivedRef.current });
       setTasks(tasksData);
     } catch (error) {
@@ -661,7 +651,6 @@ export const useGetTasksQuery = (params: { projectId: number; archived?: boolean
 
     // Fetch on mount or when projectId or archived changes
     if (!options.skip && params.projectId && (projectIdChanged || prevProjectIdRef.current === params.projectId)) {
-      console.log('🚀 Project ID changed from', prevProjectIdRef.current, 'to', params.projectId, '- fetching tasks');
       prevProjectIdRef.current = params.projectId;
       fetchTasks();
     }

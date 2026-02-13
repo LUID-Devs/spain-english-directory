@@ -49,7 +49,7 @@ const CreateWorkspaceModal: React.FC<CreateWorkspaceModalProps> = ({ isOpen, onC
           headers['X-ID-Token'] = `${session.tokens.idToken}`;
         }
       } catch (e) {
-        console.log('No Cognito session for workspace creation');
+        // No Cognito session available
       }
 
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/organizations`, {

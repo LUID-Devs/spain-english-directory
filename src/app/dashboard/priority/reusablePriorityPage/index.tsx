@@ -105,16 +105,7 @@ const ReusablePriorityPage = ({ priority }: Props) => {
     userId = currentUser.userId;
   }
   
-  console.log('Priority Page Debug:', {
-    priority,
-    authUser: auth.user,
-    authUserSub: auth.user?.sub,
-    authUserUserId: auth.user?.userId,
-    currentUser,
-    resolvedUserId: userId,
-    userLoading,
-    isAuthenticated: auth.isAuthenticated
-  });
+  // Priority page debug logging removed for production
   
   const {
     data: tasks,
@@ -128,13 +119,7 @@ const ReusablePriorityPage = ({ priority }: Props) => {
     (task: Task) => task.priority === priority,
   );
 
-  console.log('Tasks Debug:', {
-    tasks: tasks?.length || 0,
-    filteredTasks: filteredTasks?.length || 0,
-    isLoading,
-    isTasksError,
-    tasksError
-  });
+  // Tasks debug logging removed for production
 
   const isDarkMode = useGlobalStore((state) => state.isDarkMode);
 

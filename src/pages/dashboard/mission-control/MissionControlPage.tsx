@@ -77,11 +77,10 @@ const MissionControlPage = () => {
   // WebSocket handlers
   const handleAgentUpdate = useCallback((updatedAgent: AgentWithOnlineStatus) => {
     // React Query will automatically refetch, but we can also optimistically update
-    console.log("[MissionControl] Agent updated via WebSocket:", updatedAgent);
   }, []);
 
   const handleActivity = useCallback((activity: ActivityLog) => {
-    console.log("[MissionControl] New activity via WebSocket:", activity);
+    // New activity received via WebSocket
   }, []);
 
   // WebSocket connection for real-time updates

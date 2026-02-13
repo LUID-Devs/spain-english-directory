@@ -45,7 +45,6 @@ export const useWebSocket = ({
 
     // Connection handlers
     socket.on("connect", () => {
-      console.log("[WebSocket] Connected");
       setIsConnected(true);
       setConnectionError(null);
 
@@ -56,7 +55,6 @@ export const useWebSocket = ({
     });
 
     socket.on("disconnect", (reason) => {
-      console.log(`[WebSocket] Disconnected: ${reason}`);
       setIsConnected(false);
       onDisconnect?.();
     });
@@ -68,28 +66,24 @@ export const useWebSocket = ({
 
     // Agent status updates
     socket.on("agents:status", (data) => {
-      console.log("[WebSocket] Received agent statuses:", data);
+      // Agent status data received
     });
 
     socket.on("agent:updated", (data) => {
-      console.log("[WebSocket] Agent updated:", data);
       onAgentUpdate?.(data.agent);
     });
 
     socket.on("agent:status-changed", (data) => {
-      console.log("[WebSocket] Agent status changed:", data);
       onAgentUpdate?.(data.agent);
     });
 
     // Activity updates
     socket.on("activity:new", (data) => {
-      console.log("[WebSocket] New activity:", data);
       onActivity?.(data.activity);
     });
 
     // Task assignment updates
     socket.on("task:assignment-changed", (data) => {
-      console.log("[WebSocket] Task assignment changed:", data);
       onTaskAssignment?.(data.assignment);
     });
 

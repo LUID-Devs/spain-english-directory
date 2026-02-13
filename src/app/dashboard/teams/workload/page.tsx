@@ -75,7 +75,7 @@ const getAuthHeaders = async (): Promise<HeadersInit> => {
       headers['X-ID-Token'] = `${session.tokens.idToken}`;
     }
   } catch (e) {
-    console.log('No Cognito session');
+    // No Cognito session available
   }
   return headers;
 };
