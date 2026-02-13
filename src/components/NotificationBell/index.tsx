@@ -244,6 +244,7 @@ export function NotificationBell() {
                             className="h-6 w-6"
                             onClick={() => markAsRead(notification.id)}
                             title="Mark as read"
+                            aria-label={`Mark notification "${notification.title}" as read`}
                           >
                             <Check className="h-3 w-3" />
                           </Button>
@@ -254,6 +255,7 @@ export function NotificationBell() {
                           className="h-6 w-6"
                           onClick={() => dismissNotification(notification.id)}
                           title="Dismiss"
+                          aria-label={`Dismiss notification "${notification.title}"`}
                         >
                           <X className="h-3 w-3" />
                         </Button>

@@ -43,6 +43,14 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     <UserProvider>
       <TaskModalProvider>
         <div ref={swipeRef} className="flex min-h-screen w-full bg-background text-foreground overflow-x-hidden">
+          {/* Skip to content link for keyboard navigation */}
+          <a
+            href="#main-content"
+            className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2"
+          >
+            Skip to main content
+          </a>
+
           {/* Mobile Backdrop Overlay */}
           <div
             className={cn(
@@ -57,6 +65,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
           <Sidebar />
 
           <main
+            id="main-content"
             className={cn(
               "flex w-full flex-col transition-all duration-300",
               isSidebarCollapsed ? "" : "lg:pl-64"

@@ -96,8 +96,10 @@ const TimeLogItem: React.FC<{
                   variant="ghost"
                   size="icon"
                   className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
+                  aria-label={`Actions for time log by ${log.userName}`}
                 >
                   <MoreHorizontal className="h-4 w-4" />
+                  <span className="sr-only">Open actions menu</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">

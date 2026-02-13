@@ -465,7 +465,7 @@ const WorkloadDashboardPage: React.FC = () => {
                         <Badge className={getPriorityColor(task.priority)}>
                           {task.priority}
                         </Badge>
-                        <Button variant="ghost" size="icon" title="Reassign task">
+                        <Button variant="ghost" size="icon" title="Reassign task" aria-label="Reassign task">
                           <ArrowRightLeft className="h-4 w-4" />
                         </Button>
                       </div>

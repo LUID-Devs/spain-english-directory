@@ -635,6 +635,7 @@ const TasksPage = () => {
                 size="icon"
                 className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6"
                 onClick={() => handleSearchChange('')}
+                aria-label="Clear search"
               >
                 <X className="h-3 w-3" />
               </Button>

@@ -198,6 +198,7 @@ export default function GoalDetailPage() {
           variant="ghost"
           size="icon"
           onClick={() => navigate('/dashboard/goals')}
+          aria-label="Back to goals"
         >
           <ArrowLeft className="h-5 w-5" />
         </Button>
@@ -346,6 +347,7 @@ export default function GoalDetailPage() {
                       size="icon"
                       onClick={() => unlinkMutation.mutate(cycle.id)}
                       disabled={unlinkMutation.isPending}
+                      aria-label={`Unlink cycle ${cycle.name}`}
                     >
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>

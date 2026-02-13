@@ -125,6 +125,7 @@ export const TaskTimer: React.FC<TaskTimerProps> = ({
                 handlePause();
               }}
               className="h-6 w-6 text-amber-500 hover:text-amber-600 hover:bg-amber-50"
+              aria-label="Pause timer"
             >
               <Pause className="h-3 w-3" />
             </Button>
@@ -139,6 +140,7 @@ export const TaskTimer: React.FC<TaskTimerProps> = ({
                 handleStop();
               }}
               className="h-6 w-6 text-muted-foreground hover:text-destructive"
+              aria-label="Stop timer"
             >
               <Square className="h-3 w-3" />
             </Button>

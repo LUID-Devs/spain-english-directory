@@ -92,6 +92,7 @@ export const TimeEstimateInput: React.FC<TimeEstimateInputProps> = ({
           size="icon"
           onClick={handleSave}
           className="h-7 w-7"
+          aria-label="Save time estimate"
         >
           <Check className="h-4 w-4 text-green-500" />
         </Button>
@@ -100,6 +101,7 @@ export const TimeEstimateInput: React.FC<TimeEstimateInputProps> = ({
           size="icon"
           onClick={handleCancel}
           className="h-7 w-7"
+          aria-label="Cancel editing time estimate"
         >
           <X className="h-4 w-4 text-muted-foreground" />
         </Button>
@@ -119,6 +121,7 @@ export const TimeEstimateInput: React.FC<TimeEstimateInputProps> = ({
           size="icon"
           onClick={() => setIsEditing(true)}
           className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+          aria-label="Edit time estimate"
         >
           <Edit2 className="h-3 w-3" />
         </Button>

@@ -291,6 +291,7 @@ const TeamWorkloadPage = () => {
                 size="icon"
                 onClick={() => setSelectedProjectId("all")}
                 className="h-9 w-9"
+                aria-label="Clear project filter"
               >
                 <X className="h-4 w-4" />
               </Button>
