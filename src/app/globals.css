@@ -98,6 +98,47 @@ html {
   }
 }
 
+/* Mobile-specific improvements */
+@layer utilities {
+  /* Better touch targets for mobile */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+
+  /* Prevent text selection on UI elements */
+  .no-select {
+    @apply select-none;
+  }
+
+  /* Enable momentum scrolling on iOS */
+  .momentum-scroll {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Hide scrollbar but keep functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Mobile drag and drop improvements */
+@media (hover: none) and (pointer: coarse) {
+  /* Increase touch target size on mobile */
+  [data-drag-handle="true"] {
+    @apply min-h-[44px] min-w-[44px];
+  }
+
+  /* Prevent default touch actions during drag */
+  .dragging {
+    touch-action: none;
+    user-select: none;
+  }
+}
+
 
 /* TIMELINE STYLING */
 .timeline ._3_ygE {

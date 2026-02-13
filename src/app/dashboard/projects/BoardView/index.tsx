@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   useGetTasksQuery,
   useUpdateTaskMutation,
@@ -13,6 +13,7 @@ import {
 } from "@/hooks/useApi";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
+import { TouchBackend } from "react-dnd-touch-backend";
 import { Task as TaskType } from "@/hooks/useApi";
 import {
   EllipsisVertical,
@@ -110,6 +111,30 @@ const getWipLimit = (status: string): number => {
   return WIP_LIMITS[status] ?? Infinity;
 };
 
+// Hook to detect touch devices
+const useIsTouchDevice = () => {
+  const [isTouch, setIsTouch] = useState(false);
+
+  useEffect(() => {
+    const checkTouch = () => {
+      setIsTouch('ontouchstart' in window || navigator.maxTouchPoints > 0);
+    };
+    checkTouch();
+    window.addEventListener('resize', checkTouch);
+    return () => window.removeEventListener('resize', checkTouch);
+  }, []);
+
+  return isTouch;
+};
+
+// Touch backend options for better mobile experience
+const touchBackendOptions = {
+  enableMouseEvents: true,
+  enableTouchEvents: true,
+  delayTouchStart: 100, // Slight delay to prevent accidental drags
+  touchSlop: 10, // Pixels to move before drag starts
+};
+
 const BoardView = ({
   id,
   tasks: propTasks,
@@ -117,6 +142,9 @@ const BoardView = ({
   tasksError,
   refetchTasks
 }: BoardProps) => {
+  // Detect touch device for appropriate DnD backend
+  const isTouchDevice = useIsTouchDevice();
+
   // Fetch statuses from API
   const { data: statusesData, isLoading: statusesLoading, refetch: refetchStatuses } = useGetProjectStatusesQuery(
     Number(id)
@@ -316,7 +344,10 @@ const BoardView = ({
 
   return (
     <div className="container mx-auto px-2 sm:px-4 py-4 sm:p-6 overflow-x-auto scrollbar-hide">
-      <DndProvider backend={HTML5Backend}>
+      <DndProvider 
+        backend={isTouchDevice ? TouchBackend : HTML5Backend}
+        options={isTouchDevice ? touchBackendOptions : undefined}
+      >
         <div className="flex gap-2 sm:gap-6 pb-4 snap-x snap-mandatory sm:snap-none">
           {statusNames.map((status: string) => (
             <TaskColumn

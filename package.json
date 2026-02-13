@@ -60,6 +60,7 @@
     "react-day-picker": "^9.5.1",
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
+    "react-dnd-touch-backend": "^16.0.1",
     "react-dom": "^18.0.0",
     "react-oidc-context": "^3.3.0",
     "react-router-dom": "^6.28.0",
