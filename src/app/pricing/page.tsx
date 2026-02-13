@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Container,
   Typography,
@@ -37,9 +37,26 @@ const plans = [
 ];
 
 export default function PricingPage() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const handleUpgrade = () => {
     window.open(BILLING_URL, '_blank');
   };
+
+  // Prevent hydration mismatch by rendering only after mount
+  if (!mounted) {
+    return (
+      <Container maxWidth="lg">
+        <Box sx={{ py: 8, textAlign: 'center', minHeight: '60vh' }}>
+          <Typography variant="h6">Loading...</Typography>
+        </Box>
+      </Container>
+    );
+  }
 
   return (
     <Container maxWidth="lg">
