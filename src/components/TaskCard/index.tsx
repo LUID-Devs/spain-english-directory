@@ -1,6 +1,6 @@
 import { Task } from "@/hooks/useApi";
 import { format, formatDistanceToNow, isAfter, isBefore } from "date-fns";
-import React from "react";
+import React, { useState } from "react";
 import {
   Calendar,
   Rocket,
@@ -21,6 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useTaskModal } from "@/contexts/TaskModalContext";
 import { Checkbox } from "@/components/ui/checkbox";
+import { TaskTimer, formatDurationShort } from "@/components/TimeTracking";
 
 type Props = {
   task: Task;
@@ -74,13 +75,37 @@ const TaskCard = React.memo(({ task, isSelected = false, onSelect, selectionMode
   const { openTaskModal } = useTaskModal();
   const taskTagsSplit = task.tags ? task.tags.split(",") : [];
   const numberOfComments = (task.comments && task.comments.length) || 0;
+  
+  // Timer state (local for now - will sync with backend later)
+  const [isTimerRunning, setIsTimerRunning] = useState(false);
+  const [elapsedTime, setElapsedTime] = useState(0);
 
   const handleClick = (e: React.MouseEvent) => {
-    // If clicking the checkbox or if in selection mode with modifier key, don't open modal
-    if ((e.target as HTMLElement).closest('[data-checkbox]')) {
+    // If clicking the checkbox or timer controls, don't open modal
+    if ((e.target as HTMLElement).closest('[data-checkbox]') || 
+        (e.target as HTMLElement).closest('[data-timer]')) {
       return;
     }
     openTaskModal(task.id);
+  };
+  
+  const handleTimerStart = () => {
+    setIsTimerRunning(true);
+    // TODO: Sync with backend - startTimer API call
+    console.log(`[Timer] Started for task ${task.id}`);
+  };
+  
+  const handleTimerPause = () => {
+    setIsTimerRunning(false);
+    // TODO: Sync with backend - pauseTimer API call
+    console.log(`[Timer] Paused for task ${task.id} at ${elapsedTime}s`);
+  };
+  
+  const handleTimerStop = () => {
+    setIsTimerRunning(false);
+    // TODO: Sync with backend - stopTimer API call and create time log
+    console.log(`[Timer] Stopped for task ${task.id}, logged ${elapsedTime}s`);
+    setElapsedTime(0);
   };
 
   const handleCheckboxChange = (checked: boolean) => {
@@ -222,8 +247,21 @@ const TaskCard = React.memo(({ task, isSelected = false, onSelect, selectionMode
             )}
           </div>
 
-          {/* Right side - dates and comments */}
+          {/* Right side - timer, dates and comments */}
           <div className="flex items-center gap-2 text-muted-foreground">
+            {/* Timer Button */}
+            <div data-timer>
+              <TaskTimer
+                taskId={task.id}
+                isRunning={isTimerRunning}
+                elapsedTime={elapsedTime}
+                onStart={handleTimerStart}
+                onPause={handleTimerPause}
+                onStop={handleTimerStop}
+                variant="compact"
+              />
+            </div>
+            
             {task.dueDate && (
               <div className="flex items-center gap-1 text-[10px]">
                 <Clock size={10} aria-hidden="true" />
