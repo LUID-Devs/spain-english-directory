@@ -56,6 +56,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import DeleteTaskModal from "@/components/DeleteTaskModal";
 import { useTaskModal } from "@/contexts/TaskModalContext";
+import { BoardSkeleton } from "@/components/TaskSkeleton";
 import type { DropTargetMonitor, DragSourceMonitor } from 'react-dnd';
 import {
   Dialog,
@@ -306,27 +307,7 @@ const BoardView = ({
   };
 
   if (isLoading) {
-    return (
-      <div className="container mx-auto px-2 sm:px-4 py-4 sm:p-6 overflow-x-auto scrollbar-hide">
-        <div className="flex gap-2 sm:gap-6 pb-4 snap-x snap-mandatory sm:snap-none">
-          {DEFAULT_STATUSES.map((status) => (
-            <Card key={status} className="w-[85vw] sm:w-80 flex-shrink-0 snap-center sm:snap-align-none">
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm font-medium">{status}</CardTitle>
-                  <Badge variant="secondary">0</Badge>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-center h-32">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-    );
+    return <BoardSkeleton columns={DEFAULT_STATUSES.length} />;
   }
   
   if (error) {

@@ -23,6 +23,7 @@ import ModalNewTask from "@/components/ModalNewTask";
 import { apiService } from "@/services/apiService";
 import { toast } from "sonner";
 import { useState, useCallback } from "react";
+import { DashboardSkeleton } from "@/components/DashboardSkeleton";
 
 // Lazy load charts to reduce initial bundle size
 const DashboardCharts = React.lazy(() => import("@/components/DashboardCharts"));
@@ -219,19 +220,7 @@ const DashboardPage = () => {
 
   // Show loading while authenticating or fetching data
   if (authLoading || tasksLoading || isProjectsLoading) {
-    return (
-      <div className="container h-full w-[100%] bg-background p-8">
-        <Header name="Project Management Dashboard" />
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-muted-foreground">
-              {authLoading ? "Authenticating..." : "Loading dashboard data..."}
-            </p>
-          </div>
-        </div>
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
   
   // Redirect to login if not authenticated
@@ -240,17 +229,7 @@ const DashboardPage = () => {
 
     // Don't redirect immediately if still loading
     if (authLoading) {
-      return (
-        <div className="container h-full w-[100%] bg-background p-8">
-          <Header name="Project Management Dashboard" />
-          <div className="flex items-center justify-center h-64">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-              <p className="text-muted-foreground">Verifying authentication...</p>
-            </div>
-          </div>
-        </div>
-      );
+      return <DashboardSkeleton />;
     }
 
     console.log('[DASHBOARD] User not authenticated, redirecting to login...');
