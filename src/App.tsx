@@ -212,9 +212,11 @@ function App() {
             </SubscriptionProvider>
           } />
 
-          {/* Default redirects */}
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          {/* Root route - show landing page */}
+          <Route path="/" element={<LandingPage />} />
+          
+          {/* Default redirect for unknown routes */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Suspense>
 
