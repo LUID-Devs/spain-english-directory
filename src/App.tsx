@@ -1,5 +1,6 @@
 import React, { Suspense, useEffect, useState, useCallback } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import NotFoundPage from '@/pages/NotFoundPage';
 import { Toaster } from 'sonner';
 import { useGlobalStore } from '@/stores/globalStore';
 import AuthProvider from '@/app/authProvider';
@@ -215,8 +216,8 @@ function App() {
           {/* Root route - show landing page */}
           <Route path="/" element={<LandingPage />} />
           
-          {/* Default redirect for unknown routes */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+          {/* 404 Not Found - Show proper error page instead of redirecting */}
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Suspense>
 
