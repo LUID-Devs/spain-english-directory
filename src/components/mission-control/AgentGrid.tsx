@@ -162,9 +162,14 @@ export const AgentGrid: React.FC<AgentGridProps> = ({ agents, isLoading, canMana
                 {canManageAgents && (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                      <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8 flex-shrink-0">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-7 w-7 sm:h-8 sm:w-8 flex-shrink-0"
+                        aria-label={`Open actions menu for ${agent.displayName}`}
+                        title="Agent actions"
+                      >
                         <MoreVertical className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                        <span className="sr-only">Agent actions</span>
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">

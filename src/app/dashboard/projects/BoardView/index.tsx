@@ -492,7 +492,12 @@ const TaskColumn = React.memo(({
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm">
+              <Button 
+                variant="ghost" 
+                size="sm"
+                aria-label={`${status} column options`}
+                title="Column options"
+              >
                 <EllipsisVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -791,6 +796,14 @@ const Task = React.memo(({ task, onTaskSelect }: TaskProps) => {
   const PriorityIcon = priorityConfig.icon;
   const dueDateStatus = getDueDateStatus();
 
+  // Handle keyboard navigation
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onTaskSelect({ taskId: task.id, editMode: false });
+    }
+  };
+
   return (
     <>
       <Card
@@ -798,10 +811,14 @@ const Task = React.memo(({ task, onTaskSelect }: TaskProps) => {
           drag(instance);
         }}
         className={cn(
-          "cursor-pointer transition-all duration-300 hover:shadow-md group",
+          "cursor-pointer transition-all duration-300 hover:shadow-md group focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none",
           isDragging && "opacity-60 scale-95 rotate-2"
         )}
         onClick={handleCardClick}
+        onKeyDown={handleKeyDown}
+        tabIndex={0}
+        role="button"
+        aria-label={`Task: ${task.title}. Priority: ${task.priority}. Status: ${task.status || 'To Do'}`}
       >
       <CardContent className="p-4 space-y-3">
         {/* Image attachment */}
@@ -825,7 +842,9 @@ const Task = React.memo(({ task, onTaskSelect }: TaskProps) => {
           <div className="relative flex-shrink-0">
             <button
               onClick={handleMenuClick}
-              className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-accent transition-all duration-200 text-muted-foreground hover:text-foreground"
+              className="opacity-0 group-hover:opacity-100 focus:opacity-100 p-1 rounded hover:bg-accent transition-all duration-200 text-muted-foreground hover:text-foreground"
+              aria-label={`Task options for ${task.title}`}
+              title="Task options"
             >
               <EllipsisVertical size={14} />
             </button>
