@@ -225,6 +225,263 @@ const LandingPage = () => {
         <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-gray-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
       </div>
 
+      {/* Feature Sections - Organize, Collaborate, Sync */}
+      <div className="py-24 bg-gradient-to-b from-neutral-900 to-black">
+        <div className="container mx-auto px-4">
+          
+          {/* Section 1: Organize Everything */}
+          <FadeInWhenVisible>
+            <div className="flex flex-col lg:flex-row items-center gap-12 mb-32">
+              <div className="lg:w-1/2">
+                <motion.div 
+                  className="rounded-2xl overflow-hidden border border-neutral-700 shadow-2xl shadow-gray-500/10"
+                  whileHover={{ scale: 1.02 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <div className="bg-neutral-800 p-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                      <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                      <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                    </div>
+                    <div className="bg-neutral-900 rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="h-4 w-24 bg-neutral-700 rounded"></div>
+                        <div className="h-6 w-6 bg-gray-500/30 rounded"></div>
+                      </div>
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-3 p-3 bg-neutral-800 rounded-lg border-l-4 border-red-500">
+                          <div className="w-4 h-4 rounded border-2 border-neutral-600"></div>
+                          <div className="h-3 w-32 bg-neutral-600 rounded"></div>
+                          <div className="ml-auto h-6 w-6 rounded-full bg-gray-500/30"></div>
+                        </div>
+                        <div className="flex items-center gap-3 p-3 bg-neutral-800 rounded-lg border-l-4 border-yellow-500">
+                          <div className="w-4 h-4 rounded border-2 border-neutral-600"></div>
+                          <div className="h-3 w-40 bg-neutral-600 rounded"></div>
+                          <div className="ml-auto h-6 w-6 rounded-full bg-gray-500/30"></div>
+                        </div>
+                        <div className="flex items-center gap-3 p-3 bg-neutral-800 rounded-lg border-l-4 border-green-500">
+                          <div className="w-4 h-4 rounded-full bg-gray-500"></div>
+                          <div className="h-3 w-28 bg-neutral-600 rounded line-through"></div>
+                          <div className="ml-auto h-6 w-6 rounded-full bg-gray-500/30"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              </div>
+              <div className="lg:w-1/2">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-500/10 rounded-full text-gray-400 text-sm mb-4">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  </svg>
+                  Board View
+                </div>
+                <h3 className="text-3xl md:text-4xl font-bold text-white mb-4">
+                  Organize Everything
+                </h3>
+                <p className="text-lg text-neutral-400 mb-6">
+                  Keep all tasks in one place. Visualize your work with intuitive board views, 
+                  drag-and-drop organization, and customizable workflows that adapt to how your team works.
+                </p>
+                <ul className="space-y-3">
+                  <li className="flex items-center gap-3 text-neutral-300">
+                    <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Kanban-style boards
+                  </li>
+                  <li className="flex items-center gap-3 text-neutral-300">
+                    <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Priority-based organization
+                  </li>
+                  <li className="flex items-center gap-3 text-neutral-300">
+                    <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Custom labels and filters
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </FadeInWhenVisible>
+
+          {/* Section 2: Collaborate Seamlessly */}
+          <FadeInWhenVisible delay={0.1}>
+            <div className="flex flex-col lg:flex-row-reverse items-center gap-12 mb-32">
+              <div className="lg:w-1/2">
+                <motion.div 
+                  className="rounded-2xl overflow-hidden border border-neutral-700 shadow-2xl shadow-gray-500/10"
+                  whileHover={{ scale: 1.02 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <div className="bg-neutral-800 p-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                      <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                      <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                    </div>
+                    <div className="bg-neutral-900 rounded-lg p-4">
+                      <div className="mb-4">
+                        <div className="h-4 w-48 bg-neutral-700 rounded mb-2"></div>
+                        <div className="h-3 w-full bg-neutral-800 rounded"></div>
+                      </div>
+                      <div className="space-y-3">
+                        <div className="p-3 bg-neutral-800 rounded-lg">
+                          <div className="flex items-center gap-3 mb-2">
+                            <div className="w-8 h-8 rounded-full bg-gray-500/30"></div>
+                            <div>
+                              <div className="h-3 w-20 bg-neutral-600 rounded"></div>
+                              <div className="h-2 w-12 bg-neutral-700 rounded mt-1"></div>
+                            </div>
+                          </div>
+                          <div className="h-3 w-full bg-neutral-700 rounded"></div>
+                        </div>
+                        <div className="p-3 bg-neutral-800 rounded-lg">
+                          <div className="flex items-center gap-3 mb-2">
+                            <div className="w-8 h-8 rounded-full bg-gray-500/30"></div>
+                            <div>
+                              <div className="h-3 w-16 bg-neutral-600 rounded"></div>
+                              <div className="h-2 w-12 bg-neutral-700 rounded mt-1"></div>
+                            </div>
+                            <div className="ml-auto px-2 py-1 bg-gray-500/20 rounded text-xs text-gray-400">Assigned</div>
+                          </div>
+                          <div className="h-3 w-3/4 bg-neutral-700 rounded"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              </div>
+              <div className="lg:w-1/2">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-500/10 rounded-full text-gray-400 text-sm mb-4">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zM7 10a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+                  </svg>
+                  Team Assignment
+                </div>
+                <h3 className="text-3xl md:text-4xl font-bold text-white mb-4">
+                  Collaborate Seamlessly
+                </h3>
+                <p className="text-lg text-neutral-400 mb-6">
+                  Assign tasks, comment, and track progress together. Real-time collaboration 
+                  keeps everyone aligned and moving forward without the back-and-forth emails.
+                </p>
+                <ul className="space-y-3">
+                  <li className="flex items-center gap-3 text-neutral-300">
+                    <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    @mentions and comments
+                  </li>
+                  <li className="flex items-center gap-3 text-neutral-300">
+                    <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Task assignments
+                  </li>
+                  <li className="flex items-center gap-3 text-neutral-300">
+                    <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Real-time activity feed
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </FadeInWhenVisible>
+
+          {/* Section 3: Stay in Sync */}
+          <FadeInWhenVisible delay={0.2}>
+            <div className="flex flex-col lg:flex-row items-center gap-12">
+              <div className="lg:w-1/2">
+                <motion.div 
+                  className="rounded-2xl overflow-hidden border border-neutral-700 shadow-2xl shadow-gray-500/10"
+                  whileHover={{ scale: 1.02 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <div className="bg-neutral-800 p-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                      <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                      <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                    </div>
+                    <div className="bg-neutral-900 rounded-lg p-4">
+                      <h4 className="text-sm text-neutral-400 mb-3">Notifications</h4>
+                      <div className="space-y-3">
+                        <div className="flex items-start gap-3 p-3 bg-neutral-800 rounded-lg border-l-4 border-blue-500">
+                          <div className="w-8 h-8 rounded-full bg-gray-500/30 flex-shrink-0"></div>
+                          <div className="flex-1 min-w-0">
+                            <div className="h-3 w-full bg-neutral-600 rounded mb-1"></div>
+                            <div className="h-2 w-20 bg-neutral-700 rounded"></div>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3 p-3 bg-neutral-800 rounded-lg border-l-4 border-purple-500">
+                          <svg className="w-8 h-8 text-purple-500 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h2v2h-2v-2zm0-2h2V7h-2v8z"/>
+                          </svg>
+                          <div className="flex-1 min-w-0">
+                            <div className="h-3 w-full bg-neutral-600 rounded mb-1"></div>
+                            <div className="h-2 w-24 bg-neutral-700 rounded"></div>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3 p-3 bg-neutral-800 rounded-lg border-l-4 border-green-500">
+                          <svg className="w-8 h-8 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                          </svg>
+                          <div className="flex-1 min-w-0">
+                            <div className="h-3 w-full bg-neutral-600 rounded mb-1"></div>
+                            <div className="h-2 w-16 bg-neutral-700 rounded"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              </div>
+              <div className="lg:w-1/2">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-500/10 rounded-full text-gray-400 text-sm mb-4">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                  </svg>
+                  Notifications
+                </div>
+                <h3 className="text-3xl md:text-4xl font-bold text-white mb-4">
+                  Stay in Sync
+                </h3>
+                <p className="text-lg text-neutral-400 mb-6">
+                  Never miss an update. Get notified via email, Slack, or mobile alerts 
+                  whenever something important happens with your projects and tasks.
+                </p>
+                <ul className="space-y-3">
+                  <li className="flex items-center gap-3 text-neutral-300">
+                    <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Email notifications
+                  </li>
+                  <li className="flex items-center gap-3 text-neutral-300">
+                    <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Slack integration
+                  </li>
+                  <li className="flex items-center gap-3 text-neutral-300">
+                    <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Mobile push alerts
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </FadeInWhenVisible>
+
+        </div>
+      </div>
+
       {/* Community Section */}
       <div className="py-32 bg-gradient-to-b from-black to-neutral-900">
         <div className="container mx-auto px-4">
