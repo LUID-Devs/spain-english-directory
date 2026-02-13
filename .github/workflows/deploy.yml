@@ -98,3 +98,36 @@ jobs:
 
       - name: ✅ Deployment complete
         run: echo "🎉 Frontend deployed successfully!"
+
+  notify:
+    needs: [deploy]
+    runs-on: self-hosted
+    name: 📢 Notify Discord
+    if: always()
+
+    steps:
+      - name: 📧 Send Discord notification
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          if [ "${{ needs.deploy.result }}" == "success" ]; then
+            COLOR="3066993"
+            STATUS="✅ SUCCESS"
+          else
+            COLOR="15158332"
+            STATUS="❌ FAILED"
+          fi
+          
+          curl -H "Content-Type: application/json" \
+            -X POST \
+            -d "{
+              \"embeds\": [{
+                \"title\": \"TaskLuid Frontend Deployment\",
+                \"color\": $COLOR,
+                \"fields\": [
+                  {\"name\": \"Status\", \"value\": \"$STATUS\", \"inline\": true},
+                  {\"name\": \"Commit\", \"value\": \"${{ github.sha }}\", \"inline\": true}
+                ]
+              }]
+            }" \
+            $DISCORD_WEBHOOK || echo "Discord notification skipped"
