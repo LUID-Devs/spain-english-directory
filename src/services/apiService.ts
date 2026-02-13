@@ -259,7 +259,7 @@ class ApiService {
     const url = `${this.baseUrl}${endpoint}`;
 
     // Get Cognito access token and ID token if available
-    let authHeader: Record<string, string> = {};
+    const authHeader: Record<string, string> = {};
     try {
       const { fetchAuthSession } = await import('aws-amplify/auth');
       const session = await fetchAuthSession();
@@ -515,7 +515,7 @@ class ApiService {
     const url = `${this.baseUrl}/tasks/export/csv${queryString ? `?${queryString}` : ''}`;
 
     // Get Cognito access token if available
-    let authHeader: Record<string, string> = {};
+    const authHeader: Record<string, string> = {};
     try {
       const { fetchAuthSession } = await import('aws-amplify/auth');
       const session = await fetchAuthSession();
@@ -563,7 +563,7 @@ class ApiService {
     const url = `${this.baseUrl}/tasks/export/json${queryString ? `?${queryString}` : ''}`;
 
     // Get Cognito access token if available
-    let authHeader: Record<string, string> = {};
+    const authHeader: Record<string, string> = {};
     try {
       const { fetchAuthSession } = await import('aws-amplify/auth');
       const session = await fetchAuthSession();
@@ -664,31 +664,31 @@ class ApiService {
     formData: FormData,
     onProgress: (progress: number) => void
   ): Promise<Attachment> {
-    return new Promise(async (resolve, reject) => {
+    // Get auth headers first (async operation)
+    const authHeader: Record<string, string> = {};
+    try {
+      const { fetchAuthSession } = await import('aws-amplify/auth');
+      const session = await fetchAuthSession();
+
+      if (session?.tokens?.accessToken) {
+        authHeader['Authorization'] = `Bearer ${session.tokens.accessToken}`;
+      }
+      if (session?.tokens?.idToken) {
+        authHeader['X-ID-Token'] = `${session.tokens.idToken}`;
+      }
+    } catch (error) {
+      // No Cognito session, continue without token
+    }
+
+    // Add organization context header
+    const activeOrgId = localStorage.getItem('activeOrganizationId');
+    if (activeOrgId) {
+      authHeader['X-Organization-Id'] = activeOrgId;
+    }
+
+    return new Promise((resolve, reject) => {
       const url = `${this.baseUrl}/tasks/${taskId}/attachments`;
       const xhr = new XMLHttpRequest();
-
-      // Get auth headers
-      let authHeader: Record<string, string> = {};
-      try {
-        const { fetchAuthSession } = await import('aws-amplify/auth');
-        const session = await fetchAuthSession();
-
-        if (session?.tokens?.accessToken) {
-          authHeader['Authorization'] = `Bearer ${session.tokens.accessToken}`;
-        }
-        if (session?.tokens?.idToken) {
-          authHeader['X-ID-Token'] = `${session.tokens.idToken}`;
-        }
-      } catch (error) {
-        // No Cognito session, continue without token
-      }
-
-      // Add organization context header
-      const activeOrgId = localStorage.getItem('activeOrganizationId');
-      if (activeOrgId) {
-        authHeader['X-Organization-Id'] = activeOrgId;
-      }
 
       // Track upload progress
       xhr.upload.addEventListener('progress', (event) => {

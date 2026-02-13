@@ -113,7 +113,6 @@ export const useWebSocket = ({
   }, [organizationId]);
 
   return {
-    socket: socketRef.current,
     isConnected,
     connectionError,
     sendHeartbeat,

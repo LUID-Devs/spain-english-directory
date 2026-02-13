@@ -113,16 +113,6 @@ const ProjectHeader = ({
   const [deleteView] = useDeleteViewMutation();
   const [setDefaultView] = useSetDefaultViewMutation();
 
-  // Load default view on mount
-  useEffect(() => {
-    if (savedViews && savedViews.length > 0 && selectedViewId === null) {
-      const defaultView = savedViews.find(v => v.isDefault);
-      if (defaultView) {
-        applyView(defaultView);
-      }
-    }
-  }, [savedViews]);
-
   const applyView = useCallback((view: SavedView) => {
     setSelectedViewId(view.id);
     onFiltersChange({
@@ -134,6 +124,26 @@ const ProjectHeader = ({
       onSearchChange(view.filters.searchQuery);
     }
   }, [onFiltersChange, onSearchChange]);
+
+  // Load default view on mount - inline the applyView logic to avoid setState-in-effect issue
+  useEffect(() => {
+    if (savedViews && savedViews.length > 0 && selectedViewId === null) {
+      const defaultView = savedViews.find(v => v.isDefault);
+      if (defaultView) {
+        // Inline applyView logic to avoid cascading renders
+        setSelectedViewId(defaultView.id);
+        onFiltersChange({
+          priority: defaultView.filters.priority || null,
+          status: defaultView.filters.status || null,
+          assigneeId: defaultView.filters.assigneeId || null,
+        });
+        if (defaultView.filters.searchQuery) {
+          onSearchChange(defaultView.filters.searchQuery);
+        }
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [savedViews]);
 
   const handleShare = () => {
     const projectUrl = `${window.location.origin}/dashboard/projects/${projectId}`;

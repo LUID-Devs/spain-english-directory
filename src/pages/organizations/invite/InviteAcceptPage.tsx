@@ -74,7 +74,7 @@ const InviteAcceptPage: React.FC = () => {
     setError(null);
 
     try {
-      let headers: HeadersInit = {
+      const headers: HeadersInit = {
         'Content-Type': 'application/json',
       };
 

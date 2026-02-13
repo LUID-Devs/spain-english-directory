@@ -32,7 +32,7 @@ const TaskDetailPage = ({ params }: Props) => {
 
   // Fetch dynamic statuses for the project
   const { data: statusesData } = useGetProjectStatusesQuery(
-    task?.projectId!,
+    task?.projectId ?? 0,
     { skip: !task?.projectId }
   );
 

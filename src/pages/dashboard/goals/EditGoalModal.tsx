@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Target, Calendar, Trash2 } from 'lucide-react';
+import { Target, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -29,6 +29,8 @@ interface EditGoalModalProps {
 
 export function EditGoalModal({ goal, isOpen, onClose }: EditGoalModalProps) {
   const queryClient = useQueryClient();
+  const initialRenderRef = useRef(true);
+  
   const [title, setTitle] = useState(goal.title);
   const [description, setDescription] = useState(goal.description || '');
   const [priority, setPriority] = useState(goal.priority);
@@ -45,7 +47,15 @@ export function EditGoalModal({ goal, isOpen, onClose }: EditGoalModalProps) {
   });
 
   useEffect(() => {
-    if (isOpen) {
+    // Skip the first render since initial state is already set from props
+    if (initialRenderRef.current) {
+      initialRenderRef.current = false;
+      return;
+    }
+    
+    // Reset form state when modal opens with new goal data
+    // Use a timeout to defer state updates outside of the effect execution
+    const timeoutId = setTimeout(() => {
       setTitle(goal.title);
       setDescription(goal.description || '');
       setPriority(goal.priority);
@@ -54,8 +64,10 @@ export function EditGoalModal({ goal, isOpen, onClose }: EditGoalModalProps) {
       setVisibility(goal.visibility);
       setTargetDate(goal.targetDate ? goal.targetDate.split('T')[0] : '');
       setProjectId(goal.projectId?.toString() || '');
-    }
-  }, [isOpen, goal]);
+    }, 0);
+    
+    return () => clearTimeout(timeoutId);
+  }, [isOpen, goal.id]);
 
   const updateMutation = useMutation({
     mutationFn: (data: Partial<Goal>) => apiService.updateGoal(goal.id, data),

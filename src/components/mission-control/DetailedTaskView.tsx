@@ -148,16 +148,18 @@ export const DetailedTaskView: React.FC<DetailedTaskViewProps> = ({
       let comparison = 0;
 
       switch (sortField) {
-        case "priority":
+        case "priority": {
           const priorityA = priorityConfig[a.task.priority?.toLowerCase() || "medium"]?.value || 0;
           const priorityB = priorityConfig[b.task.priority?.toLowerCase() || "medium"]?.value || 0;
           comparison = priorityB - priorityA;
           break;
-        case "dueDate":
+        }
+        case "dueDate": {
           const dateA = a.task.dueDate ? new Date(a.task.dueDate).getTime() : Infinity;
           const dateB = b.task.dueDate ? new Date(b.task.dueDate).getTime() : Infinity;
           comparison = dateA - dateB;
           break;
+        }
         case "assignedAt":
           comparison = new Date(a.assignedAt).getTime() - new Date(b.assignedAt).getTime();
           break;
