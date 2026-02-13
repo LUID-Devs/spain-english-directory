@@ -61,8 +61,17 @@ const AttachmentsSection: React.FC<AttachmentsSectionProps> = ({ taskId }) => {
       const progressKey = `${file.name}-${Date.now()}`;
       setUploadProgress(prev => ({ ...prev, [progressKey]: 0 }));
 
+      // Create progress callback for this file
+      const onProgress = (progress: number) => {
+        setUploadProgress(prev => ({ ...prev, [progressKey]: progress }));
+      };
+
       try {
-        await uploadAttachment({ taskId, formData }).unwrap();
+        // Pass onProgress callback to enable progress tracking
+        await uploadAttachment(
+          { taskId, formData },
+          onProgress
+        ).unwrap();
 
         // No refetch needed - optimistic update handles this
 

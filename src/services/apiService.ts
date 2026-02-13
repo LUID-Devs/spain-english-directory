@@ -646,6 +646,81 @@ class ApiService {
     });
   }
 
+  async uploadAttachmentWithProgress(
+    taskId: number,
+    formData: FormData,
+    onProgress: (progress: number) => void
+  ): Promise<Attachment> {
+    return new Promise(async (resolve, reject) => {
+      const url = `${this.baseUrl}/tasks/${taskId}/attachments`;
+      const xhr = new XMLHttpRequest();
+
+      // Get auth headers
+      let authHeader: Record<string, string> = {};
+      try {
+        const { fetchAuthSession } = await import('aws-amplify/auth');
+        const session = await fetchAuthSession();
+
+        if (session?.tokens?.accessToken) {
+          authHeader['Authorization'] = `Bearer ${session.tokens.accessToken}`;
+        }
+        if (session?.tokens?.idToken) {
+          authHeader['X-ID-Token'] = `${session.tokens.idToken}`;
+        }
+      } catch (error) {
+        // No Cognito session, continue without token
+      }
+
+      // Add organization context header
+      const activeOrgId = localStorage.getItem('activeOrganizationId');
+      if (activeOrgId) {
+        authHeader['X-Organization-Id'] = activeOrgId;
+      }
+
+      // Track upload progress
+      xhr.upload.addEventListener('progress', (event) => {
+        if (event.lengthComputable) {
+          const progress = Math.round((event.loaded / event.total) * 100);
+          onProgress(progress);
+        }
+      });
+
+      xhr.addEventListener('load', () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            const response = JSON.parse(xhr.responseText);
+            resolve(response);
+          } catch (error) {
+            reject(new Error('Failed to parse response'));
+          }
+        } else if (xhr.status === 401) {
+          window.location.href = '/auth/login';
+          reject(new Error('Authentication required'));
+        } else {
+          reject(new Error(`Upload failed: ${xhr.statusText}`));
+        }
+      });
+
+      xhr.addEventListener('error', () => {
+        reject(new Error('Upload failed due to network error'));
+      });
+
+      xhr.addEventListener('abort', () => {
+        reject(new Error('Upload was aborted'));
+      });
+
+      xhr.open('POST', url);
+
+      // Set headers (except Content-Type - browser sets it for FormData)
+      Object.entries(authHeader).forEach(([key, value]) => {
+        xhr.setRequestHeader(key, value);
+      });
+      xhr.withCredentials = true;
+
+      xhr.send(formData);
+    });
+  }
+
   async deleteAttachment(attachmentId: number, userId: number): Promise<{ message: string }> {
     return this.request<{ message: string }>(`/attachments/${attachmentId}`, {
       method: 'DELETE',

@@ -1614,8 +1614,12 @@ export const useGetTaskAttachmentsQuery = (taskId: number) => {
 export const useUploadAttachmentMutation = () => {
   const { taskAttachments, setTaskAttachments } = useApiStore();
   const { currentUser } = useUserStore();
+  const [isLoading, setIsLoading] = useState(false);
 
-  const uploadAttachment = useCallback(async ({ taskId, formData }: { taskId: number; formData: FormData }) => {
+  const uploadAttachment = useCallback(async (
+    { taskId, formData }: { taskId: number; formData: FormData },
+    onProgress?: (progress: number) => void
+  ) => {
     const taskIdStr = taskId.toString();
     const currentAttachments = taskAttachments[taskIdStr]?.data || [];
 
@@ -1637,9 +1641,22 @@ export const useUploadAttachmentMutation = () => {
 
     // Optimistically add attachment to the list
     setTaskAttachments(taskIdStr, [...currentAttachments, optimisticAttachment]);
+    setIsLoading(true);
 
     try {
-      const newAttachment = await apiService.uploadAttachment(taskId, formData);
+      let newAttachment: Attachment;
+
+      if (onProgress) {
+        // Use XMLHttpRequest for progress tracking
+        newAttachment = await apiService.uploadAttachmentWithProgress(
+          taskId,
+          formData,
+          onProgress
+        );
+      } else {
+        // Use regular fetch (no progress)
+        newAttachment = await apiService.uploadAttachment(taskId, formData);
+      }
 
       // Replace optimistic attachment with real attachment from server
       const updatedAttachments = currentAttachments.filter(a => a.id !== optimisticAttachment.id);
@@ -1650,14 +1667,16 @@ export const useUploadAttachmentMutation = () => {
       // Rollback on error
       setTaskAttachments(taskIdStr, currentAttachments);
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   }, [taskAttachments, setTaskAttachments, currentUser]);
 
-  const mutationWrapper = useCallback((args: { taskId: number; formData: FormData }) => ({
-    unwrap: () => uploadAttachment(args)
+  const mutationWrapper = useCallback((args: { taskId: number; formData: FormData }, onProgress?: (progress: number) => void) => ({
+    unwrap: () => uploadAttachment(args, onProgress)
   }), [uploadAttachment]);
 
-  return [mutationWrapper, { isLoading: false }];
+  return [mutationWrapper, { isLoading }];
 };
 
 export const useDeleteAttachmentMutation = () => {
