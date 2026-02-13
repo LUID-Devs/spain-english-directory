@@ -102,6 +102,11 @@ function AppContent() {
           <Route path="/auth/callback" element={<OAuthCallbackPage />} />
           <Route path="/auth/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/auth/reset-password" element={<ResetPasswordPage />} />
+          
+          {/* Legacy redirect routes for SEO/backward compatibility */}
+          <Route path="/login" element={<Navigate to="/auth/login" replace />} />
+          <Route path="/register" element={<Navigate to="/auth/register" replace />} />
+          <Route path="/forgot-password" element={<Navigate to="/auth/forgot-password" replace />} />
 
           {/* Organization Routes */}
           <Route path="/organizations/invite/:token" element={<InviteAcceptPage />} />

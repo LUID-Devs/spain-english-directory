@@ -338,6 +338,58 @@ export function staticPrerenderPlugin(): Plugin {
           </footer>
         </div>
       `
+    },
+    // Legacy redirect pages for SEO/backward compatibility
+    '/login': {
+      title: 'Sign In - TaskLuid',
+      description: 'Sign in to your TaskLuid account to manage your tasks and projects.',
+      content: `
+        <div class="min-h-screen bg-black text-white flex items-center justify-center px-4">
+          <div class="text-center max-w-md w-full">
+            <h1 class="text-3xl font-bold mb-2">Redirecting...</h1>
+            <p class="text-gray-400 mb-8">Taking you to the login page</p>
+            <div class="space-y-4">
+              <a href="/auth/login" class="block w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium transition-colors text-center">
+                Continue to Sign In
+              </a>
+            </div>
+          </div>
+        </div>
+      `
+    },
+    '/register': {
+      title: 'Sign Up - TaskLuid',
+      description: 'Create your TaskLuid account and start managing your tasks efficiently.',
+      content: `
+        <div class="min-h-screen bg-black text-white flex items-center justify-center px-4">
+          <div class="text-center max-w-md w-full">
+            <h1 class="text-3xl font-bold mb-2">Redirecting...</h1>
+            <p class="text-gray-400 mb-8">Taking you to the registration page</p>
+            <div class="space-y-4">
+              <a href="/auth/register" class="block w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium transition-colors text-center">
+                Continue to Sign Up
+              </a>
+            </div>
+          </div>
+        </div>
+      `
+    },
+    '/forgot-password': {
+      title: 'Forgot Password - TaskLuid',
+      description: 'Reset your TaskLuid account password.',
+      content: `
+        <div class="min-h-screen bg-black text-white flex items-center justify-center px-4">
+          <div class="text-center max-w-md w-full">
+            <h1 class="text-3xl font-bold mb-2">Redirecting...</h1>
+            <p class="text-gray-400 mb-8">Taking you to the password reset page</p>
+            <div class="space-y-4">
+              <a href="/auth/forgot-password" class="block w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium transition-colors text-center">
+                Continue to Reset Password
+              </a>
+            </div>
+          </div>
+        </div>
+      `
     }
   };
 
