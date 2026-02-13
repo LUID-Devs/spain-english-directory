@@ -6,6 +6,7 @@ import { Calendar, User, Flag, Clock, Paperclip, Tag, CircleDot, Loader2, Image,
 import CommentsSection from "@/components/CommentsSection";
 import AttachmentsSection from "@/components/AttachmentsSection";
 import RichTextEditor from "@/components/RichTextEditor";
+import GitActivity from "@/components/GitActivity";
 import { Status, Priority, TaskType } from "@/hooks/useApi";
 import { useAgents, useAssignTaskToAgent, useTaskAgentAssignments, useUnassignTaskFromAgent } from "@/hooks/useMissionControl";
 import {
@@ -715,6 +716,18 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                     <Label className="text-foreground font-medium text-xs lg:text-sm">Author</Label>
                     <div className="text-sm text-muted-foreground p-2 border rounded bg-muted/30">
                       {task.author?.username || "Unknown"}
+                    </div>
+                  </div>
+
+                  {/* Git Activity - full width */}
+                  <div className="space-y-2 col-span-2">
+                    <Label className="flex items-center gap-2 text-foreground font-medium text-xs lg:text-sm">
+                      <svg className="h-3 w-3 lg:h-4 lg:w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="m12 2 0 20"/><path d="m2 12 20 0"/></svg>
+                      Git Activity
+                    </Label>
+                    <div className="border rounded-md p-3">
+                      <GitActivity taskId={taskId} />
                     </div>
                   </div>
                 </div>

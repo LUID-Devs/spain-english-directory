@@ -2110,7 +2110,44 @@ export const useDeleteGoalMutation = () => {
   return [mutationWrapper, { isLoading: false }] as const;
 };
 
+// ==================== GIT LINKS HOOKS ====================
+
+export const useGetTaskGitLinksQuery = (taskId: number | undefined, options: { skip?: boolean } = {}) => {
+  const [gitLinks, setGitLinks] = useState<import('@/services/apiService').GitLink[]>([]);
+  const [isLoading, setIsLoading] = useState(!options.skip);
+  const [error, setError] = useState<Error | null>(null);
+
+  const fetchGitLinks = useCallback(async () => {
+    if (!taskId || options.skip) {
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const result = await apiService.getTaskGitLinks(taskId);
+      setGitLinks(result.data || []);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Failed to fetch Git links'));
+    } finally {
+      setIsLoading(false);
+    }
+  }, [taskId, options.skip]);
+
+  useEffect(() => {
+    fetchGitLinks();
+  }, [fetchGitLinks]);
+
+  return {
+    data: gitLinks,
+    isLoading,
+    error,
+    refetch: fetchGitLinks,
+  };
+};
+
 // Export types and enums
 export { Status, Priority, TaskType } from '@/services/apiService';
-export type { Task, Project, User, Comment, Attachment, UserWithStats, TaskStatus, SavedView, Goal, GoalTemplate, SearchSuggestion } from '@/services/apiService';
+export type { Task, Project, User, Comment, Attachment, UserWithStats, TaskStatus, SavedView, Goal, GoalTemplate, SearchSuggestion, GitLink } from '@/services/apiService';
 

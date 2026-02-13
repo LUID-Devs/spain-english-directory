@@ -1178,6 +1178,20 @@ class ApiService {
   async getNotificationSettings(): Promise<{ success: boolean; settings: NotificationSettings }> {
     return this.request<{ success: boolean; settings: NotificationSettings }>('/api/user-notifications/settings');
   }
+
+  // ==================== GIT LINKS API ====================
+
+  async getTaskGitLinks(taskId: number): Promise<{ success: boolean; data: GitLink[]; count: number }> {
+    return this.request<{ success: boolean; data: GitLink[]; count: number }>(`/api/tasks/${taskId}/git-links`);
+  }
+
+  async getTaskCommits(taskId: number): Promise<{ success: boolean; data: GitLink[]; count: number }> {
+    return this.request<{ success: boolean; data: GitLink[]; count: number }>(`/api/tasks/${taskId}/git-links/commits`);
+  }
+
+  async getTaskPullRequests(taskId: number): Promise<{ success: boolean; data: GitLink[]; count: number }> {
+    return this.request<{ success: boolean; data: GitLink[]; count: number }>(`/api/tasks/${taskId}/git-links/pull-requests`);
+  }
 }
 
 export const apiService = new ApiService();
@@ -1480,4 +1494,27 @@ export interface OverlappingCycle {
 export interface CycleOverlapError {
   message: string;
   overlappingCycles: OverlappingCycle[];
+}
+
+// ==================== GIT LINK TYPES ====================
+
+export interface GitLink {
+  id: number;
+  taskId: number;
+  type: 'commit' | 'pull_request';
+  ref: string;
+  title: string;
+  message?: string;
+  url: string;
+  authorName: string;
+  authorUsername?: string;
+  authorAvatar?: string;
+  repository: string;
+  branch?: string;
+  prNumber?: number;
+  prState?: string;
+  prMergedAt?: string;
+  integrationConfigId?: number;
+  gitCreatedAt: string;
+  createdAt: string;
 }
