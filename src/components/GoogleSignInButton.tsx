@@ -16,7 +16,6 @@ const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({
       try {
         const session = await fetchAuthSession();
         if (session?.tokens?.accessToken) {
-          console.log('[GOOGLE BUTTON] User already signed in, skipping redirect');
           return;
         }
       } catch (e) {

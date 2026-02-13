@@ -92,19 +92,14 @@ const DashboardWrapper = ({ children }: { children: React.ReactNode }) => {
       if (!hasCheckedAuth.current) {
         // First check - wait for grace period
         gracePeriodStartTime.current = Date.now();
-        console.log('[DASHBOARD] Auth check complete, not authenticated. Waiting grace period (3s) before redirect...');
         hasCheckedAuth.current = true;
         gracePeriodRef.current = setTimeout(() => {
-          const elapsed = Date.now() - (gracePeriodStartTime.current || 0);
-          console.log(`[DASHBOARD] Grace period expired (${elapsed}ms), redirecting to login...`);
           navigate('/auth/login');
         }, 3000); // 3 second grace period for OAuth stabilization
       }
     } else if (isAuthenticated) {
       // User is authenticated, clear any pending redirect
       if (gracePeriodRef.current) {
-        const elapsed = Date.now() - (gracePeriodStartTime.current || 0);
-        console.log(`[DASHBOARD] ✅ User authenticated after ${elapsed}ms, clearing redirect timeout`);
         clearTimeout(gracePeriodRef.current);
         gracePeriodRef.current = null;
       }
