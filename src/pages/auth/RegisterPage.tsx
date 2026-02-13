@@ -1,8 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { Check, X } from "lucide-react";
 import GoogleSignInButton from "@/components/GoogleSignInButton";
 import { useAuth } from "@/app/authProvider";
+
+// Password requirement type
+interface PasswordRequirement {
+  id: string;
+  label: string;
+  validator: (password: string) => boolean;
+}
 
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
@@ -19,6 +27,25 @@ const RegisterPage = () => {
   const navigate = useNavigate();
   const { isAuthenticated, isLoading: authLoading, user } = useAuth();
   const [hasRedirected, setHasRedirected] = React.useState(false);
+
+  // Password requirements configuration
+  const passwordRequirements: PasswordRequirement[] = [
+    { id: "length", label: "At least 8 characters", validator: (pwd) => pwd.length >= 8 },
+    { id: "uppercase", label: "One uppercase letter", validator: (pwd) => /[A-Z]/.test(pwd) },
+    { id: "lowercase", label: "One lowercase letter", validator: (pwd) => /[a-z]/.test(pwd) },
+    { id: "number", label: "One number", validator: (pwd) => /[0-9]/.test(pwd) },
+  ];
+
+  // Check which requirements are met
+  const getMetRequirements = () => {
+    return passwordRequirements.map(req => ({
+      ...req,
+      met: req.validator(formData.password)
+    }));
+  };
+
+  const metRequirements = getMetRequirements();
+  const allRequirementsMet = metRequirements.every(req => req.met);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -48,8 +75,8 @@ const RegisterPage = () => {
       return false;
     }
 
-    if (formData.password.length < 8) {
-      setError("Password must be at least 8 characters long");
+    if (!allRequirementsMet) {
+      setError("Password does not meet all requirements");
       return false;
     }
 
@@ -497,9 +524,39 @@ const RegisterPage = () => {
                 whileFocus={{ scale: 1.02 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
               />
-              <p className="mt-1 text-xs text-gray-400">
-                Password must be at least 8 characters long
-              </p>
+              
+              {/* Password Requirements Checklist */}
+              <div className="mt-3 space-y-2">
+                <p className="text-xs text-gray-400 font-medium">Password requirements:</p>
+                <div className="space-y-1.5">
+                  {metRequirements.map((req) => (
+                    <motion.div
+                      key={req.id}
+                      className="flex items-center gap-2 text-xs"
+                      initial={false}
+                      animate={{ opacity: 1 }}
+                    >
+                      <motion.div
+                        initial={false}
+                        animate={{
+                          scale: req.met ? 1 : 1,
+                          color: req.met ? "#22c55e" : "#9ca3af"
+                        }}
+                        transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                      >
+                        {req.met ? (
+                          <Check className="w-4 h-4 text-green-500" />
+                        ) : (
+                          <X className="w-4 h-4 text-gray-500" />
+                        )}
+                      </motion.div>
+                      <span className={req.met ? "text-green-400" : "text-gray-400"}>
+                        {req.label}
+                      </span>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
             </div>
 
             {/* Confirm Password */}
@@ -523,10 +580,10 @@ const RegisterPage = () => {
 
             <motion.button
               type="submit"
-              disabled={loading}
+              disabled={loading || !allRequirementsMet}
               className="w-full px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-semibold rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-500/25"
-              whileHover={{ scale: 1.02, y: -2 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={{ scale: allRequirementsMet ? 1.02 : 1, y: allRequirementsMet ? -2 : 0 }}
+              whileTap={{ scale: allRequirementsMet ? 0.98 : 1 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
             >
               {loading ? (
