@@ -1,6 +1,6 @@
-import { Task } from "@/hooks/useApi";
+import { Task, useGetActiveTimerQuery, useStartTimerMutation, useStopTimerMutation } from "@/hooks/useApi";
 import { format, formatDistanceToNow, isAfter, isBefore } from "date-fns";
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Calendar,
   Rocket,
@@ -76,9 +76,40 @@ const TaskCard = React.memo(({ task, isSelected = false, onSelect, selectionMode
   const taskTagsSplit = task.tags ? task.tags.split(",") : [];
   const numberOfComments = (task.comments && task.comments.length) || 0;
   
-  // Timer state (local for now - will sync with backend later)
-  const [isTimerRunning, setIsTimerRunning] = useState(false);
-  const [elapsedTime, setElapsedTime] = useState(0);
+  // Get active timer from backend
+  const { data: activeTimerData, refetch: refetchActiveTimer } = useGetActiveTimerQuery();
+  const [startTimer] = useStartTimerMutation();
+  const [stopTimer] = useStopTimerMutation();
+  
+  // Local timer state for UI updates
+  const [localElapsedTime, setLocalElapsedTime] = useState(0);
+  const [activeLogId, setActiveLogId] = useState<number | null>(null);
+  
+  // Check if this task has the active timer
+  const isThisTaskActive = activeTimerData?.hasActiveTimer && activeTimerData.timer?.taskId === task.id;
+  const isTimerRunning = !!isThisTaskActive;
+  
+  // Calculate elapsed time from server + local offset
+  useEffect(() => {
+    if (isThisTaskActive && activeTimerData?.timer) {
+      setActiveLogId(activeTimerData.timer.id);
+      setLocalElapsedTime(activeTimerData.timer.elapsedMinutes * 60);
+    } else {
+      setActiveLogId(null);
+      setLocalElapsedTime(0);
+    }
+  }, [isThisTaskActive, activeTimerData]);
+  
+  // Local timer tick when running
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isTimerRunning) {
+      interval = setInterval(() => {
+        setLocalElapsedTime(prev => prev + 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [isTimerRunning]);
 
   const handleClick = (e: React.MouseEvent) => {
     // If clicking the checkbox or timer controls, don't open modal
@@ -89,24 +120,28 @@ const TaskCard = React.memo(({ task, isSelected = false, onSelect, selectionMode
     openTaskModal(task.id);
   };
   
-  const handleTimerStart = () => {
-    setIsTimerRunning(true);
-    // TODO: Sync with backend - startTimer API call
-    console.log(`[Timer] Started for task ${task.id}`);
-  };
+  const handleTimerStart = useCallback(async () => {
+    try {
+      const result = await startTimer({ taskId: task.id }).unwrap();
+      setActiveLogId(result.timeLog.id);
+      refetchActiveTimer();
+    } catch (error) {
+      // Error already handled by hook with toast
+    }
+  }, [task.id, startTimer, refetchActiveTimer]);
   
-  const handleTimerPause = () => {
-    setIsTimerRunning(false);
-    // TODO: Sync with backend - pauseTimer API call
-    console.log(`[Timer] Paused for task ${task.id} at ${elapsedTime}s`);
-  };
-  
-  const handleTimerStop = () => {
-    setIsTimerRunning(false);
-    // TODO: Sync with backend - stopTimer API call and create time log
-    console.log(`[Timer] Stopped for task ${task.id}, logged ${elapsedTime}s`);
-    setElapsedTime(0);
-  };
+  const handleTimerStop = useCallback(async () => {
+    if (!activeLogId) return;
+    
+    try {
+      await stopTimer(activeLogId).unwrap();
+      setActiveLogId(null);
+      setLocalElapsedTime(0);
+      refetchActiveTimer();
+    } catch (error) {
+      // Error already handled by hook with toast
+    }
+  }, [activeLogId, stopTimer, refetchActiveTimer]);
 
   const handleCheckboxChange = (checked: boolean) => {
     onSelect?.(task.id, checked);
@@ -254,9 +289,8 @@ const TaskCard = React.memo(({ task, isSelected = false, onSelect, selectionMode
               <TaskTimer
                 taskId={task.id}
                 isRunning={isTimerRunning}
-                elapsedTime={elapsedTime}
+                elapsedTime={localElapsedTime}
                 onStart={handleTimerStart}
-                onPause={handleTimerPause}
                 onStop={handleTimerStop}
                 variant="compact"
               />

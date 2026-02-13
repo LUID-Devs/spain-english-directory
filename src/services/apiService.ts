@@ -1341,6 +1341,75 @@ class ApiService {
   async getAutomationActionTypes(): Promise<{ success: boolean; data: AutomationActionType[] }> {
     return this.request<{ success: boolean; data: AutomationActionType[] }>('/api/automation/actions');
   }
+
+  // ==================== TIME TRACKING API ====================
+
+  async getTimeEstimate(taskId: number): Promise<{ taskId: number; estimate: TimeEstimate | null }> {
+    return this.request<{ taskId: number; estimate: TimeEstimate | null }>(`/api/tasks/${taskId}/time-estimate`);
+  }
+
+  async setTimeEstimate(taskId: number, estimate: string): Promise<{ success: boolean; estimate: TimeEstimate }> {
+    return this.request<{ success: boolean; estimate: TimeEstimate }>(`/api/tasks/${taskId}/time-estimate`, {
+      method: 'POST',
+      body: JSON.stringify({ estimate }),
+    });
+  }
+
+  async deleteTimeEstimate(taskId: number): Promise<{ success: boolean; message: string }> {
+    return this.request<{ success: boolean; message: string }>(`/api/tasks/${taskId}/time-estimate`, {
+      method: 'DELETE',
+    });
+  }
+
+  async getTimeLogs(taskId: number): Promise<TimeLogsResponse> {
+    return this.request<TimeLogsResponse>(`/api/tasks/${taskId}/time-logs`);
+  }
+
+  async startTimer(taskId: number, description?: string): Promise<{ success: boolean; timeLog: TimeLog }> {
+    return this.request<{ success: boolean; timeLog: TimeLog }>(`/api/tasks/${taskId}/time-logs/start`, {
+      method: 'POST',
+      body: JSON.stringify({ description }),
+    });
+  }
+
+  async stopTimer(logId: number): Promise<{ success: boolean; timeLog: TimeLog }> {
+    return this.request<{ success: boolean; timeLog: TimeLog }>(`/api/time-logs/${logId}/stop`, {
+      method: 'POST',
+    });
+  }
+
+  async deleteTimeLog(logId: number): Promise<{ success: boolean; message: string }> {
+    return this.request<{ success: boolean; message: string }>(`/api/time-logs/${logId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async getMyTimeLogs(params?: { startDate?: string; endDate?: string; taskId?: number }): Promise<{
+    logs: TimeLog[];
+    summary: { totalMinutes: number; totalFormatted: string; count: number };
+  }> {
+    const queryParams = new URLSearchParams();
+    if (params?.startDate) queryParams.append('startDate', params.startDate);
+    if (params?.endDate) queryParams.append('endDate', params.endDate);
+    if (params?.taskId) queryParams.append('taskId', params.taskId.toString());
+
+    return this.request<{
+      logs: TimeLog[];
+      summary: { totalMinutes: number; totalFormatted: string; count: number };
+    }>(`/api/users/me/time-logs?${queryParams.toString()}`);
+  }
+
+  async getActiveTimer(): Promise<ActiveTimer> {
+    return this.request<ActiveTimer>('/api/users/me/active-timer');
+  }
+
+  async getProjectTimeReport(projectId: number, params?: { startDate?: string; endDate?: string }): Promise<ProjectTimeReport> {
+    const queryParams = new URLSearchParams();
+    if (params?.startDate) queryParams.append('startDate', params.startDate);
+    if (params?.endDate) queryParams.append('endDate', params.endDate);
+
+    return this.request<ProjectTimeReport>(`/api/projects/${projectId}/time-reports?${queryParams.toString()}`);
+  }
 }
 
 export const apiService = new ApiService();
@@ -1666,6 +1735,99 @@ export interface GitLink {
   integrationConfigId?: number;
   gitCreatedAt: string;
   createdAt: string;
+}
+
+// ==================== TIME TRACKING TYPES ====================
+
+export interface TimeLog {
+  id: number;
+  taskId: number;
+  userId: number;
+  startedAt: string;
+  endedAt?: string;
+  durationMinutes?: number;
+  durationFormatted?: string;
+  description?: string;
+  isRunning: boolean;
+  source?: string;
+  createdAt: string;
+  user?: {
+    userId: number;
+    username: string;
+    profilePictureUrl?: string;
+  };
+  task?: {
+    id: number;
+    title: string;
+    projectId: number;
+    project?: { name: string };
+  };
+}
+
+export interface TimeEstimate {
+  id: number;
+  taskId: number;
+  estimatedMinutes: number;
+  estimatedFormatted: string;
+  createdBy: number;
+  createdAt: string;
+  updatedAt: string;
+  user?: {
+    userId: number;
+    username: string;
+    profilePictureUrl?: string;
+  };
+}
+
+export interface ActiveTimer {
+  hasActiveTimer: boolean;
+  timer?: {
+    id: number;
+    taskId: number;
+    task?: {
+      id: number;
+      title: string;
+      projectId: number;
+      project?: { name: string };
+    };
+    startedAt: string;
+    elapsedMinutes: number;
+    elapsedFormatted: string;
+    description?: string;
+  };
+}
+
+export interface TimeLogsResponse {
+  taskId: number;
+  logs: TimeLog[];
+  summary: {
+    totalMinutes: number;
+    totalFormatted: string;
+    count: number;
+  };
+}
+
+export interface ProjectTimeReport {
+  projectId: number;
+  dateRange: { startDate?: string; endDate?: string };
+  summary: {
+    totalMinutes: number;
+    totalFormatted: string;
+    logCount: number;
+  };
+  byUser: Array<{
+    user: { userId: number; username: string; profilePictureUrl?: string };
+    totalMinutes: number;
+    totalFormatted: string;
+    logCount: number;
+  }>;
+  byTask: Array<{
+    task: { id: number; title: string; status: string };
+    totalMinutes: number;
+    totalFormatted: string;
+    logCount: number;
+  }>;
+  logs: TimeLog[];
 }
 
 // ==================== AUTOMATION TYPES ====================

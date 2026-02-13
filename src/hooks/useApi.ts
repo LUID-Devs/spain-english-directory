@@ -2174,7 +2174,185 @@ export const useGetTaskGitLinksQuery = (taskId: number | undefined, options: { s
   };
 };
 
+// ==================== TIME TRACKING HOOKS ====================
+
+export const useGetActiveTimerQuery = (options: { skip?: boolean } = {}) => {
+  const [activeTimer, setActiveTimer] = useState<import('@/services/apiService').ActiveTimer | null>(null);
+  const [isLoading, setIsLoading] = useState(!options.skip);
+  const [error, setError] = useState<Error | null>(null);
+
+  const fetchActiveTimer = useCallback(async () => {
+    if (options.skip) {
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const data = await apiService.getActiveTimer();
+      setActiveTimer(data);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Failed to fetch active timer'));
+    } finally {
+      setIsLoading(false);
+    }
+  }, [options.skip]);
+
+  useEffect(() => {
+    fetchActiveTimer();
+    
+    // Poll every 30 seconds to check for running timer
+    const interval = setInterval(fetchActiveTimer, 30000);
+    return () => clearInterval(interval);
+  }, [fetchActiveTimer]);
+
+  return {
+    data: activeTimer,
+    isLoading,
+    error,
+    refetch: fetchActiveTimer,
+  };
+};
+
+export const useGetTimeLogsQuery = (taskId: number | undefined, options: { skip?: boolean } = {}) => {
+  const [timeLogs, setTimeLogs] = useState<import('@/services/apiService').TimeLogsResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(!options.skip);
+  const [error, setError] = useState<Error | null>(null);
+
+  const fetchTimeLogs = useCallback(async () => {
+    if (!taskId || options.skip) {
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const data = await apiService.getTimeLogs(taskId);
+      setTimeLogs(data);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Failed to fetch time logs'));
+    } finally {
+      setIsLoading(false);
+    }
+  }, [taskId, options.skip]);
+
+  useEffect(() => {
+    fetchTimeLogs();
+  }, [fetchTimeLogs]);
+
+  return {
+    data: timeLogs,
+    isLoading,
+    error,
+    refetch: fetchTimeLogs,
+  };
+};
+
+export const useGetTimeEstimateQuery = (taskId: number | undefined, options: { skip?: boolean } = {}) => {
+  const [timeEstimate, setTimeEstimate] = useState<import('@/services/apiService').TimeEstimate | null>(null);
+  const [isLoading, setIsLoading] = useState(!options.skip);
+  const [error, setError] = useState<Error | null>(null);
+
+  const fetchTimeEstimate = useCallback(async () => {
+    if (!taskId || options.skip) {
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const data = await apiService.getTimeEstimate(taskId);
+      setTimeEstimate(data.estimate);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Failed to fetch time estimate'));
+    } finally {
+      setIsLoading(false);
+    }
+  }, [taskId, options.skip]);
+
+  useEffect(() => {
+    fetchTimeEstimate();
+  }, [fetchTimeEstimate]);
+
+  return {
+    data: timeEstimate,
+    isLoading,
+    error,
+    refetch: fetchTimeEstimate,
+  };
+};
+
+export const useStartTimerMutation = () => {
+  const startTimer = useCallback(async ({ taskId, description }: { taskId: number; description?: string }) => {
+    const loadingToast = toast.loading('Starting timer...');
+    
+    try {
+      const result = await apiService.startTimer(taskId, description);
+      toast.success('Timer started!', { id: loadingToast });
+      return result;
+    } catch (error: any) {
+      if (error.message?.includes('already have a running timer')) {
+        toast.error('You already have a timer running on another task', { id: loadingToast });
+      } else {
+        toast.error('Failed to start timer', { id: loadingToast });
+      }
+      throw error;
+    }
+  }, []);
+
+  const mutationWrapper = useCallback((args: { taskId: number; description?: string }) => ({
+    unwrap: () => startTimer(args),
+  }), [startTimer]);
+
+  return [mutationWrapper, { isLoading: false }] as const;
+};
+
+export const useStopTimerMutation = () => {
+  const stopTimer = useCallback(async (logId: number) => {
+    const loadingToast = toast.loading('Stopping timer...');
+    
+    try {
+      const result = await apiService.stopTimer(logId);
+      toast.success(`Timer stopped! Logged ${result.timeLog.durationFormatted}`, { id: loadingToast });
+      return result;
+    } catch (error: any) {
+      toast.error('Failed to stop timer', { id: loadingToast });
+      throw error;
+    }
+  }, []);
+
+  const mutationWrapper = useCallback((logId: number) => ({
+    unwrap: () => stopTimer(logId),
+  }), [stopTimer]);
+
+  return [mutationWrapper, { isLoading: false }] as const;
+};
+
+export const useSetTimeEstimateMutation = () => {
+  const setEstimate = useCallback(async ({ taskId, estimate }: { taskId: number; estimate: string }) => {
+    const loadingToast = toast.loading('Setting time estimate...');
+    
+    try {
+      const result = await apiService.setTimeEstimate(taskId, estimate);
+      toast.success(`Time estimate set to ${result.estimate.estimatedFormatted}`, { id: loadingToast });
+      return result;
+    } catch (error: any) {
+      toast.error('Failed to set time estimate', { id: loadingToast });
+      throw error;
+    }
+  }, []);
+
+  const mutationWrapper = useCallback((args: { taskId: number; estimate: string }) => ({
+    unwrap: () => setEstimate(args),
+  }), [setEstimate]);
+
+  return [mutationWrapper, { isLoading: false }] as const;
+};
+
 // Export types and enums
 export { Status, Priority, TaskType } from '@/services/apiService';
-export type { Task, Project, User, Comment, Attachment, UserWithStats, TaskStatus, SavedView, Goal, GoalTemplate, SearchSuggestion, GitLink } from '@/services/apiService';
+export type { Task, Project, User, Comment, Attachment, UserWithStats, TaskStatus, SavedView, Goal, GoalTemplate, SearchSuggestion, GitLink, TimeLog, TimeEstimate, ActiveTimer, TimeLogsResponse, ProjectTimeReport } from '@/services/apiService';
 
