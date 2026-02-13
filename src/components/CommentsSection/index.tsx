@@ -129,16 +129,36 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ taskId }) => {
   };
 
   if (error) {
+    const isAuthError = error.message?.includes('sign in') || error.message?.includes('Authentication');
+    const isNetworkError = error.message?.includes('Network') || error.message?.includes('connection');
+    
     return (
       <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-4">
-        <p className="text-destructive font-medium">Failed to load comments</p>
-        <p className="text-destructive/80 text-sm mt-1">{error.message || 'An unknown error occurred'}</p>
-        <button
-          onClick={() => refetch()}
-          className="mt-2 text-sm text-primary hover:text-primary/80 underline"
-        >
-          Try again
-        </button>
+        <div className="flex items-start gap-3">
+          <MessageSquare className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" aria-hidden="true" />
+          <div className="flex-1">
+            <p className="text-destructive font-medium">
+              {isAuthError ? 'Authentication Required' : isNetworkError ? 'Connection Issue' : 'Failed to load comments'}
+            </p>
+            <p className="text-destructive/80 text-sm mt-1">{error.message || 'An unknown error occurred'}</p>
+            <div className="flex items-center gap-3 mt-3">
+              <button
+                onClick={() => refetch()}
+                className="text-sm px-3 py-1.5 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+              >
+                Try again
+              </button>
+              {isAuthError && (
+                <a
+                  href="/auth/login"
+                  className="text-sm text-primary hover:text-primary/80 underline"
+                >
+                  Go to login
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

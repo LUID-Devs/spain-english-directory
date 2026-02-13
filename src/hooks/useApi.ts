@@ -283,15 +283,27 @@ export const useGetTaskCommentsQuery = (taskId: number) => {
   const taskIdRef = useRef(taskId);
   
   const fetchComments = useCallback(async () => {
-    if (!taskIdRef.current) return;
+    if (!taskIdRef.current) {
+      console.warn('[useGetTaskCommentsQuery] No taskId provided');
+      return;
+    }
+    
+    // Validate taskId is a valid number
+    if (isNaN(taskIdRef.current) || taskIdRef.current <= 0) {
+      console.error('[useGetTaskCommentsQuery] Invalid taskId:', taskIdRef.current);
+      setTaskComments(taskIdRef.current.toString(), [], false, 'Invalid task ID');
+      return;
+    }
     
     try {
+      console.log(`[useGetTaskCommentsQuery] Fetching comments for task ${taskIdRef.current}`);
       setTaskComments(taskIdRef.current.toString(), [], true);
       const commentsData = await apiService.getTaskComments(taskIdRef.current);
+      console.log(`[useGetTaskCommentsQuery] Successfully fetched ${commentsData?.length || 0} comments`);
       setTaskComments(taskIdRef.current.toString(), commentsData);
     } catch (error) {
-      console.error('Failed to fetch comments:', error);
-      let errorMessage = 'Failed to fetch comments';
+      console.error('[useGetTaskCommentsQuery] Failed to fetch comments:', error);
+      let errorMessage = 'Failed to load comments. Please try again.';
       if (error instanceof Error) {
         errorMessage = error.message;
       } else if (typeof error === 'string') {
@@ -299,7 +311,17 @@ export const useGetTaskCommentsQuery = (taskId: number) => {
       } else if (error && typeof error === 'object' && 'message' in error) {
         errorMessage = String((error as any).message);
       }
-      setTaskComments(taskIdRef.current.toString(), [], false, errorMessage || 'Failed to fetch comments');
+      
+      // Provide more user-friendly error messages
+      if (errorMessage.includes('Authentication required') || errorMessage.includes('401')) {
+        errorMessage = 'Please sign in to view comments';
+      } else if (errorMessage.includes('Network Error') || errorMessage.includes('fetch')) {
+        errorMessage = 'Network error. Please check your connection and try again.';
+      } else if (errorMessage.includes('404')) {
+        errorMessage = 'Task not found. It may have been deleted.';
+      }
+      
+      setTaskComments(taskIdRef.current.toString(), [], false, errorMessage);
     }
   }, [setTaskComments]);
 
