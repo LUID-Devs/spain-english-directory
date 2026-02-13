@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/app/authProvider";
-import { fetchAuthSession } from 'aws-amplify/auth';
+import { fetchAuthSession, signInWithRedirect } from 'aws-amplify/auth';
 import { SubscriptionDashboard } from "@/components/subscription/SubscriptionDashboard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -351,13 +351,19 @@ const SettingsPage = () => {
 
   const handleGoogleConnect = async () => {
     try {
-      // TODO: Implement Google OAuth connection
-      console.log("Google authentication requested");
+      console.log("[GOOGLE CONNECT] Initiating Google OAuth flow...");
       
-      // For now, just show alert
-      alert("Google authentication integration coming soon!");
+      // Initiate Google OAuth sign-in through Cognito
+      // This will redirect the user to Google for authentication
+      await signInWithRedirect({
+        provider: { custom: 'Google' }
+      });
+      
+      // Note: The page will redirect, so code below won't execute immediately
+      // The OAuthCallbackPage will handle the response
     } catch (error) {
-      console.error("Google authentication error:", error);
+      console.error("[GOOGLE CONNECT] OAuth initiation error:", error);
+      alert("Failed to initiate Google authentication. Please try again.");
     }
   };
 
