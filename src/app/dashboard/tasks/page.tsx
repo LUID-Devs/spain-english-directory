@@ -43,7 +43,10 @@ import {
   ArrowUp,
   ArrowDown,
   Check,
-  Filter
+  Filter,
+  Download,
+  FileSpreadsheet,
+  FileJson
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link, useSearchParams } from "react-router-dom";
@@ -373,6 +376,79 @@ const TasksPage = () => {
     toast.success("View URL copied to clipboard!");
   }, []);
 
+  // Export helper functions
+  const convertTasksToCSV = (tasksToExport: Task[]): string => {
+    const headers = ['ID', 'Title', 'Description', 'Status', 'Priority', 'Tags', 'Start Date', 'Due Date', 'Author', 'Assignee', 'Project', 'Created At', 'Updated At'];
+    
+    const rows = tasksToExport.map(task => {
+      const author = users?.find(u => u.userId === task.authorUserId)?.username || '';
+      const assignee = users?.find(u => u.userId === task.assignedUserId)?.username || '';
+      const project = projects?.find(p => p.id === task.projectId)?.name || '';
+      
+      return [
+        task.id,
+        `"${task.title?.replace(/"/g, '""') || ''}"`,
+        `"${(task.description || '').replace(/"/g, '""').replace(/<[^>]*>/g, '')}"`,
+        task.status,
+        task.priority,
+        task.tags || '',
+        task.startDate ? new Date(task.startDate).toLocaleDateString() : '',
+        task.dueDate ? new Date(task.dueDate).toLocaleDateString() : '',
+        author,
+        assignee,
+        project,
+        task.createdAt ? new Date(task.createdAt).toLocaleDateString() : '',
+        task.updatedAt ? new Date(task.updatedAt).toLocaleDateString() : ''
+      ];
+    });
+    
+    return [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
+  };
+
+  const downloadFile = (content: string, filename: string, mimeType: string) => {
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleExportCSV = useCallback(() => {
+    const tasksToExport = selectedTasks.size > 0 
+      ? sortedTasks.filter(t => selectedTasks.has(t.id))
+      : sortedTasks;
+    
+    if (tasksToExport.length === 0) {
+      toast.error("No tasks to export");
+      return;
+    }
+    
+    const csv = convertTasksToCSV(tasksToExport);
+    const timestamp = new Date().toISOString().split('T')[0];
+    downloadFile(csv, `tasks-${timestamp}.csv`, 'text/csv;charset=utf-8;');
+    toast.success(`Exported ${tasksToExport.length} tasks to CSV`);
+  }, [sortedTasks, selectedTasks]);
+
+  const handleExportJSON = useCallback(() => {
+    const tasksToExport = selectedTasks.size > 0 
+      ? sortedTasks.filter(t => selectedTasks.has(t.id))
+      : sortedTasks;
+    
+    if (tasksToExport.length === 0) {
+      toast.error("No tasks to export");
+      return;
+    }
+    
+    const json = JSON.stringify(tasksToExport, null, 2);
+    const timestamp = new Date().toISOString().split('T')[0];
+    downloadFile(json, `tasks-${timestamp}.json`, 'application/json');
+    toast.success(`Exported ${tasksToExport.length} tasks to JSON`);
+  }, [sortedTasks, selectedTasks]);
+
   // Clear all filters
   const handleClearAll = useCallback(() => {
     setSearchTerm('');
@@ -498,6 +574,40 @@ const TasksPage = () => {
               )}
             </Button>
           )}
+          
+          {/* Export Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2"
+              >
+                <Download className="h-4 w-4" />
+                Export
+                {selectedTasks.size > 0 && (
+                  <span className="ml-1 text-xs bg-primary text-primary-foreground px-1.5 py-0.5 rounded-full">
+                    {selectedTasks.size}
+                  </span>
+                )}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuLabel>
+                Export Tasks
+                {selectedTasks.size > 0 && ` (${selectedTasks.size} selected)`}
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleExportCSV} className="gap-2 cursor-pointer">
+                <FileSpreadsheet className="h-4 w-4 text-green-600" />
+                Export as CSV
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleExportJSON} className="gap-2 cursor-pointer">
+                <FileJson className="h-4 w-4 text-blue-600" />
+                Export as JSON
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
