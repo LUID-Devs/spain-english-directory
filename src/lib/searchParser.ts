@@ -371,12 +371,13 @@ export function resolveDateFilter(filter: DateFilter): { start?: Date; end?: Dat
             start: today,
             end: new Date(today.getTime() + 24 * 60 * 60 * 1000 - 1),
           };
-        case 'yesterday':
+        case 'yesterday': {
           const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
           return {
             start: yesterday,
             end: new Date(yesterday.getTime() + 24 * 60 * 60 * 1000 - 1),
           };
+        }
         case 'this-week': {
           const dayOfWeek = today.getDay();
           const startOfWeek = new Date(today.getTime() - dayOfWeek * 24 * 60 * 60 * 1000);

@@ -1,16 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { CheckCircle, Zap, Shield, Heart, MessageCircle, Code } from 'lucide-react';
 
 const LandingPage = () => {
-  // Use state to prevent hydration mismatch with dynamic year
-  const [year, setYear] = useState(2026);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setYear(new Date().getFullYear());
-    setMounted(true);
-  }, []);
+  // Compute values during render to prevent hydration mismatch
+  const year = useMemo(() => new Date().getFullYear(), []);
 
   const features = [
     { icon: Zap, title: 'Lightning Fast', desc: 'Built for speed, not bloat' },
@@ -107,7 +101,7 @@ const LandingPage = () => {
       <footer className="border-t border-neutral-800 py-6 px-4">
         <div className="max-w-4xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-sm text-neutral-500" suppressHydrationWarning>
-            &copy; {mounted ? year : 2026} Luid Suite
+            &copy; {year} Luid Suite
           </p>
           <div className="flex gap-6 text-sm">
             <Link to="/privacy" className="text-neutral-400 hover:text-gray-400 transition-colors">

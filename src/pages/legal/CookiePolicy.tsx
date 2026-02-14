@@ -1,11 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 
 const CookiePolicy = () => {
-  const [lastUpdated, setLastUpdated] = useState('February 2026');
-
-  useEffect(() => {
-    setLastUpdated(new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }));
+  const lastUpdated = useMemo(() => {
+    return new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
   }, []);
 
   return (

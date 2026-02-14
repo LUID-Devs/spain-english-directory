@@ -84,6 +84,42 @@ interface RichTextEditorProps {
   onFormatChange?: (format: 'html' | 'markdown') => void;
 }
 
+// Toolbar button component - defined at top level to avoid recreation on render
+interface ToolbarButtonProps {
+  onClick: () => void;
+  isActive?: boolean;
+  disabled?: boolean;
+  title: string;
+  children: React.ReactNode;
+}
+
+const ToolbarButton: React.FC<ToolbarButtonProps> = ({
+  onClick,
+  isActive = false,
+  disabled = false,
+  title,
+  children,
+}) => (
+  <button
+    type="button"
+    onClick={onClick}
+    disabled={disabled}
+    title={title}
+    className={`p-2 rounded-md transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center ${
+      isActive
+        ? 'bg-primary text-primary-foreground'
+        : 'hover:bg-muted text-muted-foreground hover:text-foreground'
+    } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+  >
+    {children}
+  </button>
+);
+
+// Divider component - defined at top level to avoid recreation on render
+const ToolbarDivider: React.FC = () => (
+  <div className="w-px h-6 bg-border mx-1" />
+);
+
 const RichTextEditor: React.FC<RichTextEditorProps> = ({
   content,
   onChange,
@@ -460,40 +496,6 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     
     onFormatChange?.(newFormat);
   }, [format, isMarkdownMode, editor, onChange, onFormatChange]);
-
-  // Toolbar button component
-  const ToolbarButton = ({
-    onClick,
-    isActive = false,
-    disabled = false,
-    title,
-    children,
-  }: {
-    onClick: () => void;
-    isActive?: boolean;
-    disabled?: boolean;
-    title: string;
-    children: React.ReactNode;
-  }) => (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      title={title}
-      className={`p-2 rounded-md transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center ${
-        isActive
-          ? 'bg-primary text-primary-foreground'
-          : 'hover:bg-muted text-muted-foreground hover:text-foreground'
-      } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-    >
-      {children}
-    </button>
-  );
-
-  // Divider component
-  const ToolbarDivider = () => (
-    <div className="w-px h-6 bg-border mx-1" />
-  );
 
   if (!editor) {
     return null;
