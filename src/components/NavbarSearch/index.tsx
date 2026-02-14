@@ -8,7 +8,7 @@ import React, {
   useMemo,
   memo 
 } from "react";
-import { Search, Settings2, X, Users, Briefcase, CheckSquare, User, Clock } from "lucide-react";
+import { Search, Settings2, X, Users, Briefcase, CheckSquare, User, Clock, HelpCircle, Terminal } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import debounce from "lodash/debounce";
 import { List } from "react-window";
@@ -16,10 +16,21 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import AdvancedSearchModal, { SearchFilters } from "@/components/AdvancedSearchModal";
 import SearchSuggestions from "@/components/SearchSuggestions";
+import SearchSyntaxHelp from "@/components/SearchSyntaxHelp";
+import { 
+  parseSearchQuery, 
+  applySearchQuery, 
+  applySort,
+  getSearchSuggestions as getSyntaxSuggestions,
+  ParsedSearchQuery
+} from "@/lib/searchParser";
 import { 
   useSearchQuery, 
   useAdvancedSearchQuery, 
   useGetSearchSuggestionsQuery,
+  useGetTasksByUserQuery,
+  useGetProjectsQuery,
+  useGetUsersQuery,
   SearchSuggestion,
   Task,
   Project,
@@ -27,6 +38,7 @@ import {
 } from "@/hooks/useApi";
 import { Link } from "react-router-dom";
 import { useTaskModal } from "@/contexts/TaskModalContext";
+import { useCurrentUser } from "@/stores/userStore";
 
 interface NavbarSearchProps {
   className?: string;
@@ -186,19 +198,27 @@ TaskListRow.displayName = 'TaskListRow';
 
 const NavbarSearch = forwardRef<NavbarSearchRef, NavbarSearchProps>(({
   className = "",
-  placeholder = "Search projects, tasks, users…",
+  placeholder = "Search or use operators (is:open assignee:me)...",
   autoFocus = false,
   onResultClick,
 }, ref) => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [parsedQuery, setParsedQuery] = useState<ParsedSearchQuery | null>(null);
   const [currentFilters, setCurrentFilters] = useState<SearchFilters>({});
   const [isAdvancedModalOpen, setIsAdvancedModalOpen] = useState(false);
+  const [isSyntaxHelpOpen, setIsSyntaxHelpOpen] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [searchMode, setSearchMode] = useState<'basic' | 'advanced'>('basic');
+  const [searchMode, setSearchMode] = useState<'basic' | 'advanced' | 'syntax'>('basic');
   const searchInputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { openTaskModal } = useTaskModal();
+  const { currentUser } = useCurrentUser();
+
+  // Fetch data for client-side filtering (used when search has operators)
+  const { data: allTasks } = useGetTasksByUserQuery(currentUser?.userId || 0, { skip: !currentUser || searchMode !== 'syntax' });
+  const { data: allProjects } = useGetProjectsQuery({ skip: searchMode !== 'syntax' });
+  const { data: allUsers } = useGetUsersQuery({ skip: searchMode !== 'syntax' });
 
   // Basic search query
   const {
@@ -238,22 +258,103 @@ const NavbarSearch = forwardRef<NavbarSearchRef, NavbarSearchProps>(({
   const isLoading = searchMode === 'basic' ? isBasicLoading : isAdvancedLoading;
   const isError = searchMode === 'basic' ? isBasicError : isAdvancedError;
 
+  // Parse query when search term changes to detect operators
+  useEffect(() => {
+    if (searchTerm.length >= 2) {
+      const parsed = parseSearchQuery(searchTerm);
+      setParsedQuery(parsed);
+
+      // Switch to syntax mode if operators detected, otherwise basic
+      if (parsed.hasOperators) {
+        setSearchMode('syntax');
+      } else if (searchMode === 'syntax') {
+        setSearchMode('basic');
+      }
+    } else {
+      setParsedQuery(null);
+      if (searchMode === 'syntax') {
+        setSearchMode('basic');
+      }
+    }
+  }, [searchTerm]);
+
+  // Compute filtered results when in syntax mode
+  const syntaxFilteredResults = useMemo(() => {
+    if (searchMode !== 'syntax' || !parsedQuery || !allTasks) {
+      return null;
+    }
+
+    // Filter tasks using parsed query
+    let filteredTasks = applySearchQuery(
+      allTasks,
+      parsedQuery,
+      currentUser?.userId,
+      {
+        getAssigneeId: (task) => task.assignedUserId,
+        getAuthorId: (task) => task.authorUserId,
+        getProjectId: (task) => task.projectId,
+        getDueDate: (task) => task.dueDate,
+        getCreatedAt: (task) => task.createdAt,
+        getUpdatedAt: (task) => task.updatedAt,
+        getStatus: (task) => task.status,
+        getPriority: (task) => task.priority,
+      }
+    );
+
+    // Apply sorting if specified
+    if (parsedQuery.sort) {
+      filteredTasks = applySort(filteredTasks, parsedQuery.sort, {
+        getPriority: (task) => task.priority,
+        getDueDate: (task) => task.dueDate,
+        getCreatedAt: (task) => task.createdAt,
+        getUpdatedAt: (task) => task.updatedAt,
+        getStatus: (task) => task.status,
+      });
+    }
+
+    // Filter projects by text query only (operators don't apply to projects)
+    const filteredProjects = allProjects?.filter(project => {
+      if (!parsedQuery.textQuery) return true;
+      const textLower = parsedQuery.textQuery.toLowerCase();
+      return project.name?.toLowerCase().includes(textLower) ||
+             project.description?.toLowerCase().includes(textLower);
+    }) || [];
+
+    // Filter users by text query only
+    const filteredUsers = allUsers?.filter(user => {
+      if (!parsedQuery.textQuery) return true;
+      const textLower = parsedQuery.textQuery.toLowerCase();
+      return user.username?.toLowerCase().includes(textLower);
+    }) || [];
+
+    return {
+      tasks: filteredTasks,
+      projects: filteredProjects,
+      users: filteredUsers,
+    };
+  }, [searchMode, parsedQuery, allTasks, allProjects, allUsers, currentUser?.userId]);
+
+  // Use syntax filtered results when in syntax mode
+  const displayResults = searchMode === 'syntax' ? syntaxFilteredResults : searchResults;
+
   // Optimized debounced search with 300ms delay
   const debouncedSetSearchMode = useMemo(
     () => debounce((value: string) => {
-      if (value.length >= 3) {
+      if (value.length >= 3 && searchMode !== 'syntax') {
         setSearchMode('basic');
       }
     }, 300),
-    []
+    [searchMode]
   );
 
   const handleInputChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
     setSearchTerm(value);
-    
-    // Debounced search mode update
-    debouncedSetSearchMode(value);
+
+    // Debounced search mode update (only for non-syntax mode)
+    if (!value.includes(':')) {
+      debouncedSetSearchMode(value);
+    }
   }, [debouncedSetSearchMode]);
 
   const handleInputFocus = useCallback(() => {
@@ -264,6 +365,21 @@ const NavbarSearch = forwardRef<NavbarSearchRef, NavbarSearchProps>(({
       setShowResults(true);
     }
   }, [searchTerm.length]);
+
+  const handleKeyDown = useCallback((event: React.KeyboardEvent<HTMLInputElement>) => {
+    // Open syntax help with "?" key
+    if (event.key === '?' && !event.shiftKey && !event.ctrlKey && !event.metaKey) {
+      event.preventDefault();
+      setIsSyntaxHelpOpen(true);
+    }
+    // Close modals with Escape
+    if (event.key === 'Escape') {
+      setIsSyntaxHelpOpen(false);
+      setIsAdvancedModalOpen(false);
+      setShowResults(false);
+      setShowSuggestions(false);
+    }
+  }, []);
 
   const handleAdvancedSearch = useCallback((filters: SearchFilters) => {
     setCurrentFilters(filters);
@@ -314,23 +430,28 @@ const NavbarSearch = forwardRef<NavbarSearchRef, NavbarSearchProps>(({
   }, [openTaskModal, handleResultClick]);
 
   // Memoized results calculations
-  const hasActiveFilters = useMemo(() => 
+  const hasActiveFilters = useMemo(() =>
     Object.keys(currentFilters).length > 0 && searchMode === 'advanced',
     [currentFilters, searchMode]
   );
 
-  const hasResults = useMemo(() => 
-    searchResults && (
-      (searchResults.tasks?.length > 0) || 
-      (searchResults.projects?.length > 0) || 
-      (searchResults.users?.length > 0)
-    ),
-    [searchResults]
+  const hasSyntaxOperators = useMemo(() =>
+    parsedQuery?.hasOperators || false,
+    [parsedQuery]
   );
 
-  const tasksCount = searchResults?.tasks?.length || 0;
-  const projectsCount = searchResults?.projects?.length || 0;
-  const usersCount = searchResults?.users?.length || 0;
+  const hasResults = useMemo(() =>
+    displayResults && (
+      (displayResults.tasks?.length > 0) ||
+      (displayResults.projects?.length > 0) ||
+      (displayResults.users?.length > 0)
+    ),
+    [displayResults]
+  );
+
+  const tasksCount = displayResults?.tasks?.length || 0;
+  const projectsCount = displayResults?.projects?.length || 0;
+  const usersCount = displayResults?.users?.length || 0;
 
   // Auto-show results when we have a search term >= 3 characters
   useEffect(() => {
@@ -412,6 +533,7 @@ const NavbarSearch = forwardRef<NavbarSearchRef, NavbarSearchProps>(({
             className="w-full pl-10 pr-20 text-sm focus-visible:ring-1"
             onChange={handleInputChange}
             onFocus={handleInputFocus}
+            onKeyDown={handleKeyDown}
             autoComplete="off"
           />
           
@@ -427,6 +549,15 @@ const NavbarSearch = forwardRef<NavbarSearchRef, NavbarSearchProps>(({
                 <X className="h-3 w-3" />
               </Button>
             )}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsSyntaxHelpOpen(true)}
+              className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground"
+              title="Search Syntax Help"
+            >
+              <HelpCircle className="h-3 w-3" />
+            </Button>
             <Button
               variant="ghost"
               size="sm"
@@ -478,7 +609,7 @@ const NavbarSearch = forwardRef<NavbarSearchRef, NavbarSearchProps>(({
               </div>
             )}
             
-            {!isLoading && !isError && searchResults && (
+            {!isLoading && !isError && displayResults && (
               <div className="py-2">
                 {/* Search Info Header */}
                 <div className="px-4 py-2 border-b border-border">
@@ -488,16 +619,35 @@ const NavbarSearch = forwardRef<NavbarSearchRef, NavbarSearchProps>(({
                       {hasActiveFilters && (
                         <span className="text-primary">• Filtered</span>
                       )}
+                      {hasSyntaxOperators && (
+                        <span className="text-primary">• Syntax Mode</span>
+                      )}
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setIsAdvancedModalOpen(true)}
-                      className="h-6 text-xs"
-                    >
-                      Advanced
-                    </Button>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setIsSyntaxHelpOpen(true)}
+                        className="h-6 text-xs"
+                      >
+                        <HelpCircle className="h-3 w-3 mr-1" />
+                        Syntax
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setIsAdvancedModalOpen(true)}
+                        className="h-6 text-xs"
+                      >
+                        Advanced
+                      </Button>
+                    </div>
                   </div>
+                  {hasSyntaxOperators && parsedQuery?.invalidOperators && parsedQuery.invalidOperators.length > 0 && (
+                    <div className="mt-1 text-xs text-destructive">
+                      Warning: Unknown operators - {parsedQuery.invalidOperators.map(op => `${op.operator}:${op.value}`).join(', ')}
+                    </div>
+                  )}
                 </div>
 
                 {/* Tasks Section */}
@@ -507,16 +657,17 @@ const NavbarSearch = forwardRef<NavbarSearchRef, NavbarSearchProps>(({
                       <CheckSquare className="h-4 w-4 text-muted-foreground" />
                       <span className="text-sm font-medium text-muted-foreground">
                         Tasks ({tasksCount})
+                        {hasSyntaxOperators && <span className="ml-1 text-xs text-primary">(filtered)</span>}
                       </span>
                     </div>
                     <div className="space-y-1">
                       {/* Show first 10 tasks with virtualization if more than 10 */}
                       {tasksCount <= 10 ? (
-                        searchResults.tasks.slice(0, 10).map((task: Task) => (
-                          <TaskResultItem 
+                        displayResults.tasks.slice(0, 10).map((task: Task) => (
+                          <TaskResultItem
                             key={task.id}
-                            task={task} 
-                            onClick={() => handleTaskClick(task.id)} 
+                            task={task}
+                            onClick={() => handleTaskClick(task.id)}
                           />
                         ))
                       ) : (
@@ -526,7 +677,7 @@ const NavbarSearch = forwardRef<NavbarSearchRef, NavbarSearchProps>(({
                             itemCount={Math.min(tasksCount, 10)}
                             itemSize={64}
                             itemData={{
-                              tasks: searchResults.tasks.slice(0, 10),
+                              tasks: displayResults.tasks.slice(0, 10),
                               onTaskClick: handleTaskClick,
                             }}
                           >
@@ -553,7 +704,7 @@ const NavbarSearch = forwardRef<NavbarSearchRef, NavbarSearchProps>(({
                       </span>
                     </div>
                     <div className="space-y-1">
-                      {searchResults.projects.slice(0, 3).map((project: Project) => (
+                      {displayResults.projects.slice(0, 3).map((project: Project) => (
                         <ProjectResultItem
                           key={project.id}
                           project={project}
@@ -579,7 +730,7 @@ const NavbarSearch = forwardRef<NavbarSearchRef, NavbarSearchProps>(({
                       </span>
                     </div>
                     <div className="space-y-1">
-                      {searchResults.users.slice(0, 4).map((user: UserType) => (
+                      {displayResults.users.slice(0, 4).map((user: UserType) => (
                         <UserResultItem
                           key={user.userId}
                           user={user}
@@ -610,15 +761,26 @@ const NavbarSearch = forwardRef<NavbarSearchRef, NavbarSearchProps>(({
 
                 {/* Advanced Search Footer */}
                 <div className="px-4 py-2 border-t border-border">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setIsAdvancedModalOpen(true)}
-                    className="w-full text-xs"
-                  >
-                    <Settings2 className="h-3 w-3 mr-2" />
-                    Advanced Search Options
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setIsSyntaxHelpOpen(true)}
+                      className="flex-1 text-xs"
+                    >
+                      <HelpCircle className="h-3 w-3 mr-2" />
+                      Syntax Help (?)
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setIsAdvancedModalOpen(true)}
+                      className="flex-1 text-xs"
+                    >
+                      <Settings2 className="h-3 w-3 mr-2" />
+                      Advanced Search
+                    </Button>
+                  </div>
                 </div>
               </div>
             )}
@@ -632,6 +794,12 @@ const NavbarSearch = forwardRef<NavbarSearchRef, NavbarSearchProps>(({
         onClose={() => setIsAdvancedModalOpen(false)}
         onSearch={handleAdvancedSearch}
         initialFilters={currentFilters}
+      />
+
+      {/* Search Syntax Help Modal */}
+      <SearchSyntaxHelp
+        isOpen={isSyntaxHelpOpen}
+        onClose={() => setIsSyntaxHelpOpen(false)}
       />
     </>
   );
