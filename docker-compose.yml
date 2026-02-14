@@ -21,3 +21,13 @@ services:
     labels:
       - "app=taskluid-frontend"
       - "environment=production"
+    # Join backend network so /auth/* and other proxied API paths can resolve task-luid-backend.
+    networks:
+      - default
+      - backend-app-network
+
+networks:
+  # Backend stack runs in a separate compose project; attach via its shared bridge network.
+  backend-app-network:
+    external: true
+    name: ${BACKEND_DOCKER_NETWORK:-task-luid-backend_app-network}
