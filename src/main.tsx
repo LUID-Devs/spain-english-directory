@@ -18,9 +18,6 @@ if (!rootElement) {
   throw new Error('Root element not found');
 }
 
-// Check if we have prerendered content (SSR/SSG)
-const hasPrerenderedContent = rootElement.innerHTML.trim().length > 0;
-
 const appTree = (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
@@ -35,10 +32,5 @@ const appTree = (
 // Keep strict checks in production builds while avoiding noisy duplicate requests in local dev.
 const app = import.meta.env.DEV ? appTree : <React.StrictMode>{appTree}</React.StrictMode>;
 
-if (hasPrerenderedContent) {
-  // Hydrate the prerendered content to preserve SEO and reduce flicker
-  ReactDOM.hydrateRoot(rootElement, app);
-} else {
-  // Standard client-side rendering for non-prerendered pages
-  ReactDOM.createRoot(rootElement).render(app);
-}
+// Always mount with createRoot to avoid hydration mismatches from static prerender markup.
+ReactDOM.createRoot(rootElement).render(app);

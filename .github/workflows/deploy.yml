@@ -8,6 +8,12 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
+  VITE_COGNITO_DOMAIN: ${{ vars.VITE_COGNITO_DOMAIN }}
+  VITE_COGNITO_USER_POOL_ID: ${{ vars.VITE_COGNITO_USER_POOL_ID }}
+  VITE_COGNITO_CLIENT_ID: ${{ vars.VITE_COGNITO_CLIENT_ID }}
+  VITE_COGNITO_REDIRECT_URI: ${{ vars.VITE_COGNITO_REDIRECT_URI }}
+  VITE_COGNITO_REGION: ${{ vars.VITE_COGNITO_REGION }}
 
 jobs:
   build:
@@ -42,6 +48,20 @@ jobs:
             type=sha,prefix=sha-
             type=raw,value=latest,enable={{is_default_branch}}
 
+      - name: ✅ Validate frontend build environment
+        run: |
+          missing=0
+          for key in VITE_API_BASE_URL VITE_COGNITO_DOMAIN VITE_COGNITO_USER_POOL_ID VITE_COGNITO_CLIENT_ID VITE_COGNITO_REDIRECT_URI VITE_COGNITO_REGION; do
+            if [ -z "${!key}" ]; then
+              echo "❌ Missing required GitHub variable: $key"
+              missing=1
+            fi
+          done
+          if [ "$missing" -ne 0 ]; then
+            echo "Aborting build to prevent shipping a broken frontend config."
+            exit 1
+          fi
+
       - name: 🏗️ Build and push Docker image
         uses: docker/build-push-action@v5
         with:
@@ -52,6 +72,13 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          build-args: |
+            VITE_API_BASE_URL=${{ env.VITE_API_BASE_URL }}
+            VITE_COGNITO_DOMAIN=${{ env.VITE_COGNITO_DOMAIN }}
+            VITE_COGNITO_USER_POOL_ID=${{ env.VITE_COGNITO_USER_POOL_ID }}
+            VITE_COGNITO_CLIENT_ID=${{ env.VITE_COGNITO_CLIENT_ID }}
+            VITE_COGNITO_REDIRECT_URI=${{ env.VITE_COGNITO_REDIRECT_URI }}
+            VITE_COGNITO_REGION=${{ env.VITE_COGNITO_REGION }}
 
   deploy:
     needs: build

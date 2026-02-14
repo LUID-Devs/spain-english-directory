@@ -3,30 +3,50 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 /**
- * Get the main JS and CSS asset filenames from the dist/assets folder
+ * Resolve Vite's real entry JS/CSS from dist/index.html.
+ * This avoids picking the wrong "index-*.js" chunk when many are generated.
  */
 function getAssetFilenames(distPath: string): { js: string; css: string } {
+  const indexHtmlPath = path.join(distPath, 'index.html');
+
+  if (fs.existsSync(indexHtmlPath)) {
+    const indexHtml = fs.readFileSync(indexHtmlPath, 'utf8');
+    const jsMatch = indexHtml.match(/<script[^>]+src="\/assets\/([^"]+\.js)"/);
+    const cssMatch = indexHtml.match(/<link[^>]+href="\/assets\/([^"]+\.css)"/);
+
+    if (jsMatch?.[1] && cssMatch?.[1]) {
+      console.log(`[static-prerender] Using index.html assets: JS=${jsMatch[1]}, CSS=${cssMatch[1]}`);
+      return { js: jsMatch[1], css: cssMatch[1] };
+    }
+
+    console.warn('[static-prerender] Could not parse assets from dist/index.html, falling back to assets scan');
+  } else {
+    console.warn('[static-prerender] dist/index.html not found, falling back to assets scan');
+  }
+
   const assetsPath = path.join(distPath, 'assets');
-  
+
   if (!fs.existsSync(assetsPath)) {
     console.warn('[static-prerender] Assets folder not found, using fallback names');
     return { js: 'index.js', css: 'index.css' };
   }
-  
+
   const files = fs.readdirSync(assetsPath);
-  
-  // Find main index JS file (should be like index-XXXXXX.js)
-  const jsFile = files.find(f => f.match(/^index-[A-Za-z0-9_-]+\.js$/) && !f.endsWith('.map'));
-  
-  // Find main index CSS file
-  const cssFile = files.find(f => f.match(/^index-[A-Za-z0-9_-]+\.css$/) && !f.endsWith('.map'));
-  
+  const jsFile = files
+    .filter((f) => /^index-[A-Za-z0-9_-]+\.js$/.test(f) && !f.endsWith('.map'))
+    .sort()
+    .pop();
+  const cssFile = files
+    .filter((f) => /^index-[A-Za-z0-9_-]+\.css$/.test(f) && !f.endsWith('.map'))
+    .sort()
+    .pop();
+
   if (!jsFile || !cssFile) {
     console.warn('[static-prerender] Could not find main assets, using fallback names');
     return { js: jsFile || 'index.js', css: cssFile || 'index.css' };
   }
-  
-  console.log(`[static-prerender] Found assets: JS=${jsFile}, CSS=${cssFile}`);
+
+  console.log(`[static-prerender] Fallback assets: JS=${jsFile}, CSS=${cssFile}`);
   return { js: jsFile, css: cssFile };
 }
 

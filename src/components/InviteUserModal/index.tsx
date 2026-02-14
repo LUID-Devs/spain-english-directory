@@ -161,7 +161,7 @@ const InviteUserModal = ({ isOpen, onClose, onInvite }: InviteUserModalProps) =>
               </SelectTrigger>
               <SelectContent>
                 {isTeamsError ? (
-                  <SelectItem value="" disabled>
+                  <SelectItem value="__teams_load_failed__" disabled>
                     Failed to load teams
                   </SelectItem>
                 ) : teams && teams.length > 0 ? (
@@ -171,7 +171,7 @@ const InviteUserModal = ({ isOpen, onClose, onInvite }: InviteUserModalProps) =>
                     </SelectItem>
                   ))
                 ) : (
-                  <SelectItem value="" disabled>
+                  <SelectItem value="__no_teams_available__" disabled>
                     No teams available
                   </SelectItem>
                 )}

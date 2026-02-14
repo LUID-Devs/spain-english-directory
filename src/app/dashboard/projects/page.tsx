@@ -20,14 +20,14 @@ const ProjectsPage = () => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [sortBy, setSortBy] = useState<"name" | "date" | "progress">("name");
   const [activeTab, setActiveTab] = useState<"all" | "favorites" | "archived">("all");
-  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   
   const { currentUser } = useCurrentUser();
   const { data: projects, isLoading, isError } = useGetProjectsQuery({ 
     archived: activeTab === "archived", 
     favorites: activeTab === "favorites",
     userId: currentUser?.userId,
-    status: statusFilter || undefined
+    status: statusFilter === "all" ? undefined : statusFilter
   });
 
   const filteredProjects = projects?.filter(project =>
@@ -109,7 +109,7 @@ const ProjectsPage = () => {
           <h1 className="text-3xl font-bold tracking-tight">{getTabTitle()}</h1>
           <p className="text-muted-foreground">
             {sortedProjects.length} project{sortedProjects.length !== 1 ? 's' : ''} 
-            {statusFilter && ` with ${statusFilter.toLowerCase()} status`}
+            {statusFilter !== "all" && ` with ${statusFilter.toLowerCase()} status`}
           </p>
         </div>
         {activeTab === "all" && (
@@ -189,7 +189,7 @@ const ProjectsPage = () => {
                         <SelectValue placeholder="Status" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">All Status</SelectItem>
+                        <SelectItem value="all">All Status</SelectItem>
                         <SelectItem value="Active">Active</SelectItem>
                         <SelectItem value="Completed">Completed</SelectItem>
                         <SelectItem value="Overdue">Overdue</SelectItem>
