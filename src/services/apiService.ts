@@ -946,7 +946,7 @@ class ApiService {
 
   // Agents
   async getAgents(): Promise<Agent[]> {
-    return this.request<Agent[]>('/agents');
+    return this.request<Agent[]>('/api/agents');
   }
 
   async assignAgentToTask(taskId: number, agentId: number, status?: string): Promise<{ message: string; assignment: any }> {
@@ -1017,12 +1017,12 @@ class ApiService {
   // ==================== SAVED VIEWS ====================
 
   async getProjectViews(projectId: number): Promise<SavedView[]> {
-    const response = await this.request<{ success: boolean; views: SavedView[] }>(`/projects/${projectId}/views`);
+    const response = await this.request<{ success: boolean; views: SavedView[] }>(`/api/projects/${projectId}/views`);
     return response.views;
   }
 
   async getDefaultView(projectId: number): Promise<SavedView | null> {
-    const response = await this.request<{ success: boolean; view: SavedView | null }>(`/projects/${projectId}/views/default`);
+    const response = await this.request<{ success: boolean; view: SavedView | null }>(`/api/projects/${projectId}/views/default`);
     return response.view;
   }
 
@@ -1032,7 +1032,7 @@ class ApiService {
     isDefault?: boolean;
     isShared?: boolean;
   }): Promise<SavedView> {
-    const response = await this.request<{ success: boolean; view: SavedView }>(`/projects/${projectId}/views`, {
+    const response = await this.request<{ success: boolean; view: SavedView }>(`/api/projects/${projectId}/views`, {
       method: 'POST',
       body: JSON.stringify(data),
     });
@@ -1045,7 +1045,7 @@ class ApiService {
     isDefault: boolean;
     isShared: boolean;
   }>): Promise<SavedView> {
-    const response = await this.request<{ success: boolean; view: SavedView }>(`/views/${viewId}`, {
+    const response = await this.request<{ success: boolean; view: SavedView }>(`/api/views/${viewId}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     });
@@ -1053,13 +1053,13 @@ class ApiService {
   }
 
   async deleteView(viewId: number): Promise<void> {
-    await this.request<{ success: boolean }>(`/views/${viewId}`, {
+    await this.request<{ success: boolean }>(`/api/views/${viewId}`, {
       method: 'DELETE',
     });
   }
 
   async setDefaultView(viewId: number): Promise<SavedView> {
-    const response = await this.request<{ success: boolean; view: SavedView }>(`/views/${viewId}/set-default`, {
+    const response = await this.request<{ success: boolean; view: SavedView }>(`/api/views/${viewId}/set-default`, {
       method: 'POST',
     });
     return response.view;
@@ -1268,15 +1268,15 @@ class ApiService {
   // ==================== GIT LINKS API ====================
 
   async getTaskGitLinks(taskId: number): Promise<{ success: boolean; data: GitLink[]; count: number }> {
-    return this.request<{ success: boolean; data: GitLink[]; count: number }>(`/api/tasks/${taskId}/git-links`);
+    return this.request<{ success: boolean; data: GitLink[]; count: number }>(`/tasks/${taskId}/git-links`);
   }
 
   async getTaskCommits(taskId: number): Promise<{ success: boolean; data: GitLink[]; count: number }> {
-    return this.request<{ success: boolean; data: GitLink[]; count: number }>(`/api/tasks/${taskId}/git-links/commits`);
+    return this.request<{ success: boolean; data: GitLink[]; count: number }>(`/tasks/${taskId}/git-links/commits`);
   }
 
   async getTaskPullRequests(taskId: number): Promise<{ success: boolean; data: GitLink[]; count: number }> {
-    return this.request<{ success: boolean; data: GitLink[]; count: number }>(`/api/tasks/${taskId}/git-links/pull-requests`);
+    return this.request<{ success: boolean; data: GitLink[]; count: number }>(`/tasks/${taskId}/git-links/pull-requests`);
   }
 
   // ==================== AUTOMATION API ====================
@@ -1343,41 +1343,41 @@ class ApiService {
   // ==================== TIME TRACKING API ====================
 
   async getTimeEstimate(taskId: number): Promise<{ taskId: number; estimate: TimeEstimate | null }> {
-    return this.request<{ taskId: number; estimate: TimeEstimate | null }>(`/api/tasks/${taskId}/time-estimate`);
+    return this.request<{ taskId: number; estimate: TimeEstimate | null }>(`/tasks/${taskId}/time-estimate`);
   }
 
   async setTimeEstimate(taskId: number, estimate: string): Promise<{ success: boolean; estimate: TimeEstimate }> {
-    return this.request<{ success: boolean; estimate: TimeEstimate }>(`/api/tasks/${taskId}/time-estimate`, {
+    return this.request<{ success: boolean; estimate: TimeEstimate }>(`/tasks/${taskId}/time-estimate`, {
       method: 'POST',
       body: JSON.stringify({ estimate }),
     });
   }
 
   async deleteTimeEstimate(taskId: number): Promise<{ success: boolean; message: string }> {
-    return this.request<{ success: boolean; message: string }>(`/api/tasks/${taskId}/time-estimate`, {
+    return this.request<{ success: boolean; message: string }>(`/tasks/${taskId}/time-estimate`, {
       method: 'DELETE',
     });
   }
 
   async getTimeLogs(taskId: number): Promise<TimeLogsResponse> {
-    return this.request<TimeLogsResponse>(`/api/tasks/${taskId}/time-logs`);
+    return this.request<TimeLogsResponse>(`/tasks/${taskId}/time-logs`);
   }
 
   async startTimer(taskId: number, description?: string): Promise<{ success: boolean; timeLog: TimeLog }> {
-    return this.request<{ success: boolean; timeLog: TimeLog }>(`/api/tasks/${taskId}/time-logs/start`, {
+    return this.request<{ success: boolean; timeLog: TimeLog }>(`/tasks/${taskId}/time-logs/start`, {
       method: 'POST',
       body: JSON.stringify({ description }),
     });
   }
 
   async stopTimer(logId: number): Promise<{ success: boolean; timeLog: TimeLog }> {
-    return this.request<{ success: boolean; timeLog: TimeLog }>(`/api/time-logs/${logId}/stop`, {
+    return this.request<{ success: boolean; timeLog: TimeLog }>(`/tasks/time-logs/${logId}/stop`, {
       method: 'POST',
     });
   }
 
   async deleteTimeLog(logId: number): Promise<{ success: boolean; message: string }> {
-    return this.request<{ success: boolean; message: string }>(`/api/time-logs/${logId}`, {
+    return this.request<{ success: boolean; message: string }>(`/tasks/time-logs/${logId}`, {
       method: 'DELETE',
     });
   }

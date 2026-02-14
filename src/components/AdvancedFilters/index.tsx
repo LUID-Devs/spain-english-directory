@@ -109,31 +109,8 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
     return Array.from(tagsSet).sort();
   }, [tasks]);
 
-  // Apply filters to tasks
-  const filteredTasks = useMemo(() => {
-    if (!tasks || filters.length === 0) return tasks || [];
-
-    return tasks.filter((task) => {
-      if (filters.length === 0) return true;
-
-      const results = filters.map((filter) => applyFilter(task, filter));
-
-      if (logic === "AND") {
-        return results.every((r) => r);
-      } else {
-        return results.some((r) => r);
-      }
-    });
-  }, [tasks, filters, logic]);
-
-  // Notify parent of filter changes
-  React.useEffect(() => {
-    onFilterChange(filteredTasks);
-    onActiveFiltersChange?.(filters.length);
-  }, [filteredTasks, filters.length, onFilterChange, onActiveFiltersChange]);
-
   // Apply a single filter criteria to a task
-  const applyFilter = (task: Task, filter: FilterCriteria): boolean => {
+  function applyFilter(task: Task, filter: FilterCriteria): boolean {
     switch (filter.type) {
       case "status":
         return task.status === filter.value;
@@ -167,7 +144,30 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
       default:
         return true;
     }
-  };
+  }
+
+  // Apply filters to tasks
+  const filteredTasks = useMemo(() => {
+    if (!tasks || filters.length === 0) return tasks || [];
+
+    return tasks.filter((task) => {
+      if (filters.length === 0) return true;
+
+      const results = filters.map((filter) => applyFilter(task, filter));
+
+      if (logic === "AND") {
+        return results.every((r) => r);
+      } else {
+        return results.some((r) => r);
+      }
+    });
+  }, [tasks, filters, logic]);
+
+  // Notify parent of filter changes
+  React.useEffect(() => {
+    onFilterChange(filteredTasks);
+    onActiveFiltersChange?.(filters.length);
+  }, [filteredTasks, filters.length, onFilterChange, onActiveFiltersChange]);
 
   // Add a new filter
   const addFilter = () => {

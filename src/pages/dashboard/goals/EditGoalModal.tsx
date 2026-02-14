@@ -28,6 +28,7 @@ interface EditGoalModalProps {
 }
 
 export function EditGoalModal({ goal, isOpen, onClose }: EditGoalModalProps) {
+  const NO_PROJECT_VALUE = "__none__";
   const queryClient = useQueryClient();
   const initialRenderRef = useRef(true);
   
@@ -207,12 +208,15 @@ export function EditGoalModal({ goal, isOpen, onClose }: EditGoalModalProps) {
           {/* Project */}
           <div className="space-y-2">
             <Label>Project (Optional)</Label>
-            <Select value={projectId} onValueChange={setProjectId}>
+            <Select
+              value={projectId || NO_PROJECT_VALUE}
+              onValueChange={(value) => setProjectId(value === NO_PROJECT_VALUE ? "" : value)}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select project" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">None</SelectItem>
+                <SelectItem value={NO_PROJECT_VALUE}>None</SelectItem>
                 {projects?.map((project) => (
                   <SelectItem key={project.id} value={project.id.toString()}>
                     {project.name}

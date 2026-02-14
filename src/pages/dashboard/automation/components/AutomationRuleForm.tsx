@@ -30,6 +30,10 @@ const AutomationRuleForm: React.FC<AutomationRuleFormProps> = ({
   onSuccess,
   onCancel,
 }) => {
+  const ANY_PROJECT_VALUE = '__any_project__';
+  const ANY_PRIORITY_VALUE = '__any_priority__';
+  const SYSTEM_ACTOR_VALUE = '__system_actor__';
+
   const isEdit = !!rule;
   const { data: projects } = useGetProjectsQuery({}, { skip: !organizationId });
   const { data: agents } = useGetAgentsQuery(undefined, { skip: !organizationId });
@@ -157,14 +161,17 @@ const AutomationRuleForm: React.FC<AutomationRuleFormProps> = ({
           <div className="space-y-2">
             <Label className="text-xs">Project (optional)</Label>
             <Select
-              value={triggerConfig.projectId?.toString() || ''}
-              onValueChange={(value) => setTriggerConfig({ ...triggerConfig, projectId: value ? parseInt(value) : undefined })}
+              value={triggerConfig.projectId?.toString() || ANY_PROJECT_VALUE}
+              onValueChange={(value) => setTriggerConfig({
+                ...triggerConfig,
+                projectId: value === ANY_PROJECT_VALUE ? undefined : parseInt(value),
+              })}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Any project" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Any project</SelectItem>
+                <SelectItem value={ANY_PROJECT_VALUE}>Any project</SelectItem>
                 {projects?.map((project) => (
                   <SelectItem key={project.id} value={project.id.toString()}>
                     {project.name}
@@ -198,14 +205,17 @@ const AutomationRuleForm: React.FC<AutomationRuleFormProps> = ({
           <div className="space-y-2">
             <Label className="text-xs">Priority (optional)</Label>
             <Select
-              value={triggerConfig.priority || ''}
-              onValueChange={(value) => setTriggerConfig({ ...triggerConfig, priority: value || undefined })}
+              value={triggerConfig.priority || ANY_PRIORITY_VALUE}
+              onValueChange={(value) => setTriggerConfig({
+                ...triggerConfig,
+                priority: value === ANY_PRIORITY_VALUE ? undefined : value,
+              })}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Any priority" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Any priority</SelectItem>
+                <SelectItem value={ANY_PRIORITY_VALUE}>Any priority</SelectItem>
                 <SelectItem value="Urgent">Urgent</SelectItem>
                 <SelectItem value="High">High</SelectItem>
                 <SelectItem value="Medium">Medium</SelectItem>
@@ -353,14 +363,17 @@ const AutomationRuleForm: React.FC<AutomationRuleFormProps> = ({
               <div className="space-y-2">
                 <Label className="text-xs">Post as Agent</Label>
                 <Select
-                  value={actionConfig.commentAsAgentId?.toString() || ''}
-                  onValueChange={(value) => setActionConfig({ ...actionConfig, commentAsAgentId: value ? parseInt(value) : undefined })}
+                  value={actionConfig.commentAsAgentId?.toString() || SYSTEM_ACTOR_VALUE}
+                  onValueChange={(value) => setActionConfig({
+                    ...actionConfig,
+                    commentAsAgentId: value === SYSTEM_ACTOR_VALUE ? undefined : parseInt(value),
+                  })}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select agent (optional)..." />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">System</SelectItem>
+                    <SelectItem value={SYSTEM_ACTOR_VALUE}>System</SelectItem>
                     {agents?.map((agent) => (
                       <SelectItem key={agent.id} value={agent.id.toString()}>
                         {agent.displayName || agent.name}
