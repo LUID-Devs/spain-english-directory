@@ -24,11 +24,12 @@ const LoginPage = () => {
 
   // Redirect if already authenticated (only once)
   useEffect(() => {
-    if (!authLoading && isAuthenticated && user && !hasRedirected) {
+    // Only auto-redirect when backend auth is fully established (userId present)
+    if (!authLoading && isAuthenticated && user?.userId && !hasRedirected) {
       setHasRedirected(true);
       navigate('/dashboard', { replace: true });
     }
-  }, [isAuthenticated, authLoading, user, navigate, hasRedirected]);
+  }, [isAuthenticated, authLoading, user?.userId, navigate, hasRedirected]);
 
   // Listen for OAuth callback
   useEffect(() => {
@@ -37,7 +38,7 @@ const LoginPage = () => {
         case 'signInWithRedirect':
           setLoading(true);
           await refreshAuth();
-          navigate('/dashboard');
+          setLoading(false);
           break;
         case 'signInWithRedirect_failure':
           console.error('[LOGIN PAGE] OAuth sign-in failed:', payload.data);
@@ -84,9 +85,9 @@ const LoginPage = () => {
         // Handle MFA challenge
         setChallenge(data);
       } else if (data.success) {
-        // Successful login - refresh auth state and navigate
+        // Successful login - refresh auth state.
+        // Navigation is handled by the auth redirect effect once backend auth is ready.
         await refreshAuth();
-        navigate("/dashboard");
       }
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "Login failed. Please try again.");
@@ -125,9 +126,9 @@ const LoginPage = () => {
       }
 
       if (data.success) {
-        // Successful MFA - refresh auth state and navigate
+        // Successful MFA - refresh auth state.
+        // Navigation is handled by the auth redirect effect once backend auth is ready.
         await refreshAuth();
-        navigate("/dashboard");
       }
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "MFA verification failed. Please try again.");

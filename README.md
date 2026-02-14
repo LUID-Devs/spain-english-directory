@@ -708,8 +708,20 @@ try {
     throw new Error('Request failed');
   }
 } catch (error) {
-  // Automatic redirect to login on auth errors
+  // AuthProvider surfaces a retryable error with diagnostics
 }
+```
+
+Local troubleshooting checklist for `Authentication Error` + `Network error` modal:
+1. Verify frontend env: `VITE_API_BASE_URL` in `task-luid-web/.env.local` points to your backend (example: `http://localhost:8000`).
+2. Restart frontend dev server after env changes.
+3. Ensure backend is running and reachable at `${VITE_API_BASE_URL}/health`.
+4. Ensure backend CORS allows your frontend origin (example: `http://localhost:3000`) when `credentials: true` is enabled.
+5. For Google OAuth, verify callback URI exactly matches frontend callback route (example: `http://localhost:3000/auth/callback`) in both Cognito and frontend env.
+
+Quick validation command:
+```bash
+npm run check:auth-env
 ```
 
 ### Caching Strategy

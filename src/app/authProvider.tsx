@@ -24,6 +24,12 @@ interface AuthError {
   message: string;
   type: 'network' | 'auth' | 'unknown';
   retryable: boolean;
+  details?: {
+    apiBaseUrl: string;
+    authStatusUrl: string;
+    frontendOrigin?: string;
+    hint?: string;
+  };
 }
 
 interface AuthContextType {
@@ -74,8 +80,15 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // Declare Cognito variables in function scope so they're available in all catch blocks
     let cognitoSession: any = null;
     let cognitoUser: any = null;
+    const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL || "").trim().replace(/\/$/, "");
+    const authStatusUrl = `${apiBaseUrl}/auth/status`;
+    const frontendOrigin = typeof window !== "undefined" ? window.location.origin : undefined;
 
     try {
+      if (!apiBaseUrl) {
+        throw new Error('AUTH_CONFIG_MISSING_API_BASE_URL');
+      }
+
       // First, try to get Cognito session (for OAuth users)
       try {
         // Use forceRefresh only on retry attempts and not too frequently
@@ -114,7 +127,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           headers['X-ID-Token'] = `${cognitoSession.tokens.idToken}`;
         }
 
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/status`, {
+        const response = await fetch(authStatusUrl, {
           credentials: 'include', // Still send cookies for traditional auth
           signal: controller.signal,
           headers,
@@ -185,31 +198,76 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       // Determine error type for user feedback
       let authError: AuthError;
       if (error instanceof Error) {
-        if (error.name === 'AbortError') {
+        if (error.message === 'AUTH_CONFIG_MISSING_API_BASE_URL') {
           authError = {
-            message: 'Authentication request timed out. Please check your connection and try again.',
+            message: 'Authentication is not configured correctly. Missing VITE_API_BASE_URL.',
+            type: 'auth',
+            retryable: false,
+            details: {
+              apiBaseUrl,
+              authStatusUrl,
+              frontendOrigin,
+              hint: 'Set VITE_API_BASE_URL in task-luid-web/.env.local and restart the frontend dev server.'
+            }
+          };
+        } else if (error.name === 'AbortError') {
+          authError = {
+            message: `Authentication request timed out while contacting ${authStatusUrl}.`,
             type: 'network',
-            retryable: true
+            retryable: true,
+            details: {
+              apiBaseUrl,
+              authStatusUrl,
+              frontendOrigin,
+              hint: 'Make sure backend is running and reachable, then verify CORS_ORIGIN includes your frontend origin.'
+            }
           };
         } else if (error.message?.includes('fetch') || error.message?.includes('network')) {
           authError = {
-            message: 'Network error. Please check your internet connection.',
+            message: `Unable to reach authentication service at ${authStatusUrl}.`,
             type: 'network',
-            retryable: true
+            retryable: true,
+            details: {
+              apiBaseUrl,
+              authStatusUrl,
+              frontendOrigin,
+              hint: 'Check backend availability, VITE_API_BASE_URL, and backend CORS_ORIGIN.'
+            }
           };
         } else {
           authError = {
             message: 'Authentication failed. Please try again.',
             type: 'unknown',
-            retryable: true
+            retryable: true,
+            details: {
+              apiBaseUrl,
+              authStatusUrl,
+              frontendOrigin
+            }
           };
         }
       } else {
         authError = {
           message: 'An unexpected error occurred. Please try again.',
           type: 'unknown',
-          retryable: true
+          retryable: true,
+          details: {
+            apiBaseUrl,
+            authStatusUrl,
+            frontendOrigin
+          }
         };
+      }
+
+      if (import.meta.env.DEV) {
+        console.error('[AUTH] Failed to check auth status', {
+          attempt,
+          maxAttempts,
+          error,
+          authStatusUrl,
+          apiBaseUrl,
+          frontendOrigin,
+        });
       }
       
       setError(authError);

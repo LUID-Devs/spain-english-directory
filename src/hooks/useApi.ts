@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useState, useRef } from 'react';
+import { useEffect, useCallback, useState, useRef, useMemo } from 'react';
 import { toast } from 'sonner';
 import { useApiStore } from '@/stores/apiStore';
 import { useUserStore } from '@/stores/userStore';
@@ -57,27 +57,48 @@ export const useGetAuthUserQuery = (userIdentifier: string, options: { skip?: bo
 // Hook to replace useGetProjectsQuery
 export const useGetProjectsQuery = (filters: any = {}, options: { skip?: boolean } = {}) => {
   const { projects, setProjects, setLoading, setError } = useApiStore();
+  const { getOrCreateRequest } = useRequestManager();
+  const lastFetchKeyRef = useRef<string | null>(null);
+  const normalizedFiltersKey = useMemo(() => {
+    const sanitized = typeof filters === 'object' && filters !== null
+      ? Object.fromEntries(Object.entries(filters).filter(([key]) => key !== 'skip'))
+      : {};
+    return JSON.stringify(sanitized);
+  }, [filters]);
+  const normalizedFilters = useMemo(() => JSON.parse(normalizedFiltersKey), [normalizedFiltersKey]);
+  const inferredSkip = options.skip ?? (
+    typeof filters === 'object' &&
+    filters !== null &&
+    'skip' in filters &&
+    Boolean((filters as Record<string, unknown>).skip)
+  );
+
   // Track organization ID for cache invalidation when workspace changes
   const [activeOrgId, setActiveOrgId] = useState(() =>
     typeof window !== 'undefined' ? localStorage.getItem('activeOrganizationId') : null
   );
 
-  const fetchProjects = useCallback(async (filtersToUse = filters) => {
-    if (options.skip) return;
+  const fetchProjects = useCallback(async (filtersToUse = normalizedFilters) => {
+    if (inferredSkip) return;
 
     try {
       setLoading('projects', true);
-      const projectsData = await apiService.getProjects(filtersToUse);
+      const requestKey = `projects:${activeOrgId ?? 'none'}:${JSON.stringify(filtersToUse || {})}`;
+      const projectsData = await getOrCreateRequest(
+        requestKey,
+        () => apiService.getProjects(filtersToUse || {}),
+        2500
+      );
       setProjects(projectsData);
       return projectsData;
     } catch (error) {
       console.error('Failed to fetch projects:', error);
       setError('projects', error instanceof Error ? error.message : 'Failed to fetch projects');
-      throw error;
+      return undefined;
     } finally {
       setLoading('projects', false);
     }
-  }, [options.skip, setProjects, setLoading, setError]);
+  }, [activeOrgId, normalizedFiltersKey, inferredSkip, setProjects, setLoading, setError, getOrCreateRequest]);
 
   // Listen for storage changes (workspace switches)
   useEffect(() => {
@@ -93,35 +114,47 @@ export const useGetProjectsQuery = (filters: any = {}, options: { skip?: boolean
 
   // Fetch when filters or organization changes
   useEffect(() => {
-    if (!options.skip) {
-      fetchProjects(filters);
+    if (inferredSkip) {
+      lastFetchKeyRef.current = null;
+      return;
     }
-  }, [JSON.stringify(filters), options.skip, activeOrgId]);
+    const fetchKey = `projects:${activeOrgId ?? 'none'}:${normalizedFiltersKey}`;
+    if (lastFetchKeyRef.current === fetchKey) {
+      return;
+    }
+    lastFetchKeyRef.current = fetchKey;
+    fetchProjects(normalizedFilters);
+  }, [normalizedFiltersKey, inferredSkip, activeOrgId, fetchProjects, normalizedFilters]);
 
   // Listen for project deletion events to force refetch
   useEffect(() => {
     const handleProjectDeleted = () => {
-      if (!options.skip) {
-        fetchProjects(filters);
+      if (!inferredSkip) {
+        lastFetchKeyRef.current = null;
+        fetchProjects(normalizedFilters);
       }
     };
 
     window.addEventListener('projectDeleted', handleProjectDeleted);
     return () => window.removeEventListener('projectDeleted', handleProjectDeleted);
-  }, [filters, options.skip]);
+  }, [normalizedFiltersKey, inferredSkip, fetchProjects]);
 
   return {
     data: projects.data,
     isLoading: projects.isLoading,
     isError: !!projects.error,
     error: projects.error ? new Error(projects.error) : null,
-    refetch: () => fetchProjects(filters),
+    refetch: () => {
+      lastFetchKeyRef.current = null;
+      return fetchProjects(normalizedFilters);
+    },
   };
 };
 
 // Hook to replace useGetTasksByUserQuery
 export const useGetTasksByUserQuery = (userId: number | null, options: { skip?: boolean } = {}) => {
   const { tasks, setTasks, setLoading, setError } = useApiStore();
+  const { getOrCreateRequest } = useRequestManager();
   const userIdRef = useRef(userId);
   const skipRef = useRef(options.skip);
   // Track organization ID for cache invalidation when workspace changes
@@ -143,17 +176,22 @@ export const useGetTasksByUserQuery = (userId: number | null, options: { skip?: 
 
     try {
       setLoading('tasks', true);
-      const tasksData = await apiService.getTasksByUser(userIdRef.current);
+      const requestKey = `tasksByUser:${activeOrgId ?? 'none'}:${userIdRef.current}`;
+      const tasksData = await getOrCreateRequest(
+        requestKey,
+        () => apiService.getTasksByUser(userIdRef.current as number),
+        2000
+      );
       setTasks(tasksData);
       return tasksData;
     } catch (error) {
       console.error('Failed to fetch tasks:', error);
       setError('tasks', error instanceof Error ? error.message : 'Failed to fetch tasks');
-      throw error;
+      return undefined;
     } finally {
       setLoading('tasks', false);
     }
-  }, [setTasks, setLoading, setError]);
+  }, [activeOrgId, setTasks, setLoading, setError, getOrCreateRequest]);
 
   // Listen for storage changes (workspace switches)
   useEffect(() => {
@@ -190,36 +228,47 @@ export const useGetTasksByUserQuery = (userId: number | null, options: { skip?: 
 // Hook to replace useGetUsersQuery
 export const useGetUsersQuery = (params: any = undefined, options: { skip?: boolean } = {}) => {
   const { users, setUsers, setLoading, setError } = useApiStore();
+  const { getOrCreateRequest } = useRequestManager();
+  const inferredSkip = options.skip ?? (
+    typeof params === 'object' &&
+    params !== null &&
+    'skip' in params &&
+    Boolean((params as Record<string, unknown>).skip)
+  );
   const hasFetchedRef = useRef(false);
-  const skipRef = useRef(options.skip);
+  const skipRef = useRef(inferredSkip);
   
   const fetchUsers = useCallback(async () => {
     if (skipRef.current) return;
     
     try {
       setLoading('users', true);
-      const usersData = await apiService.getUsers();
+      const usersData = await getOrCreateRequest(
+        'users:global',
+        () => apiService.getUsers(),
+        2500
+      );
       setUsers(usersData);
       return usersData;
     } catch (error) {
       console.error('Failed to fetch users:', error);
       setError('users', error instanceof Error ? error.message : 'Failed to fetch users');
-      throw error;
+      return undefined;
     } finally {
       setLoading('users', false);
     }
-  }, [setUsers, setLoading, setError]);
+  }, [setUsers, setLoading, setError, getOrCreateRequest]);
 
   useEffect(() => {
     // Update refs
-    skipRef.current = options.skip;
+    skipRef.current = inferredSkip;
     
     // Only fetch once on mount unless skip changes
-    if (!hasFetchedRef.current && !options.skip) {
+    if (!hasFetchedRef.current && !inferredSkip) {
       hasFetchedRef.current = true;
       fetchUsers();
     }
-  }, [options.skip, fetchUsers]);
+  }, [inferredSkip, fetchUsers]);
 
   return {
     data: users.data,
@@ -583,32 +632,46 @@ export const useUpdateProjectMutation = () => {
 //Hook for teams query
 export const useGetTeamsQuery = (params: any = undefined, options: { skip?: boolean } = {}) => {
   const { teams, setTeams, setLoading, setError } = useApiStore();
+  const { getOrCreateRequest } = useRequestManager();
+  const inferredSkip = options.skip ?? (
+    typeof params === 'object' &&
+    params !== null &&
+    'skip' in params &&
+    Boolean((params as Record<string, unknown>).skip)
+  );
   const hasFetchedRef = useRef(false);
-  const skipRef = useRef(options.skip);
+  const skipRef = useRef(inferredSkip);
   
   const fetchTeams = useCallback(async () => {
     if (skipRef.current) return;
     
     try {
       setLoading('teams', true);
-      const teamsData = await apiService.getTeams();
+      const teamsData = await getOrCreateRequest(
+        'teams:global',
+        () => apiService.getTeams(),
+        2500
+      );
       setTeams(teamsData);
     } catch (error) {
       console.error('Failed to fetch teams:', error);
       setError('teams', error instanceof Error ? error.message : 'Failed to fetch teams');
+      return undefined;
+    } finally {
+      setLoading('teams', false);
     }
-  }, [setTeams, setLoading, setError]);
+  }, [setTeams, setLoading, setError, getOrCreateRequest]);
 
   useEffect(() => {
     // Update refs
-    skipRef.current = options.skip;
+    skipRef.current = inferredSkip;
     
     // Only fetch once on mount unless skip changes
-    if (!hasFetchedRef.current && !options.skip) {
+    if (!hasFetchedRef.current && !inferredSkip) {
       hasFetchedRef.current = true;
       fetchTeams();
     }
-  }, [options.skip, fetchTeams]);
+  }, [inferredSkip, fetchTeams]);
 
   return {
     data: teams.data,
@@ -2417,4 +2480,3 @@ export const useSetTimeEstimateMutation = () => {
 // Export types and enums
 export { Status, Priority, TaskType } from '@/services/apiService';
 export type { Task, Project, User, Comment, Attachment, UserWithStats, TaskStatus, SavedView, Goal, GoalTemplate, SearchSuggestion, GitLink, TimeLog, TimeEstimate, ActiveTimer, TimeLogsResponse, ProjectTimeReport } from '@/services/apiService';
-

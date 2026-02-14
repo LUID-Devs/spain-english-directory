@@ -21,17 +21,19 @@ if (!rootElement) {
 // Check if we have prerendered content (SSR/SSG)
 const hasPrerenderedContent = rootElement.innerHTML.trim().length > 0;
 
-const app = (
-  <React.StrictMode>
-    <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      </QueryClientProvider>
-    </ErrorBoundary>
-  </React.StrictMode>
+const appTree = (
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
+
+// StrictMode double-invokes effects in development and can trigger duplicate API bursts.
+// Keep strict checks in production builds while avoiding noisy duplicate requests in local dev.
+const app = import.meta.env.DEV ? appTree : <React.StrictMode>{appTree}</React.StrictMode>;
 
 if (hasPrerenderedContent) {
   // Hydrate the prerendered content to preserve SEO and reduce flicker

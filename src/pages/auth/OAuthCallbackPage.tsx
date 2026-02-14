@@ -81,25 +81,38 @@ const OAuthCallbackPage: React.FC = () => {
       const user = await getCurrentUser();
 
       // Notify backend of the login (to create user in database if needed)
-      try {
-        await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/status`, {
-          credentials: 'include',
-          headers: {
-            'Authorization': `Bearer ${session.tokens.accessToken}`,
-            'X-ID-Token': `${session.tokens.idToken}`
+      // and verify backend auth context is established before redirecting.
+      let backendAuthReady = false;
+      for (let i = 0; i < 5; i++) {
+        try {
+          const backendAuthResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/status`, {
+            credentials: 'include',
+            headers: {
+              'Authorization': `Bearer ${session.tokens.accessToken}`,
+              'X-ID-Token': `${session.tokens.idToken}`
+            }
+          });
+
+          if (backendAuthResponse.ok) {
+            const backendAuthData = await backendAuthResponse.json();
+            if (backendAuthData?.isAuthenticated && backendAuthData?.user?.userId) {
+              backendAuthReady = true;
+              break;
+            }
           }
-        });
-      } catch (backendError) {
-        // Backend notification failed, but auth succeeded - continue silently
-        // This is non-critical and can happen during normal operation
+        } catch (backendError) {
+          // Retry backend auth verification
+        }
+
+        await new Promise(resolve => setTimeout(resolve, 600 * (i + 1)));
       }
 
       // Refresh auth state in the app
       await refreshAuth();
 
-      // Wait for backend to sync user data before redirecting
-      // This prevents race condition where dashboard checks auth before backend is ready
-      await new Promise(resolve => setTimeout(resolve, 2500)); // Increased from 1500ms
+      if (!backendAuthReady) {
+        throw new Error('Sign-in succeeded with Cognito, but backend session is not ready yet. Please try again.');
+      }
 
       setStatus('success');
 

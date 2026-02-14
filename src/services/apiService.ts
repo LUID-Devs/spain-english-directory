@@ -308,8 +308,12 @@ class ApiService {
       if (!response.ok) {
         // Handle authentication failures
         if (response.status === 401) {
-          // Clear any stored auth state and redirect to login
-          window.location.href = '/auth/login';
+          // Notification polling can race during auth/session initialization.
+          // Avoid forcing a global redirect for that endpoint to prevent login loops.
+          const shouldRedirect = !endpoint.startsWith('/api/user-notifications');
+          if (shouldRedirect) {
+            window.location.href = '/auth/login';
+          }
           throw new Error('Authentication required');
         }
         

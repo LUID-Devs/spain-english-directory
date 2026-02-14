@@ -83,11 +83,12 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
 };
 
 const DashboardWrapper = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
   const navigate = useNavigate();
   const gracePeriodRef = React.useRef<NodeJS.Timeout | null>(null);
   const hasCheckedAuth = React.useRef(false);
   const gracePeriodStartTime = React.useRef<number | null>(null);
+  const isBackendAuthenticated = isAuthenticated && !!user?.userId;
 
   useEffect(() => {
     // Clear any existing timeout on re-render
@@ -97,7 +98,7 @@ const DashboardWrapper = ({ children }: { children: React.ReactNode }) => {
 
     // Only redirect after grace period to allow auth state to stabilize
     // This prevents race conditions during OAuth callback
-    if (!isLoading && !isAuthenticated) {
+    if (!isLoading && !isBackendAuthenticated) {
       if (!hasCheckedAuth.current) {
         // First check - wait for grace period
         gracePeriodStartTime.current = Date.now();
@@ -106,7 +107,7 @@ const DashboardWrapper = ({ children }: { children: React.ReactNode }) => {
           navigate('/auth/login');
         }, 3000); // 3 second grace period for OAuth stabilization
       }
-    } else if (isAuthenticated) {
+    } else if (isBackendAuthenticated) {
       // User is authenticated, clear any pending redirect
       if (gracePeriodRef.current) {
         clearTimeout(gracePeriodRef.current);
@@ -121,7 +122,7 @@ const DashboardWrapper = ({ children }: { children: React.ReactNode }) => {
         clearTimeout(gracePeriodRef.current);
       }
     };
-  }, [isAuthenticated, isLoading, navigate]);
+  }, [isBackendAuthenticated, isLoading, navigate]);
 
   // Show loading while checking authentication
   if (isLoading) {
@@ -136,7 +137,7 @@ const DashboardWrapper = ({ children }: { children: React.ReactNode }) => {
   }
 
   // Don't render dashboard if not authenticated
-  if (!isAuthenticated) {
+  if (!isBackendAuthenticated) {
     return null;
   }
 

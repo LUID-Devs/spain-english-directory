@@ -46,6 +46,16 @@ export const AuthErrorDisplay: React.FC = () => {
         <CardContent className="space-y-4">
           <div className="rounded-lg bg-muted p-4">
             <p className="text-sm text-muted-foreground">{error.message}</p>
+            {error.details?.hint && (
+              <p className="mt-2 text-xs text-muted-foreground">{error.details.hint}</p>
+            )}
+            {import.meta.env.DEV && error.details && (
+              <div className="mt-3 rounded-md border border-border/60 bg-background/80 p-3 text-xs text-muted-foreground space-y-1">
+                <p>API base: {error.details.apiBaseUrl || '(missing)'}</p>
+                <p>Auth status URL: {error.details.authStatusUrl}</p>
+                {error.details.frontendOrigin && <p>Frontend origin: {error.details.frontendOrigin}</p>}
+              </div>
+            )}
           </div>
           
           <div className="flex gap-3">

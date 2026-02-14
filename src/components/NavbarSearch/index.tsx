@@ -217,8 +217,8 @@ const NavbarSearch = forwardRef<NavbarSearchRef, NavbarSearchProps>(({
 
   // Fetch data for client-side filtering (used when search has operators)
   const { data: allTasks } = useGetTasksByUserQuery(currentUser?.userId || 0, { skip: !currentUser || searchMode !== 'syntax' });
-  const { data: allProjects } = useGetProjectsQuery({ skip: searchMode !== 'syntax' });
-  const { data: allUsers } = useGetUsersQuery({ skip: searchMode !== 'syntax' });
+  const { data: allProjects } = useGetProjectsQuery({}, { skip: searchMode !== 'syntax' });
+  const { data: allUsers } = useGetUsersQuery(undefined, { skip: searchMode !== 'syntax' });
 
   // Basic search query
   const {

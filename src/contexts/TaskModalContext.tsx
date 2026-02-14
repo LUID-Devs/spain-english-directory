@@ -13,11 +13,26 @@ interface TaskModalContextType {
 }
 
 const TaskModalContext = createContext<TaskModalContextType | undefined>(undefined);
+const fallbackContext: TaskModalContextType = {
+  openTaskModal: () => {
+    // no-op fallback to avoid crashing the dashboard if provider is temporarily unavailable
+  },
+  closeTaskModal: () => {
+    // no-op fallback to avoid crashing the dashboard if provider is temporarily unavailable
+  },
+  isTaskModalOpen: false,
+  currentTaskId: null,
+};
+let hasLoggedMissingProviderWarning = false;
 
 export const useTaskModal = () => {
   const context = useContext(TaskModalContext);
   if (!context) {
-    throw new Error('useTaskModal must be used within a TaskModalProvider');
+    if (import.meta.env.DEV && !hasLoggedMissingProviderWarning) {
+      hasLoggedMissingProviderWarning = true;
+      console.warn('useTaskModal called without TaskModalProvider; using fallback context.');
+    }
+    return fallbackContext;
   }
   return context;
 };
