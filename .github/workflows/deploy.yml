@@ -62,6 +62,11 @@ jobs:
             exit 1
           fi
 
+      - name: ✅ Validate nginx auth routing invariants
+        run: |
+          chmod +x scripts/check-nginx-routing.sh
+          ./scripts/check-nginx-routing.sh nginx.conf
+
       - name: 🏗️ Build and push Docker image
         uses: docker/build-push-action@v5
         with:
@@ -90,9 +95,27 @@ jobs:
       packages: write
 
     steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
       - name: 🔐 Login to GitHub Container Registry
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: ✅ Validate deployment prerequisites
+        run: |
+          cd /opt/task-luid/task-luid-web
+
+          echo "🔎 Validating compose config..."
+          docker compose config >/tmp/taskluid-frontend-compose.yaml
+
+          echo "🔎 Validating backend network exists..."
+          docker network inspect ${BACKEND_DOCKER_NETWORK:-task-luid-backend_app-network} >/dev/null
+
+      - name: 🔄 Sync deployment config from repository
+        run: |
+          echo "🔄 Syncing deployment config to /opt/task-luid/task-luid-web..."
+          install -m 0644 docker-compose.yml /opt/task-luid/task-luid-web/docker-compose.yml
 
       - name: 🚀 Deploy frontend locally
         run: |
@@ -122,6 +145,12 @@ jobs:
           echo "❌ Health check failed"
           docker logs taskluid-frontend --tail 20
           exit 1
+
+      - name: ✅ Verify routing, proxy, and auth smoke tests
+        run: |
+          chmod +x scripts/check-runtime-deploy.sh
+          BACKEND_DOCKER_NETWORK=${BACKEND_DOCKER_NETWORK:-task-luid-backend_app-network} \
+            ./scripts/check-runtime-deploy.sh
 
       - name: ✅ Deployment complete
         run: echo "🎉 Frontend deployed successfully!"

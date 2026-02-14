@@ -1,0 +1,13 @@
+# Default owner for the repository.
+* @alaindimabuyo
+
+# Deployment and infrastructure-critical files.
+/.github/workflows/* @alaindimabuyo
+/docker-compose.yml @alaindimabuyo
+/nginx.conf @alaindimabuyo
+/docker-entrypoint.sh @alaindimabuyo
+/Dockerfile @alaindimabuyo
+
+# Operational verification scripts.
+/scripts/check-nginx-routing.sh @alaindimabuyo
+/scripts/check-runtime-deploy.sh @alaindimabuyo
