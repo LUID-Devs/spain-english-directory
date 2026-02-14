@@ -24,9 +24,21 @@ const RegisterPage = () => {
   const [success, setSuccess] = useState(false);
   const [confirmationCode, setConfirmationCode] = useState("");
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [resendCountdown, setResendCountdown] = useState(0);
+  const [resendAttempts, setResendAttempts] = useState(0);
   const navigate = useNavigate();
   const { isAuthenticated, isLoading: authLoading, user } = useAuth();
   const [hasRedirected, setHasRedirected] = React.useState(false);
+
+  // Countdown timer for resend functionality
+  useEffect(() => {
+    if (resendCountdown > 0) {
+      const timer = setTimeout(() => {
+        setResendCountdown(prev => prev - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [resendCountdown]);
 
   // Password requirements configuration
   const passwordRequirements: PasswordRequirement[] = [
@@ -166,6 +178,51 @@ const RegisterPage = () => {
     }
   };
 
+  const handleResendCode = async () => {
+    // Rate limiting: max 3 attempts, 60 second cooldown
+    if (resendAttempts >= 3) {
+      setError("Maximum resend attempts reached. Please try again later or contact support.");
+      return;
+    }
+
+    if (resendCountdown > 0) {
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/resend-confirmation`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          username: formData.username,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to resend confirmation code");
+      }
+
+      // Increment resend attempts and start cooldown
+      setResendAttempts(prev => prev + 1);
+      setResendCountdown(60);
+      
+      // Clear any previous error and show success message
+      setError("");
+    } catch (error: unknown) {
+      setError(error instanceof Error ? error.message : "Failed to resend code. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Show loading state while checking authentication
   if (authLoading) {
     return (
@@ -272,6 +329,9 @@ const RegisterPage = () => {
                   whileFocus={{ scale: 1.02 }}
                   transition={{ type: "spring", stiffness: 300, damping: 20 }}
                 />
+                <p className="mt-2 text-xs text-gray-500">
+                  Didn&apos;t receive the email? Check your spam folder or request a new code below.
+                </p>
               </div>
 
               <motion.button
@@ -292,6 +352,35 @@ const RegisterPage = () => {
                 )}
               </motion.button>
             </form>
+
+            {/* Resend Code Section */}
+            <div className="mt-6 pt-6 border-t border-gray-700/50">
+              <div className="text-center space-y-3">
+                <p className="text-sm text-gray-400">
+                  Code expired or didn&apos;t arrive?
+                </p>
+                <motion.button
+                  onClick={handleResendCode}
+                  disabled={loading || resendCountdown > 0 || resendAttempts >= 3}
+                  className="text-sm text-gray-400 hover:text-gray-300 font-medium transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:text-gray-400"
+                  whileHover={resendCountdown === 0 && resendAttempts < 3 ? { scale: 1.02 } : {}}
+                  whileTap={resendCountdown === 0 && resendAttempts < 3 ? { scale: 0.98 } : {}}
+                >
+                  {resendCountdown > 0 ? (
+                    <span>Resend code in {resendCountdown}s</span>
+                  ) : resendAttempts >= 3 ? (
+                    <span>Max resend attempts reached</span>
+                  ) : (
+                    <span className="underline">Resend confirmation code</span>
+                  )}
+                </motion.button>
+                {resendAttempts > 0 && resendAttempts < 3 && (
+                  <p className="text-xs text-gray-500">
+                    Attempt {resendAttempts} of 3
+                  </p>
+                )}
+              </div>
+            </div>
 
             <div className="mt-6 text-center text-sm text-gray-400">
               <Link

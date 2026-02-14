@@ -57,6 +57,10 @@ const PrivacyPolicy = React.lazy(() => import('@/pages/legal/PrivacyPolicy'));
 const TermsOfService = React.lazy(() => import('@/pages/legal/TermsOfService'));
 const CookiePolicy = React.lazy(() => import('@/pages/legal/CookiePolicy'));
 
+// Help & Docs Pages (lazy loaded)
+const HelpPage = React.lazy(() => import('@/pages/help/HelpPage'));
+const DocsPage = React.lazy(() => import('@/pages/docs/DocsPage'));
+
 // Inner app component that can use auth context
 function AppContent() {
   const { isDarkMode } = useGlobalStore();
@@ -95,6 +99,10 @@ function AppContent() {
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="/cookies" element={<CookiePolicy />} />
+
+          {/* Help & Docs Routes */}
+          <Route path="/help" element={<HelpPage />} />
+          <Route path="/docs" element={<DocsPage />} />
 
           {/* Auth Routes */}
           <Route path="/auth/login" element={<LoginPage />} />

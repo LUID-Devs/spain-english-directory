@@ -263,6 +263,114 @@ export function staticPrerenderPlugin(): Plugin {
         </div>
       `
     },
+    '/help': {
+      title: 'Help Center - TaskLuid',
+      description: 'Get help with TaskLuid. Find guides, tutorials, and answers to common questions.',
+      content: `
+        <div class="min-h-screen bg-black text-white">
+          <nav class="border-b border-neutral-800">
+            <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+              <a href="/" class="text-xl font-bold bg-gradient-to-r from-gray-400 to-gray-400 bg-clip-text text-transparent">TaskLuid</a>
+              <div class="flex items-center gap-6">
+                <a href="/docs" class="text-neutral-400 hover:text-white transition-colors">Docs</a>
+                <a href="/auth/login" class="text-neutral-400 hover:text-white transition-colors">Sign In</a>
+              </div>
+            </div>
+          </nav>
+          <div class="container mx-auto px-4 py-16 max-w-4xl">
+            <h1 class="text-4xl font-bold mb-4 text-center">Help Center</h1>
+            <p class="text-gray-400 text-center mb-12 max-w-2xl mx-auto">Find answers to common questions and learn how to get the most out of TaskLuid.</p>
+            <div class="grid md:grid-cols-2 gap-8">
+              <div class="border border-gray-800 rounded-lg p-6 hover:border-gray-600 transition-colors">
+                <h3 class="text-xl font-semibold mb-2">Getting Started</h3>
+                <p class="text-gray-400 mb-4">Learn the basics of TaskLuid and set up your first project.</p>
+                <a href="/docs/getting-started" class="text-blue-400 hover:text-blue-300 transition-colors">Read more →</a>
+              </div>
+              <div class="border border-gray-800 rounded-lg p-6 hover:border-gray-600 transition-colors">
+                <h3 class="text-xl font-semibold mb-2">Task Management</h3>
+                <p class="text-gray-400 mb-4">Discover how to create, organize, and track tasks effectively.</p>
+                <a href="/docs/tasks" class="text-blue-400 hover:text-blue-300 transition-colors">Read more →</a>
+              </div>
+              <div class="border border-gray-800 rounded-lg p-6 hover:border-gray-600 transition-colors">
+                <h3 class="text-xl font-semibold mb-2">Team Collaboration</h3>
+                <p class="text-gray-400 mb-4">Invite team members and collaborate on projects together.</p>
+                <a href="/docs/collaboration" class="text-blue-400 hover:text-blue-300 transition-colors">Read more →</a>
+              </div>
+              <div class="border border-gray-800 rounded-lg p-6 hover:border-gray-600 transition-colors">
+                <h3 class="text-xl font-semibold mb-2">Automation</h3>
+                <p class="text-gray-400 mb-4">Set up workflows and automate repetitive tasks.</p>
+                <a href="/docs/automation" class="text-blue-400 hover:text-blue-300 transition-colors">Read more →</a>
+              </div>
+            </div>
+          </div>
+          <footer class="border-t border-neutral-800 py-8 px-4">
+            <div class="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+              <p class="text-sm text-neutral-500">&copy; ${currentYear} TaskLuid. Part of Luid Suite.</p>
+              <div class="flex gap-6 text-sm">
+                <a href="/privacy" class="text-neutral-400 hover:text-gray-400 transition-colors">Privacy</a>
+                <a href="/terms" class="text-neutral-400 hover:text-gray-400 transition-colors">Terms</a>
+              </div>
+            </div>
+          </footer>
+        </div>
+      `
+    },
+    '/docs': {
+      title: 'Documentation - TaskLuid',
+      description: 'Complete documentation for TaskLuid. API references, guides, and tutorials.',
+      content: `
+        <div class="min-h-screen bg-black text-white">
+          <nav class="border-b border-neutral-800">
+            <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+              <a href="/" class="text-xl font-bold bg-gradient-to-r from-gray-400 to-gray-400 bg-clip-text text-transparent">TaskLuid</a>
+              <div class="flex items-center gap-6">
+                <a href="/help" class="text-neutral-400 hover:text-white transition-colors">Help</a>
+                <a href="/auth/login" class="text-neutral-400 hover:text-white transition-colors">Sign In</a>
+              </div>
+            </div>
+          </nav>
+          <div class="container mx-auto px-4 py-16 max-w-4xl">
+            <h1 class="text-4xl font-bold mb-4 text-center">Documentation</h1>
+            <p class="text-gray-400 text-center mb-12 max-w-2xl mx-auto">Everything you need to know about using TaskLuid, from basic concepts to advanced features.</p>
+            <div class="space-y-8">
+              <div class="border border-gray-800 rounded-lg p-6">
+                <h3 class="text-2xl font-semibold mb-4">Getting Started</h3>
+                <ul class="space-y-2 text-gray-400">
+                  <li><a href="/docs/quickstart" class="text-blue-400 hover:text-blue-300 transition-colors">Quick Start Guide</a></li>
+                  <li><a href="/docs/installation" class="text-blue-400 hover:text-blue-300 transition-colors">Installation & Setup</a></li>
+                  <li><a href="/docs/first-project" class="text-blue-400 hover:text-blue-300 transition-colors">Creating Your First Project</a></li>
+                </ul>
+              </div>
+              <div class="border border-gray-800 rounded-lg p-6">
+                <h3 class="text-2xl font-semibold mb-4">Core Concepts</h3>
+                <ul class="space-y-2 text-gray-400">
+                  <li><a href="/docs/projects" class="text-blue-400 hover:text-blue-300 transition-colors">Projects</a></li>
+                  <li><a href="/docs/tasks" class="text-blue-400 hover:text-blue-300 transition-colors">Tasks & Subtasks</a></li>
+                  <li><a href="/docs/teams" class="text-blue-400 hover:text-blue-300 transition-colors">Teams & Permissions</a></li>
+                </ul>
+              </div>
+              <div class="border border-gray-800 rounded-lg p-6">
+                <h3 class="text-2xl font-semibold mb-4">API Reference</h3>
+                <ul class="space-y-2 text-gray-400">
+                  <li><a href="/docs/api/authentication" class="text-blue-400 hover:text-blue-300 transition-colors">Authentication</a></li>
+                  <li><a href="/docs/api/endpoints" class="text-blue-400 hover:text-blue-300 transition-colors">Endpoints</a></li>
+                  <li><a href="/docs/api/webhooks" class="text-blue-400 hover:text-blue-300 transition-colors">Webhooks</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <footer class="border-t border-neutral-800 py-8 px-4">
+            <div class="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+              <p class="text-sm text-neutral-500">&copy; ${currentYear} TaskLuid. Part of Luid Suite.</p>
+              <div class="flex gap-6 text-sm">
+                <a href="/privacy" class="text-neutral-400 hover:text-gray-400 transition-colors">Privacy</a>
+                <a href="/terms" class="text-neutral-400 hover:text-gray-400 transition-colors">Terms</a>
+              </div>
+            </div>
+          </footer>
+        </div>
+      `
+    },
     '/features': {
       title: 'Features - TaskLuid',
       description: 'Discover TaskLuid features: AI-powered task management, team collaboration, automation, and advanced analytics.',
