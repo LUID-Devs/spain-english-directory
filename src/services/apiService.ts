@@ -309,8 +309,10 @@ class ApiService {
         // Handle authentication failures
         if (response.status === 401) {
           // Notification polling can race during auth/session initialization.
-          // Avoid forcing a global redirect for that endpoint to prevent login loops.
-          const shouldRedirect = !endpoint.startsWith('/api/user-notifications');
+          // Search suggestions can also race while auth/session refresh is in-flight.
+          // Avoid forcing a global redirect for these endpoints to prevent login loops.
+          const shouldRedirect = !endpoint.startsWith('/api/user-notifications')
+            && !endpoint.startsWith('/search/suggestions');
           if (shouldRedirect) {
             window.location.href = '/auth/login';
           }
@@ -863,13 +865,7 @@ class ApiService {
       query,
       _t: Date.now().toString() // Cache busting
     });
-    return this.request<SearchResults>(`/search?${params.toString()}`, {
-      headers: {
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0'
-      }
-    });
+    return this.request<SearchResults>(`/search?${params.toString()}`);
   }
 
   async advancedSearch(params: {
@@ -900,13 +896,14 @@ class ApiService {
       _t: Date.now().toString() // Cache busting
     });
     if (type) params.append('type', type);
-    return this.request<{ suggestions: SearchSuggestion[] }>(`/search/suggestions?${params.toString()}`, {
-      headers: {
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0'
+    try {
+      return await this.request<{ suggestions: SearchSuggestion[] }>(`/search/suggestions?${params.toString()}`);
+    } catch (error) {
+      if (error instanceof Error && error.message === 'Authentication required') {
+        return { suggestions: [] };
       }
-    });
+      throw error;
+    }
   }
 
   // AI Task Parsing
