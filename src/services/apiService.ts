@@ -308,14 +308,8 @@ class ApiService {
       if (!response.ok) {
         // Handle authentication failures
         if (response.status === 401) {
-          // Notification polling can race during auth/session initialization.
-          // Search suggestions can also race while auth/session refresh is in-flight.
-          // Avoid forcing a global redirect for these endpoints to prevent login loops.
-          const shouldRedirect = !endpoint.startsWith('/api/user-notifications')
-            && !endpoint.startsWith('/search/suggestions');
-          if (shouldRedirect) {
-            window.location.href = '/auth/login';
-          }
+          // Do not hard-redirect on API 401 from here; it can create auth ping-pong loops
+          // during token/session refresh races. Route guards handle navigation decisions.
           throw new Error('Authentication required');
         }
         

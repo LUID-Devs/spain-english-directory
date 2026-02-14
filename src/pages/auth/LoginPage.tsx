@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Hub } from "aws-amplify/utils";
 import { useAuth } from "@/app/authProvider";
@@ -19,17 +19,25 @@ const LoginPage = () => {
   } | null>(null);
   const [mfaCode, setMfaCode] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
   const { refreshAuth, isAuthenticated, isLoading: authLoading, user } = useAuth();
   const [hasRedirected, setHasRedirected] = React.useState(false);
+  const redirectTarget = React.useMemo(() => {
+    const params = new URLSearchParams(location.search);
+    const redirect = params.get('redirect');
+    // Prevent open redirect behavior: only allow in-app absolute paths
+    if (!redirect || !redirect.startsWith('/')) return '/dashboard';
+    return redirect;
+  }, [location.search]);
 
   // Redirect if already authenticated (only once)
   useEffect(() => {
     // Only auto-redirect when backend auth is fully established (userId present)
     if (!authLoading && isAuthenticated && user?.userId && !hasRedirected) {
       setHasRedirected(true);
-      navigate('/dashboard', { replace: true });
+      navigate(redirectTarget, { replace: true });
     }
-  }, [isAuthenticated, authLoading, user?.userId, navigate, hasRedirected]);
+  }, [isAuthenticated, authLoading, user?.userId, navigate, hasRedirected, redirectTarget]);
 
   // Listen for OAuth callback
   useEffect(() => {

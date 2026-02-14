@@ -88,7 +88,9 @@ const DashboardWrapper = ({ children }: { children: React.ReactNode }) => {
   const gracePeriodRef = React.useRef<NodeJS.Timeout | null>(null);
   const hasCheckedAuth = React.useRef(false);
   const gracePeriodStartTime = React.useRef<number | null>(null);
-  const isBackendAuthenticated = isAuthenticated && !!user?.userId;
+  // Allow dashboard access as soon as auth is established.
+  // userId can be populated slightly later during backend profile hydration.
+  const hasValidSession = isAuthenticated;
 
   useEffect(() => {
     // Clear any existing timeout on re-render
@@ -98,16 +100,17 @@ const DashboardWrapper = ({ children }: { children: React.ReactNode }) => {
 
     // Only redirect after grace period to allow auth state to stabilize
     // This prevents race conditions during OAuth callback
-    if (!isLoading && !isBackendAuthenticated) {
+    if (!isLoading && !hasValidSession) {
       if (!hasCheckedAuth.current) {
         // First check - wait for grace period
         gracePeriodStartTime.current = Date.now();
         hasCheckedAuth.current = true;
         gracePeriodRef.current = setTimeout(() => {
-          navigate('/auth/login');
+          const currentPath = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+          navigate(`/auth/login?redirect=${encodeURIComponent(currentPath)}`, { replace: true });
         }, 3000); // 3 second grace period for OAuth stabilization
       }
-    } else if (isBackendAuthenticated) {
+    } else if (hasValidSession) {
       // User is authenticated, clear any pending redirect
       if (gracePeriodRef.current) {
         clearTimeout(gracePeriodRef.current);
@@ -122,7 +125,7 @@ const DashboardWrapper = ({ children }: { children: React.ReactNode }) => {
         clearTimeout(gracePeriodRef.current);
       }
     };
-  }, [isBackendAuthenticated, isLoading, navigate]);
+  }, [hasValidSession, isLoading, navigate]);
 
   // Show loading while checking authentication
   if (isLoading) {
@@ -137,7 +140,7 @@ const DashboardWrapper = ({ children }: { children: React.ReactNode }) => {
   }
 
   // Don't render dashboard if not authenticated
-  if (!isBackendAuthenticated) {
+  if (!hasValidSession) {
     return null;
   }
 
