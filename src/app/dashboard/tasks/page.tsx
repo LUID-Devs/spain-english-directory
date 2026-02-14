@@ -54,6 +54,7 @@ import { useTaskModal } from "@/contexts/TaskModalContext";
 import AdvancedFilters from "@/components/AdvancedFilters";
 import { apiService } from "@/services/apiService";
 import { toast } from "sonner";
+import { useUndoableBulkDelete } from "@/hooks/useUndoableBulkDelete";
 
 // Task status styling helper
 const getStatusVariant = (status: string) => {
@@ -133,6 +134,19 @@ const TasksPage = () => {
     isError: tasksError,
     refetch: refetchTasks,
   } = useGetTasksByUserQuery(userId || 0, { skip: userId === null });
+
+  // Undoable bulk delete hook
+  const { deleteWithUndo: deleteTasksWithUndo, isPending: isDeletePending } = useUndoableBulkDelete({
+    onDelete: async (taskIds) => {
+      const result = await apiService.bulkDeleteTasks(taskIds);
+      clearSelection();
+      refetchTasks();
+      return { deletedCount: result.deletedCount };
+    },
+    duration: 5000, // 5 seconds to undo
+    itemName: 'task',
+    pluralName: 'tasks',
+  });
 
   const { data: projects } = useGetProjectsQuery();
   const { data: users } = useGetUsersQuery();
@@ -336,19 +350,12 @@ const TasksPage = () => {
   const handleBulkDelete = async () => {
     if (selectedTasks.size === 0) return;
     
-    setIsBulkProcessing(true);
-    try {
-      const result = await apiService.bulkDeleteTasks(Array.from(selectedTasks));
-      toast.success(`Deleted ${result.deletedCount} tasks`);
-      clearSelection();
-      refetchTasks();
-    } catch (error) {
-      toast.error("Failed to delete tasks");
-      console.error(error);
-    } finally {
-      setIsBulkProcessing(false);
-      setShowDeleteConfirm(false);
-    }
+    // Close the confirmation dialog immediately
+    setShowDeleteConfirm(false);
+    
+    // Use undoable delete - shows toast with undo button
+    // Actual deletion happens after 5 seconds or when undo expires
+    deleteTasksWithUndo(Array.from(selectedTasks));
   };
 
   const handleBulkMoveToProject = async (projectId: number) => {
@@ -694,7 +701,7 @@ const TasksPage = () => {
           {/* Status Change Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="secondary" size="sm" disabled={isBulkProcessing} className="h-8">
+              <Button variant="secondary" size="sm" disabled={isBulkProcessing || isDeletePending} className="h-8">
                 <CheckSquare className="h-4 w-4 mr-1" />
                 Status
                 <ChevronDown className="h-3 w-3 ml-1" />
@@ -714,7 +721,7 @@ const TasksPage = () => {
           {/* Assign Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="secondary" size="sm" disabled={isBulkProcessing} className="h-8">
+              <Button variant="secondary" size="sm" disabled={isBulkProcessing || isDeletePending} className="h-8">
                 <UserCheck className="h-4 w-4 mr-1" />
                 Assign
                 <ChevronDown className="h-3 w-3 ml-1" />
@@ -734,7 +741,7 @@ const TasksPage = () => {
           {/* Move to Project Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="secondary" size="sm" disabled={isBulkProcessing} className="h-8">
+              <Button variant="secondary" size="sm" disabled={isBulkProcessing || isDeletePending} className="h-8">
                 <FolderKanban className="h-4 w-4 mr-1" />
                 Move
                 <ChevronDown className="h-3 w-3 ml-1" />
@@ -757,12 +764,12 @@ const TasksPage = () => {
           <Button 
             variant="destructive" 
             size="sm" 
-            disabled={isBulkProcessing}
+            disabled={isBulkProcessing || isDeletePending}
             onClick={() => setShowDeleteConfirm(true)}
             className="h-8"
           >
             <Trash2 className="h-4 w-4 mr-1" />
-            Delete
+            {isDeletePending ? 'Deleting...' : 'Delete'}
           </Button>
         </div>
       )}
@@ -773,8 +780,8 @@ const TasksPage = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete {selectedTasks.size} tasks?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the selected tasks
-              and all associated comments, attachments, and history.
+              You will have 5 seconds to undo this action. After that, the tasks will be permanently deleted
+              along with all associated comments, attachments, and history.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
