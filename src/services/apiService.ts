@@ -1451,6 +1451,80 @@ class ApiService {
 
     return this.request(`/api/timeline/stats?${queryParams.toString()}`);
   }
+
+  // ==================== ROADMAP API ====================
+
+  async getRoadmapData(organizationId?: number): Promise<{
+    projects: RoadmapProject[];
+    milestones: Milestone[];
+    dependencies: ProjectDependency[];
+  }> {
+    const queryParams = new URLSearchParams();
+    if (organizationId) queryParams.append('organizationId', organizationId.toString());
+
+    return this.request(`/api/roadmap?${queryParams.toString()}`);
+  }
+
+  async getMilestones(projectId?: number): Promise<Milestone[]> {
+    const queryParams = new URLSearchParams();
+    if (projectId) queryParams.append('projectId', projectId.toString());
+
+    return this.request(`/api/roadmap/milestones?${queryParams.toString()}`);
+  }
+
+  async createMilestone(data: CreateMilestoneRequest): Promise<Milestone> {
+    return this.request('/api/roadmap/milestones', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateMilestone(milestoneId: number, data: Partial<CreateMilestoneRequest>): Promise<Milestone> {
+    return this.request(`/api/roadmap/milestones/${milestoneId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteMilestone(milestoneId: number): Promise<{ success: boolean }> {
+    return this.request(`/api/roadmap/milestones/${milestoneId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async linkTasksToMilestone(milestoneId: number, taskIds: number[]): Promise<{ success: boolean; linkedCount: number }> {
+    return this.request(`/api/roadmap/milestones/${milestoneId}/tasks`, {
+      method: 'POST',
+      body: JSON.stringify({ taskIds }),
+    });
+  }
+
+  async unlinkTasksFromMilestone(milestoneId: number, taskIds: number[]): Promise<{ success: boolean }> {
+    return this.request(`/api/roadmap/milestones/${milestoneId}/tasks`, {
+      method: 'DELETE',
+      body: JSON.stringify({ taskIds }),
+    });
+  }
+
+  async getProjectDependencies(projectId?: number): Promise<ProjectDependency[]> {
+    const queryParams = new URLSearchParams();
+    if (projectId) queryParams.append('projectId', projectId.toString());
+
+    return this.request(`/api/roadmap/dependencies?${queryParams.toString()}`);
+  }
+
+  async createProjectDependency(data: CreateDependencyRequest): Promise<ProjectDependency> {
+    return this.request('/api/roadmap/dependencies', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteProjectDependency(dependencyId: number): Promise<{ success: boolean }> {
+    return this.request(`/api/roadmap/dependencies/${dependencyId}`, {
+      method: 'DELETE',
+    });
+  }
 }
 
 export const apiService = new ApiService();
@@ -2034,4 +2108,89 @@ export interface TimelineStats {
   eventsByCategory: Record<TimelineEventCategory, number>;
   eventsByType: Record<string, number>;
   topActors: { actorName: string; count: number }[];
+}
+
+// ==================== ROADMAP TYPES ====================
+
+export interface RoadmapProject {
+  id: number;
+  name: string;
+  description?: string;
+  startDate?: string;
+  endDate?: string;
+  healthStatus: 'on_track' | 'at_risk' | 'delayed' | 'unknown';
+  healthReason?: string;
+  taskStats: {
+    total: number;
+    completed: number;
+  };
+  milestones: Milestone[];
+  dependsOn: ProjectDependency[];
+}
+
+export interface Milestone {
+  id: number;
+  organizationId: number;
+  projectId?: number;
+  project?: {
+    id: number;
+    name: string;
+  };
+  name: string;
+  description?: string;
+  targetDate: string;
+  completedAt?: string;
+  status: 'upcoming' | 'at_risk' | 'missed' | 'completed';
+  healthStatus: 'on_track' | 'at_risk' | 'delayed';
+  healthReason?: string;
+  autoCalculate: boolean;
+  progress: number;
+  linkedTaskCount: number;
+  completedTaskCount: number;
+  linkedTasks?: {
+    id: number;
+    title: string;
+    status: string;
+  }[];
+  createdBy: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ProjectDependency {
+  id: number;
+  dependentProjectId: number;
+  dependentProject?: {
+    id: number;
+    name: string;
+    startDate?: string;
+    endDate?: string;
+  };
+  dependencyProjectId: number;
+  dependencyProject?: {
+    id: number;
+    name: string;
+    startDate?: string;
+    endDate?: string;
+  };
+  dependencyType: 'finish_to_start' | 'start_to_start' | 'finish_to_finish' | 'start_to_finish';
+  lagDays: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateMilestoneRequest {
+  organizationId: number;
+  projectId?: number;
+  name: string;
+  description?: string;
+  targetDate: string;
+  autoCalculate?: boolean;
+}
+
+export interface CreateDependencyRequest {
+  dependentProjectId: number;
+  dependencyProjectId: number;
+  dependencyType?: 'finish_to_start' | 'start_to_start' | 'finish_to_finish' | 'start_to_finish';
+  lagDays?: number;
 }
