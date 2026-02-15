@@ -4,6 +4,49 @@ All notable changes to TaskLuid Web will be documented in this file.
 
 ## [Unreleased]
 
+## [2026-02-15] - Triage View, Analytics & UX Improvements
+
+### Added
+- **Triage View** - Incoming task management interface (Task #559)
+  - Dedicated view for un-prioritized tasks
+  - Quick prioritization actions
+  - Streamlined triage workflow
+
+- **Team Analytics Dashboard** - Visual team metrics (Task #558)
+  - Team velocity charts
+  - Cycle time analytics
+  - Performance indicators
+
+- **Mission Control Dashboard** - Agent monitoring interface (Task #578)
+  - Real-time agent status
+  - System health monitoring
+  - Error tracking and alerts
+
+- **Bulk Actions UI** - Batch task operations (Task #564)
+  - Multi-select task list
+  - Bulk delete with undo/toast
+  - Bulk status updates
+
+- **Rate Limiting UI Feedback** - Better auth UX (Task #572)
+  - Visual feedback on rate limits
+  - Password reset improvements
+  - Loading states for auth actions
+
+- **404 Page Search** - Improved error recovery (Task #570)
+  - Search functionality on 404 pages
+  - Quick navigation to common pages
+
+- **Pricing Link** - Navigation improvements
+  - Added pricing to landing page nav
+  - Templates link in desktop nav
+
+### Fixed
+- **Homepage Content Gap** - Reduced excessive vertical padding (Task #580)
+- **Auth Error Messages** - Clearer Mission Control errors (Task #571)
+- **Clipboard API** - Fallback for CreateAgentModal (Task #573)
+- **Password Visibility** - Toggle for password fields
+- **Auth Routing** - Deploy guardrails for auth flows
+
 ## [2026-02-13] - Recent Shipments
 
 ### Added
