@@ -1,7 +1,9 @@
 import {
   Priority,
   Project,
+  Status,
   Task,
+  useUpdateTaskStatusMutation,
 } from "@/hooks/useApi";
 import { useAuth } from "@/app/authProvider";
 import { useGetProjectsQuery, useGetTasksByUserQuery, useGetUsersQuery } from "@/hooks/useApi";
@@ -69,26 +71,9 @@ const DashboardPage = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isModalNewTaskOpen, setIsModalNewTaskOpen] = useState(false);
-  
-  // Keyboard navigation for task list
-  const { selectedIndex } = useKeyboardNavigation({
-    itemSelector: '[data-task-card]',
-    onSelect: (element) => {
-      // Remove previous selections
-      document.querySelectorAll('[data-task-card]').forEach(el => {
-        el.classList.remove('keyboard-selected');
-      });
-      // Add selection to current element
-      element.classList.add('keyboard-selected');
-    },
-    onOpen: (element) => {
-      const taskId = element.getAttribute('data-task-id');
-      if (taskId) {
-        openTaskModal(parseInt(taskId, 10));
-      }
-    },
-    enabled: true,
-  });
+  const [statusUpdatingId, setStatusUpdatingId] = useState<number | null>(null);
+
+  const [updateTaskStatusMutation] = useUpdateTaskStatusMutation();
   
   // Improved user ID resolution - use database userId first, then fallback to sub
   let userId: number | null = null;
@@ -138,6 +123,62 @@ const DashboardPage = () => {
   const handleClearSelection = useCallback(() => {
     setSelectedTaskIds(new Set());
   }, []);
+
+  const handleInlineComplete = useCallback(async (task: Task) => {
+    if (statusUpdatingId === task.id) {
+      return;
+    }
+
+    const isCompleted = task.status === Status.Completed;
+    const nextStatus = isCompleted ? Status.ToDo : Status.Completed;
+
+    setStatusUpdatingId(task.id);
+    const actionLabel = isCompleted ? "Reopening" : "Marking";
+    const completionSuffix = isCompleted ? "" : " complete";
+    const loadingToast = toast.loading(`${actionLabel} "${task.title}"${completionSuffix}...`);
+
+    try {
+      await updateTaskStatusMutation({ taskId: task.id, status: nextStatus }).unwrap();
+      toast.success(isCompleted ? "Task reopened." : "Task marked complete.", { id: loadingToast });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to update task status", { id: loadingToast });
+    } finally {
+      setStatusUpdatingId(null);
+    }
+  }, [statusUpdatingId, updateTaskStatusMutation]);
+
+  const handleKeyboardToggleComplete = useCallback((element: HTMLElement) => {
+    const taskId = element.getAttribute('data-task-id');
+    if (!taskId) {
+      return;
+    }
+
+    const task = (tasks || []).find((entry) => entry.id === Number(taskId));
+    if (task) {
+      handleInlineComplete(task);
+    }
+  }, [tasks, handleInlineComplete]);
+
+  // Keyboard navigation for task list
+  useKeyboardNavigation({
+    itemSelector: '[data-task-card]',
+    onSelect: (element) => {
+      // Remove previous selections
+      document.querySelectorAll('[data-task-card]').forEach(el => {
+        el.classList.remove('keyboard-selected');
+      });
+      // Add selection to current element
+      element.classList.add('keyboard-selected');
+    },
+    onOpen: (element) => {
+      const taskId = element.getAttribute('data-task-id');
+      if (taskId) {
+        openTaskModal(parseInt(taskId, 10));
+      }
+    },
+    onToggle: handleKeyboardToggleComplete,
+    enabled: true,
+  });
 
   // Bulk action handlers
   const handleBulkStatusChange = useCallback(async (status: string) => {
@@ -296,7 +337,7 @@ const DashboardPage = () => {
 
   const statusCount = (projects || []).reduce(
     (acc: Record<string, number>, project: Project) => {
-      const status = project.endDate ? "Completed" : "Active";
+      const status = project.endDate ? Status.Completed : "Active";
       acc[status] = (acc[status] || 0) + 1;
       return acc;
     },
@@ -356,7 +397,7 @@ const DashboardPage = () => {
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Completed</p>
                 <p className="text-2xl font-bold text-gray-600">
-                  {(tasks || []).filter(task => task.status === 'Completed').length}
+                  {(tasks || []).filter(task => task.status === Status.Completed).length}
                 </p>
               </div>
               <div className="h-8 w-8 sm:h-10 sm:w-10 bg-gray-100 dark:bg-gray-900 rounded-lg flex items-center justify-center shrink-0">
@@ -374,7 +415,7 @@ const DashboardPage = () => {
               <div>
                 <p className="text-sm font-medium text-muted-foreground">In Progress</p>
                 <p className="text-2xl font-bold text-gray-600">
-                  {(tasks || []).filter(task => task.status === 'Work In Progress').length}
+                  {(tasks || []).filter(task => task.status === Status.WorkInProgress).length}
                 </p>
               </div>
               <div className="h-8 w-8 sm:h-10 sm:w-10 bg-gray-100 dark:bg-gray-900 rounded-lg flex items-center justify-center shrink-0">
@@ -445,50 +486,72 @@ const DashboardPage = () => {
               <>
                 {/* Mobile: Card-based layout */}
                 <div className="sm:hidden divide-y divide-border">
-                  {(tasks || []).slice(0, 5).map((task) => (
-                    <div
-                      key={task.id}
-                      data-task-card
-                      data-task-id={task.id}
-                      className={`w-full p-4 text-left hover:bg-accent/50 transition-colors ${selectedTaskIds.has(task.id) ? 'bg-primary/5' : ''}`}
-                    >
-                      <div className="flex items-start gap-3 mb-2">
-                        <input
-                          type="checkbox"
-                          checked={selectedTaskIds.has(task.id)}
-                          onChange={(e) => handleSelectTask(task.id, e.target.checked)}
-                          className="mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                        <button
-                          onClick={() => openTaskModal(task.id)}
-                          className="flex-1 text-left"
-                        >
-                          <h4 className="font-medium text-foreground line-clamp-2">
-                            {task.title}
-                          </h4>
-                        </button>
-                        <Badge variant={getPriorityVariant(task.priority)} className="shrink-0">
-                          {task.priority}
-                        </Badge>
-                      </div>
-                      <div className="flex items-center gap-2 flex-wrap pl-7">
-                        <Badge variant={getStatusVariant(task.status)}>
-                          {task.status}
-                        </Badge>
-                        {task.dueDate && (
-                          <span className={cn(
-                            "text-xs",
-                            new Date(task.dueDate) < new Date() && task.status !== 'Completed'
-                              ? "text-destructive font-medium"
-                              : "text-muted-foreground"
-                          )}>
-                            Due: {new Date(task.dueDate).toLocaleDateString()}
-                          </span>
+                  {(tasks || []).slice(0, 5).map((task) => {
+                    const isCompleted = task.status === Status.Completed;
+
+                    return (
+                      <div
+                        key={task.id}
+                        data-task-card
+                        data-task-id={task.id}
+                        className={cn(
+                          "w-full p-4 text-left hover:bg-accent/50 transition-colors",
+                          selectedTaskIds.has(task.id) ? 'bg-primary/5' : '',
+                          isCompleted && "opacity-70",
                         )}
+                      >
+                        <div className="flex items-start gap-3 mb-2">
+                          <input
+                            type="checkbox"
+                            checked={selectedTaskIds.has(task.id)}
+                            onChange={(e) => handleSelectTask(task.id, e.target.checked)}
+                            className="mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                          <input
+                            type="checkbox"
+                            checked={isCompleted}
+                            onChange={(event) => {
+                              event.stopPropagation();
+                              handleInlineComplete(task);
+                            }}
+                            className="mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                            aria-label={isCompleted ? "Reopen task" : "Mark task complete"}
+                            disabled={statusUpdatingId === task.id}
+                          />
+                          <button
+                            onClick={() => openTaskModal(task.id)}
+                            className="flex-1 text-left"
+                          >
+                            <h4 className={cn(
+                              "font-medium text-foreground line-clamp-2",
+                              isCompleted && "line-through text-muted-foreground",
+                            )}>
+                              {task.title}
+                            </h4>
+                          </button>
+                          <Badge variant={getPriorityVariant(task.priority)} className="shrink-0">
+                            {task.priority}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center gap-2 flex-wrap pl-14">
+                          <Badge variant={getStatusVariant(task.status)}>
+                            {task.status}
+                          </Badge>
+                          {task.dueDate && (
+                            <span className={cn(
+                              "text-xs",
+                              new Date(task.dueDate) < new Date() && task.status !== Status.Completed
+                                ? "text-destructive font-medium"
+                                : "text-muted-foreground"
+                            )}>
+                              Due: {new Date(task.dueDate).toLocaleDateString()}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
 
                 {/* Desktop: Table layout */}
@@ -507,71 +570,97 @@ const DashboardPage = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {(tasks || []).slice(0, 5).map((task, index) => (
-                        <TableRow 
-                          key={task.id}
-                          data-task-card
-                          data-task-id={task.id}
-                          className={selectedTaskIds.has(task.id) ? 'bg-primary/5' : ''}
-                        >
-                          <TableCell>
-                            <input
-                              type="checkbox"
-                              checked={selectedTaskIds.has(task.id)}
-                              onChange={(e) => handleSelectTask(task.id, e.target.checked)}
-                              className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <div>
-                              <button
-                                onClick={() => openTaskModal(task.id)}
-                                className="font-medium hover:underline text-left"
-                              >
-                                {task.title}
-                              </button>
-                              {task.description && (
-                                <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-                                  {task.description}
-                                </p>
-                              )}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant={getPriorityVariant(task.priority)}>
-                              {task.priority}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant={getStatusVariant(task.status)}>
-                              {task.status}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            {task.dueDate ? (
-                              <span className={cn(
-                                "text-sm",
-                                new Date(task.dueDate) < new Date() && task.status !== 'Completed'
-                                  ? "text-destructive font-medium"
-                                  : "text-muted-foreground"
-                              )}>
-                                {new Date(task.dueDate).toLocaleDateString()}
-                              </span>
-                            ) : (
-                              <span className="text-muted-foreground">No date</span>
+                      {(tasks || []).slice(0, 5).map((task) => {
+                        const isCompleted = task.status === Status.Completed;
+
+                        return (
+                          <TableRow 
+                            key={task.id}
+                            data-task-card
+                            data-task-id={task.id}
+                            className={cn(
+                              selectedTaskIds.has(task.id) ? 'bg-primary/5' : '',
+                              isCompleted && 'opacity-70',
                             )}
-                          </TableCell>
-                          <TableCell>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => openTaskModal(task.id)}
-                            >
-                              View
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
+                          >
+                            <TableCell>
+                              <input
+                                type="checkbox"
+                                checked={selectedTaskIds.has(task.id)}
+                                onChange={(e) => handleSelectTask(task.id, e.target.checked)}
+                                className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-start gap-3">
+                                <input
+                                  type="checkbox"
+                                  checked={isCompleted}
+                                  onChange={(event) => {
+                                    event.stopPropagation();
+                                    handleInlineComplete(task);
+                                  }}
+                                  className="mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                                  aria-label={isCompleted ? "Reopen task" : "Mark task complete"}
+                                  disabled={statusUpdatingId === task.id}
+                                />
+                                <div>
+                                  <button
+                                    onClick={() => openTaskModal(task.id)}
+                                    className={cn(
+                                      "font-medium hover:underline text-left",
+                                      isCompleted && "line-through text-muted-foreground",
+                                    )}
+                                  >
+                                    {task.title}
+                                  </button>
+                                  {task.description && (
+                                    <p className={cn(
+                                      "text-sm text-muted-foreground mt-1 line-clamp-2",
+                                      isCompleted && "line-through",
+                                    )}>
+                                      {task.description}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant={getPriorityVariant(task.priority)}>
+                                {task.priority}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant={getStatusVariant(task.status)}>
+                                {task.status}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              {task.dueDate ? (
+                                <span className={cn(
+                                  "text-sm",
+                                  new Date(task.dueDate) < new Date() && task.status !== Status.Completed
+                                    ? "text-destructive font-medium"
+                                    : "text-muted-foreground"
+                                )}>
+                                  {new Date(task.dueDate).toLocaleDateString()}
+                                </span>
+                              ) : (
+                                <span className="text-muted-foreground">No date</span>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => openTaskModal(task.id)}
+                              >
+                                View
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
                     </TableBody>
                   </Table>
                 </div>

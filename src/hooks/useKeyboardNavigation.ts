@@ -4,6 +4,7 @@ interface UseKeyboardNavigationOptions {
   itemSelector: string;
   onSelect?: (element: HTMLElement) => void;
   onOpen?: (element: HTMLElement) => void;
+  onToggle?: (element: HTMLElement) => void;
   enabled?: boolean;
 }
 
@@ -15,12 +16,13 @@ interface UseKeyboardNavigationReturn {
 
 /**
  * Hook for keyboard navigation of lists (tasks, projects, etc.)
- * Supports j/k and arrow keys for navigation, Enter to open
+ * Supports j/k and arrow keys for navigation, Enter to open, Space to toggle (optional)
  */
 export const useKeyboardNavigation = ({
   itemSelector,
   onSelect,
   onOpen,
+  onToggle,
   enabled = true,
 }: UseKeyboardNavigationOptions): UseKeyboardNavigationReturn => {
   const [selectedIndex, setSelectedIndex] = useState(-1);
@@ -132,6 +134,17 @@ export const useKeyboardNavigation = ({
           }
           break;
 
+        case ' ':
+        case 'Space':
+        case 'Spacebar':
+          if (selectedIndex >= 0 && selectedElement) {
+            e.preventDefault();
+            if (onToggle) {
+              onToggle(selectedElement);
+            }
+          }
+          break;
+
         case 'Home':
           e.preventDefault();
           isNavigating.current = true;
@@ -148,7 +161,7 @@ export const useKeyboardNavigation = ({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [enabled, selectedIndex, selectedElement, onOpen]);
+  }, [enabled, selectedIndex, selectedElement, onOpen, onToggle]);
 
   return {
     selectedIndex,
