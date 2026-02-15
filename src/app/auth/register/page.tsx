@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { Eye, EyeOff, Check, X } from "lucide-react";
 
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
@@ -14,6 +15,9 @@ const RegisterPage = () => {
   const [success, setSuccess] = useState(false);
   const [confirmationCode, setConfirmationCode] = useState("");
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
   const navigate = useNavigate();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -24,6 +28,50 @@ const RegisterPage = () => {
     }));
     setError("");
   };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const { name } = e.target;
+    setTouched(prev => ({ ...prev, [name]: true }));
+  };
+
+  // Real-time validation helpers
+  const getPasswordStrength = (password: string): { strength: number; label: string; color: string } => {
+    let strength = 0;
+    if (password.length >= 8) strength++;
+    if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+    if (/\d/.test(password)) strength++;
+    if (/[^a-zA-Z0-9]/.test(password)) strength++;
+    
+    const labels = ["Weak", "Fair", "Good", "Strong", "Very Strong"];
+    const colors = ["bg-red-500", "bg-orange-500", "bg-yellow-500", "bg-blue-500", "bg-green-500"];
+    return { strength, label: labels[strength] || "Weak", color: colors[strength] || "bg-red-500" };
+  };
+
+  const validationRules = {
+    username: (val: string) => val.length >= 3 || "Username must be at least 3 characters",
+    email: (val: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val) || "Please enter a valid email",
+    password: (val: string) => val.length >= 8 || "Password must be at least 8 characters",
+    confirmPassword: (val: string) => val === formData.password || "Passwords do not match"
+  };
+
+  const getFieldError = (field: string): string | null => {
+    if (!touched[field]) return null;
+    const value = formData[field as keyof typeof formData];
+    const rule = validationRules[field as keyof typeof validationRules];
+    if (rule) {
+      const result = rule(value);
+      return typeof result === "string" ? result : null;
+    }
+    return null;
+  };
+
+  const passwordStrength = getPasswordStrength(formData.password);
+  const passwordChecks = [
+    { label: "At least 8 characters", valid: formData.password.length >= 8 },
+    { label: "Uppercase & lowercase letters", valid: /[a-z]/.test(formData.password) && /[A-Z]/.test(formData.password) },
+    { label: "At least one number", valid: /\d/.test(formData.password) },
+    { label: "At least one special character", valid: /[^a-zA-Z0-9]/.test(formData.password) },
+  ];
 
   const validateForm = () => {
     if (!formData.username || !formData.email || !formData.password || !formData.confirmPassword) {
@@ -423,18 +471,33 @@ const RegisterPage = () => {
               <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-2">
                 Username
               </label>
-              <motion.input
-                id="username"
-                name="username"
-                type="text"
-                value={formData.username}
-                onChange={handleInputChange}
-                required
-                className="w-full px-4 py-3 bg-gray-900/50 border border-blue-500/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300"
-                placeholder="Choose a username"
-                whileFocus={{ scale: 1.02 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              />
+              <div className="relative">
+                <motion.input
+                  id="username"
+                  name="username"
+                  type="text"
+                  value={formData.username}
+                  onChange={handleInputChange}
+                  onBlur={handleBlur}
+                  required
+                  className={`w-full px-4 py-3 bg-gray-900/50 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 transition-all duration-300 ${
+                    touched.username && getFieldError('username')
+                      ? 'border-red-500/50 focus:ring-red-500/50 focus:border-red-500/50'
+                      : touched.username && !getFieldError('username') && formData.username.length >= 3
+                      ? 'border-green-500/50 focus:ring-green-500/50 focus:border-green-500/50'
+                      : 'border-blue-500/20 focus:ring-blue-500/50 focus:border-blue-500/50'
+                  }`}
+                  placeholder="Choose a username"
+                  whileFocus={{ scale: 1.02 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                />
+                {touched.username && !getFieldError('username') && formData.username.length >= 3 && (
+                  <Check className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-green-500" />
+                )}
+              </div>
+              {touched.username && getFieldError('username') && (
+                <p className="mt-1 text-xs text-red-400">{getFieldError('username')}</p>
+              )}
             </div>
 
             {/* Email */}
@@ -442,18 +505,33 @@ const RegisterPage = () => {
               <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
                 Email
               </label>
-              <motion.input
-                id="email"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                required
-                className="w-full px-4 py-3 bg-gray-900/50 border border-blue-500/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300"
-                placeholder="you@example.com"
-                whileFocus={{ scale: 1.02 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              />
+              <div className="relative">
+                <motion.input
+                  id="email"
+                  name="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  onBlur={handleBlur}
+                  required
+                  className={`w-full px-4 py-3 bg-gray-900/50 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 transition-all duration-300 ${
+                    touched.email && getFieldError('email')
+                      ? 'border-red-500/50 focus:ring-red-500/50 focus:border-red-500/50'
+                      : touched.email && !getFieldError('email') && formData.email
+                      ? 'border-green-500/50 focus:ring-green-500/50 focus:border-green-500/50'
+                      : 'border-blue-500/20 focus:ring-blue-500/50 focus:border-blue-500/50'
+                  }`}
+                  placeholder="you@example.com"
+                  whileFocus={{ scale: 1.02 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                />
+                {touched.email && !getFieldError('email') && formData.email && (
+                  <Check className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-green-500" />
+                )}
+              </div>
+              {touched.email && getFieldError('email') && (
+                <p className="mt-1 text-xs text-red-400">{getFieldError('email')}</p>
+              )}
             </div>
 
             {/* Password */}
@@ -461,21 +539,62 @@ const RegisterPage = () => {
               <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
                 Password
               </label>
-              <motion.input
-                id="password"
-                name="password"
-                type="password"
-                value={formData.password}
-                onChange={handleInputChange}
-                required
-                className="w-full px-4 py-3 bg-gray-900/50 border border-blue-500/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300"
-                placeholder="Create a password"
-                whileFocus={{ scale: 1.02 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              />
-              <p className="mt-1 text-xs text-gray-400">
-                Password must be at least 8 characters long
-              </p>
+              <div className="relative">
+                <motion.input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  onBlur={handleBlur}
+                  required
+                  className={`w-full px-4 py-3 pr-12 bg-gray-900/50 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 transition-all duration-300 ${
+                    touched.password && getFieldError('password')
+                      ? 'border-red-500/50 focus:ring-red-500/50 focus:border-red-500/50'
+                      : touched.password && !getFieldError('password') && formData.password
+                      ? 'border-green-500/50 focus:ring-green-500/50 focus:border-green-500/50'
+                      : 'border-blue-500/20 focus:ring-blue-500/50 focus:border-blue-500/50'
+                  }`}
+                  placeholder="Create a password"
+                  whileFocus={{ scale: 1.02 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-300 transition-colors p-1"
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
+              
+              {/* Password Strength Indicator */}
+              {formData.password && (
+                <div className="mt-3 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 h-1.5 bg-gray-700 rounded-full overflow-hidden">
+                      <div 
+                        className={`h-full ${passwordStrength.color} transition-all duration-300`}
+                        style={{ width: `${(passwordStrength.strength + 1) * 20}%` }}
+                      />
+                    </div>
+                    <span className="text-xs text-gray-400 min-w-[80px] text-right">{passwordStrength.label}</span>
+                  </div>
+                  <div className="space-y-1">
+                    {passwordChecks.map((check, idx) => (
+                      <div key={idx} className="flex items-center gap-2 text-xs">
+                        {check.valid ? (
+                          <Check className="w-3.5 h-3.5 text-green-500" />
+                        ) : (
+                          <X className="w-3.5 h-3.5 text-gray-600" />
+                        )}
+                        <span className={check.valid ? "text-green-400" : "text-gray-500"}>{check.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Confirm Password */}
@@ -483,18 +602,38 @@ const RegisterPage = () => {
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-300 mb-2">
                 Confirm Password
               </label>
-              <motion.input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                value={formData.confirmPassword}
-                onChange={handleInputChange}
-                required
-                className="w-full px-4 py-3 bg-gray-900/50 border border-blue-500/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300"
-                placeholder="Confirm your password"
-                whileFocus={{ scale: 1.02 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              />
+              <div className="relative">
+                <motion.input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={formData.confirmPassword}
+                  onChange={handleInputChange}
+                  onBlur={handleBlur}
+                  required
+                  className={`w-full px-4 py-3 pr-12 bg-gray-900/50 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 transition-all duration-300 ${
+                    touched.confirmPassword && getFieldError('confirmPassword')
+                      ? 'border-red-500/50 focus:ring-red-500/50 focus:border-red-500/50'
+                      : touched.confirmPassword && !getFieldError('confirmPassword') && formData.confirmPassword
+                      ? 'border-green-500/50 focus:ring-green-500/50 focus:border-green-500/50'
+                      : 'border-blue-500/20 focus:ring-blue-500/50 focus:border-blue-500/50'
+                  }`}
+                  placeholder="Confirm your password"
+                  whileFocus={{ scale: 1.02 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-300 transition-colors p-1"
+                  tabIndex={-1}
+                >
+                  {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
+              {touched.confirmPassword && getFieldError('confirmPassword') && (
+                <p className="mt-1 text-xs text-red-400">{getFieldError('confirmPassword')}</p>
+              )}
             </div>
 
             <motion.button

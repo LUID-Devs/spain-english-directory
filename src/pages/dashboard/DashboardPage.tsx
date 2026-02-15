@@ -20,6 +20,7 @@ import { CheckSquare, Square } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTaskModal } from "@/contexts/TaskModalContext";
 import { useKeyboardNavigation } from "@/hooks/useKeyboardNavigation";
+import { useGlobalShortcuts } from "@/hooks/useGlobalShortcuts";
 import { useUndoableBulkDelete } from "@/hooks/useUndoableBulkDelete";
 import BulkActionsToolbar from "@/components/BulkActionsToolbar";
 import BulkDeleteConfirmationModal from "@/components/BulkDeleteConfirmationModal";
@@ -193,6 +194,45 @@ const DashboardPage = () => {
       }
     },
     onToggle: handleKeyboardToggleComplete,
+    enabled: true,
+  });
+
+  // Global shortcuts for quick actions
+  useGlobalShortcuts({
+    shortcuts: [
+      {
+        key: 'c',
+        handler: () => {
+          setIsModalNewTaskOpen(true);
+          toast.info('Press C to create a new task', { duration: 2000 });
+        },
+        description: 'Create new task',
+      },
+      {
+        key: 'k',
+        metaKey: true,
+        handler: () => {
+          setIsModalNewTaskOpen(true);
+        },
+        description: 'Create new task (Cmd+K)',
+      },
+      {
+        key: '?',
+        handler: () => {
+          toast.info(
+            'Keyboard Shortcuts:\n' +
+            'c - Create new task\n' +
+            'Cmd+K - Create new task\n' +
+            'j/k or ↓/↑ - Navigate tasks\n' +
+            'Space - Mark task complete\n' +
+            'Enter - Open task details\n' +
+            '? - Show this help',
+            { duration: 8000 }
+          );
+        },
+        description: 'Show keyboard shortcuts help',
+      },
+    ],
     enabled: true,
   });
 
