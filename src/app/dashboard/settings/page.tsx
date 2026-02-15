@@ -8,6 +8,7 @@ import { SubscriptionDashboard } from "@/components/subscription/SubscriptionDas
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
@@ -520,9 +521,8 @@ const SettingsPage = () => {
                   <div className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="current-password">Current Password</Label>
-                      <Input
+                      <PasswordInput
                         id="current-password"
-                        type="password"
                         value={passwordForm.currentPassword}
                         onChange={(e) => setPasswordForm(prev => ({ ...prev, currentPassword: e.target.value }))}
                         placeholder="Enter current password"
@@ -531,9 +531,8 @@ const SettingsPage = () => {
                     
                     <div className="space-y-2">
                       <Label htmlFor="new-password">New Password</Label>
-                      <Input
+                      <PasswordInput
                         id="new-password"
-                        type="password"
                         value={passwordForm.newPassword}
                         onChange={(e) => setPasswordForm(prev => ({ ...prev, newPassword: e.target.value }))}
                         placeholder="Enter new password"
@@ -542,9 +541,8 @@ const SettingsPage = () => {
                     
                     <div className="space-y-2">
                       <Label htmlFor="confirm-password">Confirm New Password</Label>
-                      <Input
+                      <PasswordInput
                         id="confirm-password"
-                        type="password"
                         value={passwordForm.confirmPassword}
                         onChange={(e) => setPasswordForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
                         placeholder="Confirm new password"
