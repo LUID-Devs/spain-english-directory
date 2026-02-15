@@ -100,9 +100,22 @@ html {
 
 /* Mobile-specific improvements */
 @layer utilities {
-  /* Better touch targets for mobile */
+  /* Better touch targets for mobile - minimum 44px */
   .touch-target {
     @apply min-h-[44px] min-w-[44px];
+  }
+
+  /* Ensure all interactive elements have minimum touch target on mobile */
+  @media (hover: none) and (pointer: coarse) {
+    .touch-target-mobile {
+      @apply min-h-[44px] min-w-[44px];
+    }
+    
+    /* Increase checkbox and radio touch targets */
+    input[type="checkbox"],
+    input[type="radio"] {
+      @apply min-h-[44px] min-w-[44px];
+    }
   }
 
   /* Prevent text selection on UI elements */
@@ -122,6 +135,27 @@ html {
   }
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
+  }
+
+  /* Prevent horizontal overflow on mobile */
+  .prevent-overflow {
+    @apply max-w-full overflow-x-hidden;
+  }
+
+  /* Mobile-friendly form inputs */
+  .mobile-input {
+    @apply min-h-[44px] text-base;
+    /* Prevent zoom on iOS */
+    font-size: 16px;
+  }
+  
+  /* Safe area padding for notched devices */
+  .safe-area-x {
+    @apply px-4 sm:px-6;
+  }
+  
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 }
 

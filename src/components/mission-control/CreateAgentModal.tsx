@@ -27,6 +27,7 @@ export function CreateAgentModal({ isOpen, onClose }: CreateAgentModalProps) {
   const [personality, setPersonality] = useState("");
   const [createdAgent, setCreatedAgent] = useState<CreateAgentResponse | null>(null);
   const [copied, setCopied] = useState(false);
+  const [copyError, setCopyError] = useState<string | null>(null);
 
   const createAgent = useCreateAgent();
 
@@ -47,10 +48,45 @@ export function CreateAgentModal({ isOpen, onClose }: CreateAgentModalProps) {
   };
 
   const handleCopyKey = async () => {
-    if (createdAgent?.apiKey) {
-      await navigator.clipboard.writeText(createdAgent.apiKey);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+    if (!createdAgent?.apiKey) return;
+
+    setCopyError(null);
+
+    try {
+      // Try modern Clipboard API first
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(createdAgent.apiKey);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+        return;
+      }
+
+      // Fallback: Use execCommand for older browsers or non-secure contexts
+      const textArea = document.createElement('textarea');
+      textArea.value = createdAgent.apiKey;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-9999px';
+      textArea.style.top = '0';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+
+      try {
+        const successful = document.execCommand('copy');
+        document.body.removeChild(textArea);
+
+        if (successful) {
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+        } else {
+          setCopyError('Copy failed. Please select and copy the key manually.');
+        }
+      } catch (err) {
+        document.body.removeChild(textArea);
+        setCopyError('Copy failed. Please select and copy the key manually.');
+      }
+    } catch (error) {
+      setCopyError('Copy failed. Please select and copy the key manually.');
     }
   };
 
@@ -61,6 +97,7 @@ export function CreateAgentModal({ isOpen, onClose }: CreateAgentModalProps) {
     setPersonality("");
     setCreatedAgent(null);
     setCopied(false);
+    setCopyError(null);
     createAgent.reset();
     onClose();
   };
@@ -112,6 +149,9 @@ export function CreateAgentModal({ isOpen, onClose }: CreateAgentModalProps) {
                   )}
                 </Button>
               </div>
+              {copyError && (
+                <p className="text-xs text-red-500">{copyError}</p>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-4 text-sm">

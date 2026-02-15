@@ -568,7 +568,7 @@ const DashboardPage = () => {
                             type="checkbox"
                             checked={selectedTaskIds.has(task.id)}
                             onChange={(e) => handleSelectTask(task.id, e.target.checked)}
-                            className="mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                            className="mt-1 h-5 w-5 min-h-[20px] min-w-[20px] rounded border-gray-300 text-primary focus:ring-primary"
                             onClick={(e) => e.stopPropagation()}
                           />
                           <input
@@ -578,7 +578,7 @@ const DashboardPage = () => {
                               event.stopPropagation();
                               handleInlineComplete(task);
                             }}
-                            className="mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                            className="mt-1 h-5 w-5 min-h-[20px] min-w-[20px] rounded border-gray-300 text-primary focus:ring-primary"
                             aria-label={isCompleted ? "Reopen task" : "Mark task complete"}
                             disabled={statusUpdatingId === task.id}
                           />

@@ -860,7 +860,7 @@ const TasksPage = () => {
                           toggleTaskSelection(task.id, e as unknown as React.MouseEvent);
                         }}
                         data-ignore-row-click
-                        className="mt-1"
+                        className="mt-1 h-5 w-5 min-h-[20px] min-w-[20px]"
                         aria-label={`Select task ${task.title}`}
                       />
                       <button
