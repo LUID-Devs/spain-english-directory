@@ -124,10 +124,36 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
     }
   }, [isOpen]);
 
-  // Handle keyboard scrolling
+  // Handle keyboard scrolling and shortcuts
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
     const container = scrollContainerRef.current;
     if (!container) return;
+
+    // Keyboard shortcut: 'C' to mark task as complete (when not typing in an input)
+    if (e.key === 'c' || e.key === 'C') {
+      // Don't trigger if user is typing in an input, textarea, or contenteditable
+      const target = e.target as HTMLElement;
+      const isTyping = 
+        target.tagName === 'INPUT' || 
+        target.tagName === 'TEXTAREA' || 
+        target.isContentEditable ||
+        target.closest('[contenteditable="true"]');
+      
+      if (!isTyping && editForm.status !== Status.Completed) {
+        e.preventDefault();
+        handleFieldChange('status', Status.Completed);
+        toast.success("Task marked as complete! Press 'C' again to undo.", { duration: 2000 });
+        return;
+      }
+    }
+
+    // Keyboard shortcut: Cmd/Ctrl + Enter to save and close
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+      e.preventDefault();
+      autoSave(editForm);
+      onClose();
+      return;
+    }
 
     const scrollAmount = 60;
 
@@ -157,7 +183,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
         container.scrollTop = container.scrollHeight;
         break;
     }
-  }, []);
+  }, [editForm, handleFieldChange, autoSave, onClose]);
 
   // Auto-save function
   const autoSave = useCallback(async (formData: typeof editForm) => {
@@ -450,6 +476,11 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                                 <span className="font-semibold shrink-0">Completed:</span>
                                 <span className="text-muted-foreground">Fully done and approved. The final state of finished work.</span>
                               </div>
+                            </div>
+                            <div className="pt-2 border-t border-border">
+                              <p className="text-xs text-muted-foreground">
+                                <span className="font-medium">Tip:</span> Press <kbd className="px-1.5 py-0.5 bg-muted rounded text-xs font-mono">C</kbd> to quickly mark a task as complete.
+                              </p>
                             </div>
                           </div>
                         </PopoverContent>
