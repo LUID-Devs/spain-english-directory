@@ -32,6 +32,71 @@ const getAuthHeaders = async (): Promise<Record<string, string>> => {
   return headers;
 };
 
+// User-friendly error message mapping based on context
+const getUserFriendlyErrorMessage = (
+  status: number,
+  path: string,
+  method: string,
+  serverMessage?: string
+): string => {
+  // First, check for server-provided message if it's user-friendly
+  if (serverMessage && !serverMessage.includes("Request failed") && !serverMessage.includes("status")) {
+    return serverMessage;
+  }
+
+  // Context-specific error messages based on the endpoint
+  const isAgentEndpoint = path.includes("/agents");
+  const isTaskEndpoint = path.includes("/tasks");
+  const isMonitoringEndpoint = path.includes("/monitoring");
+  const isCreate = method === "POST" && !path.includes("/");
+  const isUpdate = method === "PUT";
+  const isDelete = method === "DELETE";
+
+  // Auth errors
+  if (status === 401) {
+    return "Your session has expired. Please sign in again.";
+  }
+  if (status === 403) {
+    return "You don't have permission to perform this action.";
+  }
+
+  // Not found errors
+  if (status === 404) {
+    if (isAgentEndpoint) return "Agent not found. It may have been deleted.";
+    if (isTaskEndpoint) return "Task not found. It may have been deleted or moved.";
+    return "The requested resource was not found.";
+  }
+
+  // Validation errors
+  if (status === 400) {
+    if (isAgentEndpoint && isCreate) return "Invalid agent information. Please check all fields and try again.";
+    if (isAgentEndpoint && isUpdate) return "Invalid agent update. Please check your changes and try again.";
+    return "Invalid request. Please check your input and try again.";
+  }
+
+  // Conflict errors
+  if (status === 409) {
+    if (isAgentEndpoint && isCreate) return "An agent with this name already exists. Please choose a different name.";
+    return "This action conflicts with existing data. Please try again.";
+  }
+
+  // Server errors
+  if (status >= 500) {
+    if (isAgentEndpoint) {
+      if (isCreate) return "Unable to create agent. Please try again in a moment.";
+      if (isUpdate) return "Unable to update agent. Please try again in a moment.";
+      if (isDelete) return "Unable to delete agent. Please try again in a moment.";
+      return "Unable to load agent data. Please try again in a moment.";
+    }
+    if (isTaskEndpoint) return "Unable to process task. Please try again in a moment.";
+    if (isMonitoringEndpoint) return "Unable to load monitoring data. Please refresh the page.";
+    return "Something went wrong. Please try again in a moment.";
+  }
+
+  // Default fallback
+  return serverMessage || "An unexpected error occurred. Please try again.";
+};
+
 const missionFetch = async <T>(path: string, options: RequestInit = {}): Promise<T> => {
   const isFormData = options.body instanceof FormData;
   const authHeaders = await getAuthHeaders();
@@ -51,18 +116,25 @@ const missionFetch = async <T>(path: string, options: RequestInit = {}): Promise
   });
 
   if (!response.ok) {
-    let message = `Request failed with status ${response.status}`;
+    let serverMessage: string | undefined;
     try {
       const errorData = await response.json();
       if (errorData?.message) {
-        message = errorData.message;
+        serverMessage = errorData.message;
       } else if (errorData?.error) {
-        message = errorData.error;
+        serverMessage = errorData.error;
       }
     } catch {
-      // Keep default message when response isn't JSON
+      // Response isn't JSON, keep undefined
     }
-    throw new Error(message);
+
+    const userMessage = getUserFriendlyErrorMessage(
+      response.status,
+      path,
+      options.method || "GET",
+      serverMessage
+    );
+    throw new Error(userMessage);
   }
 
   return response.json();

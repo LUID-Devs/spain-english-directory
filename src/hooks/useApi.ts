@@ -2484,6 +2484,49 @@ export const useSetTimeEstimateMutation = () => {
   return [mutationWrapper, { isLoading: false }] as const;
 };
 
+// Bulk Task Operations
+export const useBulkUpdateTasksMutation = () => {
+  const bulkUpdate = useCallback(async ({ taskIds, updates }: { taskIds: number[]; updates: Partial<Task> }) => {
+    const loadingToast = toast.loading(`Updating ${taskIds.length} tasks...`);
+    
+    try {
+      const result = await apiService.bulkUpdateTasks(taskIds, updates);
+      toast.success(`${taskIds.length} tasks updated successfully`, { id: loadingToast });
+      return result;
+    } catch (error: any) {
+      toast.error('Failed to update tasks', { id: loadingToast });
+      throw error;
+    }
+  }, []);
+
+  const mutationWrapper = useCallback((args: { taskIds: number[]; updates: Partial<Task> }) => ({
+    unwrap: () => bulkUpdate(args),
+  }), [bulkUpdate]);
+
+  return [mutationWrapper, { isLoading: false }] as const;
+};
+
+export const useBulkDeleteTasksMutation = () => {
+  const bulkDelete = useCallback(async ({ taskIds }: { taskIds: number[] }) => {
+    const loadingToast = toast.loading(`Deleting ${taskIds.length} tasks...`);
+    
+    try {
+      const result = await apiService.bulkDeleteTasks(taskIds);
+      toast.success(`${taskIds.length} tasks deleted successfully`, { id: loadingToast });
+      return result;
+    } catch (error: any) {
+      toast.error('Failed to delete tasks', { id: loadingToast });
+      throw error;
+    }
+  }, []);
+
+  const mutationWrapper = useCallback((args: { taskIds: number[] }) => ({
+    unwrap: () => bulkDelete(args),
+  }), [bulkDelete]);
+
+  return [mutationWrapper, { isLoading: false }] as const;
+};
+
 // Export types and enums
 export { Status, Priority, TaskType } from '@/services/apiService';
 export type { Task, Project, User, Comment, Attachment, UserWithStats, TaskStatus, SavedView, Goal, GoalTemplate, SearchSuggestion, GitLink, TimeLog, TimeEstimate, ActiveTimer, TimeLogsResponse, ProjectTimeReport } from '@/services/apiService';

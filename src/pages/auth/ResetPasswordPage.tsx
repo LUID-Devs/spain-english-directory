@@ -13,6 +13,49 @@ const ResetPasswordPage = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [resetComplete, setResetComplete] = useState(false);
+  
+  // Rate limiting state - 60 second cooldown for resending reset email
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const COOLDOWN_DURATION = 60; // seconds
+
+  useEffect(() => {
+    // Check for existing cooldown in localStorage on mount
+    const storedCooldownEnd = localStorage.getItem('passwordResetCooldownEnd');
+    if (storedCooldownEnd) {
+      const endTime = parseInt(storedCooldownEnd, 10);
+      const now = Math.floor(Date.now() / 1000);
+      const remaining = Math.max(0, endTime - now);
+      setResendCooldown(remaining);
+    }
+  }, []);
+
+  useEffect(() => {
+    // Countdown timer effect
+    if (resendCooldown <= 0) {
+      localStorage.removeItem('passwordResetCooldownEnd');
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setResendCooldown((prev) => {
+        const newValue = prev - 1;
+        if (newValue <= 0) {
+          localStorage.removeItem('passwordResetCooldownEnd');
+          clearInterval(timer);
+          return 0;
+        }
+        return newValue;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [resendCooldown]);
+
+  const startResendCooldown = () => {
+    const endTime = Math.floor(Date.now() / 1000) + COOLDOWN_DURATION;
+    localStorage.setItem('passwordResetCooldownEnd', endTime.toString());
+    setResendCooldown(COOLDOWN_DURATION);
+  };
 
   useEffect(() => {
     // Get username from navigation state or query param
@@ -253,12 +296,19 @@ const ResetPasswordPage = () => {
               <div className="mt-6 text-center space-y-2">
                 <p className="text-sm text-gray-400">
                   Didn't receive the code?{" "}
-                  <Link
-                    to="/auth/forgot-password"
-                    className="text-blue-400 hover:text-blue-300 font-medium transition-colors duration-300"
-                  >
-                    Send again
-                  </Link>
+                  {resendCooldown > 0 ? (
+                    <span className="text-gray-500 font-medium">
+                      Resend in {resendCooldown}s
+                    </span>
+                  ) : (
+                    <Link
+                      to="/auth/forgot-password"
+                      onClick={startResendCooldown}
+                      className="text-blue-400 hover:text-blue-300 font-medium transition-colors duration-300"
+                    >
+                      Send again
+                    </Link>
+                  )}
                 </p>
               </div>
             </>

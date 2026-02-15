@@ -1536,6 +1536,22 @@ class ApiService {
       method: 'DELETE',
     });
   }
+
+  // ==================== BULK OPERATIONS ====================
+
+  async bulkUpdateTasks(taskIds: number[], updates: Partial<Task>): Promise<{ success: boolean; updatedCount: number }> {
+    return this.request<{ success: boolean; updatedCount: number }>('/api/tasks/bulk-update', {
+      method: 'PATCH',
+      body: JSON.stringify({ taskIds, updates }),
+    });
+  }
+
+  async bulkDeleteTasks(taskIds: number[]): Promise<{ success: boolean; deletedCount: number }> {
+    return this.request<{ success: boolean; deletedCount: number }>('/api/tasks/bulk-delete', {
+      method: 'DELETE',
+      body: JSON.stringify({ taskIds }),
+    });
+  }
 }
 
 export const apiService = new ApiService();

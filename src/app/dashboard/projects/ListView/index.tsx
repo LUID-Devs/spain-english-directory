@@ -1,8 +1,8 @@
-import { Task, useGetTasksQuery, useGetProjectStatusesQuery, Status, useReorderTasksMutation } from "@/hooks/useApi";
-import React, { useState, useMemo, useCallback } from "react";
+import { Task, useGetTasksQuery, useGetProjectStatusesQuery, Status, useReorderTasksMutation, useBulkUpdateTasksMutation, useBulkDeleteTasksMutation } from "@/hooks/useApi";
+import React, { useState, useMemo, useCallback, useRef } from "react";
 import { toast } from "sonner";
 import TaskCard from "@/components/TaskCard";
-import { Grid3X3, List, Search, FileText, AlertTriangle, GripVertical, ChevronLeft, ChevronRight } from "lucide-react";
+import { Grid3X3, List, Search, FileText, AlertTriangle, GripVertical, ChevronLeft, ChevronRight, Trash2, CheckSquare, UserCircle, Tag, X } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { cn } from "@/lib/utils";
 import { useDrag, useDrop } from "react-dnd";
 import type { DragSourceMonitor, DropTargetMonitor } from 'react-dnd';
+import { Badge } from "@/components/ui/badge";
+import { motion, AnimatePresence } from "framer-motion";
 
 type Props = {
   id: string;
@@ -33,6 +35,12 @@ interface DraggableTaskItemProps {
   isManualSort: boolean;
   moveTask: (dragIndex: number, hoverIndex: number) => void;
   onDrop: (taskId: number, newOrder: number) => void;
+  isSelected: boolean;
+  selectionMode: boolean;
+  onSelect: (taskId: number, selected: boolean) => void;
+  onCtrlClick: (taskId: number) => void;
+  onShiftClick: (taskId: number, index: number) => void;
+  lastSelectedIndex: number | null;
 }
 
 const DraggableTaskItem = React.memo(({
@@ -41,7 +49,13 @@ const DraggableTaskItem = React.memo(({
   viewMode,
   isManualSort,
   moveTask,
-  onDrop
+  onDrop,
+  isSelected,
+  selectionMode,
+  onSelect,
+  onCtrlClick,
+  onShiftClick,
+  lastSelectedIndex
 }: DraggableTaskItemProps) => {
   const [{ isDragging }, drag, preview] = useDrag(() => ({
     type: ITEM_TYPE,
@@ -49,8 +63,8 @@ const DraggableTaskItem = React.memo(({
     collect: (monitor: DragSourceMonitor) => ({
       isDragging: monitor.isDragging(),
     }),
-    canDrag: isManualSort,
-  }), [task.id, index, isManualSort]);
+    canDrag: isManualSort && !selectionMode,
+  }), [task.id, index, isManualSort, selectionMode]);
 
   const [, drop] = useDrop(() => ({
     accept: ITEM_TYPE,
@@ -70,20 +84,31 @@ const DraggableTaskItem = React.memo(({
     },
   }), [index, moveTask, onDrop]);
 
+  const handleClick = (e: React.MouseEvent) => {
+    if (e.ctrlKey || e.metaKey) {
+      e.preventDefault();
+      onCtrlClick(task.id);
+    } else if (e.shiftKey && lastSelectedIndex !== null) {
+      e.preventDefault();
+      onShiftClick(task.id, index);
+    }
+  };
+
   return (
     <div
       ref={(node) => {
-        if (isManualSort) {
+        if (isManualSort && !selectionMode) {
           preview(drop(node));
         }
       }}
+      onClick={handleClick}
       className={cn(
         "relative group",
         viewMode === "list" ? "max-w-none" : "",
         isDragging && "opacity-50"
       )}
     >
-      {isManualSort && (
+      {isManualSort && !selectionMode && (
         <div
           ref={(node) => drag(node)}
           className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-6 cursor-grab active:cursor-grabbing p-1 rounded hover:bg-accent opacity-0 group-hover:opacity-100 transition-opacity"
@@ -92,10 +117,121 @@ const DraggableTaskItem = React.memo(({
           <GripVertical className="h-4 w-4 text-muted-foreground" />
         </div>
       )}
-      <TaskCard task={task} />
+      <TaskCard 
+        task={task} 
+        isSelected={isSelected}
+        onSelect={onSelect}
+        selectionMode={selectionMode}
+      />
     </div>
   );
 });
+
+// Bulk Actions Toolbar Component
+interface BulkActionsToolbarProps {
+  selectedCount: number;
+  totalCount: number;
+  onClearSelection: () => void;
+  onSelectAll: () => void;
+  onBulkComplete: () => void;
+  onBulkDelete: () => void;
+  onBulkStatusChange: (status: string) => void;
+  availableStatuses: string[];
+  isProcessing: boolean;
+}
+
+const BulkActionsToolbar = ({
+  selectedCount,
+  totalCount,
+  onClearSelection,
+  onSelectAll,
+  onBulkComplete,
+  onBulkDelete,
+  onBulkStatusChange,
+  availableStatuses,
+  isProcessing
+}: BulkActionsToolbarProps) => {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      className="sticky top-0 z-50 bg-primary/10 backdrop-blur-md border border-primary/30 rounded-lg p-3 mb-4"
+    >
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <Badge variant="default" className="text-sm px-3 py-1">
+            {selectedCount} selected
+          </Badge>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={onSelectAll}
+            disabled={isProcessing}
+          >
+            Select all {totalCount}
+          </Button>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={onClearSelection}
+            disabled={isProcessing}
+          >
+            <X className="h-4 w-4 mr-1" />
+            Clear
+          </Button>
+        </div>
+
+        <div className="flex items-center gap-2 flex-wrap">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onBulkComplete}
+            disabled={isProcessing}
+            className="bg-green-500/10 hover:bg-green-500/20 border-green-500/30"
+          >
+            <CheckSquare className="h-4 w-4 mr-1" />
+            Complete
+          </Button>
+
+          <Select onValueChange={onBulkStatusChange} disabled={isProcessing}>
+            <SelectTrigger className="w-[130px] h-8">
+              <span className="flex items-center gap-1 text-xs">
+                <UserCircle className="h-3 w-3" />
+                Set Status
+              </span>
+            </SelectTrigger>
+            <SelectContent>
+              {availableStatuses.map((status) => (
+                <SelectItem key={status} value={status}>
+                  {status}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onBulkDelete}
+            disabled={isProcessing}
+            className="bg-destructive/10 hover:bg-destructive/20 border-destructive/30 text-destructive"
+          >
+            <Trash2 className="h-4 w-4 mr-1" />
+            Delete
+          </Button>
+        </div>
+      </div>
+
+      {isProcessing && (
+        <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
+          <div className="w-3 h-3 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+          Processing...
+        </div>
+      )}
+    </motion.div>
+  );
+};
 
 const DEFAULT_ITEMS_PER_PAGE = 20;
 
@@ -107,7 +243,7 @@ const ListView = ({
   refetchTasks
 }: Props) => {
   // Fallback to fetching data if not provided via props
-  const { data: fetchedTasks, isLoading: fetchedLoading, error: fetchedError } = useGetTasksQuery(
+  const { data: fetchedTasks, isLoading: fetchedLoading, error: fetchedError, refetch } = useGetTasksQuery(
     { projectId: Number(id) },
     { skip: !!propTasks }
   );
@@ -127,6 +263,7 @@ const ListView = ({
   const tasks = propTasks || fetchedTasks;
   const isLoading = tasksLoading !== undefined ? tasksLoading : fetchedLoading;
   const error = tasksError !== undefined ? tasksError : fetchedError;
+  const doRefetch = refetchTasks || refetch;
 
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [sortBy, setSortBy] = useState<SortOption>("priority");
@@ -136,11 +273,37 @@ const ListView = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(DEFAULT_ITEMS_PER_PAGE);
 
+  // Bulk selection state
+  const [selectedTaskIds, setSelectedTaskIds] = useState<Set<number>>(new Set());
+  const [lastSelectedIndex, setLastSelectedIndex] = useState<number | null>(null);
+  const [isProcessingBulk, setIsProcessingBulk] = useState(false);
+
   const [reorderTasks] = useReorderTasksMutation();
+  const [bulkUpdateTasks] = useBulkUpdateTasksMutation();
+  const [bulkDeleteTasks] = useBulkDeleteTasksMutation();
 
   const isManualSort = sortBy === "manual";
+  const selectionMode = selectedTaskIds.size > 0;
 
   const priorityOrder = { "Urgent": 0, "High": 1, "Medium": 2, "Low": 3, "Backlog": 4 };
+
+  // Handle keyboard shortcuts
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ctrl/Cmd + A to select all visible tasks
+      if ((e.ctrlKey || e.metaKey) && e.key === 'a' && selectionMode) {
+        e.preventDefault();
+        handleSelectAll();
+      }
+      // Escape to clear selection
+      if (e.key === 'Escape' && selectionMode) {
+        handleClearSelection();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectionMode, paginatedTasks]);
 
   // Handle task reordering during drag
   const moveTask = useCallback((dragIndex: number, hoverIndex: number) => {
@@ -160,7 +323,6 @@ const ListView = ({
   const handleDrop = useCallback(async (taskId: number, newIndex: number) => {
     if (!tasks || !tempTasks) return;
     
-    // Calculate new orders for all affected tasks
     const taskOrders = tempTasks.map((task, idx) => ({
       taskId: task.id,
       order: idx,
@@ -168,19 +330,18 @@ const ListView = ({
 
     try {
       await (reorderTasks as any)({ taskOrders }).unwrap();
-      setTempTasks(null); // Clear temp state after successful save
+      setTempTasks(null);
       toast.success("Task order saved");
     } catch (error) {
       console.error("Failed to reorder tasks:", error);
       toast.error("Failed to save task order");
-      setTempTasks(null); // Reset on error
+      setTempTasks(null);
     }
   }, [tasks, tempTasks, reorderTasks]);
 
   const filteredAndSortedTasks = useMemo(() => {
     let filtered = tempTasks || tasks || [];
 
-    // Apply search filter
     if (searchQuery) {
       filtered = filtered.filter(task => 
         task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -188,12 +349,10 @@ const ListView = ({
       );
     }
 
-    // Apply status filter
     if (filterBy !== "all") {
       filtered = filtered.filter(task => (task.status || "To Do") === filterBy);
     }
 
-    // Apply sorting (skip if manual sort - use tempTasks order)
     if (!isManualSort) {
       filtered = [...filtered].sort((a, b) => {
         switch (sortBy) {
@@ -216,7 +375,6 @@ const ListView = ({
         }
       });
     } else {
-      // Manual sort - sort by order field, fallback to id for stable sorting
       filtered = [...filtered].sort((a, b) => {
         const orderA = a.order ?? a.id;
         const orderB = b.order ?? b.id;
@@ -233,6 +391,123 @@ const ListView = ({
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = Math.min(startIndex + itemsPerPage, totalTasks);
   const paginatedTasks = filteredAndSortedTasks.slice(startIndex, endIndex);
+
+  // Bulk selection handlers
+  const handleSelectTask = useCallback((taskId: number, selected: boolean) => {
+    setSelectedTaskIds(prev => {
+      const newSet = new Set(prev);
+      if (selected) {
+        newSet.add(taskId);
+      } else {
+        newSet.delete(taskId);
+      }
+      return newSet;
+    });
+  }, []);
+
+  const handleCtrlClick = useCallback((taskId: number) => {
+    setSelectedTaskIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(taskId)) {
+        newSet.delete(taskId);
+      } else {
+        newSet.add(taskId);
+      }
+      return newSet;
+    });
+  }, []);
+
+  const handleShiftClick = useCallback((taskId: number, index: number) => {
+    if (lastSelectedIndex === null) return;
+    
+    const start = Math.min(lastSelectedIndex, index);
+    const end = Math.max(lastSelectedIndex, index);
+    
+    setSelectedTaskIds(prev => {
+      const newSet = new Set(prev);
+      for (let i = start; i <= end; i++) {
+        const task = paginatedTasks[i];
+        if (task) {
+          newSet.add(task.id);
+        }
+      }
+      return newSet;
+    });
+  }, [lastSelectedIndex, paginatedTasks]);
+
+  const handleClearSelection = useCallback(() => {
+    setSelectedTaskIds(new Set());
+    setLastSelectedIndex(null);
+  }, []);
+
+  const handleSelectAll = useCallback(() => {
+    const allIds = paginatedTasks.map(t => t.id);
+    setSelectedTaskIds(new Set(allIds));
+  }, [paginatedTasks]);
+
+  // Bulk operations
+  const handleBulkComplete = useCallback(async () => {
+    if (selectedTaskIds.size === 0) return;
+    
+    setIsProcessingBulk(true);
+    try {
+      await bulkUpdateTasks({
+        taskIds: Array.from(selectedTaskIds),
+        updates: { status: "Completed" }
+      }).unwrap();
+      
+      toast.success(`${selectedTaskIds.size} tasks marked as completed`);
+      handleClearSelection();
+      doRefetch();
+    } catch (error) {
+      toast.error("Failed to complete tasks");
+    } finally {
+      setIsProcessingBulk(false);
+    }
+  }, [selectedTaskIds, bulkUpdateTasks, doRefetch]);
+
+  const handleBulkStatusChange = useCallback(async (status: string) => {
+    if (selectedTaskIds.size === 0) return;
+    
+    setIsProcessingBulk(true);
+    try {
+      await bulkUpdateTasks({
+        taskIds: Array.from(selectedTaskIds),
+        updates: { status }
+      }).unwrap();
+      
+      toast.success(`${selectedTaskIds.size} tasks updated to ${status}`);
+      handleClearSelection();
+      doRefetch();
+    } catch (error) {
+      toast.error("Failed to update tasks");
+    } finally {
+      setIsProcessingBulk(false);
+    }
+  }, [selectedTaskIds, bulkUpdateTasks, doRefetch]);
+
+  const handleBulkDelete = useCallback(async () => {
+    if (selectedTaskIds.size === 0) return;
+    
+    if (!confirm(`Delete ${selectedTaskIds.size} tasks? This action cannot be undone.`)) {
+      return;
+    }
+    
+    setIsProcessingBulk(true);
+    try {
+      await bulkDeleteTasks({
+        taskIds: Array.from(selectedTaskIds)
+      }).unwrap();
+      
+      toast.success(`${selectedTaskIds.size} tasks deleted`);
+      handleClearSelection();
+      doRefetch();
+    } catch (error) {
+      toast.error("Failed to delete tasks");
+    } finally {
+      setIsProcessingBulk(false);
+    }
+  }, [selectedTaskIds, bulkDeleteTasks, doRefetch]);
 
   // Reset to page 1 when filters, search, sort, or items per page changes
   React.useEffect(() => {
@@ -287,11 +562,29 @@ const ListView = ({
                 {totalTasks} task{totalTasks !== 1 ? 's' : ''} found
                 {totalPages > 1 && ` • Showing ${startIndex + 1}-${endIndex} of ${totalTasks}`}
                 {isManualSort && " (drag to reorder)"}
+                {selectionMode && ` • ${selectedTaskIds.size} selected`}
               </CardDescription>
             </div>
           </div>
         </CardHeader>
       </Card>
+
+      {/* Bulk Actions Toolbar */}
+      <AnimatePresence>
+        {selectionMode && (
+          <BulkActionsToolbar
+            selectedCount={selectedTaskIds.size}
+            totalCount={paginatedTasks.length}
+            onClearSelection={handleClearSelection}
+            onSelectAll={handleSelectAll}
+            onBulkComplete={handleBulkComplete}
+            onBulkDelete={handleBulkDelete}
+            onBulkStatusChange={handleBulkStatusChange}
+            availableStatuses={availableStatuses}
+            isProcessing={isProcessingBulk}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Controls */}
       <Card>
@@ -343,7 +636,7 @@ const ListView = ({
                 value={String(itemsPerPage)} 
                 onValueChange={(value) => {
                   setItemsPerPage(Number(value));
-                  setCurrentPage(1); // Reset to first page when changing page size
+                  setCurrentPage(1);
                 }}
               >
                 <SelectTrigger className="w-[110px] hidden sm:flex">
@@ -400,7 +693,7 @@ const ListView = ({
           viewMode === "grid" 
             ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6" 
             : "space-y-4",
-          isManualSort && "pl-8" // Add padding for drag handles
+          isManualSort && !selectionMode && "pl-8"
         )}>
           {paginatedTasks.map((task: Task, index: number) => (
             <DraggableTaskItem
@@ -411,6 +704,12 @@ const ListView = ({
               isManualSort={isManualSort}
               moveTask={moveTask}
               onDrop={handleDrop}
+              isSelected={selectedTaskIds.has(task.id)}
+              selectionMode={selectionMode}
+              onSelect={handleSelectTask}
+              onCtrlClick={handleCtrlClick}
+              onShiftClick={handleShiftClick}
+              lastSelectedIndex={lastSelectedIndex}
             />
           ))}
         </div>
@@ -436,7 +735,6 @@ const ListView = ({
                 </Button>
                 <div className="flex items-center gap-1">
                   {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                    // Show pages around current page
                     let pageNum;
                     if (totalPages <= 5) {
                       pageNum = i + 1;
