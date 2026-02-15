@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Hub } from "aws-amplify/utils";
 import { useAuth } from "@/app/authProvider";
 import GoogleSignInButton from "@/components/GoogleSignInButton";
+import { PasswordInput } from "@/components/ui/password-input";
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
@@ -383,17 +384,13 @@ const LoginPage = () => {
                   Forgot password?
                 </Link>
               </div>
-              <motion.input
+              <PasswordInput
                 id="password"
                 name="password"
-                type="password"
                 value={formData.password}
                 onChange={handleInputChange}
                 required
-                className="w-full px-4 py-3 bg-gray-900/50 border border-blue-500/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300"
                 placeholder="••••••••"
-                whileFocus={{ scale: 1.02 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
               />
             </div>
 

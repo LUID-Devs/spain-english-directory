@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
+import { PasswordInput } from "@/components/ui/password-input";
 
 const ResetPasswordPage = () => {
   const navigate = useNavigate();
@@ -204,18 +205,14 @@ const ResetPasswordPage = () => {
                   <label htmlFor="newPassword" className="block text-sm font-medium text-gray-300 mb-2">
                     New Password
                   </label>
-                  <motion.input
+                  <PasswordInput
                     id="newPassword"
                     name="newPassword"
-                    type="password"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     required
                     minLength={8}
-                    className="w-full px-4 py-3 bg-gray-900/50 border border-blue-500/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300"
                     placeholder="••••••••"
-                    whileFocus={{ scale: 1.02 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
                   />
                 </div>
 
@@ -223,18 +220,14 @@ const ResetPasswordPage = () => {
                   <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-300 mb-2">
                     Confirm Password
                   </label>
-                  <motion.input
+                  <PasswordInput
                     id="confirmPassword"
                     name="confirmPassword"
-                    type="password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
                     minLength={8}
-                    className="w-full px-4 py-3 bg-gray-900/50 border border-blue-500/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300"
                     placeholder="••••••••"
-                    whileFocus={{ scale: 1.02 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
                   />
                 </div>
 
