@@ -49,6 +49,9 @@ const LandingPage = () => {
               <a href="#about" className="text-neutral-400 hover:text-white transition-colors">
                 About
               </a>
+              <Link href="/pricing" className="text-neutral-400 hover:text-white transition-colors">
+                Pricing
+              </Link>
               <Link href="/auth/login">
                 <motion.div
                   whileHover={{ scale: 1.05 }}
