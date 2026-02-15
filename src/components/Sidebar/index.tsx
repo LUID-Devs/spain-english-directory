@@ -30,7 +30,8 @@ import {
   ClipboardList,
   UserPlus,
   Bot,
-  Flag
+  Flag,
+  TrendingUp
 } from "lucide-react";
 import InviteToWorkspaceModal from "@/components/InviteToWorkspaceModal";
 import { useLocation, Link } from "react-router-dom";
@@ -147,6 +148,7 @@ const Sidebar = () => {
             <SidebarLink href="/dashboard/triage" icon={ClipboardList} label="Triage" />
             <SidebarLink href="/dashboard/projects" icon={Briefcase} label="Projects" />
             <SidebarLink href="/dashboard/goals" icon={Flag} label="Goals" />
+            <SidebarLink href="/dashboard/analytics" icon={TrendingUp} label="Analytics" />
             <SidebarLink href="/dashboard/timeline" icon={Activity} label="Timeline" />
             <SidebarLink href="/dashboard/mission-control" icon={Bot} label="Mission Control" />
             <SidebarLink href="/dashboard/automation" icon={Zap} label="Automation" />
