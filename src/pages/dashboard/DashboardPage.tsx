@@ -20,6 +20,7 @@ import { CheckSquare, Square } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTaskModal } from "@/contexts/TaskModalContext";
 import { useKeyboardNavigation } from "@/hooks/useKeyboardNavigation";
+import { useUndoableBulkDelete } from "@/hooks/useUndoableBulkDelete";
 import BulkActionsToolbar from "@/components/BulkActionsToolbar";
 import BulkDeleteConfirmationModal from "@/components/BulkDeleteConfirmationModal";
 import ModalNewTask from "@/components/ModalNewTask";
@@ -74,6 +75,21 @@ const DashboardPage = () => {
   const [statusUpdatingId, setStatusUpdatingId] = useState<number | null>(null);
 
   const [updateTaskStatusMutation] = useUpdateTaskStatusMutation();
+  
+  // Undoable bulk delete hook
+  const { deleteWithUndo, isPending: isDeletePending, pendingCount } = useUndoableBulkDelete({
+    duration: 10000, // 10 seconds to undo
+    onDelete: async (ids: number[]) => {
+      const result = await apiService.bulkDeleteTasks(ids);
+      return { deletedCount: result.deletedCount || ids.length };
+    },
+    onCancel: () => {
+      // Tasks were restored (undo clicked) - just clear selection
+      setSelectedTaskIds(new Set());
+    },
+    itemName: 'task',
+    pluralName: 'tasks',
+  });
   
   // Improved user ID resolution - use database userId first, then fallback to sub
   let userId: number | null = null;
@@ -211,21 +227,28 @@ const DashboardPage = () => {
     }
   }, [selectedTaskIds, refetchTasks]);
 
-  const handleBulkDelete = useCallback(async () => {
+  const handleBulkDelete = useCallback(() => {
     if (selectedTaskIds.size === 0) return;
-    setIsProcessing(true);
-    try {
-      const result = await apiService.bulkDeleteTasks(Array.from(selectedTaskIds));
-      toast.success(result.message);
-      setSelectedTaskIds(new Set());
-      setIsDeleteModalOpen(false);
+    
+    // Get selected tasks for the toast message
+    const selectedTasks = tasks?.filter(t => selectedTaskIds.has(t.id)) || [];
+    const taskNames = selectedTasks.map(t => t.title);
+    
+    // Close the delete modal
+    setIsDeleteModalOpen(false);
+    
+    // Trigger undoable delete - this shows the toast immediately
+    deleteWithUndo(Array.from(selectedTaskIds));
+    
+    // Clear selection (the actual deletion happens after the timeout or on dismiss)
+    setSelectedTaskIds(new Set());
+    
+    // Refresh tasks after a delay (to allow for undo)
+    setTimeout(() => {
       refetchTasks();
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to delete tasks");
-    } finally {
-      setIsProcessing(false);
-    }
-  }, [selectedTaskIds, refetchTasks]);
+    }, 10500); // Slightly after the undo window
+    
+  }, [selectedTaskIds, tasks, deleteWithUndo, refetchTasks]);
 
   const handleBulkArchive = useCallback(async () => {
     if (selectedTaskIds.size === 0) return;
@@ -767,7 +790,7 @@ const DashboardPage = () => {
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={handleBulkDelete}
         taskCount={selectedTaskIds.size}
-        isDeleting={isProcessing}
+        isDeleting={isDeletePending}
       />
 
       {/* Create Task Modal */}
