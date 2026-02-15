@@ -304,13 +304,13 @@ const TasksPage = () => {
       return;
     }
 
-    if (event.shiftKey || event.metaKey || event.ctrlKey || selectedTasks.size > 0) {
+    if (event.shiftKey || event.metaKey || event.ctrlKey) {
       toggleTaskSelection(taskId, event);
       return;
     }
 
     openTaskModal(taskId);
-  }, [openTaskModal, selectedTasks.size, toggleTaskSelection]);
+  }, [openTaskModal, toggleTaskSelection]);
 
   const toggleAllSelection = useCallback(() => {
     setSelectedTasks(prev => {
