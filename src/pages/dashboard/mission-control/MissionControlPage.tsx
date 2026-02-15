@@ -31,6 +31,7 @@ import {
   MorningStandup,
   RealTimeActivityFeed,
   DetailedTaskView,
+  DashboardSkeleton,
 } from "@/components/mission-control";
 import { CreateAgentModal } from "@/components/mission-control/CreateAgentModal";
 import { GoalTemplatesQuickCreate } from "@/components/GoalTemplatesQuickCreate";
@@ -58,6 +59,12 @@ const MissionControlPage = () => {
   const { data: nightPatrol, isLoading: nightPatrolLoading } = useNightPatrol(activeOrganization?.id);
   const { data: morningStandup, isLoading: standupLoading } = useMorningStandup(activeOrganization?.id);
   const { data: agentTasks, isLoading: tasksLoading } = useAgentTasks();
+
+  // Show skeleton while main data is loading
+  const isInitialLoading = agentsLoading && monitoringLoading;
+  if (isInitialLoading) {
+    return <DashboardSkeleton />;
+  }
 
   // Check if user can manage agents (admin or owner)
   const canManageAgents = activeOrganization?.role === "admin" || activeOrganization?.role === "owner";
