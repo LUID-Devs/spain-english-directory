@@ -252,6 +252,92 @@ export interface AIStatusResponse {
   };
 }
 
+// ==================== API SERVICE CLASS ====================
+
+class ApiService {
+  private baseUrl: string;
+
+  constructor() {
+    this.baseUrl = import.meta.env.VITE_API_BASE_URL || '';
+  }
+
+  private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+    const url = `${this.baseUrl}${endpoint}`;
+
+    // Get Cognito access token and ID token if available
+    const authHeader: Record<string, string> = {};
+    try {
+      const { fetchAuthSession } = await import('aws-amplify/auth');
+      const session = await fetchAuthSession();
+
+      if (session?.tokens?.accessToken) {
+        authHeader['Authorization'] = `Bearer ${session.tokens.accessToken}`;
+      }
+
+      // Also send ID token which contains email and other user attributes
+      if (session?.tokens?.idToken) {
+        authHeader['X-ID-Token'] = `${session.tokens.idToken}`;
+      }
+    } catch (error) {
+      // No Cognito session available, continue without token (will use session cookies)
+    }
+
+    // Check if body is FormData - don't set Content-Type for FormData
+    const isFormData = options.body instanceof FormData;
+
+    const headers: Record<string, string> = {
+      ...authHeader,
+      ...(options.headers as Record<string, string>),
+    };
+
+    // Only set Content-Type for non-FormData requests
+    if (!isFormData) {
+      headers['Content-Type'] = 'application/json';
+    }
+
+    // Add organization context header if available in localStorage
+    const activeOrgId = localStorage.getItem('activeOrganizationId');
+    if (activeOrgId) {
+      headers['X-Organization-Id'] = activeOrgId;
+    }
+
+    const config: RequestInit = {
+      credentials: 'include',
+      ...options,
+      headers,
+    };
+
+    try {
+      const response = await fetch(url, config);
+      
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error('Authentication required');
+        }
+        
+        let errorMessage = `API Error: ${response.status} ${response.statusText}`;
+        try {
+          const errorData = await response.json();
+          if (errorData?.message) {
+            errorMessage = errorData.message;
+          } else if (errorData?.error) {
+            errorMessage = errorData.error;
+          }
+        } catch {
+          // Use default error message
+        }
+        throw new Error(errorMessage);
+      }
+
+      return response.json();
+    } catch (error) {
+      if (error instanceof Error && error.message === 'Authentication required') {
+        throw error;
+      }
+      throw error;
+    }
+  }
+
   // ==================== ANALYTICS API ====================
 
   async getTeamVelocity(teamId: number, cycles?: number): Promise<TeamVelocityResponse> {
@@ -291,7 +377,6 @@ export interface AIStatusResponse {
       method: 'DELETE',
       body: JSON.stringify({ taskIds }),
     });
-  }
   }
 }
 
