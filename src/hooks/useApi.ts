@@ -2054,6 +2054,13 @@ export const useGetProjectViewsQuery = (projectId: number | undefined, options: 
       setViews(data);
       setError(null);
     } catch (err) {
+      // During auth/session hydration, this endpoint can briefly return 401.
+      // Treat it as empty state and avoid noisy console errors/user disruption.
+      if (err instanceof Error && err.message === 'Authentication required') {
+        setViews([]);
+        setError(null);
+        return;
+      }
       console.error('Failed to fetch saved views:', err);
       setError(err instanceof Error ? err : new Error('Failed to fetch saved views'));
     } finally {
