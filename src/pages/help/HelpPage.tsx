@@ -128,6 +128,71 @@ const HelpPage: React.FC = () => {
         </div>
       </section>
 
+      {/* Keyboard Shortcuts */}
+      <section className="px-4 py-12 border-t border-gray-900">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-2xl font-semibold text-center mb-8">Keyboard Shortcuts</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="p-6 rounded-xl bg-gray-900/30 border border-gray-800">
+              <h3 className="font-medium text-white mb-4 flex items-center gap-2">
+                <span className="text-emerald-400">⚡</span> Quick Actions
+              </h3>
+              <ul className="space-y-3 text-sm">
+                <li className="flex justify-between">
+                  <span className="text-gray-400">Create new task</span>
+                  <span className="text-white font-mono bg-gray-800 px-2 py-1 rounded">C</span>
+                </li>
+                <li className="flex justify-between">
+                  <span className="text-gray-400">Command palette</span>
+                  <span className="text-white font-mono bg-gray-800 px-2 py-1 rounded">Cmd+K</span>
+                </li>
+                <li className="flex justify-between">
+                  <span className="text-gray-400">Create task (alt)</span>
+                  <span className="text-white font-mono bg-gray-800 px-2 py-1 rounded">Cmd+Shift+T</span>
+                </li>
+                <li className="flex justify-between">
+                  <span className="text-gray-400">Focus search</span>
+                  <span className="text-white font-mono bg-gray-800 px-2 py-1 rounded">/</span>
+                </li>
+                <li className="flex justify-between">
+                  <span className="text-gray-400">Show shortcuts help</span>
+                  <span className="text-white font-mono bg-gray-800 px-2 py-1 rounded">?</span>
+                </li>
+              </ul>
+            </div>
+            
+            <div className="p-6 rounded-xl bg-gray-900/30 border border-gray-800">
+              <h3 className="font-medium text-white mb-4 flex items-center gap-2">
+                <span className="text-indigo-400">→</span> Navigation (G + key)
+              </h3>
+              <p className="text-sm text-gray-500 mb-4">Press G then another key to navigate</p>
+              <ul className="space-y-3 text-sm">
+                <li className="flex justify-between">
+                  <span className="text-gray-400">Dashboard</span>
+                  <span className="text-white font-mono bg-gray-800 px-2 py-1 rounded">G → D</span>
+                </li>
+                <li className="flex justify-between">
+                  <span className="text-gray-400">Projects</span>
+                  <span className="text-white font-mono bg-gray-800 px-2 py-1 rounded">G → P</span>
+                </li>
+                <li className="flex justify-between">
+                  <span className="text-gray-400">Tasks</span>
+                  <span className="text-white font-mono bg-gray-800 px-2 py-1 rounded">G → T</span>
+                </li>
+                <li className="flex justify-between">
+                  <span className="text-gray-400">Triage</span>
+                  <span className="text-white font-mono bg-gray-800 px-2 py-1 rounded">G → I</span>
+                </li>
+                <li className="flex justify-between">
+                  <span className="text-gray-400">Mission Control</span>
+                  <span className="text-white font-mono bg-gray-800 px-2 py-1 rounded">G → C</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* FAQ Section */}
       <section className="px-4 py-12 border-t border-gray-900">
         <div className="max-w-3xl mx-auto">

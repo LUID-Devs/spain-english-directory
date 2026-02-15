@@ -17,8 +17,8 @@ const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
         <input
           type={showPassword ? "text" : "password"}
           className={cn(
-            "w-full px-4 py-3 bg-gray-900/50 border border-blue-500/20 rounded-lg text-white placeholder-gray-400",
-            "focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50",
+            "w-full px-4 py-3 bg-background border border-input rounded-lg text-foreground placeholder:text-muted-foreground",
+            "focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring",
             "transition-all duration-300 pr-12",
             className
           )}
@@ -29,8 +29,8 @@ const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
           type="button"
           onClick={() => setShowPassword(!showPassword)}
           className={cn(
-            "absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-gray-400 hover:text-gray-300",
-            "transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 rounded-md",
+            "absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-muted-foreground hover:text-foreground",
+            "transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md",
             toggleButtonClassName
           )}
           whileHover={{ scale: 1.05 }}

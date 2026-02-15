@@ -8,6 +8,7 @@ const LoginPage = () => {
     username: "",
     password: ""
   });
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -26,6 +27,28 @@ const LoginPage = () => {
       [name]: value
     }));
     setError("");
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const { name } = e.target;
+    setTouched(prev => ({ ...prev, [name]: true }));
+  };
+
+  // Real-time validation
+  const validationRules = {
+    username: (val: string) => val.length >= 3 || "Username must be at least 3 characters",
+    password: (val: string) => val.length >= 1 || "Password is required"
+  };
+
+  const getFieldError = (field: string): string | null => {
+    if (!touched[field]) return null;
+    const value = formData[field as keyof typeof formData];
+    const rule = validationRules[field as keyof typeof validationRules];
+    if (rule) {
+      const result = rule(value);
+      return typeof result === "string" ? result : null;
+    }
+    return null;
   };
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -308,12 +331,27 @@ const LoginPage = () => {
                 type="text"
                 value={formData.username}
                 onChange={handleInputChange}
+                onBlur={handleBlur}
                 required
-                className="w-full px-4 py-3 bg-gray-900/50 border border-blue-500/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300"
+                className={`w-full px-4 py-3 bg-gray-900/50 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 transition-all duration-300 ${
+                  getFieldError('username') 
+                    ? 'border-red-500/50 focus:ring-red-500/50 focus:border-red-500/50' 
+                    : 'border-blue-500/20 focus:ring-blue-500/50 focus:border-blue-500/50'
+                }`}
                 placeholder="Enter your username"
                 whileFocus={{ scale: 1.02 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
               />
+              {getFieldError('username') && (
+                <motion.p 
+                  className="mt-1 text-sm text-red-400"
+                  initial={{ opacity: 0, y: -5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {getFieldError('username')}
+                </motion.p>
+              )}
             </div>
 
             <div>
@@ -335,8 +373,13 @@ const LoginPage = () => {
                   type={showPassword ? "text" : "password"}
                   value={formData.password}
                   onChange={handleInputChange}
+                  onBlur={handleBlur}
                   required
-                  className="w-full px-4 py-3 pr-12 bg-gray-900/50 border border-blue-500/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300"
+                  className={`w-full px-4 py-3 pr-12 bg-gray-900/50 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 transition-all duration-300 ${
+                    getFieldError('password') 
+                      ? 'border-red-500/50 focus:ring-red-500/50 focus:border-red-500/50' 
+                      : 'border-blue-500/20 focus:ring-blue-500/50 focus:border-blue-500/50'
+                  }`}
                   placeholder="••••••••"
                   whileFocus={{ scale: 1.02 }}
                   transition={{ type: "spring", stiffness: 300, damping: 20 }}
@@ -350,6 +393,16 @@ const LoginPage = () => {
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
+              {getFieldError('password') && (
+                <motion.p 
+                  className="mt-1 text-sm text-red-400"
+                  initial={{ opacity: 0, y: -5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {getFieldError('password')}
+                </motion.p>
+              )}
             </div>
 
             <motion.button

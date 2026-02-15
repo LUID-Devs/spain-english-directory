@@ -297,6 +297,21 @@ const TasksPage = () => {
     });
   }, [sortedTasks, tasks]);
 
+  const handleTaskRowClick = useCallback((taskId: number, event: React.MouseEvent) => {
+    if (event.defaultPrevented) return;
+    const target = event.target as HTMLElement;
+    if (target.closest('[data-ignore-row-click]')) {
+      return;
+    }
+
+    if (event.shiftKey || event.metaKey || event.ctrlKey || selectedTasks.size > 0) {
+      toggleTaskSelection(taskId, event);
+      return;
+    }
+
+    openTaskModal(taskId);
+  }, [openTaskModal, selectedTasks.size, toggleTaskSelection]);
+
   const toggleAllSelection = useCallback(() => {
     setSelectedTasks(prev => {
       if (prev.size === sortedTasks.length) {
@@ -834,17 +849,26 @@ const TasksPage = () => {
                   <div
                     key={task.id}
                     className={`w-full p-4 text-left hover:bg-accent/50 transition-colors ${selectedTasks.has(task.id) ? 'bg-primary/5' : ''}`}
+                    onClick={(event) => handleTaskRowClick(task.id, event)}
                   >
                     <div className="flex items-start gap-3 mb-2">
                       <Checkbox 
                         checked={selectedTasks.has(task.id)}
                         onCheckedChange={() => {}}
-                        onClick={(e) => toggleTaskSelection(task.id, e as unknown as React.MouseEvent)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleTaskSelection(task.id, e as unknown as React.MouseEvent);
+                        }}
+                        data-ignore-row-click
                         className="mt-1"
                         aria-label={`Select task ${task.title}`}
                       />
                       <button
-                        onClick={() => openTaskModal(task.id)}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          openTaskModal(task.id);
+                        }}
+                        data-ignore-row-click
                         className="flex-1 text-left"
                       >
                         <h4 className="font-medium text-foreground line-clamp-2">
@@ -918,19 +942,28 @@ const TasksPage = () => {
                       <TableRow 
                         key={task.id}
                         className={selectedTasks.has(task.id) ? "bg-muted/50" : ""}
+                        onClick={(event) => handleTaskRowClick(task.id, event)}
                       >
                         <TableCell className="w-10">
                           <Checkbox 
                             checked={selectedTasks.has(task.id)}
                             onCheckedChange={() => {}}
-                            onClick={(e) => toggleTaskSelection(task.id, e as unknown as React.MouseEvent)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleTaskSelection(task.id, e as unknown as React.MouseEvent);
+                            }}
+                            data-ignore-row-click
                             aria-label={`Select task ${task.title}`}
                           />
                         </TableCell>
                         <TableCell>
                           <div>
                             <button 
-                              onClick={() => openTaskModal(task.id)}
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                openTaskModal(task.id);
+                              }}
+                              data-ignore-row-click
                               className="font-medium hover:underline text-left"
                             >
                               {task.title}
@@ -984,7 +1017,11 @@ const TasksPage = () => {
                           <Button 
                             variant="ghost" 
                             size="sm"
-                            onClick={() => openTaskModal(task.id)}
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              openTaskModal(task.id);
+                            }}
+                            data-ignore-row-click
                           >
                             View
                           </Button>
