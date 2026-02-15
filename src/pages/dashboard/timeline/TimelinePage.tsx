@@ -13,6 +13,7 @@ import {
   TrendingUp,
   Activity
 } from 'lucide-react';
+import { TimelinePageSkeleton } from '@/components/TimelineSkeleton';
 
 const TimelinePage = () => {
   const navigate = useNavigate();
@@ -210,19 +211,7 @@ const TimelinePage = () => {
 
   // Show loading while authenticating or fetching data
   if (authLoading || tasksLoading || projectsLoading) {
-    return (
-      <div className="container h-full w-full bg-background px-4 py-4 sm:p-8">
-        <Header name="Timeline" />
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-muted-foreground text-sm sm:text-base">
-              {authLoading ? "Authenticating..." : "Loading activity timeline..."}
-            </p>
-          </div>
-        </div>
-      </div>
-    );
+    return <TimelinePageSkeleton />;
   }
   
   // Redirect to login if not authenticated

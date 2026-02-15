@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import UserCard from "@/components/UserCard";
 import InviteUserModal from "@/components/InviteUserModal";
 import RoleManagementModal from "@/components/RoleManagementModal";
+import { UsersPageSkeleton } from "@/components/UsersSkeleton";
 import {
   Users,
   Search,
@@ -144,24 +145,7 @@ const UsersPage = () => {
   };
 
   if (isLoading) {
-    return (
-      <div className="container mx-auto p-6 space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Team Members</h1>
-            <p className="text-muted-foreground">Manage and organize your team</p>
-          </div>
-        </div>
-        <Card>
-          <CardContent className="flex items-center justify-center h-64">
-            <div className="text-center space-y-4">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-              <p className="text-muted-foreground">Loading team members...</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
+    return <UsersPageSkeleton />;
   }
 
   if (isError || !users) {

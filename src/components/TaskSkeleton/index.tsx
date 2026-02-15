@@ -5,6 +5,9 @@ interface TaskCardSkeletonProps {
   count?: number;
 }
 
+/**
+ * Individual task card skeleton for list/table views
+ */
 export function TaskCardSkeleton({ count = 1 }: TaskCardSkeletonProps) {
   return (
     <>
@@ -42,6 +45,73 @@ export function TaskCardSkeleton({ count = 1 }: TaskCardSkeletonProps) {
         </Card>
       ))}
     </>
+  );
+}
+
+/**
+ * Table row skeleton for task tables
+ */
+export function TaskTableRowSkeleton() {
+  return (
+    <tr className="border-b border-border/50">
+      <td className="p-4">
+        <Skeleton className="h-4 w-4" />
+      </td>
+      <td className="p-4">
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-48" />
+          <Skeleton className="h-3 w-32" />
+        </div>
+      </td>
+      <td className="p-4">
+        <Skeleton className="h-5 w-16 rounded-full" />
+      </td>
+      <td className="p-4">
+        <Skeleton className="h-5 w-20 rounded-full" />
+      </td>
+      <td className="p-4">
+        <Skeleton className="h-4 w-24" />
+      </td>
+      <td className="p-4">
+        <Skeleton className="h-8 w-16" />
+      </td>
+    </tr>
+  );
+}
+
+/**
+ * Full table skeleton with header
+ */
+export function TaskTableSkeleton({ rows = 5 }: { rows?: number }) {
+  return (
+    <div className="space-y-4">
+      {/* Header skeleton */}
+      <div className="flex items-center justify-between pb-4 border-b">
+        <Skeleton className="h-6 w-48" />
+        <Skeleton className="h-10 w-32" />
+      </div>
+      
+      {/* Table */}
+      <div className="border rounded-lg">
+        <table className="w-full">
+          <thead>
+            <tr className="border-b bg-muted/50">
+              <th className="p-4"><Skeleton className="h-4 w-4" /></th>
+              <th className="p-4"><Skeleton className="h-4 w-16" /></th>
+              <th className="p-4"><Skeleton className="h-4 w-16" /></th>
+              <th className="p-4"><Skeleton className="h-4 w-16" /></th>
+              <th className="p-4"><Skeleton className="h-4 w-16" /></th>
+              <th className="p-4"><Skeleton className="h-4 w-16" /></th>
+            </tr>
+          </thead>
+          <tbody>
+            {Array.from({ length: rows }).map((_, i) => (
+              <TaskTableRowSkeleton key={i} />
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 }
 
