@@ -169,9 +169,14 @@ export interface Task {
   authorUserId?: number;
   assignedUserId?: number;
   archivedAt?: string;
+  triaged?: boolean;
 
   author?: User;
   assignee?: User;
+  project?: {
+    id: number;
+    name: string;
+  };
   comments?: Comment[];
   attachments?: Attachment[];
 }
@@ -448,11 +453,22 @@ class ApiService {
   }
 
   // Tasks
-  async getTasks(projectId: number, filters?: { archived?: boolean }): Promise<Task[]> {
-    let url = `/tasks?projectId=${projectId}`;
-    if (filters?.archived !== undefined) {
-      url += `&archived=${filters.archived}`;
+  async getTasks(
+    projectId?: number,
+    filters?: { archived?: boolean; triageStatus?: 'triaged' | 'untriaged' | 'all' }
+  ): Promise<Task[]> {
+    const params = new URLSearchParams();
+    if (projectId) {
+      params.append('projectId', projectId.toString());
     }
+    if (filters?.archived !== undefined) {
+      params.append('archived', String(filters.archived));
+    }
+    if (filters?.triageStatus && filters.triageStatus !== 'all') {
+      params.append('triageStatus', filters.triageStatus);
+    }
+    const queryString = params.toString();
+    const url = `/tasks${queryString ? `?${queryString}` : ''}`;
     return this.request<Task[]>(url);
   }
 

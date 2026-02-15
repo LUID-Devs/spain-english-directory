@@ -17,7 +17,8 @@ import {
   LineChart,
   Moon,
   Sun,
-  Keyboard
+  Keyboard,
+  Inbox
 } from 'lucide-react';
 import { useGlobalStore } from '@/stores/globalStore';
 import { useQuickAddTask } from '@/hooks/useQuickAddTask';
@@ -109,6 +110,15 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
       action: () => navigateTo('/dashboard/tasks'),
       category: 'Navigation',
       keywords: ['task', 'todo']
+    },
+    {
+      id: 'triage',
+      title: 'Go to Triage',
+      shortcut: 'G I',
+      icon: <Inbox className="w-4 h-4" />,
+      action: () => navigateTo('/dashboard/triage'),
+      category: 'Navigation',
+      keywords: ['triage', 'inbox', 'review']
     },
     {
       id: 'teams',

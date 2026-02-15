@@ -35,6 +35,9 @@ export const useKeyboardShortcuts = ({
       case 't':
         navigate('/dashboard/tasks');
         break;
+      case 'i':
+        navigate('/dashboard/triage');
+        break;
       case 'm':
         navigate('/dashboard/teams');
         break;

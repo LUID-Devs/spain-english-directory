@@ -28,6 +28,7 @@ const ProjectsPage = React.lazy(() => import('@/pages/dashboard/projects/Project
 const ProjectDetailPage = React.lazy(() => import('@/pages/dashboard/projects/ProjectDetailPage'));
 const TasksPage = React.lazy(() => import('@/app/dashboard/tasks/page'));
 const TaskDetailPage = React.lazy(() => import('@/pages/dashboard/tasks/TaskDetailPage'));
+const TriagePage = React.lazy(() => import('@/pages/dashboard/triage/TriagePage'));
 const TeamsPage = React.lazy(() => import('@/pages/dashboard/teams/TeamsPage'));
 const UsersPage = React.lazy(() => import('@/pages/dashboard/users/UsersPage'));
 const SettingsPage = React.lazy(() => import('@/app/dashboard/settings/page'));
@@ -142,6 +143,11 @@ function AppContent() {
                 <Route path="tasks" element={
                   <RouteErrorBoundary componentName="Tasks">
                     <TasksPage />
+                  </RouteErrorBoundary>
+                } />
+                <Route path="triage" element={
+                  <RouteErrorBoundary componentName="Triage">
+                    <TriagePage />
                   </RouteErrorBoundary>
                 } />
                 <Route path="tasks/:id" element={

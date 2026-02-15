@@ -43,11 +43,20 @@ const shortcuts: ShortcutSection[] = [
     ],
   },
   {
+    title: 'Triage',
+    shortcuts: [
+      { keys: ['A'], description: 'Accept selected task' },
+      { keys: ['M'], description: 'Assign selected task to me' },
+      { keys: ['I'], description: 'Ignore selected task' },
+    ],
+  },
+  {
     title: 'Navigation (Goto)',
     shortcuts: [
       { keys: ['G', 'D'], description: 'Go to Dashboard' },
       { keys: ['G', 'P'], description: 'Go to Projects' },
       { keys: ['G', 'T'], description: 'Go to Tasks' },
+      { keys: ['G', 'I'], description: 'Go to Triage' },
       { keys: ['G', 'M'], description: 'Go to Teams' },
       { keys: ['G', 'S'], description: 'Go to Settings' },
       { keys: ['G', 'C'], description: 'Go to Mission Control' },

@@ -144,6 +144,7 @@ const Sidebar = () => {
           <nav className="space-y-1">
             <SidebarLink href="/" icon={Home} label="Dashboard" />
             <SidebarLink href="/dashboard/tasks" icon={CheckSquare} label="My Tasks" />
+            <SidebarLink href="/dashboard/triage" icon={ClipboardList} label="Triage" />
             <SidebarLink href="/dashboard/projects" icon={Briefcase} label="Projects" />
             <SidebarLink href="/dashboard/goals" icon={Flag} label="Goals" />
             <SidebarLink href="/dashboard/timeline" icon={Activity} label="Timeline" />
