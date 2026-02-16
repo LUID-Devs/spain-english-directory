@@ -4,6 +4,10 @@ All notable changes to TaskLuid Web will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+- **Pricing Page 404** - Fixed broken pricing page routing (Task #593)
+- **DashboardSkeleton Import** - Fixed import path for Mission Control dashboard (Task #563)
+
 ## [2026-02-15] - Triage View, Analytics & UX Improvements
 
 ### Added
