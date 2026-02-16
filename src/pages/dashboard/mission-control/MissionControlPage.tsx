@@ -81,7 +81,7 @@ const MissionControlPage = () => {
     offlineAgents: monitoringData?.agents?.filter((a) => a.heartbeatStatus === "offline").length || 0,
   };
 
-  // WebSocket handlers
+  // WebSocket handlers (must be called before any early return)
   const handleAgentUpdate = useCallback((updatedAgent: AgentWithOnlineStatus) => {
     // React Query will automatically refetch, but we can also optimistically update
   }, []);
@@ -96,6 +96,12 @@ const MissionControlPage = () => {
     onAgentUpdate: handleAgentUpdate,
     onActivity: handleActivity,
   });
+
+  // Show skeleton while main data is loading (moved after all hooks)
+  const isInitialLoading = agentsLoading || monitoringLoading;
+  if (isInitialLoading) {
+    return <DashboardSkeleton />;
+  }
 
   return (
     <div className="container h-full w-full bg-background p-4 sm:p-6 lg:p-8">
