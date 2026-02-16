@@ -124,68 +124,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
     }
   }, [isOpen]);
 
-  // Handle keyboard scrolling and shortcuts
-  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
-
-    // Keyboard shortcut: 'C' to mark task as complete (when not typing in an input)
-    if (e.key === 'c' || e.key === 'C') {
-      // Don't trigger if user is typing in an input, textarea, or contenteditable
-      const target = e.target as HTMLElement;
-      const isTyping = 
-        target.tagName === 'INPUT' || 
-        target.tagName === 'TEXTAREA' || 
-        target.isContentEditable ||
-        target.closest('[contenteditable="true"]');
-      
-      if (!isTyping && editForm.status !== Status.Completed) {
-        e.preventDefault();
-        handleFieldChange('status', Status.Completed);
-        toast.success("Task marked as complete! Press 'C' again to undo.", { duration: 2000 });
-        return;
-      }
-    }
-
-    // Keyboard shortcut: Cmd/Ctrl + Enter to save and close
-    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
-      e.preventDefault();
-      autoSave(editForm);
-      onClose();
-      return;
-    }
-
-    const scrollAmount = 60;
-
-    switch (e.key) {
-      case 'ArrowDown':
-        e.preventDefault();
-        container.scrollTop += scrollAmount;
-        break;
-      case 'ArrowUp':
-        e.preventDefault();
-        container.scrollTop -= scrollAmount;
-        break;
-      case 'PageDown':
-        e.preventDefault();
-        container.scrollTop += container.clientHeight * 0.8;
-        break;
-      case 'PageUp':
-        e.preventDefault();
-        container.scrollTop -= container.clientHeight * 0.8;
-        break;
-      case 'Home':
-        e.preventDefault();
-        container.scrollTop = 0;
-        break;
-      case 'End':
-        e.preventDefault();
-        container.scrollTop = container.scrollHeight;
-        break;
-    }
-  }, [editForm, handleFieldChange, autoSave, onClose]);
-
-  // Auto-save function
+  // Auto-save function (defined BEFORE handleKeyDown to avoid TDZ)
   const autoSave = useCallback(async (formData: typeof editForm) => {
     if (!isInitializedRef.current) return;
 
@@ -237,7 +176,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
     };
   }, []);
 
-  // Handle form field changes with auto-save
+  // Handle form field changes with auto-save (defined BEFORE handleKeyDown to avoid TDZ)
   const handleFieldChange = useCallback((field: keyof typeof editForm, value: any) => {
     setEditForm(prev => {
       const newForm = { ...prev, [field]: value };
@@ -245,6 +184,68 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
       return newForm;
     });
   }, [debouncedSave]);
+
+  // Handle keyboard scrolling and shortcuts (moved AFTER autoSave and handleFieldChange)
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    // Keyboard shortcut: 'C' to mark task as complete (when not typing in an input)
+    if (e.key === 'c' || e.key === 'C') {
+      // Don't trigger if user is typing in an input, textarea, or contenteditable
+      const target = e.target as HTMLElement;
+      const isTyping = 
+        target.tagName === 'INPUT' || 
+        target.tagName === 'TEXTAREA' || 
+        target.isContentEditable ||
+        target.closest('[contenteditable="true"]');
+      
+      if (!isTyping && editForm.status !== Status.Completed) {
+        e.preventDefault();
+        handleFieldChange('status', Status.Completed);
+        toast.success("Task marked as complete!", { duration: 2000 });
+        return;
+      }
+    }
+
+    // Keyboard shortcut: Cmd/Ctrl + Enter to save and close
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+      e.preventDefault();
+      autoSave(editForm).then(() => {
+        onClose();
+      });
+      return;
+    }
+
+    const scrollAmount = 60;
+
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        container.scrollTop += scrollAmount;
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        container.scrollTop -= scrollAmount;
+        break;
+      case 'PageDown':
+        e.preventDefault();
+        container.scrollTop += container.clientHeight * 0.8;
+        break;
+      case 'PageUp':
+        e.preventDefault();
+        container.scrollTop -= container.clientHeight * 0.8;
+        break;
+      case 'Home':
+        e.preventDefault();
+        container.scrollTop = 0;
+        break;
+      case 'End':
+        e.preventDefault();
+        container.scrollTop = container.scrollHeight;
+        break;
+    }
+  }, [editForm, handleFieldChange, autoSave, onClose]);
 
   // Handle image upload for rich text editor
   const handleImageUpload = useCallback(async (file: File): Promise<string> => {
