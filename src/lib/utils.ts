@@ -5,6 +5,25 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+/**
+ * Sanitizes user input by escaping HTML special characters
+ * Prevents XSS when displaying user input in the UI
+ */
+export function sanitizeHtml(input: string | null | undefined): string {
+  if (!input || typeof input !== 'string') return '';
+
+  const htmlEscapes: Record<string, string> = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#x27;',
+    '/': '&#x2F;',
+  };
+
+  return input.replace(/[&<>"'\/]/g, (char) => htmlEscapes[char] || char);
+}
+
 export const dataGridClassNames =
   "border border-border bg-background shadow text-foreground";
 
