@@ -378,6 +378,29 @@ class ApiService {
       body: JSON.stringify({ taskIds }),
     });
   }
+
+  // ==================== MISSING API METHODS (TASK #602 FIX) ====================
+
+  async getProjects(filters: { organizationId?: number; archived?: boolean } = {}): Promise<Project[]> {
+    const params = new URLSearchParams();
+    if (filters.organizationId) params.append('organizationId', filters.organizationId.toString());
+    if (filters.archived !== undefined) params.append('archived', filters.archived.toString());
+    const queryString = params.toString();
+    return this.request<Project[]>(`/api/projects${queryString ? `?${queryString}` : ''}`);
+  }
+
+  async getTasksByUser(userId: number): Promise<Task[]> {
+    return this.request<Task[]>(`/api/tasks/user/${userId}`);
+  }
+
+  async getUsers(): Promise<User[]> {
+    return this.request<User[]>('/api/users');
+  }
+
+  async getUnreadNotificationCount(): Promise<{ success: boolean; unreadCount: number }> {
+    const response = await this.request<{ count: number }>('/api/notifications/unread-count');
+    return { success: true, unreadCount: response.count };
+  }
 }
 
 export const apiService = new ApiService();
