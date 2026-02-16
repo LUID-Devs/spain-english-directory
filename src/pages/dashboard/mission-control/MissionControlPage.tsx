@@ -97,12 +97,6 @@ const MissionControlPage = () => {
     onActivity: handleActivity,
   });
 
-  // Show skeleton while main data is loading (moved after all hooks)
-  const isInitialLoading = agentsLoading || monitoringLoading;
-  if (isInitialLoading) {
-    return <DashboardSkeleton />;
-  }
-
   return (
     <div className="container h-full w-full bg-background p-4 sm:p-6 lg:p-8">
       {/* Header Section */}
