@@ -401,6 +401,14 @@ class ApiService {
     const response = await this.request<{ count: number }>('/api/notifications/unread-count');
     return { success: true, unreadCount: response.count };
   }
+
+  async getTeams(): Promise<Team[]> {
+    return this.request<Team[]>('/api/teams');
+  }
+
+  async getAgents(): Promise<Agent[]> {
+    return this.request<Agent[]>('/api/agents');
+  }
 }
 
 export const apiService = new ApiService();
