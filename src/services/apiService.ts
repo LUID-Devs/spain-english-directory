@@ -397,17 +397,13 @@ class ApiService {
     return this.request<User[]>('/api/users');
   }
 
-  async getTeams(): Promise<any[]> {
-    return this.request<any[]>('/api/teams');
+  async getTeams(): Promise<Team[]> {
+    return this.request<Team[]>('/api/teams');
   }
 
   async getUnreadNotificationCount(): Promise<{ success: boolean; unreadCount: number }> {
     const response = await this.request<{ count: number }>('/api/notifications/unread-count');
     return { success: true, unreadCount: response.count };
-  }
-
-  async getTeams(): Promise<Team[]> {
-    return this.request<Team[]>('/api/teams');
   }
 
   async getAgents(): Promise<Agent[]> {
