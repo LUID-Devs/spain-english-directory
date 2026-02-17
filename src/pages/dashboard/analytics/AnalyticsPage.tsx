@@ -97,6 +97,12 @@ const AnalyticsPage: React.FC = () => {
         apiService.getTeamAnalyticsSummary(selectedTeamId),
       ]);
 
+      const responses = [velocityRes, cycleTimeRes, throughputRes, summaryRes];
+      const allSuccessful = responses.every((response) => response.success !== false);
+      if (!allSuccessful) {
+        throw new Error("Failed to load analytics data");
+      }
+
       setVelocity(velocityRes);
       setCycleTime(cycleTimeRes);
       setThroughput(throughputRes);

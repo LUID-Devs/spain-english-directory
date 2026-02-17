@@ -169,9 +169,14 @@ export interface Task {
   authorUserId?: number;
   assignedUserId?: number;
   archivedAt?: string;
+  triaged?: boolean;
 
   author?: User;
   assignee?: User;
+  project?: {
+    id: number;
+    name: string;
+  };
   comments?: Comment[];
   attachments?: Attachment[];
 }
@@ -248,43 +253,119 @@ export interface AIStatusResponse {
 }
 
 
-// ==================== ANALYTICS RESPONSE TYPES ====================
+// ==================== ANALYTICS TYPES ====================
+
+export interface VelocityCycle {
+  cycleId: number;
+  cycleName: string;
+  startDate: string;
+  endDate: string;
+  status: string;
+  completedTasks: number;
+  totalPoints: number;
+  averagePointsPerTask: number;
+}
 
 export interface TeamVelocityResponse {
+  success: boolean;
   teamId: number;
-  cycles: number;
-  completedTasks: number;
-  averageVelocity: number;
-  velocityByCycle: Array<{
-    cycleId: number;
-    cycleName: string;
-    completedTasks: number;
-    velocity: number;
-  }>;
+  cyclesAnalyzed: number;
+  averageVelocity: {
+    tasksPerCycle: number;
+    pointsPerCycle: number;
+  };
+  velocityByCycle: VelocityCycle[];
+}
+
+export interface CycleTimeByPriority {
+  priority: string;
+  count: number;
+  averageCycleTime: number;
+  min: number;
+  max: number;
+}
+
+export interface CycleTimeTask {
+  taskId: number;
+  cycleTimeDays: number;
+  points?: number;
+  priority?: string;
+  taskType?: string;
+  startDate?: string;
+  completedAt: string;
 }
 
 export interface TeamCycleTimeResponse {
+  success: boolean;
   teamId: number;
   periodDays: number;
-  averageCycleTime: number;
-  cycleTimeByStatus: Record<string, number>;
+  tasksAnalyzed: number;
+  averageCycleTimeDays: number;
+  cycleTimeByPriority: CycleTimeByPriority[];
+  tasks: CycleTimeTask[];
+}
+
+export interface ThroughputDataPoint {
+  period: string;
+  completedTasks: number;
+  totalPoints: number;
+  taskIds: number[];
 }
 
 export interface TeamThroughputResponse {
+  success: boolean;
   teamId: number;
   periodDays: number;
-  groupBy: 'day' | 'week' | 'month';
-  throughput: Array<{
-    period: string;
-    count: number;
-  }>;
+  groupBy: string;
+  totalTasks: number;
+  totalPoints: number;
+  averagePerPeriod: number;
+  periodsAnalyzed: number;
+  throughputData: ThroughputDataPoint[];
+}
+
+export interface ActiveCycleStats {
+  cycleId: number;
+  cycleName: string;
+  startDate: string;
+  endDate: string;
+  totalTasks: number;
+  completedTasks: number;
+  totalPoints: number;
+  completedPoints: number;
+}
+
+export interface WorkloadByUser {
+  userId: number;
+  username: string;
+  taskCount: number;
 }
 
 export interface TeamAnalyticsSummaryResponse {
-  teamId: number;
-  velocity: TeamVelocityResponse;
-  cycleTime: TeamCycleTimeResponse;
-  throughput: TeamThroughputResponse;
+  success: boolean;
+  team: {
+    id: number;
+    name: string;
+    memberCount: number;
+    cyclesEnabled: boolean;
+  };
+  summary: {
+    activeCycle: ActiveCycleStats | null;
+    recentThroughput: {
+      period: string;
+      completedTasks: number;
+      averagePerDay: number;
+    };
+    cycleTime: {
+      period: string;
+      averageDays: number;
+      tasksAnalyzed: number;
+    };
+    currentWorkload: {
+      activeTasks: number;
+      byUser: WorkloadByUser[];
+    };
+  };
 }
 
 // API Service class
@@ -295,29 +376,37 @@ class ApiService {
     this.baseUrl = import.meta.env.VITE_API_BASE_URL || '';
   }
 
-  private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-    const url = `${this.baseUrl}${endpoint}`;
+  private async getAuthHeaders(): Promise<Record<string, string>> {
+    const authHeader: Record<string, string> = {};
 
-    // Get Cognito access token and ID token if available
-    let authHeader: Record<string, string> = {};
     try {
       const { fetchAuthSession } = await import('aws-amplify/auth');
       const session = await fetchAuthSession();
 
       if (session?.tokens?.accessToken) {
         authHeader['Authorization'] = `Bearer ${session.tokens.accessToken}`;
-        console.log('[API SERVICE] Added Authorization header with Cognito access token');
       }
 
-      // Also send ID token which contains email and other user attributes
       if (session?.tokens?.idToken) {
         authHeader['X-ID-Token'] = `${session.tokens.idToken}`;
-        console.log('[API SERVICE] Added X-ID-Token header with Cognito ID token');
       }
-    } catch (error) {
-      // No Cognito session available, continue without token (will use session cookies)
-      console.log('[API SERVICE] No Cognito session, using session cookies only');
+    } catch {
+      // No Cognito session available, continue without tokens (will use session cookies)
     }
+
+    const activeOrgId = localStorage.getItem('activeOrganizationId');
+    if (activeOrgId) {
+      authHeader['X-Organization-Id'] = activeOrgId;
+    }
+
+    return authHeader;
+  }
+
+  private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+    const url = `${this.baseUrl}${endpoint}`;
+
+    // Get Cognito access token and ID token if available
+    const authHeader = await this.getAuthHeaders();
 
     // Check if body is FormData - don't set Content-Type for FormData
     // (browser will set it automatically with proper multipart boundary)
@@ -333,11 +422,6 @@ class ApiService {
       headers['Content-Type'] = 'application/json';
     }
 
-    // Add organization context header if available in localStorage (set by workspace switcher)
-    const activeOrgId = localStorage.getItem('activeOrganizationId');
-    if (activeOrgId) {
-      headers['X-Organization-Id'] = activeOrgId;
-    }
 
     const config: RequestInit = {
       credentials: 'include', // Still send cookies for traditional auth
@@ -345,7 +429,7 @@ class ApiService {
       headers,
     };
 
-    console.log('API Request:', url, config);
+    // console.log('API Request:', url, config);
 
     try {
       const response = await fetch(url, config);
@@ -353,9 +437,6 @@ class ApiService {
       if (!response.ok) {
         // Handle authentication failures
         if (response.status === 401) {
-          // Clear any stored auth state and redirect to login
-          console.log('Authentication failed, redirecting to login...');
-          window.location.href = '/auth/login';
           throw new Error('Authentication required');
         }
         
@@ -383,6 +464,47 @@ class ApiService {
       
       throw error;
     }
+  }
+
+
+
+  private async requestBlob(endpoint: string, options: RequestInit = {}): Promise<Blob> {
+    const url = `${this.baseUrl}${endpoint}`;
+    const authHeader = await this.getAuthHeaders();
+
+    const headers: Record<string, string> = {
+      ...authHeader,
+      ...(options.headers as Record<string, string>),
+    };
+
+    const config: RequestInit = {
+      credentials: 'include',
+      ...options,
+      headers,
+    };
+
+    const response = await fetch(url, config);
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        throw new Error('Authentication required');
+      }
+
+      let errorMessage = `API Error: ${response.status} ${response.statusText}`;
+      try {
+        const errorData = await response.json();
+        if (errorData && errorData.message) {
+          errorMessage = errorData.message;
+        } else if (errorData && errorData.error) {
+          errorMessage = errorData.error;
+        }
+      } catch {
+        // If parsing fails, use the default error message
+      }
+      throw new Error(errorMessage);
+    }
+
+    return response.blob();
   }
 
 
@@ -494,12 +616,23 @@ class ApiService {
   }
 
   // Tasks
-  async getTasks(projectId: number, filters?: { archived?: boolean }): Promise<Task[]> {
-    let url = `/tasks?projectId=${projectId}`;
-    if (filters?.archived !== undefined) {
-      url += `&archived=${filters.archived}`;
+  async getTasks(
+    projectId?: number,
+    filters?: { archived?: boolean; triageStatus?: string }
+  ): Promise<Task[]> {
+    const params = new URLSearchParams();
+    if (projectId !== undefined) {
+      params.append('projectId', projectId.toString());
     }
-    return this.request<Task[]>(url);
+    if (filters?.archived !== undefined) {
+      params.append('archived', filters.archived.toString());
+    }
+    if (filters?.triageStatus) {
+      params.append('triageStatus', filters.triageStatus);
+    }
+
+    const queryString = params.toString();
+    return this.request<Task[]>(`/tasks${queryString ? `?${queryString}` : ''}`);
   }
 
   async getTask(taskId: number): Promise<Task> {
@@ -552,45 +685,7 @@ class ApiService {
     if (filters?.assignedUserId) params.append('assignedUserId', filters.assignedUserId.toString());
     
     const queryString = params.toString();
-    const url = `${this.baseUrl}/tasks/export/csv${queryString ? `?${queryString}` : ''}`;
-
-    // Get Cognito access token if available
-    let authHeader: Record<string, string> = {};
-    try {
-      const { fetchAuthSession } = await import('aws-amplify/auth');
-      const session = await fetchAuthSession();
-
-      if (session?.tokens?.accessToken) {
-        authHeader['Authorization'] = `Bearer ${session.tokens.accessToken}`;
-      }
-
-      if (session?.tokens?.idToken) {
-        authHeader['X-ID-Token'] = `${session.tokens.idToken}`;
-      }
-    } catch (error) {
-      console.log('[API SERVICE] No Cognito session, using session cookies only');
-    }
-
-    // Add organization context header if available
-    const activeOrgId = localStorage.getItem('activeOrganizationId');
-    if (activeOrgId) {
-      authHeader['X-Organization-Id'] = activeOrgId;
-    }
-
-    const response = await fetch(url, {
-      credentials: 'include',
-      headers: authHeader,
-    });
-
-    if (!response.ok) {
-      if (response.status === 401) {
-        window.location.href = '/auth/login';
-        throw new Error('Authentication required');
-      }
-      throw new Error(`API Error: ${response.status} ${response.statusText}`);
-    }
-
-    return response.blob();
+    return this.requestBlob(`/tasks/export/csv${queryString ? `?${queryString}` : ''}`);
   }
 
   async exportTasksJSON(filters?: { projectId?: number; status?: string; assignedUserId?: number }): Promise<Blob> {
@@ -600,45 +695,7 @@ class ApiService {
     if (filters?.assignedUserId) params.append('assignedUserId', filters.assignedUserId.toString());
     
     const queryString = params.toString();
-    const url = `${this.baseUrl}/tasks/export/json${queryString ? `?${queryString}` : ''}`;
-
-    // Get Cognito access token if available
-    let authHeader: Record<string, string> = {};
-    try {
-      const { fetchAuthSession } = await import('aws-amplify/auth');
-      const session = await fetchAuthSession();
-
-      if (session?.tokens?.accessToken) {
-        authHeader['Authorization'] = `Bearer ${session.tokens.accessToken}`;
-      }
-
-      if (session?.tokens?.idToken) {
-        authHeader['X-ID-Token'] = `${session.tokens.idToken}`;
-      }
-    } catch (error) {
-      console.log('[API SERVICE] No Cognito session, using session cookies only');
-    }
-
-    // Add organization context header if available
-    const activeOrgId = localStorage.getItem('activeOrganizationId');
-    if (activeOrgId) {
-      authHeader['X-Organization-Id'] = activeOrgId;
-    }
-
-    const response = await fetch(url, {
-      credentials: 'include',
-      headers: authHeader,
-    });
-
-    if (!response.ok) {
-      if (response.status === 401) {
-        window.location.href = '/auth/login';
-        throw new Error('Authentication required');
-      }
-      throw new Error(`API Error: ${response.status} ${response.statusText}`);
-    }
-
-    return response.blob();
+    return this.requestBlob(`/tasks/export/json${queryString ? `?${queryString}` : ''}`);
   }
 
   // Task Archive
@@ -704,31 +761,11 @@ class ApiService {
     formData: FormData,
     onProgress: (progress: number) => void
   ): Promise<Attachment> {
-    return new Promise(async (resolve, reject) => {
-      const url = `${this.baseUrl}/tasks/${taskId}/attachments`;
+    const url = `${this.baseUrl}/tasks/${taskId}/attachments`;
+    const authHeader = await this.getAuthHeaders();
+
+    return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
-
-      // Get auth headers
-      let authHeader: Record<string, string> = {};
-      try {
-        const { fetchAuthSession } = await import('aws-amplify/auth');
-        const session = await fetchAuthSession();
-
-        if (session?.tokens?.accessToken) {
-          authHeader['Authorization'] = `Bearer ${session.tokens.accessToken}`;
-        }
-        if (session?.tokens?.idToken) {
-          authHeader['X-ID-Token'] = `${session.tokens.idToken}`;
-        }
-      } catch (error) {
-        // No Cognito session, continue without token
-      }
-
-      // Add organization context header
-      const activeOrgId = localStorage.getItem('activeOrganizationId');
-      if (activeOrgId) {
-        authHeader['X-Organization-Id'] = activeOrgId;
-      }
 
       // Track upload progress
       xhr.upload.addEventListener('progress', (event) => {
@@ -747,7 +784,6 @@ class ApiService {
             reject(new Error('Failed to parse response'));
           }
         } else if (xhr.status === 401) {
-          window.location.href = '/auth/login';
           reject(new Error('Authentication required'));
         } else {
           reject(new Error(`Upload failed: ${xhr.statusText}`));
@@ -1479,7 +1515,7 @@ class ApiService {
   // ==================== BULK OPERATIONS ====================
 
   async bulkUpdateTasks(taskIds: number[], updates: Partial<Task>): Promise<{ success: boolean; updatedCount: number }> {
-    return this.request<{ success: boolean; updatedCount: number }>('/api/tasks/bulk-update', {
+    return this.request<{ success: boolean; updatedCount: number }>('/tasks/bulk/update', {
       method: 'PATCH',
       body: JSON.stringify({ taskIds, updates }),
     });
@@ -2013,3 +2049,144 @@ export interface CreateAutomationRuleRequest {
   actionConfig: ActionConfig;
   organizationId: number;
 }
+
+// ==================== TIMELINE TYPES ====================
+
+export type TimelineEventType = 
+  | 'task_assigned'
+  | 'task_started'
+  | 'task_completed'
+  | 'status_changed'
+  | 'commit_pushed'
+  | 'pr_opened'
+  | 'pr_merged'
+  | 'pr_closed'
+  | 'build_started'
+  | 'build_completed'
+  | 'deploy_started'
+  | 'deploy_completed'
+  | 'comment_added'
+  | 'agent_handoff';
+
+export type TimelineEventCategory = 'task' | 'git' | 'deployment' | 'ci' | 'system';
+
+export type ActorType = 'agent' | 'user' | 'system' | 'git';
+
+export interface TimelineEvent {
+  id: number;
+  organizationId: number;
+  taskId?: number;
+  projectId?: number;
+  eventType: TimelineEventType;
+  eventCategory: TimelineEventCategory;
+  actorType: ActorType;
+  actorId?: number;
+  actorName: string;
+  actorAvatar?: string;
+  title: string;
+  description?: string;
+  taskLink?: string;
+  prLink?: string;
+  commitLink?: string;
+  deploymentLink?: string;
+  commitSha?: string;
+  prNumber?: number;
+  branchName?: string;
+  status?: 'success' | 'failure' | 'pending' | 'in_progress';
+  metadata: Record<string, any>;
+  occurredAt: string;
+  createdAt: string;
+}
+
+export interface TimelineStats {
+  totalEvents: number;
+  eventsByCategory: Record<TimelineEventCategory, number>;
+  eventsByType: Record<string, number>;
+  topActors: { actorName: string; count: number }[];
+}
+
+// ==================== ROADMAP TYPES ====================
+
+export interface RoadmapProject {
+  id: number;
+  name: string;
+  description?: string;
+  startDate?: string;
+  endDate?: string;
+  healthStatus: 'on_track' | 'at_risk' | 'delayed' | 'unknown';
+  healthReason?: string;
+  taskStats: {
+    total: number;
+    completed: number;
+  };
+  milestones: Milestone[];
+  dependsOn: ProjectDependency[];
+}
+
+export interface Milestone {
+  id: number;
+  organizationId: number;
+  projectId?: number;
+  project?: {
+    id: number;
+    name: string;
+  };
+  name: string;
+  description?: string;
+  targetDate: string;
+  completedAt?: string;
+  status: 'upcoming' | 'at_risk' | 'missed' | 'completed';
+  healthStatus: 'on_track' | 'at_risk' | 'delayed';
+  healthReason?: string;
+  autoCalculate: boolean;
+  progress: number;
+  linkedTaskCount: number;
+  completedTaskCount: number;
+  linkedTasks?: {
+    id: number;
+    title: string;
+    status: string;
+  }[];
+  createdBy: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ProjectDependency {
+  id: number;
+  dependentProjectId: number;
+  dependentProject?: {
+    id: number;
+    name: string;
+    startDate?: string;
+    endDate?: string;
+  };
+  dependencyProjectId: number;
+  dependencyProject?: {
+    id: number;
+    name: string;
+    startDate?: string;
+    endDate?: string;
+  };
+  dependencyType: 'finish_to_start' | 'start_to_start' | 'finish_to_finish' | 'start_to_finish';
+  lagDays: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateMilestoneRequest {
+  organizationId: number;
+  projectId?: number;
+  name: string;
+  description?: string;
+  targetDate: string;
+  autoCalculate?: boolean;
+}
+
+export interface CreateDependencyRequest {
+  dependentProjectId: number;
+  dependencyProjectId: number;
+  dependencyType?: 'finish_to_start' | 'start_to_start' | 'finish_to_finish' | 'start_to_finish';
+  lagDays?: number;
+}
+
