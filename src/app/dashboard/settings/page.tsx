@@ -18,6 +18,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Edit, Key, Shield, User, Mail, Building2, Crown, Loader2, AlertTriangle, LogOut, UserPlus } from "lucide-react";
 import { PasswordInput } from "@/components/ui/password-input";
 import { cn } from "@/lib/utils";
+import { escapeHtml } from "@/lib/escapeHtml";
 import InviteToWorkspaceModal from "@/components/InviteToWorkspaceModal";
 
 // Types for workspace data
@@ -405,7 +406,7 @@ const SettingsPage = () => {
               <Label className="text-sm font-medium">Email Address</Label>
               <div className="flex items-center gap-2">
                 <div className="flex-1 p-3 bg-muted rounded-md text-sm">
-                  {userSettings.email}
+                  {escapeHtml(userSettings.email)}
                 </div>
                 <Badge variant="outline" className="gap-1">
                   <Mail className="h-3 w-3" />
@@ -615,7 +616,7 @@ const SettingsPage = () => {
                   <div>
                     <p className="text-sm font-medium">Google Account</p>
                     <p className="text-xs text-muted-foreground">
-                      {isGoogleAuth ? `Connected - ${userSettings.email}` : "Not connected"}
+                      {isGoogleAuth ? `Connected - ${escapeHtml(userSettings.email)}` : "Not connected"}
                     </p>
                   </div>
                 </div>
@@ -776,7 +777,7 @@ const SettingsPage = () => {
                         )}
                         <div>
                           <p className="text-sm font-medium">{member.user?.username || 'Unknown'}</p>
-                          <p className="text-xs text-muted-foreground">{member.user?.email}</p>
+                          <p className="text-xs text-muted-foreground">{escapeHtml(member.user?.email)}</p>
                         </div>
                       </div>
                       {getRoleBadge(member.role)}

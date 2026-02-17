@@ -13,6 +13,7 @@ import {
   RefreshCw,
   Loader2,
 } from 'lucide-react';
+import { escapeHtml } from '@/lib/escapeHtml';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -295,7 +296,7 @@ const WorkloadDashboardPage: React.FC = () => {
                             </Badge>
                           )}
                         </div>
-                        <p className="text-sm text-muted-foreground">{member.email}</p>
+                        <p className="text-sm text-muted-foreground">{escapeHtml(member.email)}</p>
                       </div>
                       <div className="flex items-center gap-4 text-right">
                         <div>
@@ -425,7 +426,7 @@ const WorkloadDashboardPage: React.FC = () => {
               <div>
                 <p>{selectedMember?.username}</p>
                 <p className="text-sm font-normal text-muted-foreground">
-                  {selectedMember?.email}
+                  {escapeHtml(selectedMember?.email)}
                 </p>
               </div>
             </DialogTitle>

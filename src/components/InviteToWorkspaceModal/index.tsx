@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { escapeHtml } from '@/lib/escapeHtml';
 
 interface InviteToWorkspaceModalProps {
   isOpen: boolean;
@@ -145,7 +146,7 @@ const InviteToWorkspaceModal: React.FC<InviteToWorkspaceModalProps> = ({
             <Alert className="bg-gray-50 dark:bg-gray-900/20 border-gray-200 dark:border-gray-800">
               <Check className="h-4 w-4 text-gray-600" aria-hidden="true" />
               <AlertDescription className="text-gray-800 dark:text-gray-200">
-                Invitation sent to <span className="font-medium">{success.invite?.email}</span>
+                Invitation sent to <span className="font-medium">{escapeHtml(success.invite?.email)}</span>
               </AlertDescription>
             </Alert>
 

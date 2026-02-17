@@ -28,6 +28,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { escapeHtml } from "@/lib/escapeHtml";
 import { Link } from "react-router-dom";
 import { format, isPast, isToday, isTomorrow } from "date-fns";
 
@@ -445,7 +446,7 @@ const MemberColumn = ({ workload, onTaskReassign, currentUserId }: MemberColumnP
                 <Badge variant="outline" className="text-[10px] px-1">You</Badge>
               )}
             </div>
-            <p className="text-xs text-muted-foreground truncate">{member.user?.email}</p>
+            <p className="text-xs text-muted-foreground truncate">{escapeHtml(member.user?.email)}</p>
             
             {/* Capacity Bar with Green/Yellow/Red colors */}
             <div className="mt-2">

@@ -5,6 +5,7 @@ import { fetchAuthSession } from 'aws-amplify/auth';
 import { Loader2, CheckCircle, XCircle, Building2, UserPlus, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { escapeHtml } from '@/lib/escapeHtml';
 
 interface InviteDetails {
   id: number;
@@ -247,7 +248,7 @@ const InviteAcceptPage: React.FC = () => {
                 // Email doesn't match
                 <div className="space-y-3">
                   <div className="bg-gray-100 dark:bg-gray-900/20 text-gray-800 dark:text-gray-200 text-sm p-3 rounded-md">
-                    This invite was sent to <strong>{invite?.email}</strong>, but you're logged in as <strong>{user?.email}</strong>.
+                    This invite was sent to <strong>{escapeHtml(invite?.email)}</strong>, but you're logged in as <strong>{escapeHtml(user?.email)}</strong>.
                   </div>
                   <Button
                     variant="outline"
