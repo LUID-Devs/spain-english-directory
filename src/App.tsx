@@ -26,6 +26,7 @@ import ResetPasswordPage from '@/pages/auth/ResetPasswordPage';
 const DashboardPage = React.lazy(() => import('@/pages/dashboard/DashboardPage'));
 const ProjectsPage = React.lazy(() => import('@/pages/dashboard/projects/ProjectsPage'));
 const ProjectDetailPage = React.lazy(() => import('@/pages/dashboard/projects/ProjectDetailPage'));
+const CreateProjectPage = React.lazy(() => import('@/pages/dashboard/projects/CreateProjectPage'));
 const TasksPage = React.lazy(() => import('@/app/dashboard/tasks/page'));
 const TaskDetailPage = React.lazy(() => import('@/pages/dashboard/tasks/TaskDetailPage'));
 const TriagePage = React.lazy(() => import('@/pages/dashboard/triage/TriagePage'));
@@ -135,6 +136,11 @@ function AppContent() {
                 <Route path="projects" element={
                   <RouteErrorBoundary componentName="Projects">
                     <ProjectsPage />
+                  </RouteErrorBoundary>
+                } />
+                <Route path="projects/create" element={
+                  <RouteErrorBoundary componentName="Create Project">
+                    <CreateProjectPage />
                   </RouteErrorBoundary>
                 } />
                 <Route path="projects/:id" element={
