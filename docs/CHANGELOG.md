@@ -4,6 +4,12 @@ All notable changes to TaskLuid Web will be documented in this file.
 
 ## [Unreleased]
 
+### Security
+- **XSS Email Review** - Evaluated XSS protection for email fields (Task #617)
+  - Verified React JSX auto-escaping provides sufficient protection
+  - Added `sanitizeHtml` utility to utils.ts for future dangerouslySetInnerHTML use
+  - No functional changes - existing React protections sufficient
+
 ### Fixed
 - **Pricing Page 404** - Fixed broken pricing page routing (Task #593)
 - **DashboardSkeleton Import** - Fixed import path for Mission Control dashboard (Task #563)
