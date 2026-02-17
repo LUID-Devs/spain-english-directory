@@ -46,7 +46,7 @@ const DashboardCharts: React.FC<DashboardChartsProps> = ({
       };
 
   return (
-    <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2">
+    <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2" style={{ minHeight: '400px' }}>
       <div className="bg-card rounded-lg border border-border">
         <div className="p-4 sm:p-6">
           <h3 className="flex items-center gap-2 text-base sm:text-lg font-semibold">
@@ -56,9 +56,9 @@ const DashboardCharts: React.FC<DashboardChartsProps> = ({
             Task Priority Distribution
           </h3>
         </div>
-        <div className="p-3 sm:p-6 sm:pt-0">
+        <div className="p-3 sm:p-6 sm:pt-0" style={{ height: '320px' }}>
           {taskDistribution.length > 0 ? (
-            <ResponsiveContainer width="100%" height={220} className="sm:!h-[280px] md:!h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
               <BarChart data={taskDistribution}>
                 <CartesianGrid strokeDasharray="3 3" stroke={chartColors.barGrid} />
                 <XAxis dataKey="name" stroke={chartColors.text} />
@@ -69,7 +69,7 @@ const DashboardCharts: React.FC<DashboardChartsProps> = ({
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <div className="flex items-center justify-center h-64 text-muted-foreground">
+            <div className="flex items-center justify-center h-full text-muted-foreground">
               <div className="text-center">
                 <p>No tasks assigned to you yet</p>
                 <p className="text-sm mt-1">Start by creating your first task!</p>
@@ -88,9 +88,9 @@ const DashboardCharts: React.FC<DashboardChartsProps> = ({
             Project Status Overview
           </h3>
         </div>
-        <div className="p-3 sm:p-6 sm:pt-0">
+        <div className="p-3 sm:p-6 sm:pt-0" style={{ height: '320px' }}>
           {projectStatus.length > 0 ? (
-            <ResponsiveContainer width="100%" height={220} className="sm:!h-[280px] md:!h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie dataKey="count" data={projectStatus} fill="#82ca9d" label>
                   {projectStatus.map((entry, index) => (
@@ -102,7 +102,7 @@ const DashboardCharts: React.FC<DashboardChartsProps> = ({
               </PieChart>
             </ResponsiveContainer>
           ) : (
-            <div className="flex items-center justify-center h-64 text-muted-foreground">
+            <div className="flex items-center justify-center h-full text-muted-foreground">
               <div className="text-center">
                 <p>No projects available</p>
                 <p className="text-sm mt-1">Create your first project to get started!</p>
