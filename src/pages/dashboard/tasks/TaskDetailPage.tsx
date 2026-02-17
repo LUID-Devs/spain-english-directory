@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AttachmentsSection from '@/components/AttachmentsSection';
 import CommentsSection from '@/components/CommentsSection';
+import { sanitizeHtmlContent } from '@/lib/utils';
 
 const TaskDetailPage = () => {
   const { id } = useParams();
@@ -204,7 +205,7 @@ const TaskDetailPage = () => {
           {task.description ? (
             <div
               className="prose prose-sm max-w-none dark:prose-invert"
-              dangerouslySetInnerHTML={{ __html: task.description }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtmlContent(task.description) }}
             />
           ) : (
             <p className="text-sm text-muted-foreground">No description provided.</p>

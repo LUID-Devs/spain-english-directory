@@ -17,6 +17,7 @@ import { Link } from "react-router-dom";
 import { Status, Priority } from "@/hooks/useApi";
 import AttachmentsSection from "@/components/AttachmentsSection";
 import CommentsSection from "@/components/CommentsSection";
+import { sanitizeHtmlContent } from "@/lib/utils";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -317,15 +318,10 @@ const TaskDetailPage = ({ params }: Props) => {
           {!isEditing ? (
             <div className="text-muted-foreground">
               {task.description ? (
-                // Check if description contains HTML tags
-                task.description.includes('<') && task.description.includes('>') ? (
-                  <div 
-                    className="prose prose-sm max-w-none dark:prose-invert"
-                    dangerouslySetInnerHTML={{ __html: task.description }}
-                  />
-                ) : (
-                  <div className="whitespace-pre-wrap">{task.description}</div>
-                )
+                <div 
+                  className="prose prose-sm max-w-none dark:prose-invert"
+                  dangerouslySetInnerHTML={{ __html: sanitizeHtmlContent(task.description) }}
+                />
               ) : (
                 <p className="text-muted-foreground/60 italic">No description provided.</p>
               )}

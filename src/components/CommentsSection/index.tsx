@@ -15,6 +15,7 @@ import { MessageSquare, Send, Edit3, Trash2, X, Check, Image, Loader2 } from "lu
 import RichTextEditor from "@/components/RichTextEditor";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { sanitizeHtmlContent } from "@/lib/utils";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
@@ -309,9 +310,6 @@ const CommentItem: React.FC<CommentItemProps> = ({
   const isOwner = currentUserId === comment.userId;
   const timeAgo = format(new Date(comment.createdAt), "PPp");
 
-  // Check if content is HTML (contains tags) or plain text
-  const isHtmlContent = comment.text.includes('<') && comment.text.includes('>');
-
   return (
     <div className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg">
       {/* Avatar */}
@@ -387,16 +385,10 @@ const CommentItem: React.FC<CommentItemProps> = ({
           </div>
         ) : (
           <div className="space-y-2">
-            {isHtmlContent ? (
-              <div
-                className="text-foreground/80 comment-content"
-                dangerouslySetInnerHTML={{ __html: comment.text }}
-              />
-            ) : (
-              <div className="text-foreground/80 whitespace-pre-wrap">
-                {comment.text}
-              </div>
-            )}
+            <div
+              className="text-foreground/80 comment-content"
+              dangerouslySetInnerHTML={{ __html: sanitizeHtmlContent(comment.text) }}
+            />
             {/* Legacy image support for old comments with separate imageUrl */}
             {comment.imageUrl && (
               <a

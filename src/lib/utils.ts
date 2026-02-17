@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
+import DOMPurify from "isomorphic-dompurify"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -22,6 +23,22 @@ export function sanitizeHtml(input: string | null | undefined): string {
   };
 
   return input.replace(/[&<>"'\/]/g, (char) => htmlEscapes[char] || char);
+}
+
+/**
+ * Sanitizes HTML content using DOMPurify
+ * Use this when rendering HTML with dangerouslySetInnerHTML
+ * 
+ * DOMPurify is a battle-tested library that removes all dangerous 
+ * tags and attributes to prevent XSS attacks.
+ */
+export function sanitizeHtmlContent(input: string | null | undefined): string {
+  if (!input || typeof input !== 'string') return '';
+
+  return DOMPurify.sanitize(input, {
+    ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'p', 'br', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
+    ALLOWED_ATTR: ['href', 'title', 'target'],
+  });
 }
 
 export const dataGridClassNames =
