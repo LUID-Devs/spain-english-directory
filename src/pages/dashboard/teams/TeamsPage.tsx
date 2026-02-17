@@ -21,6 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import InviteToWorkspaceModal from "@/components/InviteToWorkspaceModal";
+import { escapeHtml } from "@/lib/escapeHtml";
 
 interface WorkspaceMember {
   odId: number;
@@ -361,7 +362,7 @@ const TeamsPage = () => {
                       </div>
                       <div className="flex items-center gap-1 text-sm text-muted-foreground">
                         <Mail className="h-3 w-3" />
-                        {member.user?.email}
+                        {escapeHtml(member.user?.email || '')}
                       </div>
                     </div>
                   </div>

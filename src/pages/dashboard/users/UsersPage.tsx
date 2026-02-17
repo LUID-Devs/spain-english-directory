@@ -6,6 +6,7 @@ import UserCard from "@/components/UserCard";
 import InviteUserModal from "@/components/InviteUserModal";
 import RoleManagementModal from "@/components/RoleManagementModal";
 import { UsersPageSkeleton } from "@/components/UsersSkeleton";
+import { escapeHtml } from "@/lib/escapeHtml";
 import {
   Users,
   Search,
@@ -295,7 +296,7 @@ const UsersPage = () => {
                       />
                       <div className="flex-1 min-w-0">
                         <div className="font-medium text-foreground truncate">{user.username}</div>
-                        <div className="text-sm text-muted-foreground truncate">{user.email}</div>
+                        <div className="text-sm text-muted-foreground truncate">{escapeHtml(user.email)}</div>
                       </div>
                     </div>
                     <div className="flex items-center gap-2 flex-wrap mb-3">
@@ -380,7 +381,7 @@ const UsersPage = () => {
                                 {user.username}
                               </div>
                               <div className="text-sm text-muted-foreground truncate">
-                                {user.email}
+                                {escapeHtml(user.email)}
                               </div>
                             </div>
                           </div>

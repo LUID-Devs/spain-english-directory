@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { escapeHtml } from "@/lib/escapeHtml";
 
 type Props = {
   user: UserWithStats;
@@ -72,7 +73,7 @@ const UserCard = ({ user, showStats = false, onManageRole, onRemoveMember, canRe
                 {user.username}
               </h3>
               <p className="text-sm text-muted-foreground truncate">
-                {user.email}
+                {escapeHtml(user.email)}
               </p>
             </div>
           </div>

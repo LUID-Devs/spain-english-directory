@@ -22,6 +22,7 @@ import {
   X 
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { escapeHtml } from "@/lib/escapeHtml";
 
 interface RoleManagementModalProps {
   isOpen: boolean;
@@ -122,7 +123,7 @@ const RoleManagementModal = ({ isOpen, onClose, user, onUpdateRole }: RoleManage
                 {user.username}
               </h3>
               <p className="text-sm text-muted-foreground">
-                {user.email}
+                {escapeHtml(user.email)}
               </p>
               {currentRole && (
                 <div className="mt-2">
