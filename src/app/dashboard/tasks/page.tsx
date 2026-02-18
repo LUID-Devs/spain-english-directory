@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback, useRef } from "react";
+import React, { useMemo, useState, useCallback, useRef, useEffect } from "react";
 import {
   Priority,
   Task,
@@ -52,6 +52,8 @@ import { cn } from "@/lib/utils";
 import { Link, useSearchParams } from "react-router-dom";
 import { useTaskModal } from "@/contexts/TaskModalContext";
 import AdvancedFilters from "@/components/AdvancedFilters";
+import { SmartFilterBar } from "@/components/smartFilter";
+import { SmartFilterCriteria, applySmartFilter } from "@/lib/smartFilter";
 import { apiService } from "@/services/apiService";
 import { toast } from "sonner";
 import { useUndoableBulkDelete } from "@/hooks/useUndoableBulkDelete";
@@ -119,8 +121,18 @@ const TasksPage = () => {
   const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
   const [activeFilterCount, setActiveFilterCount] = useState(0);
   
+  // Smart filter state
+  const [smartFilterQuery, setSmartFilterQuery] = useState(searchParams.get('smart') || '');
+  const smartFilterQueryRef = useRef(smartFilterQuery);
+  const [smartFilterCriteria, setSmartFilterCriteria] = useState<SmartFilterCriteria | null>(null);
+  const [smartFilterCount, setSmartFilterCount] = useState(0);
+  
   // Track if we need to update URL (debounce search)
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    smartFilterQueryRef.current = smartFilterQuery;
+  }, [smartFilterQuery]);
   
   // Bulk selection state
   const [selectedTasks, setSelectedTasks] = useState<Set<number>>(new Set());
@@ -212,7 +224,12 @@ const TasksPage = () => {
   // Filter and sort tasks
   const displayTasks = useMemo(() => {
     // Start with filtered tasks from AdvancedFilters, or all tasks
-    const baseTasks = activeFilterCount > 0 ? filteredTasks : (tasks || []);
+    let baseTasks = activeFilterCount > 0 ? filteredTasks : (tasks || []);
+    
+    // Apply smart filter if active
+    if (smartFilterCriteria && smartFilterCount > 0) {
+      baseTasks = applySmartFilter(baseTasks, smartFilterCriteria, userId || undefined, users || []);
+    }
     
     // Apply search term
     if (!searchTerm) return baseTasks;
@@ -224,7 +241,7 @@ const TasksPage = () => {
         task.tags?.toLowerCase().includes(searchTerm.toLowerCase());
       return matchesSearch;
     });
-  }, [tasks, filteredTasks, activeFilterCount, searchTerm]);
+  }, [tasks, filteredTasks, activeFilterCount, searchTerm, smartFilterCriteria, smartFilterCount, userId, users]);
 
   // Sort tasks
   const sortedTasks = useMemo(() => {
@@ -476,6 +493,10 @@ const TasksPage = () => {
     setSearchTerm('');
     setSortBy('priority');
     setSortOrder('asc');
+    smartFilterQueryRef.current = '';
+    setSmartFilterQuery('');
+    setSmartFilterCriteria(null);
+    setSmartFilterCount(0);
     setSearchParams(new URLSearchParams(), { replace: true });
     toast.info("All filters cleared");
   }, [setSearchParams]);
@@ -497,7 +518,43 @@ const TasksPage = () => {
     setSearchParams(newParams, { replace: true });
   }, [searchParams, setSearchParams]);
 
-  const hasActiveFilters = searchTerm !== '' || activeFilterCount > 0;
+  const handleSmartFilterQueryChange = useCallback((value: string) => {
+    smartFilterQueryRef.current = value;
+    setSmartFilterQuery(value);
+  }, []);
+
+  // Handle smart filter changes
+  const handleSmartFilterApply = useCallback((criteria: SmartFilterCriteria, count: number, query: string) => {
+    setSmartFilterCriteria(criteria);
+    setSmartFilterCount(count);
+    const newParams = new URLSearchParams(searchParams);
+    if (count > 0) {
+      const normalizedQuery = query.trim();
+      if (normalizedQuery) {
+        newParams.set('smart', normalizedQuery);
+      } else {
+        newParams.delete('smart');
+      }
+      newParams.set('smartFilters', count.toString());
+    } else {
+      newParams.delete('smart');
+      newParams.delete('smartFilters');
+    }
+    setSearchParams(newParams, { replace: true });
+  }, [searchParams, setSearchParams]);
+
+  const handleSmartFilterClear = useCallback(() => {
+    smartFilterQueryRef.current = '';
+    setSmartFilterQuery('');
+    setSmartFilterCriteria(null);
+    setSmartFilterCount(0);
+    const newParams = new URLSearchParams(searchParams);
+    newParams.delete('smart');
+    newParams.delete('smartFilters');
+    setSearchParams(newParams, { replace: true });
+  }, [searchParams, setSearchParams]);
+
+  const hasActiveFilters = searchTerm !== '' || activeFilterCount > 0 || smartFilterCount > 0;
   const showingCount = sortedTasks.length;
   const totalCount = (tasks || []).length;
 
@@ -663,6 +720,17 @@ const TasksPage = () => {
               </Button>
             )}
           </div>
+
+          {/* Smart Filter Bar */}
+          <SmartFilterBar
+            value={smartFilterQuery}
+            onChange={handleSmartFilterQueryChange}
+            onApply={handleSmartFilterApply}
+            onClear={handleSmartFilterClear}
+            isActive={smartFilterCount > 0}
+            activeFilterCount={smartFilterCount}
+            currentUserId={userId || undefined}
+          />
 
           {/* Advanced Filters */}
           <AdvancedFilters

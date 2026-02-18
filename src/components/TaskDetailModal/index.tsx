@@ -1,13 +1,23 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { useGetTaskQuery, useUpdateTaskMutation, useGetUsersQuery, useUploadTaskDescriptionImageMutation, useGetProjectStatusesQuery } from "@/hooks/useApi";
+import {
+  useGetTaskQuery,
+  useUpdateTaskMutation,
+  useGetUsersQuery,
+  useUploadTaskDescriptionImageMutation,
+  useGetProjectStatusesQuery,
+  useGetTaskGitLinksQuery,
+  Status,
+  Priority,
+  TaskType,
+} from "@/hooks/useApi";
 import { toast } from "sonner";
 import { Calendar, User, Flag, Clock, Paperclip, Tag, CircleDot, Loader2, Image, Share2, Bot, X, HelpCircle } from "lucide-react";
 import CommentsSection from "@/components/CommentsSection";
 import AttachmentsSection from "@/components/AttachmentsSection";
 import RichTextEditor from "@/components/RichTextEditor";
 import GitActivity from "@/components/GitActivity";
-import { Status, Priority, TaskType } from "@/hooks/useApi";
+import GitReviewPanel from "@/components/gitReview/GitReviewPanel";
 import { useAgents, useAssignTaskToAgent, useTaskAgentAssignments, useUnassignTaskFromAgent } from "@/hooks/useMissionControl";
 import {
   Dialog,
@@ -30,6 +40,16 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+
+// Wrapper component to fetch PR data for review panel
+const GitReviewPanelWrapper: React.FC<{ taskId: number }> = ({ taskId }) => {
+  const { data: gitLinks } = useGetTaskGitLinksQuery(taskId, { skip: !taskId });
+  const pullRequests = gitLinks?.filter((link) => link.type === "pull_request") || [];
+
+  if (pullRequests.length === 0) return null;
+
+  return <GitReviewPanel taskId={taskId} pullRequests={pullRequests} />;
+};
 
 interface TaskDetailModalProps {
   isOpen: boolean;
@@ -766,6 +786,11 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                     <div className="border rounded-md p-3">
                       <GitActivity taskId={taskId} />
                     </div>
+                  </div>
+
+                  {/* Git Review Panel */}
+                  <div className="space-y-2 col-span-2">
+                    <GitReviewPanelWrapper taskId={taskId} />
                   </div>
                 </div>
               </div>
