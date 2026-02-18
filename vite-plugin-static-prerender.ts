@@ -60,32 +60,167 @@ export function staticPrerenderPlugin(): Plugin {
   
   const publicPages: Record<string, { title: string; description: string; content: string }> = {
     '/landing': {
-      title: 'TaskLuid - Task Management Platform',
-      description: 'A modern task management platform designed to help you organize, track, and complete projects efficiently.',
+      title: 'TaskLuid - AI-Powered Project Management Platform',
+      description: 'The lightweight project hub for teams who want to ship without the bloat. AI-assisted workflows, team collaboration, and clear progress tracking.',
       content: `
         <div class="min-h-screen bg-black text-white flex flex-col">
-          <div class="flex-1 flex items-center justify-center px-4">
-            <div class="text-center">
+          <!-- Hero Section -->
+          <div class="flex-1 flex items-center justify-center px-4 pt-14 pb-12">
+            <div class="text-center max-w-3xl">
+              <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neutral-900/80 border border-neutral-800 mb-6">
+                <span class="text-sm text-neutral-300">What's new: Simple pricing — Free + Pro (EUR 10/mo)</span>
+              </div>
+              <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neutral-900/80 border border-neutral-800 mb-6">
+                <span class="text-sm text-neutral-400">Made with love by an independent developer</span>
+              </div>
               <p class="text-sm text-neutral-500 mb-2">Part of Luid Suite</p>
-              <h1 class="text-4xl font-bold bg-gradient-to-r from-gray-400 to-gray-400 bg-clip-text text-transparent mb-6">
+              <h1 class="text-5xl md:text-6xl font-bold bg-gradient-to-r from-gray-300 via-gray-100 to-gray-300 bg-clip-text text-transparent mb-6">
                 TaskLuid
               </h1>
-              <p class="text-gray-300 mb-8 max-w-md mx-auto">
-                A modern task management platform designed to help you organize, track, and complete projects efficiently.
+              <p class="text-xl text-gray-200 mb-4 max-w-2xl mx-auto">
+                The lightweight project hub for teams who want to ship without the bloat.
               </p>
-              <div class="space-x-4 mb-8">
-                <a href="/auth/login" class="inline-block px-6 py-3 bg-gradient-to-r from-gray-500 to-gray-500 text-white rounded-lg hover:from-gray-600 hover:to-gray-600 transition-all duration-300">
+              <p class="text-sm text-neutral-500 mb-8">
+                Free to start. Upgrade when you need more power.
+              </p>
+              <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10">
+                <a href="/auth/register" class="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-medium rounded-lg hover:from-indigo-600 hover:to-purple-600 transition-all duration-300 shadow-lg shadow-indigo-500/20">
+                  Get Started Free
+                </a>
+                <a href="/pricing" class="w-full sm:w-auto px-8 py-4 border border-neutral-700 text-neutral-300 rounded-lg hover:bg-neutral-900 transition-all duration-300">
+                  View Pricing
+                </a>
+                <a href="/auth/login" class="w-full sm:w-auto px-8 py-4 border border-neutral-800 text-neutral-400 rounded-lg hover:bg-neutral-900 transition-all duration-300">
                   Sign In
                 </a>
-                <a href="/auth/register" class="inline-block px-6 py-3 border border-gray-500 text-gray-400 rounded-lg hover:bg-gray-500/10 transition-all duration-300">
-                  Sign Up
-                </a>
               </div>
-              <p class="text-xs text-neutral-500">
-                Built by an independent developer
-              </p>
+              <div class="flex flex-wrap items-center justify-center gap-3 text-xs uppercase tracking-wide text-neutral-500 mb-10">
+                <span class="px-3 py-1 rounded-full border border-neutral-800 bg-neutral-900/60">Indie teams</span>
+                <span class="px-3 py-1 rounded-full border border-neutral-800 bg-neutral-900/60">Solo builders</span>
+                <span class="px-3 py-1 rounded-full border border-neutral-800 bg-neutral-900/60">Remote-first crews</span>
+                <span class="px-3 py-1 rounded-full border border-neutral-800 bg-neutral-900/60">Product studios</span>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="flex items-center justify-center gap-2 text-sm text-neutral-400">
+                  <span>Crafted with care by an indie developer</span>
+                </div>
+                <div class="flex items-center justify-center gap-2 text-sm text-neutral-400">
+                  <span>No VC funding, no feature bloat</span>
+                </div>
+                <div class="flex items-center justify-center gap-2 text-sm text-neutral-400">
+                  <span>Direct, responsive support</span>
+                </div>
+              </div>
             </div>
           </div>
+
+          <!-- Highlights -->
+          <section class="px-4 py-16 border-t border-neutral-900">
+            <div class="max-w-5xl mx-auto">
+              <div class="text-center mb-10">
+                <p class="text-sm text-neutral-500 mb-2">Why teams switch</p>
+                <h2 class="text-3xl font-semibold">Everything you need — nothing you don't</h2>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="text-left p-6 rounded-xl bg-neutral-900/50 border border-neutral-800">
+                  <h3 class="font-semibold text-white mb-2">AI-assisted workflows</h3>
+                  <p class="text-sm text-neutral-400">Turn notes into tasks and keep momentum.</p>
+                </div>
+                <div class="text-left p-6 rounded-xl bg-neutral-900/50 border border-neutral-800">
+                  <h3 class="font-semibold text-white mb-2">Team-ready</h3>
+                  <p class="text-sm text-neutral-400">Assign work, add context, and stay aligned.</p>
+                </div>
+                <div class="text-left p-6 rounded-xl bg-neutral-900/50 border border-neutral-800">
+                  <h3 class="font-semibold text-white mb-2">Clear progress</h3>
+                  <p class="text-sm text-neutral-400">Track priorities, blockers, and outcomes fast.</p>
+                </div>
+                <div class="text-left p-6 rounded-xl bg-neutral-900/50 border border-neutral-800">
+                  <h3 class="font-semibold text-white mb-2">Timelines that stick</h3>
+                  <p class="text-sm text-neutral-400">Deadlines and milestones that actually help.</p>
+                </div>
+                <div class="text-left p-6 rounded-xl bg-neutral-900/50 border border-neutral-800">
+                  <h3 class="font-semibold text-white mb-2">Privacy-first</h3>
+                  <p class="text-sm text-neutral-400">Your data stays yours, always.</p>
+                </div>
+                <div class="text-left p-6 rounded-xl bg-neutral-900/50 border border-neutral-800">
+                  <h3 class="font-semibold text-white mb-2">API + webhooks</h3>
+                  <p class="text-sm text-neutral-400">Integrate TaskLuid with your stack.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- How It Works -->
+          <section class="px-4 py-16 border-t border-neutral-900">
+            <div class="max-w-5xl mx-auto">
+              <div class="text-center mb-10">
+                <p class="text-sm text-neutral-500 mb-2">How it works</p>
+                <h2 class="text-3xl font-semibold">A simple flow from idea to done</h2>
+                <p class="text-sm text-neutral-500 mt-2">Keep the workflow lightweight without losing accountability.</p>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="p-6 rounded-xl bg-neutral-900/50 border border-neutral-800">
+                  <div class="text-xs uppercase tracking-widest text-indigo-400 mb-3">Step 1</div>
+                  <h3 class="font-semibold text-white mb-2">Capture work in seconds</h3>
+                  <p class="text-sm text-neutral-400">Log tasks, attach context, and assign owners without the overhead.</p>
+                </div>
+                <div class="p-6 rounded-xl bg-neutral-900/50 border border-neutral-800">
+                  <div class="text-xs uppercase tracking-widest text-indigo-400 mb-3">Step 2</div>
+                  <h3 class="font-semibold text-white mb-2">Prioritize with clarity</h3>
+                  <p class="text-sm text-neutral-400">Group by status, milestones, or deadlines to keep the team aligned.</p>
+                </div>
+                <div class="p-6 rounded-xl bg-neutral-900/50 border border-neutral-800">
+                  <div class="text-xs uppercase tracking-widest text-indigo-400 mb-3">Step 3</div>
+                  <h3 class="font-semibold text-white mb-2">Ship with momentum</h3>
+                  <p class="text-sm text-neutral-400">Track progress, remove blockers, and close the loop faster.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Pricing Teaser -->
+          <section class="px-4 py-16 border-t border-neutral-900">
+            <div class="max-w-5xl mx-auto text-center">
+              <div class="mb-10">
+                <p class="text-sm text-neutral-500 mb-2">Simple pricing</p>
+                <h2 class="text-3xl font-semibold">Start free, upgrade when you grow</h2>
+                <p class="text-sm text-neutral-500 mt-2">No hidden fees. Cancel anytime.</p>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+                <div class="p-6 rounded-xl border border-neutral-800 bg-neutral-900/50 text-left">
+                  <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold">Free</h3>
+                    <span class="text-sm text-neutral-400">EUR 0 / month</span>
+                  </div>
+                  <p class="text-sm text-neutral-400 mt-2">Perfect for personal task management.</p>
+                  <ul class="mt-4 space-y-2 text-sm text-neutral-300">
+                    <li>Basic tasks and projects</li>
+                    <li>Workspace collaboration</li>
+                    <li>Community support</li>
+                  </ul>
+                </div>
+                <div class="p-6 rounded-xl border border-indigo-500/40 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 text-left">
+                  <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold">TaskLuid Pro</h3>
+                    <span class="text-sm text-neutral-300">EUR 10 / month</span>
+                  </div>
+                  <p class="text-sm text-neutral-400 mt-2">Monthly credits and premium workflows.</p>
+                  <ul class="mt-4 space-y-2 text-sm text-neutral-200">
+                    <li>Higher credit allowance</li>
+                    <li>AI task parsing</li>
+                    <li>Priority support</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="mt-8">
+                <a href="/pricing" class="inline-flex items-center justify-center gap-2 px-6 py-3 border border-neutral-700 text-neutral-300 rounded-lg hover:bg-neutral-900 transition-all duration-300">
+                  Compare plans
+                </a>
+              </div>
+            </div>
+          </section>
+
+          <!-- Footer -->
           <footer class="border-t border-neutral-800 py-6 px-4">
             <div class="max-w-4xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
               <p class="text-sm text-neutral-500">
