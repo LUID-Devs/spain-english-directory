@@ -1561,6 +1561,93 @@ class ApiService {
       body: JSON.stringify({ taskIds, updates }),
     });
   }
+
+  // ==================== FORM TEMPLATES API ====================
+
+  async getFormTemplates(organizationId: number, includeSystem = true, isActive?: boolean): Promise<{ templates: FormTemplate[] }> {
+    const params = new URLSearchParams();
+    params.append('includeSystem', includeSystem.toString());
+    if (isActive !== undefined) params.append('isActive', isActive.toString());
+    return this.request<{ templates: FormTemplate[] }>(`/api/organizations/${organizationId}/form-templates?${params.toString()}`);
+  }
+
+  async getFormTemplate(templateId: number): Promise<{ template: FormTemplate }> {
+    return this.request<{ template: FormTemplate }>(`/api/form-templates/${templateId}`);
+  }
+
+  async createFormTemplate(organizationId: number, data: CreateFormTemplateRequest): Promise<{ template: FormTemplate }> {
+    return this.request<{ template: FormTemplate }>(`/api/organizations/${organizationId}/form-templates`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateFormTemplate(templateId: number, data: UpdateFormTemplateRequest): Promise<{ template: FormTemplate }> {
+    return this.request<{ template: FormTemplate }>(`/api/form-templates/${templateId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteFormTemplate(templateId: number): Promise<{ message: string }> {
+    return this.request<{ message: string }>(`/api/form-templates/${templateId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async assignTemplateToProjects(templateId: number, projectIds: number[]): Promise<{ assignments: FormTemplateProjectAssignment[] }> {
+    return this.request<{ assignments: FormTemplateProjectAssignment[] }>(`/api/form-templates/${templateId}/assign-projects`, {
+      method: 'POST',
+      body: JSON.stringify({ projectIds }),
+    });
+  }
+
+  async applyTemplate(templateId: number, data: ApplyTemplateRequest): Promise<{ task: Task }> {
+    return this.request<{ task: Task }>(`/api/form-templates/${templateId}/apply`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  // Form Fields
+  async createFormField(templateId: number, data: CreateFormFieldRequest): Promise<{ field: FormField }> {
+    return this.request<{ field: FormField }>(`/api/form-templates/${templateId}/fields`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateFormField(fieldId: number, data: UpdateFormFieldRequest): Promise<{ field: FormField }> {
+    return this.request<{ field: FormField }>(`/api/form-fields/${fieldId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteFormField(fieldId: number): Promise<{ message: string }> {
+    return this.request<{ message: string }>(`/api/form-fields/${fieldId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async reorderFormFields(templateId: number, fieldOrders: { id: number; order: number }[]): Promise<{ fields: FormField[] }> {
+    return this.request<{ fields: FormField[] }>(`/api/form-templates/${templateId}/fields/reorder`, {
+      method: 'POST',
+      body: JSON.stringify({ fieldOrders }),
+    });
+  }
+
+  // Task Custom Field Values
+  async getTaskCustomFieldValues(taskId: number): Promise<{ values: TaskCustomFieldValue[] }> {
+    return this.request<{ values: TaskCustomFieldValue[] }>(`/api/tasks/${taskId}/custom-fields`);
+  }
+
+  async updateTaskCustomFieldValues(taskId: number, customFields: Record<string, any>): Promise<{ values: TaskCustomFieldValue[] }> {
+    return this.request<{ values: TaskCustomFieldValue[] }>(`/api/tasks/${taskId}/custom-fields`, {
+      method: 'PATCH',
+      body: JSON.stringify({ customFields }),
+    });
+  }
 }
 
 export const apiService = new ApiService();
@@ -2249,5 +2336,158 @@ export interface CreateDependencyRequest {
   dependencyProjectId: number;
   dependencyType?: 'finish_to_start' | 'start_to_start' | 'finish_to_finish' | 'start_to_finish';
   lagDays?: number;
+}
+
+// ==================== FORM TEMPLATE TYPES ====================
+
+export type FormFieldType =
+  | 'text'
+  | 'textarea'
+  | 'number'
+  | 'date'
+  | 'select'
+  | 'multiselect'
+  | 'checkbox'
+  | 'url'
+  | 'email';
+
+export interface FormFieldOption {
+  id?: number;
+  label: string;
+  value: string;
+  color?: string;
+  order?: number;
+}
+
+export interface FormField {
+  id: number;
+  templateId: number;
+  name: string;
+  key: string;
+  fieldType: FormFieldType;
+  description?: string;
+  isRequired: boolean;
+  minLength?: number;
+  maxLength?: number;
+  minValue?: number;
+  maxValue?: number;
+  regexPattern?: string;
+  placeholder?: string;
+  helpText?: string;
+  order: number;
+  defaultValue?: any;
+  options: FormFieldOption[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface FormTemplateProjectAssignment {
+  id: number;
+  templateId: number;
+  projectId: number;
+  createdAt: string;
+  project?: {
+    id: number;
+    name: string;
+  };
+}
+
+export interface FormTemplate {
+  id: number;
+  name: string;
+  description?: string;
+  organizationId: number;
+  isActive: boolean;
+  isSystem: boolean;
+  defaultStatus?: string;
+  defaultPriority: string;
+  defaultAssigneeId?: number;
+  fields: FormField[];
+  projectAssignments: FormTemplateProjectAssignment[];
+  createdBy: number;
+  createdAt: string;
+  updatedAt: string;
+  user?: {
+    userId: number;
+    username: string;
+    profilePictureUrl?: string;
+  };
+}
+
+export interface TaskCustomFieldValue {
+  id: number;
+  taskId: number;
+  fieldId: number;
+  value: any;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateFormTemplateRequest {
+  name: string;
+  description?: string;
+  defaultStatus?: string;
+  defaultPriority?: string;
+  defaultAssigneeId?: number;
+  isActive?: boolean;
+  fields?: CreateFormFieldRequest[];
+  projectIds?: number[];
+}
+
+export interface CreateFormFieldRequest {
+  name: string;
+  key?: string;
+  fieldType: FormFieldType;
+  description?: string;
+  isRequired?: boolean;
+  minLength?: number;
+  maxLength?: number;
+  minValue?: number;
+  maxValue?: number;
+  regexPattern?: string;
+  placeholder?: string;
+  helpText?: string;
+  order?: number;
+  defaultValue?: any;
+  options?: FormFieldOption[];
+}
+
+export interface UpdateFormTemplateRequest {
+  name?: string;
+  description?: string;
+  defaultStatus?: string;
+  defaultPriority?: string;
+  defaultAssigneeId?: number;
+  isActive?: boolean;
+}
+
+export interface UpdateFormFieldRequest {
+  name?: string;
+  key?: string;
+  description?: string;
+  isRequired?: boolean;
+  minLength?: number;
+  maxLength?: number;
+  minValue?: number;
+  maxValue?: number;
+  regexPattern?: string;
+  placeholder?: string;
+  helpText?: string;
+  order?: number;
+  defaultValue?: any;
+  options?: FormFieldOption[];
+}
+
+export interface ApplyTemplateRequest {
+  projectId: number;
+  organizationId: number;
+  title: string;
+  description?: string;
+  status?: string;
+  priority?: string;
+  assigneeId?: number;
+  dueDate?: string;
+  tags?: string[];
+  customFields?: Record<string, any>;
 }
 

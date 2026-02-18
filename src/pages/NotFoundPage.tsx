@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Home, ArrowLeft, Search, Loader2, X } from 'lucide-react';
-import { apiService, SearchResults } from '../services/apiService';
+import { apiService, SearchResults, Status } from '../services/apiService';
 
 const NotFoundPage: React.FC = () => {
   const navigate = useNavigate();
@@ -35,8 +35,7 @@ const NotFoundPage: React.FC = () => {
   };
 
   const totalResults = (searchResults?.tasks?.length || 0) + 
-                       (searchResults?.projects?.length || 0) + 
-                       (searchResults?.users?.length || 0);
+                       (searchResults?.projects?.length || 0);
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col">
@@ -109,8 +108,8 @@ const NotFoundPage: React.FC = () => {
                             className="w-full px-4 py-3 text-left hover:bg-gray-800/50 transition-colors flex items-center gap-3"
                           >
                             <span className={`w-2 h-2 rounded-full ${
-                              task.status === 'completed' ? 'bg-green-500' :
-                              task.status === 'in_progress' ? 'bg-blue-500' :
+                              task.status === Status.Completed ? 'bg-green-500' :
+                              task.status === Status.WorkInProgress ? 'bg-blue-500' :
                               'bg-gray-500'
                             }`} />
                             <span className="text-sm text-gray-300 truncate">{task.title}</span>
