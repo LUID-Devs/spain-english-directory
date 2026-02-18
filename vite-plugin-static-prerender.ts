@@ -653,6 +653,177 @@ export function staticPrerenderPlugin(): Plugin {
           </div>
         </div>
       `
+    },
+    '/luidkit': {
+      title: 'LuidKit - Free File Converter | Convert Any File Format',
+      description: 'Convert any file to any format. Fast, secure, and free to start. 50+ formats supported including PDF, DOCX, JPG, PNG, XLSX, and more. No software installation needed.',
+      content: `
+        <div class="min-h-screen bg-black text-white flex flex-col">
+          <div class="flex-1 flex items-center justify-center px-4 pt-14 pb-12">
+            <div class="text-center max-w-3xl">
+              <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neutral-900/80 border border-neutral-800 mb-6">
+                <span class="text-sm text-neutral-300">Free tier available — No credit card required</span>
+              </div>
+              <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neutral-900/80 border border-neutral-800 mb-6">
+                <span class="text-sm text-neutral-400">Part of Luid Suite</span>
+              </div>
+              <p class="text-sm text-neutral-500 mb-2">File Convert Pro</p>
+              <h1 class="text-5xl md:text-6xl font-bold bg-gradient-to-r from-gray-300 via-gray-100 to-gray-300 bg-clip-text text-transparent mb-6">
+                LuidKit
+              </h1>
+              <p class="text-xl text-gray-200 mb-4 max-w-2xl mx-auto">
+                Convert any file to any format. Fast, secure, and completely free to start.
+              </p>
+              <p class="text-sm text-neutral-500 mb-8">
+                50+ formats supported. No software installation. Privacy guaranteed.
+              </p>
+              <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10">
+                <a href="/auth/register" class="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-medium rounded-lg hover:from-indigo-600 hover:to-purple-600 transition-all duration-300 shadow-lg shadow-indigo-500/20">
+                  Start Converting Free
+                </a>
+                <a href="#formats" class="w-full sm:w-auto px-8 py-4 border border-neutral-700 text-neutral-300 rounded-lg hover:bg-neutral-900 transition-all duration-300">
+                  View Supported Formats
+                </a>
+              </div>
+              <div class="flex flex-wrap items-center justify-center gap-3 text-xs uppercase tracking-wide text-neutral-500 mb-10">
+                <span class="px-3 py-1 rounded-full border border-neutral-800 bg-neutral-900/60">Designers</span>
+                <span class="px-3 py-1 rounded-full border border-neutral-800 bg-neutral-900/60">Developers</span>
+                <span class="px-3 py-1 rounded-full border border-neutral-800 bg-neutral-900/60">Students</span>
+                <span class="px-3 py-1 rounded-full border border-neutral-800 bg-neutral-900/60">Office workers</span>
+                <span class="px-3 py-1 rounded-full border border-neutral-800 bg-neutral-900/60">Creators</span>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="flex items-center justify-center gap-2 text-sm text-neutral-400">
+                  <span>Crafted with care by an indie developer</span>
+                </div>
+                <div class="flex items-center justify-center gap-2 text-sm text-neutral-400">
+                  <span>No subscription traps, no hidden fees</span>
+                </div>
+                <div class="flex items-center justify-center gap-2 text-sm text-neutral-400">
+                  <span>Your files never leave secure servers</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <section id="formats" class="px-4 py-16 border-t border-neutral-900">
+            <div class="max-w-5xl mx-auto">
+              <div class="text-center mb-10">
+                <p class="text-sm text-neutral-500 mb-2">Universal Compatibility</p>
+                <h2 class="text-3xl font-semibold">50+ File Formats Supported</h2>
+                <p class="text-sm text-neutral-500 mt-2 max-w-xl mx-auto">
+                  Convert between documents, images, spreadsheets, presentations, and more.
+                </p>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="text-left p-6 rounded-xl bg-neutral-900/50 border border-neutral-800">
+                  <div class="w-12 h-12 mb-4 rounded-lg bg-gradient-to-br from-blue-500/20 to-cyan-500/20 flex items-center justify-center">
+                    <svg class="w-6 h-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                  </div>
+                  <h3 class="font-semibold text-white mb-3">Documents</h3>
+                  <div class="flex flex-wrap gap-2">
+                    <span class="px-2 py-1 text-xs rounded bg-neutral-800 text-neutral-300">PDF</span>
+                    <span class="px-2 py-1 text-xs rounded bg-neutral-800 text-neutral-300">DOCX</span>
+                    <span class="px-2 py-1 text-xs rounded bg-neutral-800 text-neutral-300">TXT</span>
+                    <span class="px-2 py-1 text-xs rounded bg-neutral-800 text-neutral-300">RTF</span>
+                    <span class="px-2 py-1 text-xs rounded bg-neutral-800 text-neutral-300">ODT</span>
+                  </div>
+                </div>
+                <div class="text-left p-6 rounded-xl bg-neutral-900/50 border border-neutral-800">
+                  <div class="w-12 h-12 mb-4 rounded-lg bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center">
+                    <svg class="w-6 h-6 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                  </div>
+                  <h3 class="font-semibold text-white mb-3">Images</h3>
+                  <div class="flex flex-wrap gap-2">
+                    <span class="px-2 py-1 text-xs rounded bg-neutral-800 text-neutral-300">JPG</span>
+                    <span class="px-2 py-1 text-xs rounded bg-neutral-800 text-neutral-300">PNG</span>
+                    <span class="px-2 py-1 text-xs rounded bg-neutral-800 text-neutral-300">WEBP</span>
+                    <span class="px-2 py-1 text-xs rounded bg-neutral-800 text-neutral-300">GIF</span>
+                    <span class="px-2 py-1 text-xs rounded bg-neutral-800 text-neutral-300">SVG</span>
+                  </div>
+                </div>
+                <div class="text-left p-6 rounded-xl bg-neutral-900/50 border border-neutral-800">
+                  <div class="w-12 h-12 mb-4 rounded-lg bg-gradient-to-br from-green-500/20 to-emerald-500/20 flex items-center justify-center">
+                    <svg class="w-6 h-6 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                  </div>
+                  <h3 class="font-semibold text-white mb-3">Spreadsheets</h3>
+                  <div class="flex flex-wrap gap-2">
+                    <span class="px-2 py-1 text-xs rounded bg-neutral-800 text-neutral-300">XLSX</span>
+                    <span class="px-2 py-1 text-xs rounded bg-neutral-800 text-neutral-300">CSV</span>
+                    <span class="px-2 py-1 text-xs rounded bg-neutral-800 text-neutral-300">ODS</span>
+                    <span class="px-2 py-1 text-xs rounded bg-neutral-800 text-neutral-300">XLS</span>
+                  </div>
+                </div>
+                <div class="text-left p-6 rounded-xl bg-neutral-900/50 border border-neutral-800">
+                  <div class="w-12 h-12 mb-4 rounded-lg bg-gradient-to-br from-orange-500/20 to-amber-500/20 flex items-center justify-center">
+                    <svg class="w-6 h-6 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" /></svg>
+                  </div>
+                  <h3 class="font-semibold text-white mb-3">Presentations</h3>
+                  <div class="flex flex-wrap gap-2">
+                    <span class="px-2 py-1 text-xs rounded bg-neutral-800 text-neutral-300">PPTX</span>
+                    <span class="px-2 py-1 text-xs rounded bg-neutral-800 text-neutral-300">ODP</span>
+                    <span class="px-2 py-1 text-xs rounded bg-neutral-800 text-neutral-300">PPT</span>
+                  </div>
+                </div>
+                <div class="text-left p-6 rounded-xl bg-neutral-900/50 border border-neutral-800">
+                  <div class="w-12 h-12 mb-4 rounded-lg bg-gradient-to-br from-rose-500/20 to-red-500/20 flex items-center justify-center">
+                    <svg class="w-6 h-6 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+                  </div>
+                  <h3 class="font-semibold text-white mb-3">Code & Data</h3>
+                  <div class="flex flex-wrap gap-2">
+                    <span class="px-2 py-1 text-xs rounded bg-neutral-800 text-neutral-300">JSON</span>
+                    <span class="px-2 py-1 text-xs rounded bg-neutral-800 text-neutral-300">XML</span>
+                    <span class="px-2 py-1 text-xs rounded bg-neutral-800 text-neutral-300">YAML</span>
+                    <span class="px-2 py-1 text-xs rounded bg-neutral-800 text-neutral-300">HTML</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+          <section class="px-4 py-16 border-t border-neutral-900">
+            <div class="max-w-5xl mx-auto">
+              <div class="text-center mb-10">
+                <p class="text-sm text-neutral-500 mb-2">Why LuidKit</p>
+                <h2 class="text-3xl font-semibold">Built for Speed & Privacy</h2>
+                <p class="text-sm text-neutral-500 mt-2 max-w-xl mx-auto">
+                  No bloated software. No privacy concerns. Just fast, reliable file conversion.
+                </p>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="p-6 rounded-xl bg-neutral-900/50 border border-neutral-800">
+                  <div class="w-10 h-10 mb-4 rounded-lg bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                  </div>
+                  <h3 class="font-semibold text-white mb-2">Drag & Drop</h3>
+                  <p class="text-sm text-neutral-400">Simply drag files into your browser. No software to install.</p>
+                </div>
+                <div class="p-6 rounded-xl bg-neutral-900/50 border border-neutral-800">
+                  <div class="w-10 h-10 mb-4 rounded-lg bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                  </div>
+                  <h3 class="font-semibold text-white mb-2">Lightning Fast</h3>
+                  <p class="text-sm text-neutral-400">Cloud-powered conversion completes in seconds, not minutes.</p>
+                </div>
+                <div class="p-6 rounded-xl bg-neutral-900/50 border border-neutral-800">
+                  <div class="w-10 h-10 mb-4 rounded-lg bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                  </div>
+                  <h3 class="font-semibold text-white mb-2">Privacy First</h3>
+                  <p class="text-sm text-neutral-400">Files are encrypted in transit and auto-deleted after 1 hour.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+          <footer class="border-t border-neutral-800 py-6 px-4">
+            <div class="max-w-4xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+              <p class="text-sm text-neutral-500">&copy; ${new Date().getFullYear()} LuidKit — Part of Luid Suite</p>
+              <div class="flex gap-6 text-sm">
+                <a href="/privacy" class="text-neutral-400 hover:text-gray-400 transition-colors">Privacy Policy</a>
+                <a href="/terms" class="text-neutral-400 hover:text-gray-400 transition-colors">Terms of Service</a>
+              </div>
+            </div>
+          </footer>
+        </div>
+      `
     }
   };
 
