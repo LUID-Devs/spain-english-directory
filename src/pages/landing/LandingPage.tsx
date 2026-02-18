@@ -27,6 +27,21 @@ const LandingPage = () => {
     { icon: Code, title: 'API + webhooks', desc: 'Integrate TaskLuid with your stack.' },
   ];
 
+  const howItWorks = [
+    {
+      title: 'Capture work in seconds',
+      desc: 'Log tasks, attach context, and assign owners without the overhead.',
+    },
+    {
+      title: 'Prioritize with clarity',
+      desc: 'Group by status, milestones, or deadlines to keep the team aligned.',
+    },
+    {
+      title: 'Ship with momentum',
+      desc: 'Track progress, remove blockers, and close the loop faster.',
+    },
+  ];
+
   const trustPoints = [
     { icon: Heart, text: 'Crafted with care by an indie developer' },
     { icon: CheckCircle, text: 'No VC funding, no feature bloat' },
@@ -123,6 +138,29 @@ const LandingPage = () => {
                 </div>
                 <h3 className="font-semibold text-white mb-2">{feature.title}</h3>
                 <p className="text-sm text-neutral-400">{feature.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works */}
+      <section className="px-4 py-16 border-t border-neutral-900">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-10">
+            <p className="text-sm text-neutral-500 mb-2">How it works</p>
+            <h2 className="text-3xl font-semibold">A simple flow from idea to done</h2>
+            <p className="text-sm text-neutral-500 mt-2">Keep the workflow lightweight without losing accountability.</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {howItWorks.map((step, idx) => (
+              <div
+                key={idx}
+                className="p-6 rounded-xl bg-neutral-900/50 border border-neutral-800 hover:border-neutral-700 transition-colors"
+              >
+                <div className="text-xs uppercase tracking-widest text-indigo-400 mb-3">Step {idx + 1}</div>
+                <h3 className="font-semibold text-white mb-2">{step.title}</h3>
+                <p className="text-sm text-neutral-400">{step.desc}</p>
               </div>
             ))}
           </div>
