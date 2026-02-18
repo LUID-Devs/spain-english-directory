@@ -66,7 +66,7 @@ export const SmartFilterBar: React.FC<SmartFilterBarProps> = ({
       onApply(parsedResult.criteria, parsedResult.filterCount, inputValue);
       setShowSuggestions(false);
     }
-  }, [parsedResult, onApply]);
+  }, [parsedResult, onApply, inputValue]);
 
   const handleClear = useCallback(() => {
     setInputValue('');

@@ -5,10 +5,15 @@ import { GitLink } from '@/services/apiService';
 
 interface GitActivityProps {
   taskId: number;
+  gitLinks?: GitLink[];
 }
 
-const GitActivity: React.FC<GitActivityProps> = ({ taskId }) => {
-  const { data: gitLinks, isLoading, error } = useGetTaskGitLinksQuery(taskId, { skip: !taskId });
+const GitActivity: React.FC<GitActivityProps> = ({ taskId, gitLinks: propGitLinks }) => {
+  // Only fetch if gitLinks not provided via props (avoids duplicate API calls)
+  const { data: fetchedGitLinks, isLoading, error } = useGetTaskGitLinksQuery(taskId, { 
+    skip: !taskId || propGitLinks !== undefined 
+  });
+  const gitLinks = propGitLinks ?? fetchedGitLinks;
 
   const commits = gitLinks?.filter((link) => link.type === 'commit') || [];
   const pullRequests = gitLinks?.filter((link) => link.type === 'pull_request') || [];

@@ -87,8 +87,9 @@ export function parseSmartFilter(query: string): SmartFilterResult {
     };
   }
 
-  // Check if query already has operators
-  const hasOperators = /\w+:/.test(trimmedQuery);
+  // Check if query already has operators (only match known operator prefixes)
+  const operatorPattern = /\b(assignee|status|is|priority|project|label|due|tag):/i;
+  const hasOperators = operatorPattern.test(trimmedQuery);
   
   if (hasOperators) {
     // Use existing parser for operator-based queries
@@ -157,20 +158,30 @@ function interpretNaturalLanguage(query: string): SmartFilterResult {
   
   let remainingQuery = query.toLowerCase();
 
+  // Check for assignee filters (unassigned and my tasks can both match)
+  const assignees: string[] = [];
+  const assigneeParts: string[] = [];
+  
   // Check for unassigned
   const unassignedMatch = remainingQuery.match(/\b(unassigned|no assignee|not assigned)\b/);
   if (unassignedMatch) {
-    criteria.assignee = ['unassigned'];
-    normalizedParts.push('assignee:unassigned');
+    assignees.push('unassigned');
+    assigneeParts.push('assignee:unassigned');
     remainingQuery = remainingQuery.replace(unassignedMatch[0], '');
   }
 
   // Check for "my tasks" / "assigned to me"
   const myTasksMatch = remainingQuery.match(/\b(my tasks?|assigned to me|mine)\b/);
   if (myTasksMatch) {
-    criteria.assignee = ['me'];
-    normalizedParts.push('assignee:me');
+    assignees.push('me');
+    assigneeParts.push('assignee:me');
     remainingQuery = remainingQuery.replace(myTasksMatch[0], '');
+  }
+  
+  // Apply collected assignees if any
+  if (assignees.length > 0) {
+    criteria.assignee = assignees;
+    normalizedParts.push(...assigneeParts);
   }
 
   // Check for priority keywords

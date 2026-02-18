@@ -51,7 +51,7 @@ const GitReviewPanel: React.FC<GitReviewPanelProps> = ({ taskId, pullRequests })
   const [reviews, setReviews] = useState<Record<number, PRReviewState>>({});
   const [expandedPRs, setExpandedPRs] = useState<Set<number>>(new Set());
 
-  // Load saved reviews
+  // Load saved reviews - use stable PR IDs to avoid infinite re-renders
   useEffect(() => {
     const loadedReviews: Record<number, PRReviewState> = {};
     pullRequests.forEach((pr) => {
@@ -61,7 +61,8 @@ const GitReviewPanel: React.FC<GitReviewPanelProps> = ({ taskId, pullRequests })
       }
     });
     setReviews(loadedReviews);
-  }, [taskId, pullRequests]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [taskId, pullRequests.map(pr => pr.id).join(',')]);
 
   // Toggle expand
   const toggleExpand = useCallback((prId: number) => {
@@ -78,18 +79,22 @@ const GitReviewPanel: React.FC<GitReviewPanelProps> = ({ taskId, pullRequests })
 
   // Update review status
   const updateStatus = useCallback((prId: number, status: PRReviewState['status']) => {
-    const currentReview = reviews[prId] || { status: 'pending', notes: '', checklist: getDefaultChecklist() };
-    const updatedReview = { ...currentReview, status };
-    setReviews((prev) => ({ ...prev, [prId]: updatedReview }));
-    savePRReviewState(taskId, prId, updatedReview);
-  }, [reviews, taskId]);
+    setReviews((prev) => {
+      const currentReview = prev[prId] || { status: 'pending', notes: '', checklist: getDefaultChecklist() };
+      const updatedReview = { ...currentReview, status };
+      savePRReviewState(taskId, prId, updatedReview);
+      return { ...prev, [prId]: updatedReview };
+    });
+  }, [taskId]);
 
   // Update notes
   const updateNotes = useCallback((prId: number, notes: string) => {
-    const currentReview = reviews[prId] || { status: 'pending', notes: '', checklist: getDefaultChecklist() };
-    const updatedReview = { ...currentReview, notes };
-    setReviews((prev) => ({ ...prev, [prId]: updatedReview }));
-  }, [reviews, taskId]);
+    setReviews((prev) => {
+      const currentReview = prev[prId] || { status: 'pending', notes: '', checklist: getDefaultChecklist() };
+      const updatedReview = { ...currentReview, notes };
+      return { ...prev, [prId]: updatedReview };
+    });
+  }, [taskId]);
 
   // Save notes
   const saveNotes = useCallback((prId: number) => {
@@ -102,14 +107,16 @@ const GitReviewPanel: React.FC<GitReviewPanelProps> = ({ taskId, pullRequests })
 
   // Toggle checklist item
   const toggleChecklistItem = useCallback((prId: number, itemId: string) => {
-    const currentReview = reviews[prId] || { status: 'pending', notes: '', checklist: getDefaultChecklist() };
-    const updatedChecklist = currentReview.checklist.map((item) =>
-      item.id === itemId ? { ...item, checked: !item.checked } : item
-    );
-    const updatedReview = { ...currentReview, checklist: updatedChecklist };
-    setReviews((prev) => ({ ...prev, [prId]: updatedReview }));
-    savePRReviewState(taskId, prId, updatedReview);
-  }, [reviews, taskId]);
+    setReviews((prev) => {
+      const currentReview = prev[prId] || { status: 'pending', notes: '', checklist: getDefaultChecklist() };
+      const updatedChecklist = currentReview.checklist.map((item) =>
+        item.id === itemId ? { ...item, checked: !item.checked } : item
+      );
+      const updatedReview = { ...currentReview, checklist: updatedChecklist };
+      savePRReviewState(taskId, prId, updatedReview);
+      return { ...prev, [prId]: updatedReview };
+    });
+  }, [taskId]);
 
   // Clear review
   const clearReview = useCallback((prId: number) => {

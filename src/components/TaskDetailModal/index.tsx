@@ -41,14 +41,13 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-// Wrapper component to fetch PR data for review panel
-const GitReviewPanelWrapper: React.FC<{ taskId: number }> = ({ taskId }) => {
-  const { data: gitLinks } = useGetTaskGitLinksQuery(taskId, { skip: !taskId });
+// Wrapper component for review panel - receives gitLinks to avoid duplicate fetch
+const GitReviewPanelWrapper: React.FC<{ taskId: number; gitLinks?: { id: number; type: string }[] }> = ({ taskId, gitLinks }) => {
   const pullRequests = gitLinks?.filter((link) => link.type === "pull_request") || [];
 
   if (pullRequests.length === 0) return null;
 
-  return <GitReviewPanel taskId={taskId} pullRequests={pullRequests} />;
+  return <GitReviewPanel taskId={taskId} pullRequests={pullRequests as any} />;
 };
 
 interface TaskDetailModalProps {
@@ -64,6 +63,8 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
   const { data: users = [] } = useGetUsersQuery(undefined, {
     skip: !isOpen,
   });
+  // Fetch git links once for both GitActivity and GitReviewPanel
+  const { data: gitLinks } = useGetTaskGitLinksQuery(taskId, { skip: !isOpen || !taskId });
   const { data: agents = [], isLoading: isAgentsLoading } = useAgents();
   const {
     data: taskAgentAssignments = [],
@@ -784,13 +785,13 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                       Git Activity
                     </Label>
                     <div className="border rounded-md p-3">
-                      <GitActivity taskId={taskId} />
+                      <GitActivity taskId={taskId} gitLinks={gitLinks} />
                     </div>
                   </div>
 
                   {/* Git Review Panel */}
                   <div className="space-y-2 col-span-2">
-                    <GitReviewPanelWrapper taskId={taskId} />
+                    <GitReviewPanelWrapper taskId={taskId} gitLinks={gitLinks} />
                   </div>
                 </div>
               </div>
