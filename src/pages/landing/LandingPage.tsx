@@ -418,21 +418,57 @@ const LandingPage = () => {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-neutral-800 py-6 px-4">
-        <div className="max-w-4xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-neutral-500" suppressHydrationWarning>
-            &copy; {year} Luid Suite
-          </p>
-          <div className="flex gap-6 text-sm">
-            <Link to="/privacy" className="text-neutral-400 hover:text-gray-400 transition-colors">
-              Privacy Policy
-            </Link>
-            <Link to="/terms" className="text-neutral-400 hover:text-gray-400 transition-colors">
-              Terms of Service
-            </Link>
-            <Link to="/cookies" className="text-neutral-400 hover:text-gray-400 transition-colors">
-              Cookie Policy
-            </Link>
+      <footer className="border-t border-neutral-800">
+        {/* Luid Suite Cross-Promotion */}
+        <div className="py-8 px-4 bg-gradient-to-r from-neutral-900/50 via-neutral-900/30 to-neutral-900/50">
+          <div className="max-w-4xl mx-auto">
+            <p className="text-center text-sm text-neutral-500 mb-4">Also part of the Luid Suite</p>
+            <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-8">
+              <a
+                href="https://resumeluid.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-neutral-800/50 hover:bg-neutral-800 transition-colors group"
+              >
+                <span className="text-lg">📄</span>
+                <div>
+                  <p className="text-sm font-medium text-neutral-300 group-hover:text-white transition-colors">ResumeLuid</p>
+                  <p className="text-xs text-neutral-500">AI-powered resume builder</p>
+                </div>
+              </a>
+              <a
+                href="https://fileconvertpro.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-neutral-800/50 hover:bg-neutral-800 transition-colors group"
+              >
+                <span className="text-lg">🔄</span>
+                <div>
+                  <p className="text-sm font-medium text-neutral-300 group-hover:text-white transition-colors">FileConvertPro</p>
+                  <p className="text-xs text-neutral-500">Universal file conversion</p>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Footer */}
+        <div className="py-6 px-4 border-t border-neutral-800/50">
+          <div className="max-w-4xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+            <p className="text-sm text-neutral-500" suppressHydrationWarning>
+              &copy; {year} Luid Suite
+            </p>
+            <div className="flex gap-6 text-sm">
+              <Link to="/privacy" className="text-neutral-400 hover:text-gray-400 transition-colors">
+                Privacy Policy
+              </Link>
+              <Link to="/terms" className="text-neutral-400 hover:text-gray-400 transition-colors">
+                Terms of Service
+              </Link>
+              <Link to="/cookies" className="text-neutral-400 hover:text-gray-400 transition-colors">
+                Cookie Policy
+              </Link>
+            </div>
           </div>
         </div>
       </footer>
