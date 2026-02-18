@@ -253,6 +253,54 @@ export interface AIStatusResponse {
   };
 }
 
+// AI Natural Language Filter Types
+export interface ParsedSearchFilter {
+  query: {
+    text?: string;
+    status?: string[];
+    priority?: string[];
+    assignee?: string[];
+    project?: string[];
+    tags?: string[];
+    dueDate?: {
+      from?: string;
+      to?: string;
+    };
+    created?: {
+      from?: string;
+      to?: string;
+    };
+    updated?: {
+      from?: string;
+      to?: string;
+    };
+  };
+  sort?: {
+    field: string;
+    direction: 'asc' | 'desc';
+  };
+  confidence: {
+    overall: number;
+    status: number;
+    priority: number;
+    assignee: number;
+    date: number;
+  };
+  interpretedQuery: string;
+}
+
+export interface AIParseSearchFilterResponse {
+  success: boolean;
+  data?: ParsedSearchFilter;
+  error?: {
+    message: string;
+    code: string;
+  };
+  creditsUsed?: number;
+  remainingCredits?: number;
+  processingTime?: number;
+}
+
 
 // ==================== ANALYTICS TYPES ====================
 
@@ -1020,6 +1068,24 @@ class ApiService {
     return this.request('/api/ai/suggest-due-date', {
       method: 'POST',
       body: JSON.stringify(taskData),
+    });
+  }
+
+  // AI Natural Language Filter
+  async parseSearchFilterWithAI(
+    text: string,
+    availableProjects?: string[],
+    availableLabels?: string[],
+    teamMembers?: string[]
+  ): Promise<AIParseSearchFilterResponse> {
+    return this.request<AIParseSearchFilterResponse>('/api/ai/parse-search-filter', {
+      method: 'POST',
+      body: JSON.stringify({
+        text,
+        availableProjects,
+        availableLabels,
+        teamMembers,
+      }),
     });
   }
 
