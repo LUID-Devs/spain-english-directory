@@ -12,6 +12,9 @@ import {
   BarChart3,
   Calendar,
   BadgeCheck,
+  MessageSquare,
+  Headphones,
+  ListChecks,
 } from 'lucide-react';
 
 const LandingPage = () => {
@@ -39,6 +42,24 @@ const LandingPage = () => {
     {
       title: 'Ship with momentum',
       desc: 'Track progress, remove blockers, and close the loop faster.',
+    },
+  ];
+
+  const intakeSteps = [
+    {
+      icon: Headphones,
+      title: 'Capture real conversations',
+      desc: 'Drop in call transcripts, chats, and support tickets in one place.',
+    },
+    {
+      icon: MessageSquare,
+      title: 'AI tags pain points',
+      desc: 'The agent surfaces themes, sentiment, and urgency automatically.',
+    },
+    {
+      icon: ListChecks,
+      title: 'Convert insights to tasks',
+      desc: 'Create prioritized tasks with source context attached.',
     },
   ];
 
@@ -138,6 +159,51 @@ const LandingPage = () => {
                 </div>
                 <h3 className="font-semibold text-white mb-2">{feature.title}</h3>
                 <p className="text-sm text-neutral-400">{feature.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Customer Conversation Intake */}
+      <section className="px-4 py-16 border-t border-neutral-900">
+        <div className="max-w-5xl mx-auto grid lg:grid-cols-[1.1fr_1fr] gap-10 items-center">
+          <div>
+            <p className="text-sm text-neutral-500 mb-2">New AI workflow</p>
+            <h2 className="text-3xl font-semibold">AI agent for customer conversation intake</h2>
+            <p className="text-sm text-neutral-500 mt-3 max-w-xl">
+              Centralize customer feedback from calls, chats, and tickets. The agent summarizes the signal and spins up
+              tasks your team can act on.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-2 text-xs uppercase tracking-wide text-neutral-500">
+              {['Calls', 'Chats', 'Emails', 'Tickets', 'Feedback forms'].map((item) => (
+                <span key={item} className="px-3 py-1 rounded-full border border-neutral-800 bg-neutral-900/60">
+                  {item}
+                </span>
+              ))}
+            </div>
+            <div className="mt-8">
+              <Link
+                to="/auth/register"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-neutral-900 border border-neutral-700 text-neutral-200 rounded-lg hover:bg-neutral-800 transition-all duration-300"
+              >
+                Start intake workflow
+              </Link>
+            </div>
+          </div>
+          <div className="grid gap-4">
+            {intakeSteps.map((step, idx) => (
+              <div
+                key={idx}
+                className="p-5 rounded-xl bg-neutral-900/50 border border-neutral-800 hover:border-neutral-700 transition-colors"
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-500/20 to-indigo-500/20 flex items-center justify-center">
+                    <step.icon className="w-5 h-5 text-emerald-300" />
+                  </div>
+                  <h3 className="font-semibold text-white">{step.title}</h3>
+                </div>
+                <p className="text-sm text-neutral-400">{step.desc}</p>
               </div>
             ))}
           </div>

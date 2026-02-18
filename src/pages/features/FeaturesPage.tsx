@@ -9,7 +9,8 @@ import {
   Calendar,
   Layout,
   Bell,
-  ArrowRight
+  ArrowRight,
+  MessageSquare
 } from 'lucide-react';
 
 const features = [
@@ -27,6 +28,11 @@ const features = [
     icon: Zap,
     title: 'AI-Powered Automation',
     description: 'Let AI handle the routine. Auto-assign tasks, generate summaries, and get smart recommendations.'
+  },
+  {
+    icon: MessageSquare,
+    title: 'Customer Conversation Intake',
+    description: 'Feed in calls, chats, and tickets. The AI agent extracts insights and creates actionable tasks.'
   },
   {
     icon: Shield,
