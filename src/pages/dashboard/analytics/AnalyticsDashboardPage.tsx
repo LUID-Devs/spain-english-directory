@@ -77,6 +77,24 @@ interface ThroughputResponse {
   throughputData: ThroughputData[];
 }
 
+interface StatusTimeData {
+  status: string;
+  taskCount: number;
+  totalHours: number;
+  averageHours: number;
+  medianHours: number;
+  minHours: number;
+  maxHours: number;
+}
+
+interface StatusTimeResponse {
+  success: boolean;
+  teamId: number;
+  periodDays: number;
+  tasksAnalyzed: number;
+  statusBreakdown: StatusTimeData[];
+}
+
 interface WorkloadUser {
   userId: number;
   username: string;
@@ -128,6 +146,7 @@ export default function AnalyticsDashboardPage() {
   const [velocity, setVelocity] = useState<VelocityResponse | null>(null);
   const [cycleTime, setCycleTime] = useState<CycleTimeResponse | null>(null);
   const [throughput, setThroughput] = useState<ThroughputResponse | null>(null);
+  const [statusTime, setStatusTime] = useState<StatusTimeResponse | null>(null);
   const [teamId, setTeamId] = useState<string>('');
   const [cyclesCount, setCyclesCount] = useState<string>('6');
   const [periodDays, setPeriodDays] = useState<string>('30');
@@ -160,17 +179,19 @@ export default function AnalyticsDashboardPage() {
       const queryParams = orgId ? `?orgId=${orgId}` : '';
 
       // Fetch all analytics data in parallel
-      const [summaryRes, velocityRes, cycleTimeRes, throughputRes] = await Promise.all([
+      const [summaryRes, velocityRes, cycleTimeRes, throughputRes, statusTimeRes] = await Promise.all([
         fetch(`${API_URL}/api/analytics/teams/${teamId}/summary${queryParams}`, { headers }),
         fetch(`${API_URL}/api/analytics/teams/${teamId}/velocity${queryParams}&cycles=${cyclesCount}`, { headers }),
         fetch(`${API_URL}/api/analytics/teams/${teamId}/cycle-time${queryParams}&period=${periodDays}`, { headers }),
         fetch(`${API_URL}/api/analytics/teams/${teamId}/throughput${queryParams}&period=${periodDays}&groupBy=week`, { headers }),
+        fetch(`${API_URL}/api/analytics/teams/${teamId}/status-time${queryParams}&period=${periodDays}`, { headers }),
       ]);
 
       if (summaryRes.ok) setSummary(await summaryRes.json());
       if (velocityRes.ok) setVelocity(await velocityRes.json());
       if (cycleTimeRes.ok) setCycleTime(await cycleTimeRes.json());
       if (throughputRes.ok) setThroughput(await throughputRes.json());
+      if (statusTimeRes.ok) setStatusTime(await statusTimeRes.json());
     } catch (error) {
       toast.error('Failed to load analytics data');
     } finally {
@@ -377,6 +398,35 @@ export default function AnalyticsDashboardPage() {
             ) : (
               <div className="h-[300px] flex items-center justify-center text-muted-foreground">
                 No cycle time data available
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Time in Status */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Clock className="h-5 w-5" />
+              Time in Status
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <Skeleton className="h-[300px] w-full" />
+            ) : statusTime?.statusBreakdown?.length ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={statusTime.statusBreakdown} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis type="number" tickFormatter={(value) => `${value}h`} />
+                  <YAxis dataKey="status" type="category" width={120} />
+                  <Tooltip formatter={(value) => [`${value} hrs`, "Avg Hours"]} />
+                  <Bar dataKey="averageHours" fill="#4F46E5" name="Avg Hours" />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+                No status time data available
               </div>
             )}
           </CardContent>
