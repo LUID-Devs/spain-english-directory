@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { Sparkles, X, AlertTriangle, Wand2 } from 'lucide-react';
+import { Sparkles, X, AlertTriangle, Wand2, Brain, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ import {
   generateFilterChips,
   getSmartFilterSuggestions,
 } from '@/lib/smartFilter';
+import { useAIParseSearchFilter, ParsedSearchFilter } from '@/hooks/useAIParseSearchFilter';
 
 export interface SmartFilterBarProps {
   value: string;
@@ -20,7 +21,66 @@ export interface SmartFilterBarProps {
   isActive?: boolean;
   activeFilterCount?: number;
   currentUserId?: number;
+  context?: {
+    availableProjects?: string[];
+    availableLabels?: string[];
+    teamMembers?: string[];
+  };
 }
+
+// Convert AI parsed filter to SmartFilterCriteria format
+const convertAIFilterToCriteria = (aiFilter: ParsedSearchFilter): SmartFilterCriteria => {
+  const criteria: SmartFilterCriteria = {};
+
+  // Map status values
+  if (aiFilter.filters.status?.length) {
+    criteria.status = aiFilter.filters.status.map(s => {
+      // Normalize status values to match system Status enum
+      const normalized = s.toLowerCase().replace(/-/g, '_');
+      if (normalized === 'open' || normalized === 'todo' || normalized === 'to_do') return 'To Do';
+      if (normalized === 'in_progress' || normalized === 'inprogress') return 'Work In Progress';
+      if (normalized === 'review' || normalized === 'under_review') return 'Under Review';
+      if (normalized === 'done' || normalized === 'completed' || normalized === 'closed') return 'Completed';
+      if (normalized === 'archived') return 'Archived';
+      return s;
+    });
+  }
+
+  // Map priority values
+  if (aiFilter.filters.priority?.length) {
+    criteria.priority = aiFilter.filters.priority.map(p => {
+      const normalized = p.toLowerCase();
+      if (normalized === 'urgent' || normalized === 'critical') return 'Urgent';
+      if (normalized === 'high') return 'High';
+      if (normalized === 'medium' || normalized === 'normal') return 'Medium';
+      if (normalized === 'low') return 'Low';
+      if (normalized === 'backlog') return 'Backlog';
+      return p.charAt(0).toUpperCase() + p.slice(1).toLowerCase();
+    });
+  }
+
+  // Map assignee
+  if (aiFilter.filters.assignee?.length) {
+    criteria.assignee = aiFilter.filters.assignee;
+  }
+
+  // Map project
+  if (aiFilter.filters.project?.length) {
+    criteria.project = aiFilter.filters.project;
+  }
+
+  // Map labels
+  if (aiFilter.filters.label?.length) {
+    criteria.label = aiFilter.filters.label;
+  }
+
+  // Map due date (AI returns string, criteria expects string[])
+  if (aiFilter.filters.due) {
+    criteria.due = [aiFilter.filters.due];
+  }
+
+  return criteria;
+};
 
 export const SmartFilterBar: React.FC<SmartFilterBarProps> = ({
   value,
@@ -30,12 +90,23 @@ export const SmartFilterBar: React.FC<SmartFilterBarProps> = ({
   placeholder = 'Try "my high priority tasks due this week" or "assignee:me is:in-progress"',
   isActive = false,
   activeFilterCount = 0,
+  context,
 }) => {
   const [inputValue, setInputValue] = useState(value);
   const [isFocused, setIsFocused] = useState(false);
   const [parsedResult, setParsedResult] = useState<ReturnType<typeof parseSmartFilter> | null>(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [wasAIInterpreted, setWasAIInterpreted] = useState(false);
+  const [aiConfidence, setAIConfidence] = useState<number | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const {
+    parseSearchFilter,
+    isLoading: isAILoading,
+    error: aiError,
+    creditsUsed,
+    remainingCredits,
+  } = useAIParseSearchFilter();
 
   useEffect(() => {
     setInputValue(value);
@@ -43,6 +114,8 @@ export const SmartFilterBar: React.FC<SmartFilterBarProps> = ({
       setParsedResult(parseSmartFilter(value));
     } else {
       setParsedResult(null);
+      setWasAIInterpreted(false);
+      setAIConfidence(null);
     }
   }, [value]);
 
@@ -50,6 +123,8 @@ export const SmartFilterBar: React.FC<SmartFilterBarProps> = ({
     const newValue = e.target.value;
     setInputValue(newValue);
     onChange?.(newValue);
+    setWasAIInterpreted(false);
+    setAIConfidence(null);
     
     if (newValue) {
       const parsed = parseSmartFilter(newValue);
@@ -72,18 +147,45 @@ export const SmartFilterBar: React.FC<SmartFilterBarProps> = ({
     setInputValue('');
     setParsedResult(null);
     setShowSuggestions(false);
+    setWasAIInterpreted(false);
+    setAIConfidence(null);
     onClear();
   }, [onClear]);
+
+  const handleUseAI = useCallback(async () => {
+    if (!inputValue.trim()) return;
+
+    const result = await parseSearchFilter(inputValue, context);
+    
+    if (result) {
+      const criteria = convertAIFilterToCriteria(result);
+      const chipCount = Object.values(criteria).flat().length;
+      
+      setInputValue(result.query);
+      onChange?.(result.query);
+      setWasAIInterpreted(true);
+      setAIConfidence(result.confidence.overall);
+      onApply(criteria, chipCount, result.query);
+      setShowSuggestions(false);
+      
+      // Update parsed result to reflect the AI-generated query
+      setParsedResult(parseSmartFilter(result.query));
+    }
+  }, [inputValue, parseSearchFilter, context, onApply, onChange]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      handleApply();
+      // Only apply filters if operators are detected, otherwise do nothing
+      // (user must explicitly click "Use AI" button for natural language)
+      if (inputValue.includes(':') && inputValue.trim()) {
+        handleApply();
+      }
     } else if (e.key === 'Escape') {
       setShowSuggestions(false);
       inputRef.current?.blur();
     }
-  }, [handleApply]);
+  }, [handleApply, inputValue]);
 
   const handleRemoveChip = useCallback((type: string, value: string) => {
     if (!parsedResult) return;
@@ -127,15 +229,20 @@ export const SmartFilterBar: React.FC<SmartFilterBarProps> = ({
   const suggestions = showSuggestions && !isActive ? getSmartFilterSuggestions(inputValue) : [];
   const chips = parsedResult && isActive ? generateFilterChips(parsedResult.criteria) : [];
 
+  // Determine if input looks like natural language (no operators)
+  const looksLikeNaturalLanguage = inputValue.trim() && !inputValue.includes(':') && !inputValue.includes('is:') && !inputValue.includes('assignee:');
+
   const inputContainerClasses = `
     relative rounded-lg border bg-background transition-all duration-200
     ${isFocused ? 'ring-2 ring-primary/20 border-primary' : 'border-input'}
     ${isActive ? 'border-primary/50 bg-primary/5' : ''}
+    ${wasAIInterpreted ? 'border-purple-400/50 bg-purple-50/30 dark:bg-purple-950/20' : ''}
   `;
 
   const iconContainerClasses = `
     flex-shrink-0 p-1.5 rounded-md transition-colors
     ${isActive ? 'bg-primary/20 text-primary' : 'bg-muted text-muted-foreground'}
+    ${wasAIInterpreted ? 'bg-purple-500/20 text-purple-600' : ''}
   `;
 
   return (
@@ -148,8 +255,11 @@ export const SmartFilterBar: React.FC<SmartFilterBarProps> = ({
       
       <div className={inputContainerClasses}>
         <div className="flex items-center gap-2 px-3 py-2">
-          <div className={iconContainerClasses}>
-            <Sparkles className="h-4 w-4" />
+          <div 
+            className={iconContainerClasses}
+            title={wasAIInterpreted ? 'Interpreted by AI' : 'Smart filter active'}
+          >
+            {wasAIInterpreted ? <Brain className="h-4 w-4" /> : <Sparkles className="h-4 w-4" />}
           </div>
 
           <Input
@@ -160,11 +270,30 @@ export const SmartFilterBar: React.FC<SmartFilterBarProps> = ({
             onFocus={() => setIsFocused(true)}
             onBlur={() => setTimeout(() => setIsFocused(false), 200)}
             placeholder={placeholder}
+            disabled={isAILoading}
             className="flex-1 border-0 bg-transparent px-0 focus-visible:ring-0 focus-visible:ring-offset-0"
           />
 
           <div className="flex items-center gap-1">
-            {inputValue && !isActive && (
+            {looksLikeNaturalLanguage && inputValue && !isActive && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleUseAI}
+                disabled={isAILoading}
+                className="h-8 gap-1 text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+                title="Parse natural language with AI (uses 1 credit)"
+              >
+                {isAILoading ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Brain className="h-3.5 w-3.5" />
+                )}
+                {isAILoading ? 'Parsing...' : 'Use AI'}
+              </Button>
+            )}
+
+            {inputValue && !isActive && !looksLikeNaturalLanguage && (
               <Button
                 variant="ghost"
                 size="sm"
@@ -265,12 +394,38 @@ export const SmartFilterBar: React.FC<SmartFilterBarProps> = ({
               </motion.div>
             ))}
             
-            {parsedResult?.wasInterpreted && (
-              <Badge variant="outline" className="gap-1 text-xs" title={`Interpreted as: ${parsedResult.normalizedQuery}`}>
-                <Sparkles className="h-3 w-3" />
+            {wasAIInterpreted && (
+              <Badge 
+                variant="outline" 
+                className="gap-1 text-xs bg-purple-50 text-purple-700 border-purple-200"
+                title={`AI interpreted this filter${creditsUsed ? ` • Used ${creditsUsed} credit` : ''}${remainingCredits !== null ? ` • ${remainingCredits} remaining` : ''}`}
+              >
+                <Brain className="h-3 w-3" />
                 AI interpreted
+                {aiConfidence && (
+                  <span className="ml-1 text-xs opacity-70">
+                    ({Math.round(aiConfidence * 100)}%)
+                  </span>
+                )}
               </Badge>
             )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {aiError && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="flex items-start gap-2 text-sm text-red-600"
+          >
+            <AlertTriangle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+            <div>
+              <p className="font-medium">AI parsing failed</p>
+              <p className="text-red-500">{aiError}</p>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
