@@ -2484,6 +2484,27 @@ export const useSetTimeEstimateMutation = () => {
   return [mutationWrapper, { isLoading: false }] as const;
 };
 
+export const useUpdateTimeLogMutation = () => {
+  const updateTimeLog = useCallback(async ({ logId, description, durationMinutes }: { logId: number; description?: string; durationMinutes?: number }) => {
+    const loadingToast = toast.loading('Updating time log...');
+    
+    try {
+      const result = await apiService.updateTimeLog(logId, { description, durationMinutes });
+      toast.success('Time log updated', { id: loadingToast });
+      return result;
+    } catch (error: any) {
+      toast.error('Failed to update time log', { id: loadingToast });
+      throw error;
+    }
+  }, []);
+
+  const mutationWrapper = useCallback((args: { logId: number; description?: string; durationMinutes?: number }) => ({
+    unwrap: () => updateTimeLog(args),
+  }), [updateTimeLog]);
+
+  return [mutationWrapper, { isLoading: false }] as const;
+};
+
 // Bulk Task Operations
 export const useBulkUpdateTasksMutation = () => {
   const bulkUpdate = useCallback(async ({ taskIds, updates }: { taskIds: number[]; updates: Partial<Task> }) => {

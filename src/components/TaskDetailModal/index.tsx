@@ -7,10 +7,19 @@ import {
   useUploadTaskDescriptionImageMutation,
   useGetProjectStatusesQuery,
   useGetTaskGitLinksQuery,
+  useGetTimeLogsQuery,
+  useGetTimeEstimateQuery,
+  useGetActiveTimerQuery,
+  useStartTimerMutation,
+  useStopTimerMutation,
+  useSetTimeEstimateMutation,
+  useUpdateTimeLogMutation,
   Status,
   Priority,
   TaskType,
+  TimeLog,
 } from "@/hooks/useApi";
+import { TimeTrackingSection } from "@/components/TimeTracking";
 import { toast } from "sonner";
 import { Calendar, User, Flag, Clock, Paperclip, Tag, CircleDot, Loader2, Image, Share2, Bot, X, HelpCircle } from "lucide-react";
 import CommentsSection from "@/components/CommentsSection";
@@ -73,6 +82,38 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
   } = useTaskAgentAssignments(isOpen ? taskId : undefined);
   const assignTaskToAgent = useAssignTaskToAgent();
   const unassignTaskFromAgent = useUnassignTaskFromAgent();
+
+  // Time tracking hooks
+  const { data: timeLogsData, refetch: refetchTimeLogs } = useGetTimeLogsQuery(isOpen ? taskId : undefined, { skip: !isOpen });
+  const { data: timeEstimateData, refetch: refetchTimeEstimate } = useGetTimeEstimateQuery(isOpen ? taskId : undefined, { skip: !isOpen });
+  const { data: activeTimerData, refetch: refetchActiveTimer } = useGetActiveTimerQuery({ skip: !isOpen });
+  const [startTimer] = useStartTimerMutation();
+  const [stopTimer] = useStopTimerMutation();
+  const [setTimeEstimate] = useSetTimeEstimateMutation();
+  const [updateTimeLog] = useUpdateTimeLogMutation();
+
+  // Check if timer is running for this task
+  const isTimerRunningForThisTask = activeTimerData?.timer?.taskId === taskId;
+  const activeTimeLogId = activeTimerData?.timer?.id;
+
+  // Calculate elapsed time for running timer
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  useEffect(() => {
+    if (!isTimerRunningForThisTask || !activeTimerData?.timer?.startedAt) {
+      setElapsedSeconds(0);
+      return;
+    }
+
+    const startedAt = new Date(activeTimerData.timer.startedAt).getTime();
+    const updateElapsed = () => {
+      const now = Date.now();
+      setElapsedSeconds(Math.floor((now - startedAt) / 1000));
+    };
+
+    updateElapsed();
+    const interval = setInterval(updateElapsed, 1000);
+    return () => clearInterval(interval);
+  }, [isTimerRunningForThisTask, activeTimerData?.timer?.startedAt]);
 
   // Fetch dynamic statuses for the project
   const effectiveProjectId = projectId || task?.projectId;
@@ -355,6 +396,54 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
     },
     [refetchTaskAgentAssignments, taskId, unassignTaskFromAgent]
   );
+
+  // Helper to format minutes as "HH:MM" string for API
+  const formatMinutesToEstimate = (minutes: number): string => {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
+  };
+
+  // Time tracking handlers
+  const handleStartTimer = useCallback(async () => {
+    try {
+      await startTimer({ taskId }).unwrap();
+      await refetchTimeLogs();
+      await refetchActiveTimer();
+    } catch (error) {
+      console.error("Failed to start timer:", error);
+    }
+  }, [startTimer, taskId, refetchTimeLogs, refetchActiveTimer]);
+
+  const handleStopTimer = useCallback(async (description: string) => {
+    if (!activeTimeLogId) return;
+    try {
+      await stopTimer(activeTimeLogId).unwrap();
+      // Update the time log with the description if provided
+      if (description.trim()) {
+        await updateTimeLog({ logId: activeTimeLogId, description: description.trim() }).unwrap();
+      }
+      await refetchTimeLogs();
+      await refetchTimeEstimate();
+      await refetchActiveTimer();
+    } catch (error) {
+      console.error("Failed to stop timer:", error);
+    }
+  }, [stopTimer, activeTimeLogId, updateTimeLog, refetchTimeLogs, refetchTimeEstimate, refetchActiveTimer]);
+
+  const handleUpdateEstimate = useCallback(async (minutes: number) => {
+    try {
+      await setTimeEstimate({ taskId, estimate: formatMinutesToEstimate(minutes) }).unwrap();
+      await refetchTimeEstimate();
+    } catch (error) {
+      console.error("Failed to set time estimate:", error);
+    }
+  }, [setTimeEstimate, taskId, refetchTimeEstimate]);
+
+  const handleDeleteTimeLog = useCallback(async (logId: number) => {
+    // TODO: Implement delete time log mutation
+    toast.info("Delete time log - not yet implemented");
+  }, []);
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -723,6 +812,32 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                         ))
                       )}
                     </div>
+                  </div>
+
+                  {/* Time Tracking */}
+                  <div className="space-y-1 lg:space-y-2 col-span-2 lg:col-span-1">
+                    <TimeTrackingSection
+                      taskId={taskId}
+                      timeEstimate={timeEstimateData?.estimatedMinutes}
+                      timeLogs={timeLogsData?.logs.map(log => ({
+                        id: log.id,
+                        taskId: log.taskId,
+                        userId: log.userId,
+                        userName: log.user?.username || 'Unknown',
+                        userAvatar: log.user?.profilePictureUrl,
+                        duration: (log.durationMinutes || 0) * 60,
+                        description: log.description,
+                        startedAt: log.startedAt,
+                        endedAt: log.endedAt || log.startedAt,
+                        createdAt: log.createdAt,
+                      })) || []}
+                      isTimerRunning={isTimerRunningForThisTask}
+                      currentElapsedTime={elapsedSeconds}
+                      onStartTimer={handleStartTimer}
+                      onStopTimer={handleStopTimer}
+                      onUpdateEstimate={handleUpdateEstimate}
+                      onDeleteTimeLog={handleDeleteTimeLog}
+                    />
                   </div>
 
                   {/* Start Date */}

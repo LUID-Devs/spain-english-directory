@@ -1454,6 +1454,13 @@ class ApiService {
     });
   }
 
+  async updateTimeLog(logId: number, updates: { description?: string; durationMinutes?: number }): Promise<{ success: boolean; timeLog: TimeLog }> {
+    return this.request<{ success: boolean; timeLog: TimeLog }>(`/api/time-logs/${logId}`, {
+      method: 'PUT',
+      body: JSON.stringify(updates),
+    });
+  }
+
   async deleteTimeLog(logId: number): Promise<{ success: boolean; message: string }> {
     return this.request<{ success: boolean; message: string }>(`/api/time-logs/${logId}`, {
       method: 'DELETE',
