@@ -2529,4 +2529,4 @@ export const useBulkDeleteTasksMutation = () => {
 
 // Export types and enums
 export { Status, Priority, TaskType } from '@/services/apiService';
-export type { Task, Project, User, Comment, Attachment, UserWithStats, TaskStatus, SavedView, Goal, GoalTemplate, SearchSuggestion, GitLink, TimeLog, TimeEstimate, ActiveTimer, TimeLogsResponse, ProjectTimeReport } from '@/services/apiService';
+export type { Task, Project, User, Comment, Attachment, UserWithStats, TaskStatus, SavedView, Goal, GoalTemplate, SearchSuggestion, GitLink, AsanaLink, TimeLog, TimeEstimate, ActiveTimer, TimeLogsResponse, ProjectTimeReport } from '@/services/apiService';

@@ -402,7 +402,7 @@ class ApiService {
     return authHeader;
   }
 
-  private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  public async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
 
     // Get Cognito access token and ID token if available
@@ -1845,6 +1845,26 @@ export interface GitLink {
   integrationConfigId?: number;
   gitCreatedAt: string;
   createdAt: string;
+}
+
+// ==================== ASANA INTEGRATION TYPES ====================
+
+export interface AsanaLink {
+  id: number;
+  taskId: number;
+  asanaTaskId: string;
+  asanaTaskName: string;
+  asanaProjectId?: string;
+  asanaProjectName?: string;
+  asanaWorkspaceId?: string;
+  asanaWorkspaceName?: string;
+  asanaPermalink?: string;
+  syncEnabled: boolean;
+  lastSyncedAt?: string;
+  syncDirection: 'to_asana' | 'from_asana' | 'bidirectional';
+  integrationConfigId?: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 // ==================== TIME TRACKING TYPES ====================
