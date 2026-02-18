@@ -1,4 +1,5 @@
-import { Priority, Status, useCreateTaskMutation, useGetUsersQuery, useGetAgentsQuery, useGetProjectsQuery, useGetProjectStatusesQuery, useUploadTaskDescriptionImageMutation, useGetTasksByUserQuery } from "@/hooks/useApi";
+import { Priority, Status, useCreateTaskMutation, useGetUsersQuery, useGetAgentsQuery, useGetProjectsQuery, useGetProjectStatusesQuery, useUploadTaskDescriptionImageMutation, useGetTasksByUserQuery, useCheckDuplicatesMutation } from "@/hooks/useApi";
+import { DuplicateDetectionPopover } from "@/components/DuplicateDetection";
 import { useCurrentUser } from "@/stores/userStore";
 import { useSubscription } from "@/stores/subscriptionStore";
 import { apiService, ParsedTaskData } from "@/services/apiService";
@@ -48,6 +49,7 @@ type Props = {
 const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) => {
   const [createTask, { isLoading }] = useCreateTaskMutation() as any;
   const [uploadDescriptionImage] = useUploadTaskDescriptionImageMutation();
+  const [checkDuplicates] = useCheckDuplicatesMutation();
   const { currentUser } = useCurrentUser();
   const { totalCredits, fetchCredits } = useSubscription();
   const {data: users} = useGetUsersQuery(undefined, {
@@ -338,6 +340,12 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
     }
   }, [uploadDescriptionImage]);
 
+  // Memoized duplicate check callback to prevent debounce timer resets
+  const handleCheckDuplicates = useCallback(async (data: { title: string; description?: string; projectId: number }) => {
+    const result = await checkDuplicates(data).unwrap();
+    return result;
+  }, [checkDuplicates]);
+
   const handleSubmit = async () => {
     if (!title || !authorUserId || !((id !== null) || projectId) || !dueDate) {
       return;
@@ -546,9 +554,22 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
               placeholder="e.g., Review Q3 marketing budget by Friday"
               required
             />
-            <p className="text-xs text-muted-foreground">
-              A clear title helps everyone understand what needs to be done at a glance.
-            </p>
+            <div className="flex items-center justify-between">
+              <p className="text-xs text-muted-foreground">
+                A clear title helps everyone understand what needs to be done at a glance.
+              </p>
+              {(id !== null || projectId) && title.length >= 5 && (
+                <DuplicateDetectionPopover
+                  title={title}
+                  description={description.replace(/<[^>]*>/g, '')}
+                  projectId={id !== null ? Number(id) : Number(projectId)}
+                  onCheckDuplicates={handleCheckDuplicates}
+                  onLinkTask={(taskId) => {
+                    toast.info(`Linking to task #${taskId} - feature coming soon`);
+                  }}
+                />
+              )}
+            </div>
           </div>
 
           {/* Description */}

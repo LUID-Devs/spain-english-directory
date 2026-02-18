@@ -170,6 +170,7 @@ export interface Task {
   assignedUserId?: number;
   archivedAt?: string;
   triaged?: boolean;
+  createdAt?: string;
 
   author?: User;
   assignee?: User;
@@ -1075,6 +1076,39 @@ class ApiService {
     return this.request<{ success: boolean; message: string; unarchivedCount: number }>('/tasks/bulk/unarchive', {
       method: 'POST',
       body: JSON.stringify({ taskIds }),
+    });
+  }
+
+  // Duplicate Detection
+  async checkDuplicates(data: {
+    title: string;
+    description?: string;
+    projectId: number;
+    threshold?: number;
+    limit?: number;
+    checkDescription?: boolean;
+  }): Promise<{
+    hasDuplicates: boolean;
+    count: number;
+    duplicates: Array<{
+      task: Task;
+      similarity: number;
+      matchType: 'title' | 'description' | 'both';
+    }>;
+    threshold: number;
+  }> {
+    return this.request<{
+      hasDuplicates: boolean;
+      count: number;
+      duplicates: Array<{
+        task: Task;
+        similarity: number;
+        matchType: 'title' | 'description' | 'both';
+      }>;
+      threshold: number;
+    }>('/tasks/check-duplicates', {
+      method: 'POST',
+      body: JSON.stringify(data),
     });
   }
 

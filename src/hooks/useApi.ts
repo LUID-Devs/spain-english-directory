@@ -2548,6 +2548,53 @@ export const useBulkDeleteTasksMutation = () => {
   return [mutationWrapper, { isLoading: false }] as const;
 };
 
+// Duplicate Detection Hook
+export const useCheckDuplicatesMutation = () => {
+  const checkDuplicates = useCallback(async ({
+    title,
+    description,
+    projectId,
+    threshold,
+    limit,
+    checkDescription,
+  }: {
+    title: string;
+    description?: string;
+    projectId: number;
+    threshold?: number;
+    limit?: number;
+    checkDescription?: boolean;
+  }) => {
+    try {
+      const result = await apiService.checkDuplicates({
+        title,
+        description,
+        projectId,
+        threshold,
+        limit,
+        checkDescription,
+      });
+      return result;
+    } catch (error: any) {
+      toast.error('Failed to check for duplicates');
+      throw error;
+    }
+  }, []);
+
+  const mutationWrapper = useCallback((args: {
+    title: string;
+    description?: string;
+    projectId: number;
+    threshold?: number;
+    limit?: number;
+    checkDescription?: boolean;
+  }) => ({
+    unwrap: () => checkDuplicates(args),
+  }), [checkDuplicates]);
+
+  return [mutationWrapper, { isLoading: false }] as const;
+};
+
 // Export types and enums
 export { Status, Priority, TaskType } from '@/services/apiService';
 export type { Task, Project, User, Comment, Attachment, UserWithStats, TaskStatus, SavedView, Goal, GoalTemplate, SearchSuggestion, GitLink, AsanaLink, TimeLog, TimeEstimate, ActiveTimer, TimeLogsResponse, ProjectTimeReport } from '@/services/apiService';
