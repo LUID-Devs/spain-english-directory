@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/app/authProvider';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
@@ -17,6 +17,7 @@ import {
   PieChart,
   Pie,
   Cell,
+  Legend,
 } from 'recharts';
 import { TrendingUp, Clock, CheckCircle2, Users, Activity } from 'lucide-react';
 
@@ -224,6 +225,10 @@ export default function AnalyticsDashboardPage() {
     </Card>
   );
 
+  const workflowCycleTimeData = statusTime?.statusBreakdown
+    ? [...statusTime.statusBreakdown].sort((a, b) => b.averageHours - a.averageHours)
+    : [];
+
   return (
     <div className="container mx-auto py-6 space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -403,30 +408,35 @@ export default function AnalyticsDashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Time in Status */}
+        {/* Workflow Cycle Time */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Clock className="h-5 w-5" />
-              Time in Status
+              Workflow Cycle Time
             </CardTitle>
+            <CardDescription>
+              Average vs median time spent in each status (last {periodDays} days)
+            </CardDescription>
           </CardHeader>
           <CardContent>
             {loading ? (
               <Skeleton className="h-[300px] w-full" />
-            ) : statusTime?.statusBreakdown?.length ? (
+            ) : workflowCycleTimeData.length ? (
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={statusTime.statusBreakdown} layout="vertical">
+                <BarChart data={workflowCycleTimeData} layout="vertical">
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis type="number" tickFormatter={(value) => `${value}h`} />
                   <YAxis dataKey="status" type="category" width={120} />
-                  <Tooltip formatter={(value) => [`${value} hrs`, "Avg Hours"]} />
+                  <Tooltip formatter={(value, name) => [`${value} hrs`, name]} />
+                  <Legend />
                   <Bar dataKey="averageHours" fill="#4F46E5" name="Avg Hours" />
+                  <Bar dataKey="medianHours" fill="#10B981" name="Median Hours" />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
               <div className="h-[300px] flex items-center justify-center text-muted-foreground">
-                No status time data available
+                No workflow cycle time data available
               </div>
             )}
           </CardContent>
