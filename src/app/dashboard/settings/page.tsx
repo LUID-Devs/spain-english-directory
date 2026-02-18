@@ -15,7 +15,7 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Edit, Key, Shield, User, Mail, Building2, Crown, Loader2, AlertTriangle, LogOut, UserPlus } from "lucide-react";
+import { Edit, Key, Shield, User, Mail, Building2, Crown, Loader2, AlertTriangle, LogOut, UserPlus, Archive } from "lucide-react";
 import { PasswordInput } from "@/components/ui/password-input";
 import { cn } from "@/lib/utils";
 import { escapeHtml } from "@/lib/escapeHtml";
@@ -82,10 +82,12 @@ const SettingsPage = () => {
   const [workspaceError, setWorkspaceError] = useState<string | null>(null);
   const [isEditWorkspaceOpen, setIsEditWorkspaceOpen] = useState(false);
   const [isLeaveDialogOpen, setIsLeaveDialogOpen] = useState(false);
+  const [isArchiveDialogOpen, setIsArchiveDialogOpen] = useState(false);
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [workspaceForm, setWorkspaceForm] = useState({ name: '', description: '' });
   const [isSavingWorkspace, setIsSavingWorkspace] = useState(false);
   const [isLeavingWorkspace, setIsLeavingWorkspace] = useState(false);
+  const [isArchivingWorkspace, setIsArchivingWorkspace] = useState(false);
   const [currentUserRole, setCurrentUserRole] = useState<string>('member');
 
   // Get auth headers helper
@@ -239,6 +241,41 @@ const SettingsPage = () => {
     }
   };
 
+  const handleArchiveWorkspace = async () => {
+    if (!activeOrganization?.id) return;
+
+    setIsArchivingWorkspace(true);
+    setWorkspaceError(null);
+
+    try {
+      const headers = await getAuthHeaders();
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/organizations/${activeOrganization.id}`,
+        {
+          method: 'DELETE',
+          credentials: 'include',
+          headers,
+        }
+      );
+
+      const data = await response.json().catch(() => ({}));
+
+      if (response.ok && data.success) {
+        setIsArchiveDialogOpen(false);
+        toast.success('Workspace archived successfully');
+        await refreshAuth();
+        window.location.href = '/dashboard';
+      } else {
+        setWorkspaceError(data.message || 'Failed to archive workspace');
+      }
+    } catch (error) {
+      console.error('Error archiving workspace:', error);
+      setWorkspaceError('Failed to archive workspace');
+    } finally {
+      setIsArchivingWorkspace(false);
+    }
+  };
+
   // Get role badge variant
   const getRoleBadge = (role: string) => {
     switch (role) {
@@ -254,6 +291,7 @@ const SettingsPage = () => {
   const isPersonalWorkspace = activeOrganization?.settings?.isPersonal;
   const canEditWorkspace = currentUserRole === 'owner' || currentUserRole === 'admin';
   const canInviteMembers = (currentUserRole === 'owner' || currentUserRole === 'admin') && !isPersonalWorkspace;
+  const canArchiveWorkspace = currentUserRole === 'owner' && !isPersonalWorkspace;
 
   const handlePasswordChange = async () => {
     setPasswordErrors([]);
@@ -829,6 +867,51 @@ const SettingsPage = () => {
                               </>
                             ) : (
                               'Leave Workspace'
+                            )}
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                </>
+              )}
+
+              {canArchiveWorkspace && (
+                <>
+                  <Separator />
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="text-sm font-medium text-destructive">Danger Zone</h4>
+                      <p className="text-xs text-muted-foreground">
+                        Archive this workspace. Members lose access immediately. This action cannot be undone.
+                      </p>
+                    </div>
+                    <Dialog open={isArchiveDialogOpen} onOpenChange={setIsArchiveDialogOpen}>
+                      <DialogTrigger asChild>
+                        <Button variant="destructive" size="sm" className="gap-2">
+                          <Archive className="h-4 w-4" />
+                          Archive Workspace
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="w-[95vw] max-w-md p-4 sm:p-6">
+                        <DialogHeader>
+                          <DialogTitle>Archive Workspace</DialogTitle>
+                          <DialogDescription>
+                            This will retire "{workspaceData?.name}". Members will lose access and this action cannot be undone.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <DialogFooter className="flex-col sm:flex-row gap-2">
+                          <Button variant="outline" onClick={() => setIsArchiveDialogOpen(false)}>
+                            Cancel
+                          </Button>
+                          <Button variant="destructive" onClick={handleArchiveWorkspace} disabled={isArchivingWorkspace}>
+                            {isArchivingWorkspace ? (
+                              <>
+                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                Archiving...
+                              </>
+                            ) : (
+                              'Archive Workspace'
                             )}
                           </Button>
                         </DialogFooter>
