@@ -66,6 +66,9 @@ const CookiePolicy = React.lazy(() => import('@/pages/legal/CookiePolicy'));
 const HelpPage = React.lazy(() => import('@/pages/help/HelpPage'));
 const DocsPage = React.lazy(() => import('@/pages/docs/DocsPage'));
 
+// Public Status Pages (lazy loaded)
+const ProjectStatusPage = React.lazy(() => import('@/pages/status/ProjectStatusPage'));
+
 // Inner app component that can use auth context
 function AppContent() {
   const { isDarkMode } = useGlobalStore();
@@ -109,6 +112,9 @@ function AppContent() {
           {/* Help & Docs Routes */}
           <Route path="/help" element={<HelpPage />} />
           <Route path="/docs" element={<DocsPage />} />
+
+          {/* Public Project Status Routes */}
+          <Route path="/status/:token" element={<ProjectStatusPage />} />
 
           {/* Auth Routes */}
           <Route path="/auth/login" element={<LoginPage />} />
