@@ -1714,6 +1714,78 @@ class ApiService {
       body: JSON.stringify({ customFields }),
     });
   }
+
+  // ==================== TIME TRACKING API ====================
+
+  async getTimeEstimate(taskId: number): Promise<{ taskId: number; estimate: TimeEstimate | null }> {
+    return this.request<{ taskId: number; estimate: TimeEstimate | null }>(`/api/time-tracking/tasks/${taskId}/time-estimate`);
+  }
+
+  async setTimeEstimate(taskId: number, estimate: string): Promise<{ success: boolean; estimate: TimeEstimate }> {
+    return this.request<{ success: boolean; estimate: TimeEstimate }>(`/api/time-tracking/tasks/${taskId}/time-estimate`, {
+      method: 'POST',
+      body: JSON.stringify({ estimate }),
+    });
+  }
+
+  async deleteTimeEstimate(taskId: number): Promise<{ success: boolean; message: string }> {
+    return this.request<{ success: boolean; message: string }>(`/api/time-tracking/tasks/${taskId}/time-estimate`, {
+      method: 'DELETE',
+    });
+  }
+
+  async getTimeLogs(taskId: number): Promise<TimeLogsResponse> {
+    return this.request<TimeLogsResponse>(`/api/time-tracking/tasks/${taskId}/time-logs`);
+  }
+
+  async startTimer(taskId: number, description?: string): Promise<{ success: boolean; timeLog: TimeLog }> {
+    return this.request<{ success: boolean; timeLog: TimeLog }>(`/api/time-tracking/tasks/${taskId}/time-logs/start`, {
+      method: 'POST',
+      body: JSON.stringify({ description }),
+    });
+  }
+
+  async stopTimer(logId: number): Promise<{ success: boolean; timeLog: TimeLog }> {
+    return this.request<{ success: boolean; timeLog: TimeLog }>(`/api/time-tracking/time-logs/${logId}/stop`, {
+      method: 'POST',
+    });
+  }
+
+  async deleteTimeLog(logId: number): Promise<{ success: boolean; message: string }> {
+    return this.request<{ success: boolean; message: string }>(`/api/time-tracking/time-logs/${logId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async getMyTimeLogs(startDate?: string, endDate?: string, taskId?: number): Promise<{ logs: TimeLog[]; summary: { totalMinutes: number; totalFormatted: string; count: number } }> {
+    const params = new URLSearchParams();
+    if (startDate) params.append('startDate', startDate);
+    if (endDate) params.append('endDate', endDate);
+    if (taskId) params.append('taskId', taskId.toString());
+    return this.request<{ logs: TimeLog[]; summary: { totalMinutes: number; totalFormatted: string; count: number } }>(`/api/time-tracking/users/me/time-logs?${params.toString()}`);
+  }
+
+  async getActiveTimer(): Promise<ActiveTimer> {
+    return this.request<ActiveTimer>('/api/time-tracking/users/me/active-timer');
+  }
+
+  async getProjectTimeReport(projectId: number, startDate?: string, endDate?: string): Promise<ProjectTimeReport> {
+    const params = new URLSearchParams();
+    if (startDate) params.append('startDate', startDate);
+    if (endDate) params.append('endDate', endDate);
+    return this.request<ProjectTimeReport>(`/api/time-tracking/projects/${projectId}/time-reports?${params.toString()}`);
+  }
+
+  async exportProjectTimeReport(projectId: number, startDate?: string, endDate?: string): Promise<Blob> {
+    const params = new URLSearchParams();
+    if (startDate) params.append('startDate', startDate);
+    if (endDate) params.append('endDate', endDate);
+    const response = await fetch(`${this.baseUrl}/api/time-tracking/projects/${projectId}/time-reports/export?${params.toString()}`, {
+      headers: this.getHeaders(),
+    });
+    if (!response.ok) throw new Error('Failed to export time report');
+    return response.blob();
+  }
 }
 
 export const apiService = new ApiService();
