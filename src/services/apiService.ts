@@ -1786,6 +1786,740 @@ class ApiService {
     if (!response.ok) throw new Error('Failed to export time report');
     return response.blob();
   }
+
+  // ==================== TIME TRACKING API ====================
+
+  async startTimer(taskId: number, description?: string): Promise<{ success: boolean; timeLog: TimeLog }> {
+    return this.request<{ success: boolean; timeLog: TimeLog }>(`/api/tasks/${taskId}/time-logs/start`, {
+      method: 'POST',
+      body: JSON.stringify({ description }),
+    });
+  }
+
+  async stopTimer(logId: number): Promise<{ success: boolean; timeLog: TimeLog }> {
+    return this.request<{ success: boolean; timeLog: TimeLog }>(`/api/time-logs/${logId}/stop`, {
+      method: 'POST',
+    });
+  }
+
+  async getTimeLogs(taskId: number): Promise<TimeLogsResponse> {
+    return this.request<TimeLogsResponse>(`/api/tasks/${taskId}/time-logs`);
+  }
+
+  async getActiveTimer(): Promise<ActiveTimer> {
+    return this.request<ActiveTimer>('/api/users/me/active-timer');
+  }
+
+  async setTimeEstimate(taskId: number, estimate: string): Promise<{ success: boolean; estimate: TimeEstimate }> {
+    return this.request<{ success: boolean; estimate: TimeEstimate }>(`/api/tasks/${taskId}/time-estimate`, {
+      method: 'POST',
+      body: JSON.stringify({ estimate }),
+    });
+  }
+
+  async getTimeEstimate(taskId: number): Promise<{ taskId: number; estimate: TimeEstimate | null }> {
+    return this.request<{ taskId: number; estimate: TimeEstimate | null }>(`/api/tasks/${taskId}/time-estimate`);
+  }
+
+  async deleteTimeEstimate(taskId: number): Promise<{ success: boolean; message: string }> {
+    return this.request<{ success: boolean; message: string }>(`/api/tasks/${taskId}/time-estimate`, {
+      method: 'DELETE',
+    });
+  }
+
+  async deleteTimeLog(logId: number): Promise<{ success: boolean; message: string }> {
+    return this.request<{ success: boolean; message: string }>(`/api/time-logs/${logId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async getProjectTimeReport(projectId: number, params?: { startDate?: string; endDate?: string; groupBy?: string }): Promise<ProjectTimeReport> {
+    const queryParams = new URLSearchParams();
+    if (params?.startDate) queryParams.append('startDate', params.startDate);
+    if (params?.endDate) queryParams.append('endDate', params.endDate);
+    if (params?.groupBy) queryParams.append('groupBy', params.groupBy);
+    const queryString = queryParams.toString();
+    return this.request<ProjectTimeReport>(`/api/projects/${projectId}/time-report${queryString ? `?${queryString}` : ''}`);
+  }
+
+  async exportTimeReport(projectId: number, params?: { startDate?: string; endDate?: string; format?: 'csv' | 'json' }): Promise<Blob> {
+    const queryParams = new URLSearchParams();
+    if (params?.startDate) queryParams.append('startDate', params.startDate);
+    if (params?.endDate) queryParams.append('endDate', params.endDate);
+    if (params?.format) queryParams.append('format', params.format);
+    const queryString = queryParams.toString();
+
+    const url = `${this.baseUrl}/api/projects/${projectId}/time-report/export${queryString ? `?${queryString}` : ''}`;
+
+    // Get Cognito access token if available
+    const authHeader: Record<string, string> = {};
+    try {
+      const { fetchAuthSession } = await import('aws-amplify/auth');
+      const session = await fetchAuthSession();
+      if (session?.tokens?.accessToken) {
+        authHeader['Authorization'] = `Bearer ${session.tokens.accessToken}`;
+      }
+      if (session?.tokens?.idToken) {
+        authHeader['X-ID-Token'] = `${session.tokens.idToken}`;
+      }
+    } catch (error) {
+      // No Cognito session available
+    }
+
+    // Add organization context header if available
+    const activeOrgId = localStorage.getItem('activeOrganizationId');
+    if (activeOrgId) {
+      authHeader['X-Organization-Id'] = activeOrgId;
+    }
+
+    const response = await fetch(url, {
+      credentials: 'include',
+      headers: authHeader,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to export time report: ${response.status} ${response.statusText}`);
+    }
+
+    return response.blob();
+  }
+
+  // ==================== TASK API ====================
+
+  async createTask(taskData: Partial<Task> & { title: string; projectId: number }): Promise<Task> {
+    // Validate for zero-width characters to prevent visual spoofing
+    const { isValid, error } = this.validateTaskInput(taskData.title, taskData.description);
+    if (!isValid) {
+      throw new Error(error);
+    }
+
+    return this.request<Task>('/api/tasks', {
+      method: 'POST',
+      body: JSON.stringify(taskData),
+    });
+  }
+
+  async updateTask(taskId: number, taskData: Partial<Task>): Promise<Task> {
+    // Validate for zero-width characters if title or description is being updated
+    if (taskData.title !== undefined || taskData.description !== undefined) {
+      const { isValid, error } = this.validateTaskInput(taskData.title, taskData.description);
+      if (!isValid) {
+        throw new Error(error);
+      }
+    }
+
+    return this.request<Task>(`/api/tasks/${taskId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(taskData),
+    });
+  }
+
+  async updateTaskStatus(taskId: number, status: string): Promise<Task> {
+    return this.request<Task>(`/api/tasks/${taskId}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status }),
+    });
+  }
+
+  async deleteTask(taskId: number): Promise<{ success: boolean }> {
+    return this.request<{ success: boolean }>(`/api/tasks/${taskId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async archiveTask(taskId: number): Promise<{ success: boolean }> {
+    return this.request<{ success: boolean }>(`/api/tasks/${taskId}/archive`, {
+      method: 'POST',
+    });
+  }
+
+  async unarchiveTask(taskId: number): Promise<{ success: boolean }> {
+    return this.request<{ success: boolean }>(`/api/tasks/${taskId}/unarchive`, {
+      method: 'POST',
+    });
+  }
+
+  async getTask(taskId: number): Promise<Task> {
+    return this.request<Task>(`/api/tasks/${taskId}`);
+  }
+
+  async getTasks(projectId: number, filters?: { archived?: boolean }): Promise<Task[]> {
+    const params = new URLSearchParams();
+    if (filters?.archived !== undefined) {
+      params.append('archived', filters.archived.toString());
+    }
+    const queryString = params.toString();
+    return this.request<Task[]>(`/api/projects/${projectId}/tasks${queryString ? `?${queryString}` : ''}`);
+  }
+
+  async getTriageTasks(filters?: { triageStatus?: string; archived?: boolean }): Promise<Task[]> {
+    const params = new URLSearchParams();
+    if (filters?.triageStatus !== undefined) {
+      params.append('triageStatus', filters.triageStatus);
+    }
+    if (filters?.archived !== undefined) {
+      params.append('archived', filters.archived.toString());
+    }
+    const queryString = params.toString();
+    return this.request<Task[]>(`/api/tasks/triage${queryString ? `?${queryString}` : ''}`);
+  }
+
+  async reorderTasks(taskOrders: { taskId: number; order: number }[]): Promise<{ success: boolean }> {
+    return this.request<{ success: boolean }>('/api/tasks/reorder', {
+      method: 'POST',
+      body: JSON.stringify({ taskOrders }),
+    });
+  }
+
+  async assignAgentToTask(taskId: number, agentId: number, status?: string): Promise<{ success: boolean }> {
+    return this.request<{ success: boolean }>(`/api/tasks/${taskId}/assign-agent`, {
+      method: 'POST',
+      body: JSON.stringify({ agentId, status }),
+    });
+  }
+
+  // ==================== PROJECT API ====================
+
+  async createProject(projectData: Partial<Project> & { name: string }): Promise<Project> {
+    // Validate for zero-width characters to prevent visual spoofing
+    const { isValid, error } = this.validateProjectInput(projectData.name, projectData.description);
+    if (!isValid) {
+      throw new Error(error);
+    }
+
+    return this.request<Project>('/api/projects', {
+      method: 'POST',
+      body: JSON.stringify(projectData),
+    });
+  }
+
+  async updateProject(projectId: string, projectData: Partial<Project>): Promise<Project> {
+    // Validate for zero-width characters if name or description is being updated
+    if (projectData.name !== undefined || projectData.description !== undefined) {
+      const { isValid, error } = this.validateProjectInput(projectData.name, projectData.description);
+      if (!isValid) {
+        throw new Error(error);
+      }
+    }
+
+    return this.request<Project>(`/api/projects/${projectId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(projectData),
+    });
+  }
+
+  async deleteProject(projectId: string): Promise<{ success: boolean }> {
+    return this.request<{ success: boolean }>(`/api/projects/${projectId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async archiveProject(projectId: string): Promise<{ success: boolean }> {
+    return this.request<{ success: boolean }>(`/api/projects/${projectId}/archive`, {
+      method: 'POST',
+    });
+  }
+
+  async unarchiveProject(projectId: string): Promise<{ success: boolean }> {
+    return this.request<{ success: boolean }>(`/api/projects/${projectId}/unarchive`, {
+      method: 'POST',
+    });
+  }
+
+  async getProject(projectId: string, userId?: number): Promise<Project> {
+    const params = new URLSearchParams();
+    if (userId) params.append('userId', userId.toString());
+    const queryString = params.toString();
+    return this.request<Project>(`/api/projects/${projectId}${queryString ? `?${queryString}` : ''}`);
+  }
+
+  async favoriteProject(projectId: string, userId: number): Promise<{ success: boolean }> {
+    return this.request<{ success: boolean }>(`/api/projects/${projectId}/favorite`, {
+      method: 'POST',
+      body: JSON.stringify({ userId }),
+    });
+  }
+
+  async unfavoriteProject(projectId: string, userId: number): Promise<{ success: boolean }> {
+    return this.request<{ success: boolean }>(`/api/projects/${projectId}/unfavorite`, {
+      method: 'POST',
+      body: JSON.stringify({ userId }),
+    });
+  }
+
+  // ==================== TASK STATUS API ====================
+
+  async getProjectStatuses(projectId: number): Promise<TaskStatus[]> {
+    return this.request<TaskStatus[]>(`/api/projects/${projectId}/statuses`);
+  }
+
+  async createStatus(projectId: number, statusData: { name: string; color?: string; order?: number }): Promise<TaskStatus> {
+    return this.request<TaskStatus>(`/api/projects/${projectId}/statuses`, {
+      method: 'POST',
+      body: JSON.stringify(statusData),
+    });
+  }
+
+  async updateStatus(statusId: number, statusData: { name?: string; color?: string; order?: number }): Promise<TaskStatus> {
+    return this.request<TaskStatus>(`/api/statuses/${statusId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(statusData),
+    });
+  }
+
+  async deleteStatus(statusId: number): Promise<{ success: boolean }> {
+    return this.request<{ success: boolean }>(`/api/statuses/${statusId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async reorderStatuses(projectId: number, statusOrders: { statusId: number; order: number }[]): Promise<{ success: boolean }> {
+    return this.request<{ success: boolean }>(`/api/projects/${projectId}/statuses/reorder`, {
+      method: 'POST',
+      body: JSON.stringify({ statusOrders }),
+    });
+  }
+
+  // ==================== COMMENT API ====================
+
+  async getTaskComments(taskId: number): Promise<Comment[]> {
+    return this.request<Comment[]>(`/api/tasks/${taskId}/comments`);
+  }
+
+  async createComment(taskId: number, text: string, userId: number, imageUrl?: string): Promise<Comment> {
+    return this.request<Comment>(`/api/tasks/${taskId}/comments`, {
+      method: 'POST',
+      body: JSON.stringify({ text, userId, imageUrl }),
+    });
+  }
+
+  async updateComment(commentId: number, text: string): Promise<Comment> {
+    return this.request<Comment>(`/api/comments/${commentId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ text }),
+    });
+  }
+
+  async deleteComment(commentId: number): Promise<{ success: boolean }> {
+    return this.request<{ success: boolean }>(`/api/comments/${commentId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // ==================== ATTACHMENT API ====================
+
+  async getTaskAttachments(taskId: number): Promise<Attachment[]> {
+    return this.request<Attachment[]>(`/api/tasks/${taskId}/attachments`);
+  }
+
+  async uploadAttachment(taskId: number, formData: FormData): Promise<{ attachment: Attachment }> {
+    return this.request<{ attachment: Attachment }>(`/api/tasks/${taskId}/attachments`, {
+      method: 'POST',
+      body: formData,
+    });
+  }
+
+  async uploadAttachmentWithProgress(
+    taskId: number,
+    formData: FormData,
+    onProgress: (progress: number) => void
+  ): Promise<{ attachment: Attachment }> {
+    const url = `${this.baseUrl}/api/tasks/${taskId}/attachments`;
+
+    // Get Cognito access token if available
+    const authHeader: Record<string, string> = {};
+    try {
+      const { fetchAuthSession } = await import('aws-amplify/auth');
+      const session = await fetchAuthSession();
+      if (session?.tokens?.accessToken) {
+        authHeader['Authorization'] = `Bearer ${session.tokens.accessToken}`;
+      }
+      if (session?.tokens?.idToken) {
+        authHeader['X-ID-Token'] = `${session.tokens.idToken}`;
+      }
+    } catch (error) {
+      // No Cognito session available
+    }
+
+    // Add organization context header if available
+    const activeOrgId = localStorage.getItem('activeOrganizationId');
+    if (activeOrgId) {
+      authHeader['X-Organization-Id'] = activeOrgId;
+    }
+
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+
+      xhr.upload.addEventListener('progress', (event) => {
+        if (event.lengthComputable) {
+          const progress = Math.round((event.loaded / event.total) * 100);
+          onProgress(progress);
+        }
+      });
+
+      xhr.addEventListener('load', () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            const response = JSON.parse(xhr.responseText);
+            resolve(response);
+          } catch (error) {
+            reject(new Error('Failed to parse response'));
+          }
+        } else {
+          let errorMessage = `Upload failed: ${xhr.status} ${xhr.statusText}`;
+          try {
+            const errorData = JSON.parse(xhr.responseText);
+            if (errorData?.message) errorMessage = errorData.message;
+          } catch {
+            // Use default error message
+          }
+          reject(new Error(errorMessage));
+        }
+      });
+
+      xhr.addEventListener('error', () => {
+        reject(new Error('Network error during upload'));
+      });
+
+      xhr.open('POST', url);
+      xhr.withCredentials = true;
+
+      // Set headers
+      Object.entries(authHeader).forEach(([key, value]) => {
+        xhr.setRequestHeader(key, value);
+      });
+
+      xhr.send(formData);
+    });
+  }
+
+  async deleteAttachment(attachmentId: number): Promise<{ success: boolean }> {
+    return this.request<{ success: boolean }>(`/api/attachments/${attachmentId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async uploadTaskDescriptionImage(formData: FormData): Promise<{ imageUrl: string }> {
+    return this.request<{ imageUrl: string }>('/api/upload/description-image', {
+      method: 'POST',
+      body: formData,
+    });
+  }
+
+  async uploadCommentImage(formData: FormData): Promise<{ imageUrl: string }> {
+    return this.request<{ imageUrl: string }>('/api/upload/comment-image', {
+      method: 'POST',
+      body: formData,
+    });
+  }
+
+  // ==================== USER API ====================
+
+  async getAuthUser(userIdentifier: string): Promise<User> {
+    return this.request<User>(`/api/users/auth/${userIdentifier}`);
+  }
+
+  async getUsersWithStats(): Promise<UserWithStats[]> {
+    return this.request<UserWithStats[]>('/api/users/with-stats');
+  }
+
+  async updateUserRole(userId: number, role: string): Promise<{ success: boolean; user: User }> {
+    return this.request<{ success: boolean; user: User }>(`/api/users/${userId}/role`, {
+      method: 'PATCH',
+      body: JSON.stringify({ role }),
+    });
+  }
+
+  async inviteUser(email: string, teamId: number, role: string): Promise<{ success: boolean }> {
+    return this.request<{ success: boolean }>('/api/invitations', {
+      method: 'POST',
+      body: JSON.stringify({ email, teamId, role }),
+    });
+  }
+
+  async removeOrganizationMember(organizationId: number, userId: number, unassignTasks?: boolean): Promise<{ success: boolean }> {
+    return this.request<{ success: boolean }>(`/api/organizations/${organizationId}/members/${userId}`, {
+      method: 'DELETE',
+      body: JSON.stringify({ unassignTasks }),
+    });
+  }
+
+  async getMemberTasks(organizationId: number, userId: number): Promise<any> {
+    return this.request<any>(`/api/organizations/${organizationId}/members/${userId}/tasks`);
+  }
+
+  // ==================== GOAL API ====================
+
+  async getGoals(organizationId: number): Promise<Goal[]> {
+    return this.request<Goal[]>(`/api/organizations/${organizationId}/goals`);
+  }
+
+  async createGoal(goalData: Partial<Goal>): Promise<Goal> {
+    return this.request<Goal>('/api/goals', {
+      method: 'POST',
+      body: JSON.stringify(goalData),
+    });
+  }
+
+  async createGoalFromTemplate(templateId: number, goalData: Partial<Goal>): Promise<Goal> {
+    return this.request<Goal>(`/api/goal-templates/${templateId}/create`, {
+      method: 'POST',
+      body: JSON.stringify(goalData),
+    });
+  }
+
+  async updateGoal(goalId: number, goalData: Partial<Goal>): Promise<Goal> {
+    return this.request<Goal>(`/api/goals/${goalId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(goalData),
+    });
+  }
+
+  async deleteGoal(goalId: number): Promise<{ success: boolean }> {
+    return this.request<{ success: boolean }>(`/api/goals/${goalId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async getGoalTemplates(organizationId: number): Promise<GoalTemplate[]> {
+    return this.request<GoalTemplate[]>(`/api/organizations/${organizationId}/goal-templates`);
+  }
+
+  // ==================== VIEW API ====================
+
+  async getProjectViews(projectId: number): Promise<SavedView[]> {
+    return this.request<SavedView[]>(`/api/projects/${projectId}/views`);
+  }
+
+  async createView(viewData: Partial<SavedView>): Promise<SavedView> {
+    return this.request<SavedView>('/api/views', {
+      method: 'POST',
+      body: JSON.stringify(viewData),
+    });
+  }
+
+  async updateView(viewId: number, viewData: Partial<SavedView>): Promise<SavedView> {
+    return this.request<SavedView>(`/api/views/${viewId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(viewData),
+    });
+  }
+
+  async deleteView(viewId: number): Promise<{ success: boolean }> {
+    return this.request<{ success: boolean }>(`/api/views/${viewId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async setDefaultView(viewId: number, userId: number): Promise<{ success: boolean }> {
+    return this.request<{ success: boolean }>(`/api/views/${viewId}/default`, {
+      method: 'POST',
+      body: JSON.stringify({ userId }),
+    });
+  }
+
+  // ==================== SEARCH API ====================
+
+  async search(query: string): Promise<SearchResults> {
+    return this.request<SearchResults>(`/api/search?q=${encodeURIComponent(query)}`);
+  }
+
+  async advancedSearch(params: {
+    query?: string;
+    type?: 'tasks' | 'projects' | 'users';
+    projectId?: number;
+    status?: string;
+    priority?: string;
+    assigneeId?: number;
+    dateFrom?: string;
+    dateTo?: string;
+  }): Promise<SearchResults> {
+    const searchParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        searchParams.append(key, String(value));
+      }
+    });
+    return this.request<SearchResults>(`/api/search/advanced?${searchParams.toString()}`);
+  }
+
+  async getSearchSuggestions(query: string, type?: string): Promise<SearchSuggestion[]> {
+    const params = new URLSearchParams();
+    params.append('query', query);
+    if (type) params.append('type', type);
+    return this.request<SearchSuggestion[]>(`/api/search/suggestions?${params.toString()}`);
+  }
+
+  // ==================== AI API ====================
+
+  async parseTaskWithAI(input: string, teamMemberNames?: string[]): Promise<AIParseTaskResponse> {
+    return this.request<AIParseTaskResponse>('/api/ai/parse-task', {
+      method: 'POST',
+      body: JSON.stringify({ input, teamMemberNames }),
+    });
+  }
+
+  async suggestDueDateWithAI(taskData: {
+    title: string;
+    description?: string;
+    priority?: string;
+    tags?: string;
+  }): Promise<{
+    success: boolean;
+    suggestedDueDate?: string;
+    reasoning?: string;
+    confidence?: number;
+    creditsUsed?: number;
+    remainingCredits?: number;
+    error?: { message: string; code: string };
+  }> {
+    return this.request('/api/ai/suggest-due-date', {
+      method: 'POST',
+      body: JSON.stringify(taskData),
+    });
+  }
+
+  async getAIStatus(): Promise<AIStatusResponse> {
+    return this.request<AIStatusResponse>('/api/ai/status');
+  }
+
+  // ==================== GIT LINK API ====================
+
+  async getTaskGitLinks(taskId: number): Promise<GitLink[]> {
+    return this.request<GitLink[]>(`/api/tasks/${taskId}/git-links`);
+  }
+
+  // ==================== VALIDATION HELPERS ====================
+
+  /**
+   * Validates task input for zero-width and Cuneiform Unicode characters
+   * @param title - The task title to validate
+   * @param description - The task description to validate (optional)
+   * @returns Object with isValid boolean and optional error message
+   */
+  private validateTaskInput(title?: string, description?: string): { isValid: boolean; error?: string } {
+    // Zero-width Unicode characters that can be used for visual spoofing
+    const zeroWidthChars = [
+      '\u200B', // Zero Width Space
+      '\u200C', // Zero Width Non-Joiner
+      '\u200D', // Zero Width Joiner
+      '\uFEFF', // Zero Width No-Break Space (BOM)
+      '\u2060', // Word Joiner
+      '\u180E', // Mongolian Vowel Separator
+      '\u200E', // Left-to-Right Mark
+      '\u200F', // Right-to-Left Mark
+      '\u202A', // Left-to-Right Embedding
+      '\u202B', // Right-to-Left Embedding
+      '\u202C', // Pop Directional Formatting
+      '\u202D', // Left-to-Right Override
+      '\u202E', // Right-to-Left Override
+      '\u2066', // Left-to-Right Isolate
+      '\u2067', // Right-to-Left Isolate
+      '\u2068', // First Strong Isolate
+      '\u2069', // Pop Directional Isolate
+    ];
+
+    const zeroWidthRegex = new RegExp(`[${zeroWidthChars.join('')}]`, 'g');
+
+    // Cuneiform Unicode block (U+12000 to U+123FF) - used in "Unicode bomb" DOS attacks
+    const cuneiformRegex = /[\u{12000}-\u{123FF}]/gu;
+
+    if (title && zeroWidthRegex.test(title)) {
+      return {
+        isValid: false,
+        error: 'Title contains zero-width Unicode characters which are not allowed for security reasons.',
+      };
+    }
+
+    if (description && zeroWidthRegex.test(description)) {
+      return {
+        isValid: false,
+        error: 'Description contains zero-width Unicode characters which are not allowed for security reasons.',
+      };
+    }
+
+    // Check for Cuneiform characters
+    if (title && cuneiformRegex.test(title)) {
+      return {
+        isValid: false,
+        error: 'Title contains Cuneiform Unicode characters which are not allowed for security reasons.',
+      };
+    }
+
+    if (description && cuneiformRegex.test(description)) {
+      return {
+        isValid: false,
+        error: 'Description contains Cuneiform Unicode characters which are not allowed for security reasons.',
+      };
+    }
+
+    return { isValid: true };
+  }
+
+  /**
+   * Validates project input for zero-width and Cuneiform Unicode characters
+   * @param name - The project name to validate
+   * @param description - The project description to validate (optional)
+   * @returns Object with isValid boolean and optional error message
+   */
+  private validateProjectInput(name?: string, description?: string): { isValid: boolean; error?: string } {
+    // Zero-width Unicode characters that can be used for visual spoofing
+    const zeroWidthChars = [
+      '\u200B', // Zero Width Space
+      '\u200C', // Zero Width Non-Joiner
+      '\u200D', // Zero Width Joiner
+      '\uFEFF', // Zero Width No-Break Space (BOM)
+      '\u2060', // Word Joiner
+      '\u180E', // Mongolian Vowel Separator
+      '\u200E', // Left-to-Right Mark
+      '\u200F', // Right-to-Left Mark
+      '\u202A', // Left-to-Right Embedding
+      '\u202B', // Right-to-Left Embedding
+      '\u202C', // Pop Directional Formatting
+      '\u202D', // Left-to-Right Override
+      '\u202E', // Right-to-Left Override
+      '\u2066', // Left-to-Right Isolate
+      '\u2067', // Right-to-Left Isolate
+      '\u2068', // First Strong Isolate
+      '\u2069', // Pop Directional Isolate
+    ];
+
+    const zeroWidthRegex = new RegExp(`[${zeroWidthChars.join('')}]`, 'g');
+
+    // Cuneiform Unicode block (U+12000 to U+123FF) - used in "Unicode bomb" DOS attacks
+    const cuneiformRegex = /[\u{12000}-\u{123FF}]/gu;
+
+    if (name && zeroWidthRegex.test(name)) {
+      return {
+        isValid: false,
+        error: 'Name contains zero-width Unicode characters which are not allowed for security reasons.',
+      };
+    }
+
+    if (description && zeroWidthRegex.test(description)) {
+      return {
+        isValid: false,
+        error: 'Description contains zero-width Unicode characters which are not allowed for security reasons.',
+      };
+    }
+
+    // Check for Cuneiform characters
+    if (name && cuneiformRegex.test(name)) {
+      return {
+        isValid: false,
+        error: 'Name contains Cuneiform Unicode characters which are not allowed for security reasons.',
+      };
+    }
+
+    if (description && cuneiformRegex.test(description)) {
+      return {
+        isValid: false,
+        error: 'Description contains Cuneiform Unicode characters which are not allowed for security reasons.',
+      };
+    }
+
+    return { isValid: true };
+  }
 }
 
 export const apiService = new ApiService();
