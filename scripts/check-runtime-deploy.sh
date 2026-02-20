@@ -4,6 +4,7 @@ set -euo pipefail
 FRONTEND_CONTAINER="${FRONTEND_CONTAINER:-taskluid-frontend}"
 BACKEND_DOCKER_NETWORK="${BACKEND_DOCKER_NETWORK:-task-luid-backend_app-network}"
 BACKEND_HOSTNAME="${BACKEND_HOSTNAME:-task-luid-backend}"
+BACKEND_CONTAINER="${BACKEND_CONTAINER:-task-luid-backend}"
 BACKEND_PORT="${BACKEND_PORT:-8000}"
 PUBLIC_BASE_URL="${PUBLIC_BASE_URL:-https://taskluid.com}"
 
@@ -20,8 +21,23 @@ if [[ "$network_json" != *"\"$BACKEND_DOCKER_NETWORK\""* ]]; then
   exit 1
 fi
 
+echo "[check:runtime] Verifying backend container exists..."
+docker inspect "$BACKEND_CONTAINER" >/dev/null
+
+echo "[check:runtime] Verifying backend is attached to backend network..."
+backend_network_json="$(docker inspect -f '{{json .NetworkSettings.Networks}}' "$BACKEND_CONTAINER")"
+if [[ "$backend_network_json" != *"\"$BACKEND_DOCKER_NETWORK\""* ]]; then
+  echo "[check:runtime] $BACKEND_CONTAINER is not attached to $BACKEND_DOCKER_NETWORK"
+  exit 1
+fi
+
 echo "[check:runtime] Verifying backend DNS resolution from frontend container..."
-docker exec "$FRONTEND_CONTAINER" sh -lc "getent hosts $BACKEND_HOSTNAME >/dev/null"
+docker exec "$FRONTEND_CONTAINER" sh -lc "command -v getent >/dev/null && getent hosts $BACKEND_HOSTNAME >/dev/null" \
+  || docker exec "$FRONTEND_CONTAINER" sh -lc "command -v nslookup >/dev/null && nslookup $BACKEND_HOSTNAME >/dev/null" \
+  || docker exec "$FRONTEND_CONTAINER" sh -lc "command -v ping >/dev/null && ping -c 1 $BACKEND_HOSTNAME >/dev/null" \
+  || docker exec "$FRONTEND_CONTAINER" sh -lc "command -v getent >/dev/null && getent hosts backend >/dev/null" \
+  || docker exec "$FRONTEND_CONTAINER" sh -lc "command -v nslookup >/dev/null && nslookup backend >/dev/null" \
+  || docker exec "$FRONTEND_CONTAINER" sh -lc "command -v ping >/dev/null && ping -c 1 backend >/dev/null"
 
 echo "[check:runtime] Verifying backend auth endpoint from frontend container..."
 docker exec "$FRONTEND_CONTAINER" sh -lc "curl -fsS http://$BACKEND_HOSTNAME:$BACKEND_PORT/auth/status >/dev/null"
