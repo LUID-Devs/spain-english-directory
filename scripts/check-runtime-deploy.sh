@@ -6,7 +6,9 @@ BACKEND_DOCKER_NETWORK="${BACKEND_DOCKER_NETWORK:-task-luid-backend_app-network}
 BACKEND_HOSTNAME="${BACKEND_HOSTNAME:-task-luid-backend}"
 BACKEND_CONTAINER="${BACKEND_CONTAINER:-task-luid-backend}"
 BACKEND_PORT="${BACKEND_PORT:-8000}"
-PUBLIC_BASE_URL="${PUBLIC_BASE_URL:-https://taskluid.com}"
+# Use localhost:3000 for internal smoke tests during CI/CD deployment
+# The external URL (https://taskluid.com) may not be reachable from self-hosted runners
+PUBLIC_BASE_URL="${PUBLIC_BASE_URL:-http://localhost:3000}"
 
 echo "[check:runtime] Verifying frontend container exists..."
 docker inspect "$FRONTEND_CONTAINER" >/dev/null
