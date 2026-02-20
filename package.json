@@ -8,7 +8,11 @@
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "check:auth-env": "node scripts/check-auth-env.mjs",
-    "check:nginx-routing": "bash scripts/check-nginx-routing.sh nginx.conf"
+    "check:nginx-routing": "bash scripts/check-nginx-routing.sh nginx.conf",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:ui": "vitest --ui"
   },
   "dependencies": {
     "@aws-amplify/ui-react": "^6.8.1",
@@ -98,6 +102,8 @@
     "typescript": "^5",
     "typescript-eslint": "^8.55.0",
     "vite": "^6.4.1",
-    "vite-plugin-prerender": "^1.0.8"
+    "vite-plugin-prerender": "^1.0.8",
+    "vitest": "^3.0.5",
+    "@vitest/ui": "^3.0.5"
   }
 }
