@@ -1887,12 +1887,6 @@ class ApiService {
   // ==================== TASK API ====================
 
   async createTask(taskData: Partial<Task> & { title: string; projectId: number }): Promise<Task> {
-    // Validate for zero-width characters to prevent visual spoofing
-    const { isValid, error } = this.validateTaskInput(taskData.title, taskData.description);
-    if (!isValid) {
-      throw new Error(error);
-    }
-
     return this.request<Task>('/api/tasks', {
       method: 'POST',
       body: JSON.stringify(taskData),
@@ -1900,14 +1894,6 @@ class ApiService {
   }
 
   async updateTask(taskId: number, taskData: Partial<Task>): Promise<Task> {
-    // Validate for zero-width characters if title or description is being updated
-    if (taskData.title !== undefined || taskData.description !== undefined) {
-      const { isValid, error } = this.validateTaskInput(taskData.title, taskData.description);
-      if (!isValid) {
-        throw new Error(error);
-      }
-    }
-
     return this.request<Task>(`/api/tasks/${taskId}`, {
       method: 'PATCH',
       body: JSON.stringify(taskData),
@@ -1981,12 +1967,6 @@ class ApiService {
   // ==================== PROJECT API ====================
 
   async createProject(projectData: Partial<Project> & { name: string }): Promise<Project> {
-    // Validate for zero-width characters to prevent visual spoofing
-    const { isValid, error } = this.validateProjectInput(projectData.name, projectData.description);
-    if (!isValid) {
-      throw new Error(error);
-    }
-
     return this.request<Project>('/api/projects', {
       method: 'POST',
       body: JSON.stringify(projectData),
@@ -1994,14 +1974,6 @@ class ApiService {
   }
 
   async updateProject(projectId: string, projectData: Partial<Project>): Promise<Project> {
-    // Validate for zero-width characters if name or description is being updated
-    if (projectData.name !== undefined || projectData.description !== undefined) {
-      const { isValid, error } = this.validateProjectInput(projectData.name, projectData.description);
-      if (!isValid) {
-        throw new Error(error);
-      }
-    }
-
     return this.request<Project>(`/api/projects/${projectId}`, {
       method: 'PATCH',
       body: JSON.stringify(projectData),
@@ -2387,138 +2359,6 @@ class ApiService {
 
   async getTaskGitLinks(taskId: number): Promise<GitLink[]> {
     return this.request<GitLink[]>(`/api/tasks/${taskId}/git-links`);
-  }
-
-  // ==================== VALIDATION HELPERS ====================
-
-  /**
-   * Validates task input for zero-width and Cuneiform Unicode characters
-   * @param title - The task title to validate
-   * @param description - The task description to validate (optional)
-   * @returns Object with isValid boolean and optional error message
-   */
-  private validateTaskInput(title?: string, description?: string): { isValid: boolean; error?: string } {
-    // Zero-width Unicode characters that can be used for visual spoofing
-    const zeroWidthChars = [
-      '\u200B', // Zero Width Space
-      '\u200C', // Zero Width Non-Joiner
-      '\u200D', // Zero Width Joiner
-      '\uFEFF', // Zero Width No-Break Space (BOM)
-      '\u2060', // Word Joiner
-      '\u180E', // Mongolian Vowel Separator
-      '\u200E', // Left-to-Right Mark
-      '\u200F', // Right-to-Left Mark
-      '\u202A', // Left-to-Right Embedding
-      '\u202B', // Right-to-Left Embedding
-      '\u202C', // Pop Directional Formatting
-      '\u202D', // Left-to-Right Override
-      '\u202E', // Right-to-Left Override
-      '\u2066', // Left-to-Right Isolate
-      '\u2067', // Right-to-Left Isolate
-      '\u2068', // First Strong Isolate
-      '\u2069', // Pop Directional Isolate
-    ];
-
-    const zeroWidthRegex = new RegExp(`[${zeroWidthChars.join('')}]`, 'g');
-
-    // Cuneiform Unicode block (U+12000 to U+123FF) - used in "Unicode bomb" DOS attacks
-    const cuneiformRegex = /[\u{12000}-\u{123FF}]/gu;
-
-    if (title && zeroWidthRegex.test(title)) {
-      return {
-        isValid: false,
-        error: 'Title contains zero-width Unicode characters which are not allowed for security reasons.',
-      };
-    }
-
-    if (description && zeroWidthRegex.test(description)) {
-      return {
-        isValid: false,
-        error: 'Description contains zero-width Unicode characters which are not allowed for security reasons.',
-      };
-    }
-
-    // Check for Cuneiform characters
-    if (title && cuneiformRegex.test(title)) {
-      return {
-        isValid: false,
-        error: 'Title contains Cuneiform Unicode characters which are not allowed for security reasons.',
-      };
-    }
-
-    if (description && cuneiformRegex.test(description)) {
-      return {
-        isValid: false,
-        error: 'Description contains Cuneiform Unicode characters which are not allowed for security reasons.',
-      };
-    }
-
-    return { isValid: true };
-  }
-
-  /**
-   * Validates project input for zero-width and Cuneiform Unicode characters
-   * @param name - The project name to validate
-   * @param description - The project description to validate (optional)
-   * @returns Object with isValid boolean and optional error message
-   */
-  private validateProjectInput(name?: string, description?: string): { isValid: boolean; error?: string } {
-    // Zero-width Unicode characters that can be used for visual spoofing
-    const zeroWidthChars = [
-      '\u200B', // Zero Width Space
-      '\u200C', // Zero Width Non-Joiner
-      '\u200D', // Zero Width Joiner
-      '\uFEFF', // Zero Width No-Break Space (BOM)
-      '\u2060', // Word Joiner
-      '\u180E', // Mongolian Vowel Separator
-      '\u200E', // Left-to-Right Mark
-      '\u200F', // Right-to-Left Mark
-      '\u202A', // Left-to-Right Embedding
-      '\u202B', // Right-to-Left Embedding
-      '\u202C', // Pop Directional Formatting
-      '\u202D', // Left-to-Right Override
-      '\u202E', // Right-to-Left Override
-      '\u2066', // Left-to-Right Isolate
-      '\u2067', // Right-to-Left Isolate
-      '\u2068', // First Strong Isolate
-      '\u2069', // Pop Directional Isolate
-    ];
-
-    const zeroWidthRegex = new RegExp(`[${zeroWidthChars.join('')}]`, 'g');
-
-    // Cuneiform Unicode block (U+12000 to U+123FF) - used in "Unicode bomb" DOS attacks
-    const cuneiformRegex = /[\u{12000}-\u{123FF}]/gu;
-
-    if (name && zeroWidthRegex.test(name)) {
-      return {
-        isValid: false,
-        error: 'Name contains zero-width Unicode characters which are not allowed for security reasons.',
-      };
-    }
-
-    if (description && zeroWidthRegex.test(description)) {
-      return {
-        isValid: false,
-        error: 'Description contains zero-width Unicode characters which are not allowed for security reasons.',
-      };
-    }
-
-    // Check for Cuneiform characters
-    if (name && cuneiformRegex.test(name)) {
-      return {
-        isValid: false,
-        error: 'Name contains Cuneiform Unicode characters which are not allowed for security reasons.',
-      };
-    }
-
-    if (description && cuneiformRegex.test(description)) {
-      return {
-        isValid: false,
-        error: 'Description contains Cuneiform Unicode characters which are not allowed for security reasons.',
-      };
-    }
-
-    return { isValid: true };
   }
 }
 
