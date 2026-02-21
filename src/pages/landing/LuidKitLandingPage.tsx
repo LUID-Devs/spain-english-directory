@@ -145,11 +145,11 @@ const LuidKitLandingPage = () => {
           <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-gray-300 via-gray-100 to-gray-300 bg-clip-text text-transparent mb-6">
             LuidKit
           </h1>
-          <p className="text-xl text-gray-200 mb-4 max-w-2xl mx-auto">
-            Convert any file to any format. Fast, secure, and completely free to start.
+          <p className="text-xl md:text-2xl text-gray-200 mb-4 max-w-2xl mx-auto font-medium">
+            The file converter that actually respects your privacy.
           </p>
-          <p className="text-sm text-neutral-500 mb-8">
-            50+ formats supported. No software installation. Privacy guaranteed.
+          <p className="text-base text-neutral-400 mb-8 max-w-xl mx-auto">
+            No ads. No tracking. No sketchy data practices. Just fast, reliable file conversion—because your files are none of our business.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10">
@@ -195,7 +195,7 @@ const LuidKitLandingPage = () => {
             <p className="text-sm text-neutral-500 mb-2">Universal Compatibility</p>
             <h2 className="text-3xl font-semibold">50+ File Formats Supported</h2>
             <p className="text-sm text-neutral-500 mt-2 max-w-xl mx-auto">
-              Convert between documents, images, spreadsheets, presentations, and more.
+              Documents, images, spreadsheets, presentations, code files—convert whatever you need, whenever you need it.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -226,9 +226,9 @@ const LuidKitLandingPage = () => {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-10">
             <p className="text-sm text-neutral-500 mb-2">Why LuidKit</p>
-            <h2 className="text-3xl font-semibold">Built for Speed & Privacy</h2>
+            <h2 className="text-3xl font-semibold">Privacy-first by design</h2>
             <p className="text-sm text-neutral-500 mt-2 max-w-xl mx-auto">
-              No bloated software. No privacy concerns. Just fast, reliable file conversion.
+              While other converters harvest your data, we delete it. No accounts required, no tracking, no nonsense.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -307,7 +307,7 @@ const LuidKitLandingPage = () => {
             <div className="p-6 rounded-xl border border-indigo-500/40 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 text-left">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold">Pro</h3>
-                <span className="text-sm text-neutral-300">EUR 5 / month</span>
+                <span className="text-sm text-neutral-300">EUR 10 / month</span>
               </div>
               <p className="text-sm text-neutral-400 mt-2">For power users and professionals.</p>
               <ul className="mt-4 space-y-2 text-sm text-neutral-200">
@@ -356,8 +356,8 @@ const LuidKitLandingPage = () => {
       <section className="px-4 py-12 border-t border-neutral-900">
         <div className="max-w-2xl mx-auto text-center">
           <blockquote className="text-lg text-neutral-300 italic mb-4">
-            "I built LuidKit because I was tired of sketchy file converters that spam you with ads
-            or steal your data. This is clean, fast, and respects your privacy."
+            "I built LuidKit because I was tired of file converters that bombard you with ads,
+            install malware, or sell your data. This is clean, fast, and actually respects your privacy."
           </blockquote>
           <p className="text-sm text-neutral-500">— The Developer</p>
         </div>
