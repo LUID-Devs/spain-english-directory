@@ -118,11 +118,12 @@ function AppContent() {
 
           {/* Auth Routes */}
           <Route path="/auth/login" element={<LoginPage />} />
+          <Route path="/auth/sign-in" element={<Navigate to="/auth/login" replace />} />
           <Route path="/auth/register" element={<RegisterPage />} />
           <Route path="/auth/callback" element={<OAuthCallbackPage />} />
           <Route path="/auth/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/auth/reset-password" element={<ResetPasswordPage />} />
-          
+
           {/* Legacy redirect routes for SEO/backward compatibility */}
           <Route path="/login" element={<Navigate to="/auth/login" replace />} />
           <Route path="/register" element={<Navigate to="/auth/register" replace />} />
