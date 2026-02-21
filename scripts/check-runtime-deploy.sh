@@ -79,4 +79,38 @@ if ! grep -q '<div id="root"' /tmp/taskluid-auth-callback.html; then
   exit 1
 fi
 
+echo "[check:runtime] Verifying /robots.txt returns proper content (not SPA HTML)..."
+robots_http="$(curl -sS -o /tmp/taskluid-robots.txt -w '%{http_code}' "$PUBLIC_BASE_URL/robots.txt")"
+if [[ "$robots_http" != "200" ]]; then
+  echo "[check:runtime] $PUBLIC_BASE_URL/robots.txt returned HTTP $robots_http"
+  exit 1
+fi
+
+if grep -q '<div id="root"' /tmp/taskluid-robots.txt; then
+  echo "[check:runtime] /robots.txt returned SPA HTML instead of text content"
+  exit 1
+fi
+
+if ! grep -q '^User-agent:' /tmp/taskluid-robots.txt; then
+  echo "[check:runtime] /robots.txt does not contain expected 'User-agent:' directive"
+  exit 1
+fi
+
+echo "[check:runtime] Verifying /sitemap.xml returns proper content (not SPA HTML)..."
+sitemap_http="$(curl -sS -o /tmp/taskluid-sitemap.xml -w '%{http_code}' "$PUBLIC_BASE_URL/sitemap.xml")"
+if [[ "$sitemap_http" != "200" ]]; then
+  echo "[check:runtime] $PUBLIC_BASE_URL/sitemap.xml returned HTTP $sitemap_http"
+  exit 1
+fi
+
+if grep -q '<div id="root"' /tmp/taskluid-sitemap.xml; then
+  echo "[check:runtime] /sitemap.xml returned SPA HTML instead of XML content"
+  exit 1
+fi
+
+if ! grep -q '<urlset' /tmp/taskluid-sitemap.xml; then
+  echo "[check:runtime] /sitemap.xml does not contain expected '<urlset>' element"
+  exit 1
+fi
+
 echo "[check:runtime] OK"
