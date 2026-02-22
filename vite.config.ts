@@ -62,4 +62,9 @@ export default defineConfig({
   define: {
     global: 'globalThis',
   },
+  test: {
+    environment: 'node',
+    include: ['src/**/*.test.{ts,tsx}'],
+    exclude: ['e2e/**', 'dist/**', 'node_modules/**'],
+  },
 })

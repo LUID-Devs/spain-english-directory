@@ -4,13 +4,13 @@ import * as React from "react"
 import * as ProgressPrimitive from "@radix-ui/react-progress"
 
 import { cn } from "@/lib/utils"
+import { getProgressState } from "@/lib/progress"
 
 const Progress = React.forwardRef<
   React.ElementRef<typeof ProgressPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof ProgressPrimitive.Root>
->(({ className, value, ...props }, ref) => {
-  // Clamp value between 0 and 100, defaulting to 0 for undefined/null
-  const clampedValue = Math.min(100, Math.max(0, value ?? 0))
+>(({ className, value, max = 100, ...props }, ref) => {
+  const { clampedValue, percentage, max: safeMax } = getProgressState(value, max)
 
   return (
     <ProgressPrimitive.Root
@@ -19,11 +19,13 @@ const Progress = React.forwardRef<
         "relative h-2 w-full overflow-hidden rounded-full bg-secondary",
         className
       )}
+      value={clampedValue}
+      max={safeMax}
       {...props}
     >
       <ProgressPrimitive.Indicator
         className="h-full w-full flex-1 bg-primary transition-all"
-        style={{ transform: `translateX(-${100 - clampedValue}%)` }}
+        style={{ transform: `translateX(-${100 - percentage}%)` }}
       />
     </ProgressPrimitive.Root>
   )
