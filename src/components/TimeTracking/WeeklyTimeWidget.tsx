@@ -33,7 +33,7 @@ export const WeeklyTimeWidget: React.FC<WeeklyTimeWidgetProps> = ({ className })
       // Get logs from the last 7 days
       const endDate = new Date().toISOString();
       const startDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
-      const response = await apiService.getMyTimeLogs(startDate, endDate);
+      const response = await apiService.getMyTimeLogs({ startDate, endDate });
       
       setWeeklyData({
         totalMinutes: response.summary.totalMinutes,
