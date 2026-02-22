@@ -68,7 +68,7 @@ export function staticPrerenderPlugin(): Plugin {
           <div class="flex-1 flex items-center justify-center px-4 pt-14 pb-12">
             <div class="text-center max-w-3xl">
               <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neutral-900/80 border border-neutral-800 mb-6">
-                <span class="text-sm text-neutral-300">What's new: Simple pricing — Free + Pro (EUR 10/mo)</span>
+                <span class="text-sm text-neutral-300">What's new: Simple pricing — Free + Pro (€10/mo or €8/mo annually)</span>
               </div>
               <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neutral-900/80 border border-neutral-800 mb-6">
                 <span class="text-sm text-neutral-400">Made with love by an independent developer</span>
@@ -190,7 +190,7 @@ export function staticPrerenderPlugin(): Plugin {
                 <div class="p-6 rounded-xl border border-neutral-800 bg-neutral-900/50 text-left">
                   <div class="flex items-center justify-between">
                     <h3 class="text-lg font-semibold">Free</h3>
-                    <span class="text-sm text-neutral-400">EUR 0 / month</span>
+                    <span class="text-sm text-neutral-400">€0 / month</span>
                   </div>
                   <p class="text-sm text-neutral-400 mt-2">Perfect for personal task management.</p>
                   <ul class="mt-4 space-y-2 text-sm text-neutral-300">
@@ -202,7 +202,10 @@ export function staticPrerenderPlugin(): Plugin {
                 <div class="p-6 rounded-xl border border-indigo-500/40 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 text-left">
                   <div class="flex items-center justify-between">
                     <h3 class="text-lg font-semibold">TaskLuid Pro</h3>
-                    <span class="text-sm text-neutral-300">EUR 10 / month</span>
+                    <div class="text-right">
+                      <span class="text-sm text-neutral-300">€10 / month</span>
+                      <p class="text-xs text-emerald-400">or €8 / month annually</p>
+                    </div>
                   </div>
                   <p class="text-sm text-neutral-400 mt-2">Monthly credits and premium workflows.</p>
                   <ul class="mt-4 space-y-2 text-sm text-neutral-200">

@@ -1602,82 +1602,6 @@ class ApiService {
     return this.request<{ success: boolean; data: AutomationActionType[] }>('/api/automation/actions');
   }
 
-  // ==================== TIME TRACKING API ====================
-
-  async getTimeEstimate(taskId: number): Promise<{ taskId: number; estimate: TimeEstimate | null }> {
-    return this.request<{ taskId: number; estimate: TimeEstimate | null }>(`/api/tasks/${taskId}/time-estimate`);
-  }
-
-  async setTimeEstimate(taskId: number, estimate: string): Promise<{ success: boolean; estimate: TimeEstimate }> {
-    return this.request<{ success: boolean; estimate: TimeEstimate }>(`/api/tasks/${taskId}/time-estimate`, {
-      method: 'POST',
-      body: JSON.stringify({ estimate }),
-    });
-  }
-
-  async deleteTimeEstimate(taskId: number): Promise<{ success: boolean; message: string }> {
-    return this.request<{ success: boolean; message: string }>(`/api/tasks/${taskId}/time-estimate`, {
-      method: 'DELETE',
-    });
-  }
-
-  async getTimeLogs(taskId: number): Promise<TimeLogsResponse> {
-    return this.request<TimeLogsResponse>(`/api/tasks/${taskId}/time-logs`);
-  }
-
-  async startTimer(taskId: number, description?: string): Promise<{ success: boolean; timeLog: TimeLog }> {
-    return this.request<{ success: boolean; timeLog: TimeLog }>(`/api/tasks/${taskId}/time-logs/start`, {
-      method: 'POST',
-      body: JSON.stringify({ description }),
-    });
-  }
-
-  async stopTimer(logId: number): Promise<{ success: boolean; timeLog: TimeLog }> {
-    return this.request<{ success: boolean; timeLog: TimeLog }>(`/api/time-logs/${logId}/stop`, {
-      method: 'POST',
-    });
-  }
-
-  async updateTimeLog(logId: number, updates: { description?: string; durationMinutes?: number }): Promise<{ success: boolean; timeLog: TimeLog }> {
-    return this.request<{ success: boolean; timeLog: TimeLog }>(`/api/time-logs/${logId}`, {
-      method: 'PUT',
-      body: JSON.stringify(updates),
-    });
-  }
-
-  async deleteTimeLog(logId: number): Promise<{ success: boolean; message: string }> {
-    return this.request<{ success: boolean; message: string }>(`/api/time-logs/${logId}`, {
-      method: 'DELETE',
-    });
-  }
-
-  async getMyTimeLogs(params?: { startDate?: string; endDate?: string; taskId?: number }): Promise<{
-    logs: TimeLog[];
-    summary: { totalMinutes: number; totalFormatted: string; count: number };
-  }> {
-    const queryParams = new URLSearchParams();
-    if (params?.startDate) queryParams.append('startDate', params.startDate);
-    if (params?.endDate) queryParams.append('endDate', params.endDate);
-    if (params?.taskId) queryParams.append('taskId', params.taskId.toString());
-
-    return this.request<{
-      logs: TimeLog[];
-      summary: { totalMinutes: number; totalFormatted: string; count: number };
-    }>(`/api/users/me/time-logs?${queryParams.toString()}`);
-  }
-
-  async getActiveTimer(): Promise<ActiveTimer> {
-    return this.request<ActiveTimer>('/api/users/me/active-timer');
-  }
-
-  async getProjectTimeReport(projectId: number, params?: { startDate?: string; endDate?: string }): Promise<ProjectTimeReport> {
-    const queryParams = new URLSearchParams();
-    if (params?.startDate) queryParams.append('startDate', params.startDate);
-    if (params?.endDate) queryParams.append('endDate', params.endDate);
-
-    return this.request<ProjectTimeReport>(`/api/projects/${projectId}/time-reports?${queryParams.toString()}`);
-  }
-
   // ==================== ANALYTICS API ====================
 
   async getTeamVelocity(teamId: number, cycles?: number): Promise<TeamVelocityResponse> {
@@ -1843,6 +1767,13 @@ class ApiService {
     });
   }
 
+  async updateTimeLog(logId: number, updates: { description?: string; durationMinutes?: number }): Promise<{ success: boolean; timeLog: TimeLog }> {
+    return this.request<{ success: boolean; timeLog: TimeLog }>(`/api/time-tracking/time-logs/${logId}`, {
+      method: 'PUT',
+      body: JSON.stringify(updates),
+    });
+  }
+
   async deleteTimeLog(logId: number): Promise<{ success: boolean; message: string }> {
     return this.request<{ success: boolean; message: string }>(`/api/time-tracking/time-logs/${logId}`, {
       method: 'DELETE',
@@ -1878,104 +1809,6 @@ class ApiService {
     if (!response.ok) throw new Error('Failed to export time report');
     return response.blob();
   }
-
-  // ==================== TIME TRACKING API ====================
-
-  async startTimer(taskId: number, description?: string): Promise<{ success: boolean; timeLog: TimeLog }> {
-    return this.request<{ success: boolean; timeLog: TimeLog }>(`/api/tasks/${taskId}/time-logs/start`, {
-      method: 'POST',
-      body: JSON.stringify({ description }),
-    });
-  }
-
-  async stopTimer(logId: number): Promise<{ success: boolean; timeLog: TimeLog }> {
-    return this.request<{ success: boolean; timeLog: TimeLog }>(`/api/time-logs/${logId}/stop`, {
-      method: 'POST',
-    });
-  }
-
-  async getTimeLogs(taskId: number): Promise<TimeLogsResponse> {
-    return this.request<TimeLogsResponse>(`/api/tasks/${taskId}/time-logs`);
-  }
-
-  async getActiveTimer(): Promise<ActiveTimer> {
-    return this.request<ActiveTimer>('/api/users/me/active-timer');
-  }
-
-  async setTimeEstimate(taskId: number, estimate: string): Promise<{ success: boolean; estimate: TimeEstimate }> {
-    return this.request<{ success: boolean; estimate: TimeEstimate }>(`/api/tasks/${taskId}/time-estimate`, {
-      method: 'POST',
-      body: JSON.stringify({ estimate }),
-    });
-  }
-
-  async getTimeEstimate(taskId: number): Promise<{ taskId: number; estimate: TimeEstimate | null }> {
-    return this.request<{ taskId: number; estimate: TimeEstimate | null }>(`/api/tasks/${taskId}/time-estimate`);
-  }
-
-  async deleteTimeEstimate(taskId: number): Promise<{ success: boolean; message: string }> {
-    return this.request<{ success: boolean; message: string }>(`/api/tasks/${taskId}/time-estimate`, {
-      method: 'DELETE',
-    });
-  }
-
-  async deleteTimeLog(logId: number): Promise<{ success: boolean; message: string }> {
-    return this.request<{ success: boolean; message: string }>(`/api/time-logs/${logId}`, {
-      method: 'DELETE',
-    });
-  }
-
-  async getProjectTimeReport(projectId: number, params?: { startDate?: string; endDate?: string; groupBy?: string }): Promise<ProjectTimeReport> {
-    const queryParams = new URLSearchParams();
-    if (params?.startDate) queryParams.append('startDate', params.startDate);
-    if (params?.endDate) queryParams.append('endDate', params.endDate);
-    if (params?.groupBy) queryParams.append('groupBy', params.groupBy);
-    const queryString = queryParams.toString();
-    return this.request<ProjectTimeReport>(`/api/projects/${projectId}/time-report${queryString ? `?${queryString}` : ''}`);
-  }
-
-  async exportTimeReport(projectId: number, params?: { startDate?: string; endDate?: string; format?: 'csv' | 'json' }): Promise<Blob> {
-    const queryParams = new URLSearchParams();
-    if (params?.startDate) queryParams.append('startDate', params.startDate);
-    if (params?.endDate) queryParams.append('endDate', params.endDate);
-    if (params?.format) queryParams.append('format', params.format);
-    const queryString = queryParams.toString();
-
-    const url = `${this.baseUrl}/api/projects/${projectId}/time-report/export${queryString ? `?${queryString}` : ''}`;
-
-    // Get Cognito access token if available
-    const authHeader: Record<string, string> = {};
-    try {
-      const { fetchAuthSession } = await import('aws-amplify/auth');
-      const session = await fetchAuthSession();
-      if (session?.tokens?.accessToken) {
-        authHeader['Authorization'] = `Bearer ${session.tokens.accessToken}`;
-      }
-      if (session?.tokens?.idToken) {
-        authHeader['X-ID-Token'] = `${session.tokens.idToken}`;
-      }
-    } catch (error) {
-      // No Cognito session available
-    }
-
-    // Add organization context header if available
-    const activeOrgId = localStorage.getItem('activeOrganizationId');
-    if (activeOrgId) {
-      authHeader['X-Organization-Id'] = activeOrgId;
-    }
-
-    const response = await fetch(url, {
-      credentials: 'include',
-      headers: authHeader,
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to export time report: ${response.status} ${response.statusText}`);
-    }
-
-    return response.blob();
-  }
-
 
 }
 

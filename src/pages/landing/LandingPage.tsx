@@ -150,7 +150,7 @@ const LandingPage = () => {
           {/* What's New */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neutral-900/80 border border-neutral-800 mb-6">
             <BadgeCheck className="w-4 h-4 text-emerald-400" />
-            <span className="text-sm text-neutral-300">What&apos;s new: Simple pricing — Free + Pro (EUR 10/mo)</span>
+            <span className="text-sm text-neutral-300">What&apos;s new: Simple pricing — Free + Pro (€10/mo or €8/mo annually)</span>
           </div>
 
           {/* Trust Badge */}
@@ -529,7 +529,7 @@ const LandingPage = () => {
             <div className="p-6 rounded-xl border border-neutral-800 bg-neutral-900/50 text-left">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold">Free</h3>
-                <span className="text-sm text-neutral-400">EUR 0 / month</span>
+                <span className="text-sm text-neutral-400">€0 / month</span>
               </div>
               <p className="text-sm text-neutral-400 mt-2">Perfect for personal task management.</p>
               <ul className="mt-4 space-y-2 text-sm text-neutral-300">
@@ -541,7 +541,10 @@ const LandingPage = () => {
             <div className="p-6 rounded-xl border border-indigo-500/40 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 text-left">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold">TaskLuid Pro</h3>
-                <span className="text-sm text-neutral-300">EUR 10 / month</span>
+                <div className="text-right">
+                  <span className="text-sm text-neutral-300">€10 / month</span>
+                  <p className="text-xs text-emerald-400">or €8 / month annually</p>
+                </div>
               </div>
               <p className="text-sm text-neutral-400 mt-2">Monthly credits and premium workflows.</p>
               <ul className="mt-4 space-y-2 text-sm text-neutral-200">

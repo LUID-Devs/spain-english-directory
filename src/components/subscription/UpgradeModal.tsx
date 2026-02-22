@@ -101,7 +101,7 @@ export function UpgradeModal({
             </Button>
 
             <p className="text-xs text-muted-foreground text-center">
-              EUR 10/month - TaskLuid Pro
+              €10/month (or €8/month annually) - TaskLuid Pro
             </p>
 
             <Button
