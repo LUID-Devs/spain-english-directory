@@ -4,6 +4,24 @@ All notable changes to TaskLuid Web will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+- **Pricing Page** - Complete pricing page with annual plans and feature comparison (Task #930)
+  - Monthly and annual billing toggle with 20% discount
+  - Side-by-side feature comparison table
+  - Plan cards: Free, Pro ($12/mo), Team ($49/mo), Enterprise (custom)
+  - FAQ section addressing common pricing questions
+  - Call-to-action buttons for each plan
+  - Responsive design with gradient accents
+  - Task: #930 (Cletus)
+
+- **Social Proof & Trust Signals** - Enhanced landing page credibility (Task #949)
+  - Client logos showcase (Acme Corp, Globex, Initech, etc.)
+  - Testimonials section with star ratings
+  - "Trusted by X teams" statistics
+  - "As seen on" media badges
+  - Trust badge components for security/privacy
+  - Task: #949 (Cletus)
+
 ### Security
 - **XSS Sanitization** - Applied sanitization to all dangerouslySetInnerHTML usage (Task #617)
   - Task descriptions sanitized via `sanitizeHtmlContent()` in TaskDetailPage

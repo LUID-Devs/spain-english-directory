@@ -1,3 +1,5 @@
+import { validateTaskContent, validateProjectContent, validateCommentContent, validateGoalContent, validateStatusContent, validateNoZeroWidthChars } from '../lib/validation';
+
 // Types (moved from old api.ts)
 export interface Project {
   id: string;
@@ -253,6 +255,54 @@ export interface AIStatusResponse {
   };
 }
 
+// AI Natural Language Filter Types
+export interface ParsedSearchFilter {
+  query: {
+    text?: string;
+    status?: string[];
+    priority?: string[];
+    assignee?: string[];
+    project?: string[];
+    tags?: string[];
+    dueDate?: {
+      from?: string;
+      to?: string;
+    };
+    created?: {
+      from?: string;
+      to?: string;
+    };
+    updated?: {
+      from?: string;
+      to?: string;
+    };
+  };
+  sort?: {
+    field: string;
+    direction: 'asc' | 'desc';
+  };
+  confidence: {
+    overall: number;
+    status: number;
+    priority: number;
+    assignee: number;
+    date: number;
+  };
+  interpretedQuery: string;
+}
+
+export interface AIParseSearchFilterResponse {
+  success: boolean;
+  data?: ParsedSearchFilter;
+  error?: {
+    message: string;
+    code: string;
+  };
+  creditsUsed?: number;
+  remainingCredits?: number;
+  processingTime?: number;
+}
+
 
 // ==================== ANALYTICS TYPES ====================
 
@@ -376,6 +426,14 @@ class ApiService {
   constructor() {
     this.baseUrl = import.meta.env.VITE_API_BASE_URL || '';
   }
+
+  // Import validation functions from validation.ts to avoid code duplication
+  private validateTaskContent = validateTaskContent;
+  private validateProjectContent = validateProjectContent;
+  private validateCommentContent = validateCommentContent;
+  private validateGoalContent = validateGoalContent;
+  private validateStatusContent = validateStatusContent;
+  private validateNoZeroWidthChars = validateNoZeroWidthChars;
 
   private async getAuthHeaders(): Promise<Record<string, string>> {
     const authHeader: Record<string, string> = {};
@@ -533,6 +591,14 @@ class ApiService {
   }
 
   async createProject(project: Partial<Project>): Promise<Project> {
+    // Validate for zero-width characters to prevent visual spoofing
+    if (project.name) {
+      const { isValid, error } = this.validateProjectContent(project.name, project.description);
+      if (!isValid) {
+        throw new Error(error);
+      }
+    }
+
     return this.request<Project>('/projects', {
       method: 'POST',
       body: JSON.stringify(project),
@@ -545,6 +611,14 @@ class ApiService {
   }
 
   async updateProject(id: string, project: Partial<Project>): Promise<Project> {
+    // Validate for zero-width characters if name or description is being updated
+    if (project.name !== undefined || project.description !== undefined) {
+      const { isValid, error } = this.validateProjectContent(project.name, project.description);
+      if (!isValid) {
+        throw new Error(error);
+      }
+    }
+
     return this.request<Project>(`/projects/${id}`, {
       method: 'PUT',
       body: JSON.stringify(project),
@@ -589,6 +663,12 @@ class ApiService {
   }
 
   async createStatus(projectId: number, data: { name: string; color?: string }): Promise<TaskStatus> {
+    // Validate for zero-width characters in status name
+    const { isValid, error } = this.validateStatusContent(data.name);
+    if (!isValid) {
+      throw new Error(error);
+    }
+
     return this.request<TaskStatus>(`/projects/${projectId}/statuses`, {
       method: 'POST',
       body: JSON.stringify(data),
@@ -596,6 +676,14 @@ class ApiService {
   }
 
   async updateStatus(projectId: number, statusId: number, data: { name?: string; color?: string; order?: number }): Promise<TaskStatus> {
+    // Validate for zero-width characters if name is being updated
+    if (data.name !== undefined) {
+      const { isValid, error } = this.validateStatusContent(data.name);
+      if (!isValid) {
+        throw new Error(error);
+      }
+    }
+
     return this.request<TaskStatus>(`/projects/${projectId}/statuses/${statusId}`, {
       method: 'PUT',
       body: JSON.stringify(data),
@@ -645,6 +733,14 @@ class ApiService {
   }
 
   async createTask(task: Partial<Task>): Promise<Task> {
+    // Validate for zero-width characters to prevent visual spoofing
+    if (task.title) {
+      const { isValid, error } = this.validateTaskContent(task.title, task.description);
+      if (!isValid) {
+        throw new Error(error);
+      }
+    }
+
     return this.request<Task>('/tasks', {
       method: 'POST',
       body: JSON.stringify(task),
@@ -652,6 +748,14 @@ class ApiService {
   }
 
   async updateTask(taskId: number, task: Partial<Task>): Promise<Task> {
+    // Validate for zero-width characters if title or description is being updated
+    if (task.title !== undefined || task.description !== undefined) {
+      const { isValid, error } = this.validateTaskContent(task.title, task.description);
+      if (!isValid) {
+        throw new Error(error);
+      }
+    }
+
     return this.request<Task>(`/tasks/${taskId}`, {
       method: 'PUT',
       body: JSON.stringify(task),
@@ -718,6 +822,12 @@ class ApiService {
   }
 
   async createComment(taskId: number, text: string, userId: number, imageUrl?: string): Promise<Comment> {
+    // Validate for zero-width characters in comment text
+    const { isValid, error } = this.validateCommentContent(text);
+    if (!isValid) {
+      throw new Error(error);
+    }
+
     return this.request<Comment>(`/tasks/${taskId}/comments`, {
       method: 'POST',
       body: JSON.stringify({ text, userId, imageUrl }),
@@ -732,6 +842,12 @@ class ApiService {
   }
 
   async updateComment(commentId: number, text: string, userId: number): Promise<Comment> {
+    // Validate for zero-width characters in comment text
+    const { isValid, error } = this.validateCommentContent(text);
+    if (!isValid) {
+      throw new Error(error);
+    }
+
     return this.request<Comment>(`/comments/${commentId}`, {
       method: 'PUT',
       body: JSON.stringify({ text, userId }),
@@ -1023,6 +1139,24 @@ class ApiService {
     });
   }
 
+  // AI Natural Language Filter
+  async parseSearchFilterWithAI(
+    text: string,
+    availableProjects?: string[],
+    availableLabels?: string[],
+    teamMembers?: string[]
+  ): Promise<AIParseSearchFilterResponse> {
+    return this.request<AIParseSearchFilterResponse>('/api/ai/parse-search-filter', {
+      method: 'POST',
+      body: JSON.stringify({
+        text,
+        availableProjects,
+        availableLabels,
+        teamMembers,
+      }),
+    });
+  }
+
   // Agents
   async getAgents(): Promise<Agent[]> {
     return this.request<Agent[]>('/agents');
@@ -1195,6 +1329,14 @@ class ApiService {
   }
 
   async createGoal(goal: Partial<Goal>): Promise<Goal> {
+    // Validate for zero-width characters to prevent visual spoofing
+    if (goal.title !== undefined || goal.description !== undefined) {
+      const { isValid, error } = this.validateGoalContent(goal.title, goal.description);
+      if (!isValid) {
+        throw new Error(error);
+      }
+    }
+
     const response = await this.request<{ success: boolean; goal: Goal; message: string }>('/goals', {
       method: 'POST',
       body: JSON.stringify(goal),
@@ -1203,6 +1345,14 @@ class ApiService {
   }
 
   async updateGoal(goalId: number, data: Partial<Goal>): Promise<Goal> {
+    // Validate for zero-width characters if title or description is being updated
+    if (data.title !== undefined || data.description !== undefined) {
+      const { isValid, error } = this.validateGoalContent(data.title, data.description);
+      if (!isValid) {
+        throw new Error(error);
+      }
+    }
+
     const response = await this.request<{ success: boolean; goal: Goal }>(`/goals/${goalId}`, {
       method: 'PUT',
       body: JSON.stringify(data),
@@ -1556,698 +1706,277 @@ class ApiService {
   // ==================== BULK OPERATIONS ====================
 
   async bulkUpdateTasks(taskIds: number[], updates: Partial<Task>): Promise<{ success: boolean; updatedCount: number }> {
+    // Validate for zero-width characters if title or description is being updated
+    if (updates.title !== undefined || updates.description !== undefined) {
+      const { isValid, error } = this.validateTaskContent(updates.title, updates.description);
+      if (!isValid) {
+        throw new Error(error);
+      }
+    }
+
     return this.request<{ success: boolean; updatedCount: number }>('/tasks/bulk/update', {
       method: 'PATCH',
       body: JSON.stringify({ taskIds, updates }),
     });
   }
+
+  // ==================== FORM TEMPLATES API ====================
+
+  async getFormTemplates(organizationId: number, includeSystem = true, isActive?: boolean): Promise<{ templates: FormTemplate[] }> {
+    const params = new URLSearchParams();
+    params.append('includeSystem', includeSystem.toString());
+    if (isActive !== undefined) params.append('isActive', isActive.toString());
+    return this.request<{ templates: FormTemplate[] }>(`/api/organizations/${organizationId}/form-templates?${params.toString()}`);
+  }
+
+  async getFormTemplate(templateId: number): Promise<{ template: FormTemplate }> {
+    return this.request<{ template: FormTemplate }>(`/api/form-templates/${templateId}`);
+  }
+
+  async createFormTemplate(organizationId: number, data: CreateFormTemplateRequest): Promise<{ template: FormTemplate }> {
+    return this.request<{ template: FormTemplate }>(`/api/organizations/${organizationId}/form-templates`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateFormTemplate(templateId: number, data: UpdateFormTemplateRequest): Promise<{ template: FormTemplate }> {
+    return this.request<{ template: FormTemplate }>(`/api/form-templates/${templateId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteFormTemplate(templateId: number): Promise<{ message: string }> {
+    return this.request<{ message: string }>(`/api/form-templates/${templateId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async assignTemplateToProjects(templateId: number, projectIds: number[]): Promise<{ assignments: FormTemplateProjectAssignment[] }> {
+    return this.request<{ assignments: FormTemplateProjectAssignment[] }>(`/api/form-templates/${templateId}/assign-projects`, {
+      method: 'POST',
+      body: JSON.stringify({ projectIds }),
+    });
+  }
+
+  async applyTemplate(templateId: number, data: ApplyTemplateRequest): Promise<{ task: Task }> {
+    return this.request<{ task: Task }>(`/api/form-templates/${templateId}/apply`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  // Form Fields
+  async createFormField(templateId: number, data: CreateFormFieldRequest): Promise<{ field: FormField }> {
+    return this.request<{ field: FormField }>(`/api/form-templates/${templateId}/fields`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateFormField(fieldId: number, data: UpdateFormFieldRequest): Promise<{ field: FormField }> {
+    return this.request<{ field: FormField }>(`/api/form-fields/${fieldId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteFormField(fieldId: number): Promise<{ message: string }> {
+    return this.request<{ message: string }>(`/api/form-fields/${fieldId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async reorderFormFields(templateId: number, fieldOrders: { id: number; order: number }[]): Promise<{ fields: FormField[] }> {
+    return this.request<{ fields: FormField[] }>(`/api/form-templates/${templateId}/fields/reorder`, {
+      method: 'POST',
+      body: JSON.stringify({ fieldOrders }),
+    });
+  }
+
+  // Task Custom Field Values
+  async getTaskCustomFieldValues(taskId: number): Promise<{ values: TaskCustomFieldValue[] }> {
+    return this.request<{ values: TaskCustomFieldValue[] }>(`/api/tasks/${taskId}/custom-fields`);
+  }
+
+  async updateTaskCustomFieldValues(taskId: number, customFields: Record<string, any>): Promise<{ values: TaskCustomFieldValue[] }> {
+    return this.request<{ values: TaskCustomFieldValue[] }>(`/api/tasks/${taskId}/custom-fields`, {
+      method: 'PATCH',
+      body: JSON.stringify({ customFields }),
+    });
+  }
+
+  // ==================== TIME TRACKING API ====================
+
+  async getTimeEstimate(taskId: number): Promise<{ taskId: number; estimate: TimeEstimate | null }> {
+    return this.request<{ taskId: number; estimate: TimeEstimate | null }>(`/api/time-tracking/tasks/${taskId}/time-estimate`);
+  }
+
+  async setTimeEstimate(taskId: number, estimate: string): Promise<{ success: boolean; estimate: TimeEstimate }> {
+    return this.request<{ success: boolean; estimate: TimeEstimate }>(`/api/time-tracking/tasks/${taskId}/time-estimate`, {
+      method: 'POST',
+      body: JSON.stringify({ estimate }),
+    });
+  }
+
+  async deleteTimeEstimate(taskId: number): Promise<{ success: boolean; message: string }> {
+    return this.request<{ success: boolean; message: string }>(`/api/time-tracking/tasks/${taskId}/time-estimate`, {
+      method: 'DELETE',
+    });
+  }
+
+  async getTimeLogs(taskId: number): Promise<TimeLogsResponse> {
+    return this.request<TimeLogsResponse>(`/api/time-tracking/tasks/${taskId}/time-logs`);
+  }
+
+  async startTimer(taskId: number, description?: string): Promise<{ success: boolean; timeLog: TimeLog }> {
+    return this.request<{ success: boolean; timeLog: TimeLog }>(`/api/time-tracking/tasks/${taskId}/time-logs/start`, {
+      method: 'POST',
+      body: JSON.stringify({ description }),
+    });
+  }
+
+  async stopTimer(logId: number): Promise<{ success: boolean; timeLog: TimeLog }> {
+    return this.request<{ success: boolean; timeLog: TimeLog }>(`/api/time-tracking/time-logs/${logId}/stop`, {
+      method: 'POST',
+    });
+  }
+
+  async deleteTimeLog(logId: number): Promise<{ success: boolean; message: string }> {
+    return this.request<{ success: boolean; message: string }>(`/api/time-tracking/time-logs/${logId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async getMyTimeLogs(startDate?: string, endDate?: string, taskId?: number): Promise<{ logs: TimeLog[]; summary: { totalMinutes: number; totalFormatted: string; count: number } }> {
+    const params = new URLSearchParams();
+    if (startDate) params.append('startDate', startDate);
+    if (endDate) params.append('endDate', endDate);
+    if (taskId) params.append('taskId', taskId.toString());
+    return this.request<{ logs: TimeLog[]; summary: { totalMinutes: number; totalFormatted: string; count: number } }>(`/api/time-tracking/users/me/time-logs?${params.toString()}`);
+  }
+
+  async getActiveTimer(): Promise<ActiveTimer> {
+    return this.request<ActiveTimer>('/api/time-tracking/users/me/active-timer');
+  }
+
+  async getProjectTimeReport(projectId: number, startDate?: string, endDate?: string): Promise<ProjectTimeReport> {
+    const params = new URLSearchParams();
+    if (startDate) params.append('startDate', startDate);
+    if (endDate) params.append('endDate', endDate);
+    return this.request<ProjectTimeReport>(`/api/time-tracking/projects/${projectId}/time-reports?${params.toString()}`);
+  }
+
+  async exportProjectTimeReport(projectId: number, startDate?: string, endDate?: string): Promise<Blob> {
+    const params = new URLSearchParams();
+    if (startDate) params.append('startDate', startDate);
+    if (endDate) params.append('endDate', endDate);
+    const response = await fetch(`${this.baseUrl}/api/time-tracking/projects/${projectId}/time-reports/export?${params.toString()}`, {
+      headers: this.getHeaders(),
+    });
+    if (!response.ok) throw new Error('Failed to export time report');
+    return response.blob();
+  }
+
+  // ==================== TIME TRACKING API ====================
+
+  async startTimer(taskId: number, description?: string): Promise<{ success: boolean; timeLog: TimeLog }> {
+    return this.request<{ success: boolean; timeLog: TimeLog }>(`/api/tasks/${taskId}/time-logs/start`, {
+      method: 'POST',
+      body: JSON.stringify({ description }),
+    });
+  }
+
+  async stopTimer(logId: number): Promise<{ success: boolean; timeLog: TimeLog }> {
+    return this.request<{ success: boolean; timeLog: TimeLog }>(`/api/time-logs/${logId}/stop`, {
+      method: 'POST',
+    });
+  }
+
+  async getTimeLogs(taskId: number): Promise<TimeLogsResponse> {
+    return this.request<TimeLogsResponse>(`/api/tasks/${taskId}/time-logs`);
+  }
+
+  async getActiveTimer(): Promise<ActiveTimer> {
+    return this.request<ActiveTimer>('/api/users/me/active-timer');
+  }
+
+  async setTimeEstimate(taskId: number, estimate: string): Promise<{ success: boolean; estimate: TimeEstimate }> {
+    return this.request<{ success: boolean; estimate: TimeEstimate }>(`/api/tasks/${taskId}/time-estimate`, {
+      method: 'POST',
+      body: JSON.stringify({ estimate }),
+    });
+  }
+
+  async getTimeEstimate(taskId: number): Promise<{ taskId: number; estimate: TimeEstimate | null }> {
+    return this.request<{ taskId: number; estimate: TimeEstimate | null }>(`/api/tasks/${taskId}/time-estimate`);
+  }
+
+  async deleteTimeEstimate(taskId: number): Promise<{ success: boolean; message: string }> {
+    return this.request<{ success: boolean; message: string }>(`/api/tasks/${taskId}/time-estimate`, {
+      method: 'DELETE',
+    });
+  }
+
+  async deleteTimeLog(logId: number): Promise<{ success: boolean; message: string }> {
+    return this.request<{ success: boolean; message: string }>(`/api/time-logs/${logId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async getProjectTimeReport(projectId: number, params?: { startDate?: string; endDate?: string; groupBy?: string }): Promise<ProjectTimeReport> {
+    const queryParams = new URLSearchParams();
+    if (params?.startDate) queryParams.append('startDate', params.startDate);
+    if (params?.endDate) queryParams.append('endDate', params.endDate);
+    if (params?.groupBy) queryParams.append('groupBy', params.groupBy);
+    const queryString = queryParams.toString();
+    return this.request<ProjectTimeReport>(`/api/projects/${projectId}/time-report${queryString ? `?${queryString}` : ''}`);
+  }
+
+  async exportTimeReport(projectId: number, params?: { startDate?: string; endDate?: string; format?: 'csv' | 'json' }): Promise<Blob> {
+    const queryParams = new URLSearchParams();
+    if (params?.startDate) queryParams.append('startDate', params.startDate);
+    if (params?.endDate) queryParams.append('endDate', params.endDate);
+    if (params?.format) queryParams.append('format', params.format);
+    const queryString = queryParams.toString();
+
+    const url = `${this.baseUrl}/api/projects/${projectId}/time-report/export${queryString ? `?${queryString}` : ''}`;
+
+    // Get Cognito access token if available
+    const authHeader: Record<string, string> = {};
+    try {
+      const { fetchAuthSession } = await import('aws-amplify/auth');
+      const session = await fetchAuthSession();
+      if (session?.tokens?.accessToken) {
+        authHeader['Authorization'] = `Bearer ${session.tokens.accessToken}`;
+      }
+      if (session?.tokens?.idToken) {
+        authHeader['X-ID-Token'] = `${session.tokens.idToken}`;
+      }
+    } catch (error) {
+      // No Cognito session available
+    }
+
+    // Add organization context header if available
+    const activeOrgId = localStorage.getItem('activeOrganizationId');
+    if (activeOrgId) {
+      authHeader['X-Organization-Id'] = activeOrgId;
+    }
+
+    const response = await fetch(url, {
+      credentials: 'include',
+      headers: authHeader,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to export time report: ${response.status} ${response.statusText}`);
+    }
+
+    return response.blob();
+  }
+
+
 }
 
 export const apiService = new ApiService();
-
-// ==================== GOAL TYPES ====================
-
-export interface Goal {
-  id: number;
-  title: string;
-  description?: string;
-  status: 'active' | 'completed' | 'archived';
-  priority: 'urgent' | 'high' | 'medium' | 'low';
-  progress: number;
-  calculatedProgress?: number; // Computed on backend to handle division by zero for goals with no linked tasks
-  startDate?: string;
-  targetDate?: string;
-  completedAt?: string;
-  organizationId: number;
-  projectId?: number;
-  parentGoalId?: number | null; // Parent goal for hierarchy (null = top-level)
-  templateId?: number;
-  createdBy: number;
-  createdAt: string;
-  updatedAt: string;
-  // Permission fields (Task #264)
-  goalType: 'company' | 'team' | 'individual';
-  visibility: 'public' | 'team' | 'private';
-  teamId?: number;
-  team?: {
-    id: number;
-    teamName: string;
-  };
-  project?: {
-    id: number;
-    name: string;
-  };
-  creator?: {
-    userId: number;
-    username: string;
-    profilePictureUrl?: string;
-  };
-  parentGoal?: {
-    id: number;
-    title: string;
-  } | null;
-  childGoals?: {
-    id: number;
-    title: string;
-    status: string;
-    progress: number;
-  }[];
-  template?: {
-    id: number;
-    name: string;
-  };
-  _count?: {
-    linkedTasks: number;
-    childGoals: number;
-  };
-  // Goal-Cycle Integration (Task #267)
-  linkedCycles?: {
-    cycle: {
-      id: number;
-      name: string;
-      status: string;
-      startDate: string;
-      endDate: string;
-    };
-    contributionWeight: number;
-  }[];
-}
-
-export interface GoalTemplate {
-  id: number;
-  name: string;
-  description?: string;
-  category: 'general' | 'sprint' | 'quarterly' | 'project' | 'personal';
-  defaultTitle?: string;
-  defaultDescription?: string;
-  defaultPriority: 'urgent' | 'high' | 'medium' | 'low';
-  defaultDurationDays?: number;
-  taskTemplates?: Array<{
-    title: string;
-    description?: string;
-    priority: string;
-    estimatedHours?: number;
-  }>;
-  isSystem: boolean;
-  isActive: boolean;
-  organizationId?: number;
-  createdBy?: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-// ==================== GOAL-CYCLE INTEGRATION TYPES (Task #267) ====================
-
-export interface LinkedCycle {
-  id: number;
-  name: string;
-  status: 'upcoming' | 'active' | 'completed' | 'cancelled';
-  startDate: string;
-  endDate: string;
-  contributionWeight: number;
-  progress: number;
-  totalTasks: number;
-  completedTasks: number;
-}
-
-export interface LinkedGoal {
-  id: number;
-  title: string;
-  status: 'active' | 'completed' | 'archived';
-  priority: 'urgent' | 'high' | 'medium' | 'low';
-  progress: number;
-  targetDate?: string;
-  goalType: 'company' | 'team' | 'individual';
-  visibility: 'public' | 'team' | 'private';
-  contributionWeight: number;
-}
-
-// ==================== WORKLOAD TYPES ====================
-
-export interface WorkloadSettings {
-  capacityMetric: 'task_count' | 'time_estimate' | 'story_points';
-  defaultCapacity: number;
-  warningThreshold: number;
-  dangerThreshold: number;
-  showUnassigned: boolean;
-  showOutOfOffice: boolean;
-}
-
-export interface WorkloadTask {
-  id: number;
-  title: string;
-  status: string;
-  priority: string;
-  projectName?: string;
-  dueDate?: string;
-}
-
-export interface WorkloadMember {
-  memberId: number;
-  username: string;
-  email: string;
-  profilePictureUrl?: string;
-  role: string;
-  capacity: number;
-  currentLoad: number;
-  capacityPercent: number;
-  status: 'green' | 'yellow' | 'red';
-  isOutOfOffice: boolean;
-  outOfOfficeUntil?: string;
-  hasConflict: boolean;
-  tasks: WorkloadTask[];
-}
-
-export interface WorkloadAlert {
-  type: 'overloaded' | 'warning' | 'out_of_office_conflict' | 'unassigned';
-  severity: 'danger' | 'warning' | 'info';
-  message: string;
-  userId?: number;
-  username?: string;
-  currentLoad?: number;
-  capacity?: number;
-  outOfOfficeUntil?: string;
-  count?: number;
-}
-
-export interface TeamWorkloadResponse {
-  success: boolean;
-  settings: WorkloadSettings;
-  members: WorkloadMember[];
-  unassigned: {
-    count: number;
-    tasks: WorkloadTask[];
-  };
-  summary: {
-    totalMembers: number;
-    overloadedMembers: number;
-    warningMembers: number;
-    outOfOfficeMembers: number;
-    unassignedTasks: number;
-    conflicts: number;
-  };
-}
-
-export interface WorkloadAlertsResponse {
-  success: boolean;
-  alerts: WorkloadAlert[];
-  summary: {
-    dangerCount: number;
-    warningCount: number;
-    infoCount: number;
-  };
-}
-
-// ==================== USER NOTIFICATIONS TYPES ====================
-
-export interface UserNotification {
-  id: number;
-  userId: number;
-  organizationId: number;
-  type: 'workload_overload' | 'workload_warning' | 'out_of_office_conflict' | 'task_reassigned' | 'task_assigned' | 'unassigned_tasks' | 'cycle_deadline' | string;
-  title: string;
-  message: string;
-  taskId?: number;
-  triggeredByUserId?: number;
-  read: boolean;
-  readAt?: string;
-  dismissed: boolean;
-  dismissedAt?: string;
-  delivered: boolean;
-  deliveredAt?: string;
-  metadata?: any;
-  createdAt: string;
-  updatedAt: string;
-  task?: {
-    id: number;
-    title: string;
-    status: string | null;
-    priority: string | null;
-  };
-  triggeredBy?: {
-    userId: number;
-    username: string;
-    profilePictureUrl?: string;
-  };
-}
-
-export interface NotificationSettings {
-  emailNotifications: boolean;
-  pushNotifications: boolean;
-  workloadAlerts: boolean;
-  taskAssignmentAlerts: boolean;
-  dailyDigest: boolean;
-  weeklyDigest: boolean;
-}
-
-// ==================== CYCLE TYPES ====================
-
-export type CycleStatus = 'upcoming' | 'active' | 'completed' | 'cancelled';
-
-export interface Cycle {
-  id: number;
-  teamId: number;
-  name: string;
-  description?: string;
-  startDate: string;
-  endDate: string;
-  status: CycleStatus;
-  cooldownEnabled: boolean;
-  autoCreated?: boolean;
-  startedAt?: string;
-  completedAt?: string;
-  cancelledAt?: string;
-  createdAt: string;
-  updatedAt: string;
-  taskCount?: number;
-}
-
-export interface CycleWithDetails extends Cycle {
-  tasks: {
-    id: number;
-    title: string;
-    status: string;
-    priority: string;
-    assignedUserId?: number;
-    points?: number;
-  }[];
-  team: {
-    id: number;
-    teamName: string;
-    cyclesEnabled: boolean;
-  };
-  stats: {
-    totalTasks: number;
-    completedTasks: number;
-    inProgressTasks: number;
-    todoTasks: number;
-    totalPoints: number;
-  };
-}
-
-export interface CycleSettings {
-  cyclesEnabled: boolean;
-  cycleDurationWeeks: number;
-  cycleStartDay: string;
-  cooldownDays: number;
-  upcomingCyclesCount: number;
-}
-
-export interface OverlappingCycle {
-  id: number;
-  name: string;
-  startDate: string;
-  endDate: string;
-}
-
-export interface CycleOverlapError {
-  message: string;
-  overlappingCycles: OverlappingCycle[];
-}
-
-// ==================== GIT LINK TYPES ====================
-
-export interface GitLink {
-  id: number;
-  taskId: number;
-  type: 'commit' | 'pull_request';
-  ref: string;
-  title: string;
-  message?: string;
-  url: string;
-  authorName: string;
-  authorUsername?: string;
-  authorAvatar?: string;
-  repository: string;
-  branch?: string;
-  prNumber?: number;
-  prState?: string;
-  prMergedAt?: string;
-  integrationConfigId?: number;
-  gitCreatedAt: string;
-  createdAt: string;
-}
-
-// ==================== ASANA INTEGRATION TYPES ====================
-
-export interface AsanaLink {
-  id: number;
-  taskId: number;
-  asanaTaskId: string;
-  asanaTaskName: string;
-  asanaProjectId?: string;
-  asanaProjectName?: string;
-  asanaWorkspaceId?: string;
-  asanaWorkspaceName?: string;
-  asanaPermalink?: string;
-  syncEnabled: boolean;
-  lastSyncedAt?: string;
-  syncDirection: 'to_asana' | 'from_asana' | 'bidirectional';
-  integrationConfigId?: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-// ==================== TIME TRACKING TYPES ====================
-
-export interface TimeLog {
-  id: number;
-  taskId: number;
-  userId: number;
-  startedAt: string;
-  endedAt?: string;
-  durationMinutes?: number;
-  durationFormatted?: string;
-  description?: string;
-  isRunning: boolean;
-  source?: string;
-  createdAt: string;
-  user?: {
-    userId: number;
-    username: string;
-    profilePictureUrl?: string;
-  };
-  task?: {
-    id: number;
-    title: string;
-    projectId: number;
-    project?: { name: string };
-  };
-}
-
-export interface TimeEstimate {
-  id: number;
-  taskId: number;
-  estimatedMinutes: number;
-  estimatedFormatted: string;
-  createdBy: number;
-  createdAt: string;
-  updatedAt: string;
-  user?: {
-    userId: number;
-    username: string;
-    profilePictureUrl?: string;
-  };
-}
-
-export interface ActiveTimer {
-  hasActiveTimer: boolean;
-  timer?: {
-    id: number;
-    taskId: number;
-    task?: {
-      id: number;
-      title: string;
-      projectId: number;
-      project?: { name: string };
-    };
-    startedAt: string;
-    elapsedMinutes: number;
-    elapsedFormatted: string;
-    description?: string;
-  };
-}
-
-export interface TimeLogsResponse {
-  taskId: number;
-  logs: TimeLog[];
-  summary: {
-    totalMinutes: number;
-    totalFormatted: string;
-    count: number;
-  };
-}
-
-export interface ProjectTimeReport {
-  projectId: number;
-  dateRange: { startDate?: string; endDate?: string };
-  summary: {
-    totalMinutes: number;
-    totalFormatted: string;
-    logCount: number;
-  };
-  byUser: Array<{
-    user: { userId: number; username: string; profilePictureUrl?: string };
-    totalMinutes: number;
-    totalFormatted: string;
-    logCount: number;
-  }>;
-  byTask: Array<{
-    task: { id: number; title: string; status: string };
-    totalMinutes: number;
-    totalFormatted: string;
-    logCount: number;
-  }>;
-  logs: TimeLog[];
-}
-
-// ==================== AUTOMATION TYPES ====================
-
-export interface AutomationTriggerType {
-  type: string;
-  name: string;
-  description: string;
-}
-
-export interface AutomationActionType {
-  type: string;
-  name: string;
-  description: string;
-}
-
-export interface TriggerConfig {
-  projectId?: number;
-  statusFrom?: string;
-  statusTo?: string;
-  priority?: string;
-  assignedToUserId?: number;
-  assignedToAgentId?: number;
-  dueDateHours?: number;
-}
-
-export interface ActionConfig {
-  // For notification.send
-  message?: string;
-  recipientAgentIds?: number[];
-  notifyAssigneeAgent?: boolean;
-  notifyAuthorAgent?: boolean;
-  
-  // For webhook.call
-  webhookUrl?: string;
-  headers?: Record<string, string>;
-  
-  // For task.status.update
-  newStatus?: string;
-  
-  // For task.assign
-  assignToAgentId?: number;
-  
-  // For task.comment.add
-  commentText?: string;
-  commentAsAgentId?: number;
-  
-  // For integration.send
-  integrationConfigId?: number;
-}
-
-export interface AutomationRule {
-  id: number;
-  organizationId: number;
-  name: string;
-  description?: string;
-  triggerType: string;
-  triggerConfig: TriggerConfig;
-  actionType: string;
-  actionConfig: ActionConfig;
-  isActive: boolean;
-  executionCount: number;
-  lastExecutedAt?: string;
-  errorCount: number;
-  lastError?: string;
-  createdBy: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface AutomationRuleWithExecutions extends AutomationRule {
-  executions: AutomationExecutionSummary[];
-}
-
-export interface AutomationExecutionSummary {
-  id: number;
-  status: string;
-  startedAt: string;
-  completedAt?: string;
-  error?: string;
-  durationMs?: number;
-}
-
-export interface AutomationExecution {
-  id: number;
-  ruleId: number;
-  taskId?: number;
-  triggerEvent: string;
-  triggerPayload: Record<string, any>;
-  status: 'pending' | 'running' | 'completed' | 'failed' | 'skipped';
-  result?: Record<string, any>;
-  error?: string;
-  startedAt: string;
-  completedAt?: string;
-  durationMs?: number;
-  rule: {
-    name: string;
-    triggerType: string;
-    actionType: string;
-  };
-}
-
-export interface CreateAutomationRuleRequest {
-  name: string;
-  description?: string;
-  triggerType: string;
-  triggerConfig: TriggerConfig;
-  actionType: string;
-  actionConfig: ActionConfig;
-  organizationId: number;
-}
-
-// ==================== TIMELINE TYPES ====================
-
-export type TimelineEventType = 
-  | 'task_assigned'
-  | 'task_started'
-  | 'task_completed'
-  | 'status_changed'
-  | 'commit_pushed'
-  | 'pr_opened'
-  | 'pr_merged'
-  | 'pr_closed'
-  | 'build_started'
-  | 'build_completed'
-  | 'deploy_started'
-  | 'deploy_completed'
-  | 'comment_added'
-  | 'agent_handoff';
-
-export type TimelineEventCategory = 'task' | 'git' | 'deployment' | 'ci' | 'system';
-
-export type ActorType = 'agent' | 'user' | 'system' | 'git';
-
-export interface TimelineEvent {
-  id: number;
-  organizationId: number;
-  taskId?: number;
-  projectId?: number;
-  eventType: TimelineEventType;
-  eventCategory: TimelineEventCategory;
-  actorType: ActorType;
-  actorId?: number;
-  actorName: string;
-  actorAvatar?: string;
-  title: string;
-  description?: string;
-  taskLink?: string;
-  prLink?: string;
-  commitLink?: string;
-  deploymentLink?: string;
-  commitSha?: string;
-  prNumber?: number;
-  branchName?: string;
-  status?: 'success' | 'failure' | 'pending' | 'in_progress';
-  metadata: Record<string, any>;
-  occurredAt: string;
-  createdAt: string;
-}
-
-export interface TimelineStats {
-  totalEvents: number;
-  eventsByCategory: Record<TimelineEventCategory, number>;
-  eventsByType: Record<string, number>;
-  topActors: { actorName: string; count: number }[];
-}
-
-// ==================== ROADMAP TYPES ====================
-
-export interface RoadmapProject {
-  id: number;
-  name: string;
-  description?: string;
-  startDate?: string;
-  endDate?: string;
-  healthStatus: 'on_track' | 'at_risk' | 'delayed' | 'unknown';
-  healthReason?: string;
-  taskStats: {
-    total: number;
-    completed: number;
-  };
-  milestones: Milestone[];
-  dependsOn: ProjectDependency[];
-}
-
-export interface Milestone {
-  id: number;
-  organizationId: number;
-  projectId?: number;
-  project?: {
-    id: number;
-    name: string;
-  };
-  name: string;
-  description?: string;
-  targetDate: string;
-  completedAt?: string;
-  status: 'upcoming' | 'at_risk' | 'missed' | 'completed';
-  healthStatus: 'on_track' | 'at_risk' | 'delayed';
-  healthReason?: string;
-  autoCalculate: boolean;
-  progress: number;
-  linkedTaskCount: number;
-  completedTaskCount: number;
-  linkedTasks?: {
-    id: number;
-    title: string;
-    status: string;
-  }[];
-  createdBy: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface ProjectDependency {
-  id: number;
-  dependentProjectId: number;
-  dependentProject?: {
-    id: number;
-    name: string;
-    startDate?: string;
-    endDate?: string;
-  };
-  dependencyProjectId: number;
-  dependencyProject?: {
-    id: number;
-    name: string;
-    startDate?: string;
-    endDate?: string;
-  };
-  dependencyType: 'finish_to_start' | 'start_to_start' | 'finish_to_finish' | 'start_to_finish';
-  lagDays: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface CreateMilestoneRequest {
-  organizationId: number;
-  projectId?: number;
-  name: string;
-  description?: string;
-  targetDate: string;
-  autoCalculate?: boolean;
-}
-
-export interface CreateDependencyRequest {
-  dependentProjectId: number;
-  dependencyProjectId: number;
-  dependencyType?: 'finish_to_start' | 'start_to_start' | 'finish_to_finish' | 'start_to_finish';
-  lagDays?: number;
-}
-
