@@ -581,13 +581,10 @@ class ApiService {
   }
 
   async createProject(project: Partial<Project>): Promise<Project> {
-    // Validate for zero-width characters to prevent visual spoofing
-    if (project.name !== undefined || project.description !== undefined) {
+    if (project.name) {
       const { validateProjectContent } = await import('../lib/validation');
       const { isValid, error } = validateProjectContent(project.name, project.description);
-      if (!isValid) {
-        throw new Error(error);
-      }
+      if (!isValid) throw new Error(error);
     }
 
     return this.request<Project>('/projects', {
