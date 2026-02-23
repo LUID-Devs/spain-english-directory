@@ -957,7 +957,7 @@ export function staticPrerenderPlugin(): Plugin {
           <!-- Footer -->
           <footer class="border-t border-neutral-800 py-6 px-4">
             <div class="max-w-4xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
-              <p class="text-sm text-neutral-500">&amp;copy; ${currentYear} LuidKit — Part of Luid Suite</p>
+              <p class="text-sm text-neutral-500">&copy; ${currentYear} LuidKit — Part of Luid Suite</p>
               <div class="flex gap-6 text-sm">
                 <a href="/privacy" class="text-neutral-400 hover:text-gray-400 transition-colors">Privacy Policy</a>
                 <a href="/terms" class="text-neutral-400 hover:text-gray-400 transition-colors">Terms of Service</a>
