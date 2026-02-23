@@ -663,7 +663,7 @@ const RegisterPage = () => {
             <motion.button
               type="submit"
               disabled={loading || !allRequirementsMet}
-              aria-label={loading ? "Creating account, please wait" : "Create account"}
+              aria-label={loading ? "Creating account, please wait" : "Create Account"}
               className="w-full px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-semibold rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-500/25 min-h-[48px]"
               whileHover={{ scale: allRequirementsMet ? 1.02 : 1, y: allRequirementsMet ? -2 : 0 }}
               whileTap={{ scale: allRequirementsMet ? 0.98 : 1 }}
@@ -675,7 +675,7 @@ const RegisterPage = () => {
                   <span>Creating account...</span>
                 </div>
               ) : (
-                <span>Create account</span>
+                <span>Create Account</span>
               )}
             </motion.button>
           </form>
