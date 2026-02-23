@@ -1,2 +1,2 @@
-export { EmptyState, type EmptyStateProps } from "./EmptyState";
-export { default } from "./EmptyState";
+export { EmptyState, type EmptyStateProps } from "./index";
+export { default } from "./index";
