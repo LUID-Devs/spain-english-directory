@@ -384,7 +384,7 @@ const ReusablePriorityPage = ({ priority }: Props) => {
                   Progress
                 </p>
                 <p className="text-2xl sm:text-3xl font-bold text-blue-600 dark:text-blue-400">
-                  {filteredTasks?.length > 0
+                  {filteredTasks && filteredTasks.length > 0
                     ? Math.round((filteredTasks.filter(task => task.status === 'Completed').length / filteredTasks.length) * 100)
                     : 0
                   }%
@@ -471,8 +471,8 @@ const ReusablePriorityPage = ({ priority }: Props) => {
                 </TableHeader>
                 <TableBody>
                   {filteredTasks?.map((task: Task) => {
-                    const statusBadge = getStatusBadge(task.status);
-                    const priorityBadge = getPriorityBadge(task.priority);
+                    const statusBadge = getStatusBadge(task.status || '');
+                    const priorityBadge = getPriorityBadge(task.priority || 'Low' as Priority);
                     const PriorityTaskIcon = priorityBadge.icon;
 
                     return (

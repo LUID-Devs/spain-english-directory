@@ -164,7 +164,7 @@ const LoginPage = () => {
         >
           {/* Header */}
           <div className="text-center mb-8">
-            <Link href="/" className="inline-block">
+            <Link to="/" className="inline-block">
               <motion.div
                 className="flex items-center justify-center gap-3 mb-4"
                 whileHover={{ scale: 1.05 }}
@@ -283,7 +283,7 @@ const LoginPage = () => {
       >
         {/* Header */}
         <div className="text-center mb-8">
-          <Link href="/" className="inline-block">
+          <Link to="/" className="inline-block">
             <motion.div
               className="flex items-center justify-center gap-3 mb-4"
               whileHover={{ scale: 1.05 }}
@@ -427,7 +427,7 @@ const LoginPage = () => {
           <div className="mt-6 text-center text-sm text-gray-400">
             Don&apos;t have an account?{" "}
             <Link
-              href="/auth/register"
+              to="/auth/register"
               className="text-gray-400 hover:text-gray-300 font-medium transition-colors duration-300"
             >
               Sign up

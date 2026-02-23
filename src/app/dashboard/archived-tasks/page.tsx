@@ -221,7 +221,7 @@ const ArchivedTasksPage = () => {
                         )}
                         {task.tags && (
                           <div className="flex flex-wrap gap-1 mt-2">
-                            {task.tags.split(",").map((tag, i) => (
+                            {task.tags.split(",").map((tag: string, i: number) => (
                               <Badge key={i} variant="outline" className="text-xs">
                                 {tag.trim()}
                               </Badge>

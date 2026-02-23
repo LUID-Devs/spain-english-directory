@@ -484,10 +484,10 @@ const TaskColumn = React.memo(({
               {tasksCount}{wipLimit !== Infinity && `/${wipLimit}`}
             </Badge>
             {isWipExceeded && (
-              <AlertCircle className="h-4 w-4 text-destructive" title="WIP limit exceeded!" />
+              <span title="WIP limit exceeded!"><AlertCircle className="h-4 w-4 text-destructive" /></span>
             )}
             {isWipWarning && !isWipExceeded && (
-              <AlertTriangle className="h-4 w-4 text-amber-500" title="Approaching WIP limit" />
+              <span title="Approaching WIP limit"><AlertTriangle className="h-4 w-4 text-amber-500" /></span>
             )}
           </div>
           <DropdownMenu>
