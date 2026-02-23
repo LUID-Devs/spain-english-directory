@@ -1605,48 +1605,48 @@ class ApiService {
   // ==================== TIME TRACKING API ====================
 
   async getTimeEstimate(taskId: number): Promise<{ taskId: number; estimate: TimeEstimate | null }> {
-    return this.request<{ taskId: number; estimate: TimeEstimate | null }>(`/api/tasks/${taskId}/time-estimate`);
+    return this.request<{ taskId: number; estimate: TimeEstimate | null }>(`/api/time-tracking/tasks/${taskId}/time-estimate`);
   }
 
   async setTimeEstimate(taskId: number, estimate: string): Promise<{ success: boolean; estimate: TimeEstimate }> {
-    return this.request<{ success: boolean; estimate: TimeEstimate }>(`/api/tasks/${taskId}/time-estimate`, {
+    return this.request<{ success: boolean; estimate: TimeEstimate }>(`/api/time-tracking/tasks/${taskId}/time-estimate`, {
       method: 'POST',
       body: JSON.stringify({ estimate }),
     });
   }
 
   async deleteTimeEstimate(taskId: number): Promise<{ success: boolean; message: string }> {
-    return this.request<{ success: boolean; message: string }>(`/api/tasks/${taskId}/time-estimate`, {
+    return this.request<{ success: boolean; message: string }>(`/api/time-tracking/tasks/${taskId}/time-estimate`, {
       method: 'DELETE',
     });
   }
 
   async getTimeLogs(taskId: number): Promise<TimeLogsResponse> {
-    return this.request<TimeLogsResponse>(`/api/tasks/${taskId}/time-logs`);
+    return this.request<TimeLogsResponse>(`/api/time-tracking/tasks/${taskId}/time-logs`);
   }
 
   async startTimer(taskId: number, description?: string): Promise<{ success: boolean; timeLog: TimeLog }> {
-    return this.request<{ success: boolean; timeLog: TimeLog }>(`/api/tasks/${taskId}/time-logs/start`, {
+    return this.request<{ success: boolean; timeLog: TimeLog }>(`/api/time-tracking/tasks/${taskId}/time-logs/start`, {
       method: 'POST',
       body: JSON.stringify({ description }),
     });
   }
 
   async stopTimer(logId: number): Promise<{ success: boolean; timeLog: TimeLog }> {
-    return this.request<{ success: boolean; timeLog: TimeLog }>(`/api/time-logs/${logId}/stop`, {
+    return this.request<{ success: boolean; timeLog: TimeLog }>(`/api/time-tracking/time-logs/${logId}/stop`, {
       method: 'POST',
     });
   }
 
   async updateTimeLog(logId: number, updates: { description?: string; durationMinutes?: number }): Promise<{ success: boolean; timeLog: TimeLog }> {
-    return this.request<{ success: boolean; timeLog: TimeLog }>(`/api/time-logs/${logId}`, {
+    return this.request<{ success: boolean; timeLog: TimeLog }>(`/api/time-tracking/time-logs/${logId}`, {
       method: 'PUT',
       body: JSON.stringify(updates),
     });
   }
 
   async deleteTimeLog(logId: number): Promise<{ success: boolean; message: string }> {
-    return this.request<{ success: boolean; message: string }>(`/api/time-logs/${logId}`, {
+    return this.request<{ success: boolean; message: string }>(`/api/time-tracking/time-logs/${logId}`, {
       method: 'DELETE',
     });
   }
@@ -1663,11 +1663,11 @@ class ApiService {
     return this.request<{
       logs: TimeLog[];
       summary: { totalMinutes: number; totalFormatted: string; count: number };
-    }>(`/api/users/me/time-logs?${queryParams.toString()}`);
+    }>(`/api/time-tracking/users/me/time-logs?${queryParams.toString()}`);
   }
 
   async getActiveTimer(): Promise<ActiveTimer> {
-    return this.request<ActiveTimer>('/api/users/me/active-timer');
+    return this.request<ActiveTimer>('/api/time-tracking/users/me/active-timer');
   }
 
   async getProjectTimeReport(projectId: number, params?: { startDate?: string; endDate?: string }): Promise<ProjectTimeReport> {
@@ -1675,7 +1675,7 @@ class ApiService {
     if (params?.startDate) queryParams.append('startDate', params.startDate);
     if (params?.endDate) queryParams.append('endDate', params.endDate);
 
-    return this.request<ProjectTimeReport>(`/api/projects/${projectId}/time-reports?${queryParams.toString()}`);
+    return this.request<ProjectTimeReport>(`/api/time-tracking/projects/${projectId}/time-reports?${queryParams.toString()}`);
   }
 
   // ==================== ANALYTICS API ====================
