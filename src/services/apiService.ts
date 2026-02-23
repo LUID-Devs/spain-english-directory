@@ -422,7 +422,8 @@ class ApiService {
   private baseUrl: string;
 
   constructor() {
-    this.baseUrl = import.meta.env.VITE_API_BASE_URL || '';
+    const rawBaseUrl = (import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || '').trim();
+    this.baseUrl = rawBaseUrl.replace(/\/$/, '');
   }
 
   private async getAuthHeaders(): Promise<Record<string, string>> {
