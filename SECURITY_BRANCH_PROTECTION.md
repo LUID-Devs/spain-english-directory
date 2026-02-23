@@ -38,9 +38,9 @@ This PR provides Infrastructure-as-Code (Terraform) and scripts to enforce branc
 
 Each repository's `main` branch will have:
 
-#### 1. Required Status Checks ✅
+#### 1. Required Status Checks ⚠️
 - **Strict updates**: Branches must be up-to-date before merging
-- **CI requirement**: All CI checks must pass
+- **CI requirement**: ❌ DISABLED - No CI workflow runs on PRs currently. When CI is added, this should be re-enabled.
 
 #### 2. Pull Request Reviews ✅
 - **Required approvals**: 1 minimum
@@ -112,11 +112,11 @@ Free private repositories do not support branch protection.
 After applying this configuration:
 
 1. ✅ All code changes require PR review
-2. ✅ CI must pass before merging
+2. ⚠️ CI checks are NOT required yet (no CI workflow on PRs) - **TODO: Add CI workflow and re-enable required checks**
 3. ✅ Admins cannot bypass rules
 4. ✅ Force pushes are blocked
 5. ✅ Accidental deletions are prevented
-6. ✅ Greptile warnings will block merges
+6. ✅ Greptile warnings will block merges (via required reviews)
 
 ---
 
