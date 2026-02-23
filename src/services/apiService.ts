@@ -582,7 +582,7 @@ class ApiService {
 
   async createProject(project: Partial<Project>): Promise<Project> {
     // Validate for zero-width characters to prevent visual spoofing
-    if (project.name) {
+    if (project.name !== undefined || project.description !== undefined) {
       const { validateProjectContent } = await import('../lib/validation');
       const { isValid, error } = validateProjectContent(project.name, project.description);
       if (!isValid) {
@@ -728,7 +728,7 @@ class ApiService {
 
   async createTask(task: Partial<Task>): Promise<Task> {
     // Validate for zero-width characters to prevent visual spoofing
-    if (task.title) {
+    if (task.title !== undefined || task.description !== undefined) {
       const { validateTaskContent } = await import('../lib/validation');
       const { isValid, error } = validateTaskContent(task.title, task.description);
       if (!isValid) {
