@@ -422,7 +422,35 @@ class ApiService {
   private baseUrl: string;
 
   constructor() {
-    this.baseUrl = import.meta.env.VITE_API_BASE_URL || '';
+    this.baseUrl = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
+  }
+
+  private resolveEndpoint(endpoint: string): string {
+    if (/^https?:\/\//i.test(endpoint)) {
+      return endpoint;
+    }
+
+    const baseUrl = this.baseUrl;
+    if (!baseUrl) {
+      return endpoint.startsWith('/api/') || endpoint.startsWith('/api?')
+        ? endpoint
+        : endpoint.startsWith('/')
+          ? `/api${endpoint}`
+          : `/api/${endpoint}`;
+    }
+
+    const baseHasApi = /\/api$/.test(baseUrl);
+    const endpointHasApi = endpoint.startsWith('/api/');
+
+    if (baseHasApi && endpointHasApi) {
+      return endpoint.replace(/^\/api/, '');
+    }
+
+    if (!baseHasApi && !endpointHasApi) {
+      return endpoint.startsWith('/') ? `/api${endpoint}` : `/api/${endpoint}`;
+    }
+
+    return endpoint;
   }
 
   private async getAuthHeaders(): Promise<Record<string, string>> {
@@ -452,7 +480,10 @@ class ApiService {
   }
 
   public async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-    const url = `${this.baseUrl}${endpoint}`;
+    const resolvedEndpoint = this.resolveEndpoint(endpoint);
+    const url = /^https?:\/\//i.test(resolvedEndpoint)
+      ? resolvedEndpoint
+      : `${this.baseUrl}${resolvedEndpoint}`;
 
     // Get Cognito access token and ID token if available
     const authHeader = await this.getAuthHeaders();
@@ -518,7 +549,10 @@ class ApiService {
 
 
   private async requestBlob(endpoint: string, options: RequestInit = {}): Promise<Blob> {
-    const url = `${this.baseUrl}${endpoint}`;
+    const resolvedEndpoint = this.resolveEndpoint(endpoint);
+    const url = /^https?:\/\//i.test(resolvedEndpoint)
+      ? resolvedEndpoint
+      : `${this.baseUrl}${resolvedEndpoint}`;
     const authHeader = await this.getAuthHeaders();
 
     const headers: Record<string, string> = {
@@ -873,7 +907,10 @@ class ApiService {
     formData: FormData,
     onProgress: (progress: number) => void
   ): Promise<Attachment> {
-    const url = `${this.baseUrl}/tasks/${taskId}/attachments`;
+    const resolvedEndpoint = this.resolveEndpoint(`/tasks/${taskId}/attachments`);
+    const url = /^https?:\/\//i.test(resolvedEndpoint)
+      ? resolvedEndpoint
+      : `${this.baseUrl}${resolvedEndpoint}`;
     const authHeader = await this.getAuthHeaders();
 
     return new Promise((resolve, reject) => {
