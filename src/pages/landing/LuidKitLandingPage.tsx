@@ -1,10 +1,7 @@
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  CheckCircle,
   Zap,
-  Shield,
-  Heart,
   FileText,
   Image,
   FileSpreadsheet,
@@ -14,7 +11,6 @@ import {
   Upload,
   Lock,
   Clock,
-  BadgeCheck,
   Globe,
   Server,
 } from 'lucide-react';
@@ -116,9 +112,9 @@ const LuidKitLandingPage = () => {
 
   // Trust points
   const trustPoints = [
-    { icon: Heart, text: 'Made with care by an indie developer' },
-    { icon: CheckCircle, text: 'No subscription traps, no hidden fees' },
-    { icon: Shield, text: 'Your files never leave secure servers' },
+    { icon: '♥', iconClass: 'text-rose-500', text: 'Made with care by an indie developer' },
+    { icon: '✓', iconClass: 'text-emerald-500', text: 'No subscription traps, no hidden fees' },
+    { icon: '🛡', iconClass: 'text-emerald-500', text: 'Your files never leave secure servers' },
   ];
 
   // Use cases
@@ -131,13 +127,13 @@ const LuidKitLandingPage = () => {
         <div className="text-center max-w-3xl">
           {/* What's New */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neutral-900/80 border border-neutral-800 mb-6">
-            <BadgeCheck className="w-4 h-4 text-emerald-400" />
+            <span className="w-4 h-4 text-emerald-400">✓</span>
             <span className="text-sm text-neutral-300">Free tier available — No credit card required</span>
           </div>
 
           {/* Trust Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neutral-900/80 border border-neutral-800 mb-6">
-            <Heart className="w-4 h-4 text-rose-500" />
+            <span className="w-4 h-4 text-rose-500">♥</span>
             <span className="text-sm text-neutral-400">Part of Luid Suite</span>
           </div>
 
@@ -180,7 +176,7 @@ const LuidKitLandingPage = () => {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {trustPoints.map((item, idx) => (
               <div key={idx} className="flex items-center justify-center gap-2 text-sm text-neutral-400">
-                <item.icon className="w-4 h-4 text-emerald-500" />
+                <span className={`w-4 h-4 ${item.iconClass}`}>{item.icon}</span>
                 <span>{item.text}</span>
               </div>
             ))}
