@@ -292,10 +292,10 @@ const LuidKitLandingPage = () => {
               </div>
               <p className="text-sm text-neutral-400 mt-2">Perfect for occasional conversions.</p>
               <ul className="mt-4 space-y-2 text-sm text-neutral-300">
-                <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-emerald-400" />Up to 10 conversions/day</li>
-                <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-emerald-400" />Files up to 10MB</li>
-                <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-emerald-400" />All file formats</li>
-                <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-emerald-400" />1-hour file retention</li>
+                <li className="flex items-center gap-2"><span className="text-emerald-400">✓</span>Up to 10 conversions/day</li>
+                <li className="flex items-center gap-2"><span className="text-emerald-400">✓</span>Files up to 10MB</li>
+                <li className="flex items-center gap-2"><span className="text-emerald-400">✓</span>All file formats</li>
+                <li className="flex items-center gap-2"><span className="text-emerald-400">✓</span>1-hour file retention</li>
               </ul>
               <Link
                 to="/auth/register"
@@ -311,11 +311,11 @@ const LuidKitLandingPage = () => {
               </div>
               <p className="text-sm text-neutral-400 mt-2">For power users and professionals.</p>
               <ul className="mt-4 space-y-2 text-sm text-neutral-200">
-                <li className="flex items-center gap-2"><Zap className="w-4 h-4 text-indigo-300" />Unlimited conversions</li>
-                <li className="flex items-center gap-2"><Zap className="w-4 h-4 text-indigo-300" />Files up to 100MB</li>
-                <li className="flex items-center gap-2"><Zap className="w-4 h-4 text-indigo-300" />Priority processing</li>
-                <li className="flex items-center gap-2"><Zap className="w-4 h-4 text-indigo-300" />24-hour file retention</li>
-                <li className="flex items-center gap-2"><Zap className="w-4 h-4 text-indigo-300" />Batch conversion</li>
+                <li className="flex items-center gap-2"><span className="text-indigo-300">⚡</span>Unlimited conversions</li>
+                <li className="flex items-center gap-2"><span className="text-indigo-300">⚡</span>Files up to 100MB</li>
+                <li className="flex items-center gap-2"><span className="text-indigo-300">⚡</span>Priority processing</li>
+                <li className="flex items-center gap-2"><span className="text-indigo-300">⚡</span>24-hour file retention</li>
+                <li className="flex items-center gap-2"><span className="text-indigo-300">⚡</span>Batch conversion</li>
               </ul>
               <Link
                 to="/auth/register"
