@@ -14,6 +14,7 @@ const TaskDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { isTaskModalOpen } = useTaskModal();
+  // Initialize to false, then use a microtask to show fallback
   const [showFallback, setShowFallback] = useState(false);
 
   const taskId = Number(id);

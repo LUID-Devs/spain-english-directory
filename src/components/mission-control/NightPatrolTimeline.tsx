@@ -72,7 +72,8 @@ export const NightPatrolTimeline: React.FC<NightPatrolTimelineProps> = ({
     );
   }
 
-  const hasActivity = data.timeline.some((hour) => hour.activities.length > 0);
+  const timeline = data.timeline ?? [];
+  const hasActivity = timeline.some((hour) => (hour.activities || []).length > 0);
 
   return (
     <Card className="overflow-hidden">
@@ -106,11 +107,12 @@ export const NightPatrolTimeline: React.FC<NightPatrolTimelineProps> = ({
         ) : (
           <ScrollArea className="h-[400px] pr-4">
             <div className="space-y-4">
-              {data.timeline.map((hourSlot) => {
+              {timeline.map((hourSlot) => {
                 const isNightHour = hourSlot.hour.startsWith("23") || 
                   parseInt(hourSlot.hour) < 6;
+                const activities = hourSlot.activities || [];
                 
-                if (hourSlot.activities.length === 0) return null;
+                if (activities.length === 0) return null;
 
                 return (
                   <div key={hourSlot.hour} className="relative">
@@ -125,13 +127,13 @@ export const NightPatrolTimeline: React.FC<NightPatrolTimelineProps> = ({
                       </div>
                       <span className="text-sm font-medium">{hourSlot.hour}</span>
                       <span className="text-xs text-muted-foreground">
-                        ({hourSlot.activities.length} activities)
+                        ({activities.length} activities)
                       </span>
                     </div>
 
                     {/* Activities */}
                     <div className="ml-6 space-y-2 border-l-2 border-border pl-4">
-                      {hourSlot.activities.map((activity) => {
+                      {activities.map((activity) => {
                         const config = actionConfig[activity.action] || actionConfig.status_updated;
                         const ActionIcon = config.icon;
                         const emoji = characterEmojis[activity.agent.name] || "🤖";

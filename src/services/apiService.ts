@@ -422,7 +422,8 @@ class ApiService {
   private baseUrl: string;
 
   constructor() {
-    this.baseUrl = import.meta.env.VITE_API_BASE_URL || '';
+    const rawBaseUrl = (import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || '').trim();
+    this.baseUrl = rawBaseUrl.replace(/\/$/, '');
   }
 
   private async getAuthHeaders(): Promise<Record<string, string>> {
@@ -581,13 +582,10 @@ class ApiService {
   }
 
   async createProject(project: Partial<Project>): Promise<Project> {
-    // Validate for zero-width characters to prevent visual spoofing
     if (project.name) {
       const { validateProjectContent } = await import('../lib/validation');
       const { isValid, error } = validateProjectContent(project.name, project.description);
-      if (!isValid) {
-        throw new Error(error);
-      }
+      if (!isValid) throw new Error(error);
     }
 
     return this.request<Project>('/projects', {
@@ -728,7 +726,7 @@ class ApiService {
 
   async createTask(task: Partial<Task>): Promise<Task> {
     // Validate for zero-width characters to prevent visual spoofing
-    if (task.title) {
+    if (task.title !== undefined || task.description !== undefined) {
       const { validateTaskContent } = await import('../lib/validation');
       const { isValid, error } = validateTaskContent(task.title, task.description);
       if (!isValid) {
@@ -1602,6 +1600,82 @@ class ApiService {
     return this.request<{ success: boolean; data: AutomationActionType[] }>('/api/automation/actions');
   }
 
+  // ==================== TIME TRACKING API ====================
+
+  async getTimeEstimate(taskId: number): Promise<{ taskId: number; estimate: TimeEstimate | null }> {
+    return this.request<{ taskId: number; estimate: TimeEstimate | null }>(`/api/time-tracking/tasks/${taskId}/time-estimate`);
+  }
+
+  async setTimeEstimate(taskId: number, estimate: string): Promise<{ success: boolean; estimate: TimeEstimate }> {
+    return this.request<{ success: boolean; estimate: TimeEstimate }>(`/api/time-tracking/tasks/${taskId}/time-estimate`, {
+      method: 'POST',
+      body: JSON.stringify({ estimate }),
+    });
+  }
+
+  async deleteTimeEstimate(taskId: number): Promise<{ success: boolean; message: string }> {
+    return this.request<{ success: boolean; message: string }>(`/api/time-tracking/tasks/${taskId}/time-estimate`, {
+      method: 'DELETE',
+    });
+  }
+
+  async getTimeLogs(taskId: number): Promise<TimeLogsResponse> {
+    return this.request<TimeLogsResponse>(`/api/time-tracking/tasks/${taskId}/time-logs`);
+  }
+
+  async startTimer(taskId: number, description?: string): Promise<{ success: boolean; timeLog: TimeLog }> {
+    return this.request<{ success: boolean; timeLog: TimeLog }>(`/api/time-tracking/tasks/${taskId}/time-logs/start`, {
+      method: 'POST',
+      body: JSON.stringify({ description }),
+    });
+  }
+
+  async stopTimer(logId: number): Promise<{ success: boolean; timeLog: TimeLog }> {
+    return this.request<{ success: boolean; timeLog: TimeLog }>(`/api/time-tracking/time-logs/${logId}/stop`, {
+      method: 'POST',
+    });
+  }
+
+  async updateTimeLog(logId: number, updates: { description?: string; durationMinutes?: number }): Promise<{ success: boolean; timeLog: TimeLog }> {
+    return this.request<{ success: boolean; timeLog: TimeLog }>(`/api/time-tracking/time-logs/${logId}`, {
+      method: 'PUT',
+      body: JSON.stringify(updates),
+    });
+  }
+
+  async deleteTimeLog(logId: number): Promise<{ success: boolean; message: string }> {
+    return this.request<{ success: boolean; message: string }>(`/api/time-tracking/time-logs/${logId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async getMyTimeLogs(params?: { startDate?: string; endDate?: string; taskId?: number }): Promise<{
+    logs: TimeLog[];
+    summary: { totalMinutes: number; totalFormatted: string; count: number };
+  }> {
+    const queryParams = new URLSearchParams();
+    if (params?.startDate) queryParams.append('startDate', params.startDate);
+    if (params?.endDate) queryParams.append('endDate', params.endDate);
+    if (params?.taskId) queryParams.append('taskId', params.taskId.toString());
+
+    return this.request<{
+      logs: TimeLog[];
+      summary: { totalMinutes: number; totalFormatted: string; count: number };
+    }>(`/api/time-tracking/users/me/time-logs?${queryParams.toString()}`);
+  }
+
+  async getActiveTimer(): Promise<ActiveTimer> {
+    return this.request<ActiveTimer>('/api/time-tracking/users/me/active-timer');
+  }
+
+  async getProjectTimeReport(projectId: number, params?: { startDate?: string; endDate?: string }): Promise<ProjectTimeReport> {
+    const queryParams = new URLSearchParams();
+    if (params?.startDate) queryParams.append('startDate', params.startDate);
+    if (params?.endDate) queryParams.append('endDate', params.endDate);
+
+    return this.request<ProjectTimeReport>(`/api/time-tracking/projects/${projectId}/time-reports?${queryParams.toString()}`);
+  }
+
   // ==================== ANALYTICS API ====================
 
   async getTeamVelocity(teamId: number, cycles?: number): Promise<TeamVelocityResponse> {
@@ -1625,6 +1699,115 @@ class ApiService {
 
   async getTeamAnalyticsSummary(teamId: number): Promise<TeamAnalyticsSummaryResponse> {
     return this.request<TeamAnalyticsSummaryResponse>(`/api/analytics/teams/${teamId}/summary`);
+  }
+
+  // ==================== TIMELINE API ====================
+
+  async getTimeline(params?: {
+    limit?: number;
+    offset?: number;
+    eventTypes?: TimelineEventType[];
+    categories?: TimelineEventCategory[];
+    taskId?: number;
+    projectId?: number;
+    fromDate?: string;
+    toDate?: string;
+  }): Promise<{
+    success: boolean;
+    events: TimelineEvent[];
+    pagination: { total: number; limit: number; offset: number; hasMore: boolean };
+  }> {
+    const queryParams = new URLSearchParams();
+    if (params?.limit !== undefined) queryParams.append('limit', params.limit.toString());
+    if (params?.offset !== undefined) queryParams.append('offset', params.offset.toString());
+    if (params?.taskId !== undefined) queryParams.append('taskId', params.taskId.toString());
+    if (params?.projectId !== undefined) queryParams.append('projectId', params.projectId.toString());
+    if (params?.fromDate) queryParams.append('fromDate', params.fromDate);
+    if (params?.toDate) queryParams.append('toDate', params.toDate);
+    if (params?.eventTypes) {
+      params.eventTypes.forEach(eventType => queryParams.append('eventTypes', eventType));
+    }
+    if (params?.categories) {
+      params.categories.forEach(category => queryParams.append('categories', category));
+    }
+
+    const queryString = queryParams.toString();
+    return this.request(`/api/timeline${queryString ? `?${queryString}` : ''}`);
+  }
+
+  async getTaskTimeline(taskId: number, params?: { limit?: number; offset?: number }): Promise<{
+    success: boolean;
+    events: TimelineEvent[];
+    pagination: { total: number; limit: number; offset: number; hasMore: boolean };
+  }> {
+    const queryParams = new URLSearchParams();
+    if (params?.limit !== undefined) queryParams.append('limit', params.limit.toString());
+    if (params?.offset !== undefined) queryParams.append('offset', params.offset.toString());
+
+    const queryString = queryParams.toString();
+    return this.request(`/api/timeline/task/${taskId}${queryString ? `?${queryString}` : ''}`);
+  }
+
+  // ==================== ROADMAP API ====================
+
+  async getRoadmapData(organizationId?: number): Promise<{
+    projects: RoadmapProject[];
+    milestones: Milestone[];
+    dependencies: ProjectDependency[];
+  }> {
+    const queryParams = new URLSearchParams();
+    if (organizationId) queryParams.append('organizationId', organizationId.toString());
+    const queryString = queryParams.toString();
+    return this.request(`/api/roadmap${queryString ? `?${queryString}` : ''}`);
+  }
+
+  async getMilestones(projectId?: number, organizationId?: number): Promise<Milestone[]> {
+    const queryParams = new URLSearchParams();
+    if (organizationId) queryParams.append('organizationId', organizationId.toString());
+    if (projectId) queryParams.append('projectId', projectId.toString());
+    const queryString = queryParams.toString();
+    return this.request(`/api/roadmap/milestones${queryString ? `?${queryString}` : ''}`);
+  }
+
+  async createMilestone(data: CreateMilestoneRequest): Promise<Milestone> {
+    return this.request('/api/roadmap/milestones', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateMilestone(milestoneId: number, data: Partial<CreateMilestoneRequest>): Promise<Milestone> {
+    return this.request(`/api/roadmap/milestones/${milestoneId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteMilestone(milestoneId: number): Promise<{ success: boolean }> {
+    return this.request(`/api/roadmap/milestones/${milestoneId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async getProjectDependencies(projectId?: number, organizationId?: number): Promise<ProjectDependency[]> {
+    const queryParams = new URLSearchParams();
+    if (organizationId) queryParams.append('organizationId', organizationId.toString());
+    if (projectId) queryParams.append('projectId', projectId.toString());
+    const queryString = queryParams.toString();
+    return this.request(`/api/roadmap/dependencies${queryString ? `?${queryString}` : ''}`);
+  }
+
+  async createProjectDependency(data: CreateDependencyRequest): Promise<ProjectDependency> {
+    return this.request('/api/roadmap/dependencies', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteProjectDependency(dependencyId: number): Promise<{ success: boolean }> {
+    return this.request(`/api/roadmap/dependencies/${dependencyId}`, {
+      method: 'DELETE',
+    });
   }
 
   // ==================== BULK OPERATIONS ====================
@@ -1731,86 +1914,846 @@ class ApiService {
       body: JSON.stringify({ customFields }),
     });
   }
-
-  // ==================== TIME TRACKING API ====================
-
-  async getTimeEstimate(taskId: number): Promise<{ taskId: number; estimate: TimeEstimate | null }> {
-    return this.request<{ taskId: number; estimate: TimeEstimate | null }>(`/api/time-tracking/tasks/${taskId}/time-estimate`);
-  }
-
-  async setTimeEstimate(taskId: number, estimate: string): Promise<{ success: boolean; estimate: TimeEstimate }> {
-    return this.request<{ success: boolean; estimate: TimeEstimate }>(`/api/time-tracking/tasks/${taskId}/time-estimate`, {
-      method: 'POST',
-      body: JSON.stringify({ estimate }),
-    });
-  }
-
-  async deleteTimeEstimate(taskId: number): Promise<{ success: boolean; message: string }> {
-    return this.request<{ success: boolean; message: string }>(`/api/time-tracking/tasks/${taskId}/time-estimate`, {
-      method: 'DELETE',
-    });
-  }
-
-  async getTimeLogs(taskId: number): Promise<TimeLogsResponse> {
-    return this.request<TimeLogsResponse>(`/api/time-tracking/tasks/${taskId}/time-logs`);
-  }
-
-  async startTimer(taskId: number, description?: string): Promise<{ success: boolean; timeLog: TimeLog }> {
-    return this.request<{ success: boolean; timeLog: TimeLog }>(`/api/time-tracking/tasks/${taskId}/time-logs/start`, {
-      method: 'POST',
-      body: JSON.stringify({ description }),
-    });
-  }
-
-  async stopTimer(logId: number): Promise<{ success: boolean; timeLog: TimeLog }> {
-    return this.request<{ success: boolean; timeLog: TimeLog }>(`/api/time-tracking/time-logs/${logId}/stop`, {
-      method: 'POST',
-    });
-  }
-
-  async updateTimeLog(logId: number, updates: { description?: string; durationMinutes?: number }): Promise<{ success: boolean; timeLog: TimeLog }> {
-    return this.request<{ success: boolean; timeLog: TimeLog }>(`/api/time-tracking/time-logs/${logId}`, {
-      method: 'PUT',
-      body: JSON.stringify(updates),
-    });
-  }
-
-  async deleteTimeLog(logId: number): Promise<{ success: boolean; message: string }> {
-    return this.request<{ success: boolean; message: string }>(`/api/time-tracking/time-logs/${logId}`, {
-      method: 'DELETE',
-    });
-  }
-
-  async getMyTimeLogs(startDate?: string, endDate?: string, taskId?: number): Promise<{ logs: TimeLog[]; summary: { totalMinutes: number; totalFormatted: string; count: number } }> {
-    const params = new URLSearchParams();
-    if (startDate) params.append('startDate', startDate);
-    if (endDate) params.append('endDate', endDate);
-    if (taskId) params.append('taskId', taskId.toString());
-    return this.request<{ logs: TimeLog[]; summary: { totalMinutes: number; totalFormatted: string; count: number } }>(`/api/time-tracking/users/me/time-logs?${params.toString()}`);
-  }
-
-  async getActiveTimer(): Promise<ActiveTimer> {
-    return this.request<ActiveTimer>('/api/time-tracking/users/me/active-timer');
-  }
-
-  async getProjectTimeReport(projectId: number, startDate?: string, endDate?: string): Promise<ProjectTimeReport> {
-    const params = new URLSearchParams();
-    if (startDate) params.append('startDate', startDate);
-    if (endDate) params.append('endDate', endDate);
-    return this.request<ProjectTimeReport>(`/api/time-tracking/projects/${projectId}/time-reports?${params.toString()}`);
-  }
-
-  async exportProjectTimeReport(projectId: number, startDate?: string, endDate?: string): Promise<Blob> {
-    const params = new URLSearchParams();
-    if (startDate) params.append('startDate', startDate);
-    if (endDate) params.append('endDate', endDate);
-    const response = await fetch(`${this.baseUrl}/api/time-tracking/projects/${projectId}/time-reports/export?${params.toString()}`, {
-      headers: this.getHeaders(),
-    });
-    if (!response.ok) throw new Error('Failed to export time report');
-    return response.blob();
-  }
-
 }
 
 export const apiService = new ApiService();
+
+// ==================== GOAL TYPES ====================
+
+export interface Goal {
+  id: number;
+  title: string;
+  description?: string;
+  status: 'active' | 'completed' | 'archived';
+  priority: 'urgent' | 'high' | 'medium' | 'low';
+  progress: number;
+  calculatedProgress?: number; // Computed on backend to handle division by zero for goals with no linked tasks
+  startDate?: string;
+  targetDate?: string;
+  completedAt?: string;
+  organizationId: number;
+  projectId?: number;
+  parentGoalId?: number | null; // Parent goal for hierarchy (null = top-level)
+  templateId?: number;
+  createdBy: number;
+  createdAt: string;
+  updatedAt: string;
+  // Permission fields (Task #264)
+  goalType: 'company' | 'team' | 'individual';
+  visibility: 'public' | 'team' | 'private';
+  teamId?: number;
+  team?: {
+    id: number;
+    teamName: string;
+  };
+  project?: {
+    id: number;
+    name: string;
+  };
+  creator?: {
+    userId: number;
+    username: string;
+    profilePictureUrl?: string;
+  };
+  parentGoal?: {
+    id: number;
+    title: string;
+  } | null;
+  childGoals?: {
+    id: number;
+    title: string;
+    status: string;
+    progress: number;
+  }[];
+  template?: {
+    id: number;
+    name: string;
+  };
+  _count?: {
+    linkedTasks: number;
+    childGoals: number;
+  };
+  // Goal-Cycle Integration (Task #267)
+  linkedCycles?: {
+    cycle: {
+      id: number;
+      name: string;
+      status: string;
+      startDate: string;
+      endDate: string;
+    };
+    contributionWeight: number;
+  }[];
+}
+
+export interface GoalTemplate {
+  id: number;
+  name: string;
+  description?: string;
+  category: 'general' | 'sprint' | 'quarterly' | 'project' | 'personal';
+  defaultTitle?: string;
+  defaultDescription?: string;
+  defaultPriority: 'urgent' | 'high' | 'medium' | 'low';
+  defaultDurationDays?: number;
+  taskTemplates?: Array<{
+    title: string;
+    description?: string;
+    priority: string;
+    estimatedHours?: number;
+  }>;
+  isSystem: boolean;
+  isActive: boolean;
+  organizationId?: number;
+  createdBy?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ==================== GOAL-CYCLE INTEGRATION TYPES (Task #267) ====================
+
+export interface LinkedCycle {
+  id: number;
+  name: string;
+  status: 'upcoming' | 'active' | 'completed' | 'cancelled';
+  startDate: string;
+  endDate: string;
+  contributionWeight: number;
+  progress: number;
+  totalTasks: number;
+  completedTasks: number;
+}
+
+export interface LinkedGoal {
+  id: number;
+  title: string;
+  status: 'active' | 'completed' | 'archived';
+  priority: 'urgent' | 'high' | 'medium' | 'low';
+  progress: number;
+  targetDate?: string;
+  goalType: 'company' | 'team' | 'individual';
+  visibility: 'public' | 'team' | 'private';
+  contributionWeight: number;
+}
+
+// ==================== WORKLOAD TYPES ====================
+
+export interface WorkloadSettings {
+  capacityMetric: 'task_count' | 'time_estimate' | 'story_points';
+  defaultCapacity: number;
+  warningThreshold: number;
+  dangerThreshold: number;
+  showUnassigned: boolean;
+  showOutOfOffice: boolean;
+}
+
+export interface WorkloadTask {
+  id: number;
+  title: string;
+  status: string;
+  priority: string;
+  projectName?: string;
+  dueDate?: string;
+}
+
+export interface WorkloadMember {
+  memberId: number;
+  username: string;
+  email: string;
+  profilePictureUrl?: string;
+  role: string;
+  capacity: number;
+  currentLoad: number;
+  capacityPercent: number;
+  status: 'green' | 'yellow' | 'red';
+  isOutOfOffice: boolean;
+  outOfOfficeUntil?: string;
+  hasConflict: boolean;
+  tasks: WorkloadTask[];
+}
+
+export interface WorkloadAlert {
+  type: 'overloaded' | 'warning' | 'out_of_office_conflict' | 'unassigned';
+  severity: 'danger' | 'warning' | 'info';
+  message: string;
+  userId?: number;
+  username?: string;
+  currentLoad?: number;
+  capacity?: number;
+  outOfOfficeUntil?: string;
+  count?: number;
+}
+
+export interface TeamWorkloadResponse {
+  success: boolean;
+  settings: WorkloadSettings;
+  members: WorkloadMember[];
+  unassigned: {
+    count: number;
+    tasks: WorkloadTask[];
+  };
+  summary: {
+    totalMembers: number;
+    overloadedMembers: number;
+    warningMembers: number;
+    outOfOfficeMembers: number;
+    unassignedTasks: number;
+    conflicts: number;
+  };
+}
+
+export interface WorkloadAlertsResponse {
+  success: boolean;
+  alerts: WorkloadAlert[];
+  summary: {
+    dangerCount: number;
+    warningCount: number;
+    infoCount: number;
+  };
+}
+
+// ==================== USER NOTIFICATIONS TYPES ====================
+
+export interface UserNotification {
+  id: number;
+  userId: number;
+  organizationId: number;
+  type: 'workload_overload' | 'workload_warning' | 'out_of_office_conflict' | 'task_reassigned' | 'task_assigned' | 'unassigned_tasks' | 'cycle_deadline' | string;
+  title: string;
+  message: string;
+  taskId?: number;
+  triggeredByUserId?: number;
+  read: boolean;
+  readAt?: string;
+  dismissed: boolean;
+  dismissedAt?: string;
+  delivered: boolean;
+  deliveredAt?: string;
+  metadata?: any;
+  createdAt: string;
+  updatedAt: string;
+  task?: {
+    id: number;
+    title: string;
+    status: string | null;
+    priority: string | null;
+  };
+  triggeredBy?: {
+    userId: number;
+    username: string;
+    profilePictureUrl?: string;
+  };
+}
+
+export interface NotificationSettings {
+  emailNotifications: boolean;
+  pushNotifications: boolean;
+  workloadAlerts: boolean;
+  taskAssignmentAlerts: boolean;
+  dailyDigest: boolean;
+  weeklyDigest: boolean;
+}
+
+// ==================== CYCLE TYPES ====================
+
+export type CycleStatus = 'upcoming' | 'active' | 'completed' | 'cancelled';
+
+export interface Cycle {
+  id: number;
+  teamId: number;
+  name: string;
+  description?: string;
+  startDate: string;
+  endDate: string;
+  status: CycleStatus;
+  cooldownEnabled: boolean;
+  autoCreated?: boolean;
+  startedAt?: string;
+  completedAt?: string;
+  cancelledAt?: string;
+  createdAt: string;
+  updatedAt: string;
+  taskCount?: number;
+}
+
+export interface CycleWithDetails extends Cycle {
+  tasks: {
+    id: number;
+    title: string;
+    status: string;
+    priority: string;
+    assignedUserId?: number;
+    points?: number;
+  }[];
+  team: {
+    id: number;
+    teamName: string;
+    cyclesEnabled: boolean;
+  };
+  stats: {
+    totalTasks: number;
+    completedTasks: number;
+    inProgressTasks: number;
+    todoTasks: number;
+    totalPoints: number;
+  };
+}
+
+export interface CycleSettings {
+  cyclesEnabled: boolean;
+  cycleDurationWeeks: number;
+  cycleStartDay: string;
+  cooldownDays: number;
+  upcomingCyclesCount: number;
+}
+
+export interface OverlappingCycle {
+  id: number;
+  name: string;
+  startDate: string;
+  endDate: string;
+}
+
+export interface CycleOverlapError {
+  message: string;
+  overlappingCycles: OverlappingCycle[];
+}
+
+// ==================== GIT LINK TYPES ====================
+
+export interface GitLink {
+  id: number;
+  taskId: number;
+  type: 'commit' | 'pull_request';
+  ref: string;
+  title: string;
+  message?: string;
+  url: string;
+  authorName: string;
+  authorUsername?: string;
+  authorAvatar?: string;
+  repository: string;
+  branch?: string;
+  prNumber?: number;
+  prState?: string;
+  prMergedAt?: string;
+  integrationConfigId?: number;
+  gitCreatedAt: string;
+  createdAt: string;
+}
+
+// ==================== ASANA INTEGRATION TYPES ====================
+
+export interface AsanaLink {
+  id: number;
+  taskId: number;
+  asanaTaskId: string;
+  asanaTaskName: string;
+  asanaProjectId?: string;
+  asanaProjectName?: string;
+  asanaWorkspaceId?: string;
+  asanaWorkspaceName?: string;
+  asanaPermalink?: string;
+  syncEnabled: boolean;
+  lastSyncedAt?: string;
+  syncDirection: 'to_asana' | 'from_asana' | 'bidirectional';
+  integrationConfigId?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ==================== TIME TRACKING TYPES ====================
+
+export interface TimeLog {
+  id: number;
+  taskId: number;
+  userId: number;
+  startedAt: string;
+  endedAt?: string;
+  durationMinutes?: number;
+  durationFormatted?: string;
+  description?: string;
+  isRunning: boolean;
+  source?: string;
+  createdAt: string;
+  user?: {
+    userId: number;
+    username: string;
+    profilePictureUrl?: string;
+  };
+  task?: {
+    id: number;
+    title: string;
+    projectId: number;
+    project?: { name: string };
+  };
+}
+
+export interface TimeEstimate {
+  id: number;
+  taskId: number;
+  estimatedMinutes: number;
+  estimatedFormatted: string;
+  createdBy: number;
+  createdAt: string;
+  updatedAt: string;
+  user?: {
+    userId: number;
+    username: string;
+    profilePictureUrl?: string;
+  };
+}
+
+export interface ActiveTimer {
+  hasActiveTimer: boolean;
+  timer?: {
+    id: number;
+    taskId: number;
+    task?: {
+      id: number;
+      title: string;
+      projectId: number;
+      project?: { name: string };
+    };
+    startedAt: string;
+    elapsedMinutes: number;
+    elapsedFormatted: string;
+    description?: string;
+  };
+}
+
+export interface TimeLogsResponse {
+  taskId: number;
+  logs: TimeLog[];
+  summary: {
+    totalMinutes: number;
+    totalFormatted: string;
+    count: number;
+  };
+}
+
+export interface ProjectTimeReport {
+  projectId: number;
+  dateRange: { startDate?: string; endDate?: string };
+  summary: {
+    totalMinutes: number;
+    totalFormatted: string;
+    logCount: number;
+  };
+  byUser: Array<{
+    user: { userId: number; username: string; profilePictureUrl?: string };
+    totalMinutes: number;
+    totalFormatted: string;
+    logCount: number;
+  }>;
+  byTask: Array<{
+    task: { id: number; title: string; status: string };
+    totalMinutes: number;
+    totalFormatted: string;
+    logCount: number;
+  }>;
+  logs: TimeLog[];
+}
+
+// ==================== AUTOMATION TYPES ====================
+
+export interface AutomationTriggerType {
+  type: string;
+  name: string;
+  description: string;
+}
+
+export interface AutomationActionType {
+  type: string;
+  name: string;
+  description: string;
+}
+
+export interface TriggerConfig {
+  projectId?: number;
+  statusFrom?: string;
+  statusTo?: string;
+  priority?: string;
+  assignedToUserId?: number;
+  assignedToAgentId?: number;
+  dueDateHours?: number;
+}
+
+export interface ActionConfig {
+  // For notification.send
+  message?: string;
+  recipientAgentIds?: number[];
+  notifyAssigneeAgent?: boolean;
+  notifyAuthorAgent?: boolean;
+  
+  // For webhook.call
+  webhookUrl?: string;
+  headers?: Record<string, string>;
+  
+  // For task.status.update
+  newStatus?: string;
+  
+  // For task.assign
+  assignToAgentId?: number;
+  
+  // For task.comment.add
+  commentText?: string;
+  commentAsAgentId?: number;
+  
+  // For integration.send
+  integrationConfigId?: number;
+}
+
+export interface AutomationRule {
+  id: number;
+  organizationId: number;
+  name: string;
+  description?: string;
+  triggerType: string;
+  triggerConfig: TriggerConfig;
+  actionType: string;
+  actionConfig: ActionConfig;
+  isActive: boolean;
+  executionCount: number;
+  lastExecutedAt?: string;
+  errorCount: number;
+  lastError?: string;
+  createdBy: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AutomationRuleWithExecutions extends AutomationRule {
+  executions: AutomationExecutionSummary[];
+}
+
+export interface AutomationExecutionSummary {
+  id: number;
+  status: string;
+  startedAt: string;
+  completedAt?: string;
+  error?: string;
+  durationMs?: number;
+}
+
+export interface AutomationExecution {
+  id: number;
+  ruleId: number;
+  taskId?: number;
+  triggerEvent: string;
+  triggerPayload: Record<string, any>;
+  status: 'pending' | 'running' | 'completed' | 'failed' | 'skipped';
+  result?: Record<string, any>;
+  error?: string;
+  startedAt: string;
+  completedAt?: string;
+  durationMs?: number;
+  rule: {
+    name: string;
+    triggerType: string;
+    actionType: string;
+  };
+}
+
+export interface CreateAutomationRuleRequest {
+  name: string;
+  description?: string;
+  triggerType: string;
+  triggerConfig: TriggerConfig;
+  actionType: string;
+  actionConfig: ActionConfig;
+  organizationId: number;
+}
+
+// ==================== TIMELINE TYPES ====================
+
+export type TimelineEventType = 
+  | 'task_assigned'
+  | 'task_started'
+  | 'task_completed'
+  | 'status_changed'
+  | 'commit_pushed'
+  | 'pr_opened'
+  | 'pr_merged'
+  | 'pr_closed'
+  | 'build_started'
+  | 'build_completed'
+  | 'deploy_started'
+  | 'deploy_completed'
+  | 'comment_added'
+  | 'agent_handoff';
+
+export type TimelineEventCategory = 'task' | 'git' | 'deployment' | 'ci' | 'system';
+
+export type ActorType = 'agent' | 'user' | 'system' | 'git';
+
+export interface TimelineEvent {
+  id: number;
+  organizationId: number;
+  taskId?: number;
+  projectId?: number;
+  eventType: TimelineEventType;
+  eventCategory: TimelineEventCategory;
+  actorType: ActorType;
+  actorId?: number;
+  actorName: string;
+  actorAvatar?: string;
+  title: string;
+  description?: string;
+  taskLink?: string;
+  prLink?: string;
+  commitLink?: string;
+  deploymentLink?: string;
+  commitSha?: string;
+  prNumber?: number;
+  branchName?: string;
+  status?: 'success' | 'failure' | 'pending' | 'in_progress';
+  metadata: Record<string, any>;
+  occurredAt: string;
+  createdAt: string;
+}
+
+export interface TimelineStats {
+  totalEvents: number;
+  eventsByCategory: Record<TimelineEventCategory, number>;
+  eventsByType: Record<string, number>;
+  topActors: { actorName: string; count: number }[];
+}
+
+// ==================== ROADMAP TYPES ====================
+
+export interface RoadmapProject {
+  id: number;
+  name: string;
+  description?: string;
+  startDate?: string;
+  endDate?: string;
+  healthStatus: 'on_track' | 'at_risk' | 'delayed' | 'unknown';
+  healthReason?: string;
+  taskStats: {
+    total: number;
+    completed: number;
+  };
+  milestones: Milestone[];
+  dependsOn: ProjectDependency[];
+}
+
+export interface Milestone {
+  id: number;
+  organizationId: number;
+  projectId?: number;
+  project?: {
+    id: number;
+    name: string;
+  };
+  name: string;
+  description?: string;
+  targetDate: string;
+  completedAt?: string;
+  status: 'upcoming' | 'at_risk' | 'missed' | 'completed';
+  healthStatus: 'on_track' | 'at_risk' | 'delayed';
+  healthReason?: string;
+  autoCalculate: boolean;
+  progress: number;
+  linkedTaskCount: number;
+  completedTaskCount: number;
+  linkedTasks?: {
+    id: number;
+    title: string;
+    status: string;
+  }[];
+  createdBy: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ProjectDependency {
+  id: number;
+  dependentProjectId: number;
+  dependentProject?: {
+    id: number;
+    name: string;
+    startDate?: string;
+    endDate?: string;
+  };
+  dependencyProjectId: number;
+  dependencyProject?: {
+    id: number;
+    name: string;
+    startDate?: string;
+    endDate?: string;
+  };
+  dependencyType: 'finish_to_start' | 'start_to_start' | 'finish_to_finish' | 'start_to_finish';
+  lagDays: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateMilestoneRequest {
+  organizationId: number;
+  projectId?: number;
+  name: string;
+  description?: string;
+  targetDate: string;
+  autoCalculate?: boolean;
+}
+
+export interface CreateDependencyRequest {
+  dependentProjectId: number;
+  dependencyProjectId: number;
+  dependencyType?: 'finish_to_start' | 'start_to_start' | 'finish_to_finish' | 'start_to_finish';
+  lagDays?: number;
+}
+
+// ==================== FORM TEMPLATE TYPES ====================
+
+export type FormFieldType =
+  | 'text'
+  | 'textarea'
+  | 'number'
+  | 'date'
+  | 'select'
+  | 'multiselect'
+  | 'checkbox'
+  | 'url'
+  | 'email';
+
+export interface FormFieldOption {
+  id?: number;
+  label: string;
+  value: string;
+  color?: string;
+  order?: number;
+}
+
+export interface FormField {
+  id: number;
+  templateId: number;
+  name: string;
+  key: string;
+  fieldType: FormFieldType;
+  description?: string;
+  isRequired: boolean;
+  minLength?: number;
+  maxLength?: number;
+  minValue?: number;
+  maxValue?: number;
+  regexPattern?: string;
+  placeholder?: string;
+  helpText?: string;
+  order: number;
+  defaultValue?: any;
+  options: FormFieldOption[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface FormTemplateProjectAssignment {
+  id: number;
+  templateId: number;
+  projectId: number;
+  createdAt: string;
+  project?: {
+    id: number;
+    name: string;
+  };
+}
+
+export interface FormTemplate {
+  id: number;
+  name: string;
+  description?: string;
+  organizationId: number;
+  isActive: boolean;
+  isSystem: boolean;
+  defaultStatus?: string;
+  defaultPriority: string;
+  defaultAssigneeId?: number;
+  fields: FormField[];
+  projectAssignments: FormTemplateProjectAssignment[];
+  createdBy: number;
+  createdAt: string;
+  updatedAt: string;
+  user?: {
+    userId: number;
+    username: string;
+    profilePictureUrl?: string;
+  };
+}
+
+export interface TaskCustomFieldValue {
+  id: number;
+  taskId: number;
+  fieldId: number;
+  value: any;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateFormTemplateRequest {
+  name: string;
+  description?: string;
+  defaultStatus?: string;
+  defaultPriority?: string;
+  defaultAssigneeId?: number;
+  isActive?: boolean;
+  fields?: CreateFormFieldRequest[];
+  projectIds?: number[];
+}
+
+export interface CreateFormFieldRequest {
+  name: string;
+  key?: string;
+  fieldType: FormFieldType;
+  description?: string;
+  isRequired?: boolean;
+  minLength?: number;
+  maxLength?: number;
+  minValue?: number;
+  maxValue?: number;
+  regexPattern?: string;
+  placeholder?: string;
+  helpText?: string;
+  order?: number;
+  defaultValue?: any;
+  options?: FormFieldOption[];
+}
+
+export interface UpdateFormTemplateRequest {
+  name?: string;
+  description?: string;
+  defaultStatus?: string;
+  defaultPriority?: string;
+  defaultAssigneeId?: number;
+  isActive?: boolean;
+}
+
+export interface UpdateFormFieldRequest {
+  name?: string;
+  key?: string;
+  description?: string;
+  isRequired?: boolean;
+  minLength?: number;
+  maxLength?: number;
+  minValue?: number;
+  maxValue?: number;
+  regexPattern?: string;
+  placeholder?: string;
+  helpText?: string;
+  order?: number;
+  defaultValue?: any;
+  options?: FormFieldOption[];
+}
+
+export interface ApplyTemplateRequest {
+  projectId: number;
+  organizationId: number;
+  title: string;
+  description?: string;
+  status?: string;
+  priority?: string;
+  assigneeId?: number;
+  dueDate?: string;
+  tags?: string[];
+  customFields?: Record<string, any>;
+}
+

@@ -214,7 +214,7 @@ const RegisterPage = () => {
         >
           {/* Header */}
           <div className="text-center mb-8">
-            <Link href="/" className="inline-block">
+            <Link to="/" className="inline-block">
               <motion.div
                 className="flex items-center justify-center gap-3 mb-4"
                 whileHover={{ scale: 1.05 }}
@@ -292,7 +292,7 @@ const RegisterPage = () => {
 
             <div className="mt-6 text-center text-sm text-gray-400">
               <Link
-                href="/auth/login"
+                to="/auth/login"
                 className="text-gray-400 hover:text-gray-300 font-medium transition-colors duration-300"
               >
                 Back to Sign In
@@ -428,7 +428,7 @@ const RegisterPage = () => {
       >
         {/* Header */}
         <div className="text-center mb-8">
-          <Link href="/" className="inline-block">
+          <Link to="/" className="inline-block">
             <motion.div
               className="flex items-center justify-center gap-3 mb-4"
               whileHover={{ scale: 1.05 }}
@@ -659,7 +659,7 @@ const RegisterPage = () => {
           <div className="mt-6 text-center text-sm text-gray-400">
             Already have an account?{" "}
             <Link
-              href="/auth/login"
+              to="/auth/login"
               className="text-gray-400 hover:text-gray-300 font-medium transition-colors duration-300"
             >
               Sign in

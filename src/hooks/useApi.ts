@@ -554,7 +554,7 @@ export const useUploadTaskDescriptionImageMutation = () => {
     };
   }, []);
 
-  return [uploadImage, { isLoading: false }];
+  return [uploadImage, { isLoading: false }] as const;
 };
 
 export const useUpdateProjectMutation = () => {
@@ -998,7 +998,7 @@ export const useUploadCommentImageMutation = () => {
     };
   }, []);
 
-  return [uploadCommentImage, { isLoading: false }];
+  return [uploadCommentImage, { isLoading: false }] as const;
 };
 
 export const useDeleteProjectMutation = () => {
@@ -1837,7 +1837,7 @@ export const useDeleteAttachmentMutation = () => {
     unwrap: () => deleteAttachment(args)
   }), [deleteAttachment]);
 
-  return [deleteAttachment, { isLoading: false }];
+  return [deleteAttachment, { isLoading: false }] as const;
 };
 
 // Comment mutations

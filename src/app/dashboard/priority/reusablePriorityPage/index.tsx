@@ -1,13 +1,12 @@
 
-import { useGlobalStore } from "@/stores/globalStore";
-import ModalNewTask from "@/components/ModalNewTask";
-import TaskCard from "@/components/TaskCard";
-import PriorityEmptyState from "@/components/PriorityEmptyState";
 import { Priority, Task } from "@/hooks/useApi";
 import { useGetTasksByUserQuery } from "@/hooks/useApi";
 import { useCurrentUser } from "@/stores/userStore";
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/app/authProvider";
+import ModalNewTask from "@/components/ModalNewTask";
+import TaskCard from "@/components/TaskCard";
+import PriorityEmptyState from "@/components/PriorityEmptyState";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -26,7 +25,6 @@ import {
   Lock,
   BarChart3,
   TrendingUp,
-  Users,
   Calendar,
   User,
   Tag
@@ -120,8 +118,6 @@ const ReusablePriorityPage = ({ priority }: Props) => {
   );
 
   // Tasks debug logging removed for production
-
-  const isDarkMode = useGlobalStore((state) => state.isDarkMode);
 
   // Listen for task updates and refetch tasks
   useEffect(() => {
@@ -384,7 +380,7 @@ const ReusablePriorityPage = ({ priority }: Props) => {
                   Progress
                 </p>
                 <p className="text-2xl sm:text-3xl font-bold text-blue-600 dark:text-blue-400">
-                  {filteredTasks?.length > 0
+                  {filteredTasks && filteredTasks.length > 0
                     ? Math.round((filteredTasks.filter(task => task.status === 'Completed').length / filteredTasks.length) * 100)
                     : 0
                   }%
@@ -471,8 +467,8 @@ const ReusablePriorityPage = ({ priority }: Props) => {
                 </TableHeader>
                 <TableBody>
                   {filteredTasks?.map((task: Task) => {
-                    const statusBadge = getStatusBadge(task.status);
-                    const priorityBadge = getPriorityBadge(task.priority);
+                    const statusBadge = getStatusBadge(task.status || '');
+                    const priorityBadge = getPriorityBadge(task.priority || 'Low' as Priority);
                     const PriorityTaskIcon = priorityBadge.icon;
 
                     return (
