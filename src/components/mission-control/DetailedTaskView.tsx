@@ -382,21 +382,27 @@ export const DetailedTaskView: React.FC<DetailedTaskViewProps> = ({
               ) : (
                 filteredAndSortedTasks.map((assignment) => {
                   const statusCfg = statusConfig[assignment.status] || statusConfig.inbox;
-                  const priorityCfg = priorityConfig[assignment.task?.priority?.toLowerCase() || "medium"];
+                  const priorityKey = assignment.task?.priority?.toLowerCase() || "medium";
+                  const priorityCfg = priorityConfig[priorityKey];
                   const StatusIcon = statusCfg.icon;
                   const emoji = assignment.agent ? characterEmojis[assignment.agent.name] || "🤖" : "🤖";
                   const isOverdue =
                     assignment.task?.dueDate &&
                     new Date(assignment.task.dueDate) < new Date() &&
                     assignment.status !== "completed";
+                  const taskId = assignment.task?.id;
+                  const projectId = assignment.task?.project?.id;
+                  const projectName = assignment.task?.project?.name;
+                  const assignmentKey = assignment.id ?? taskId ?? `${assignment.agentId}-${assignment.taskId}`;
 
                   return (
                     <div
-                      key={assignment.id}
+                      key={assignmentKey}
                       className="group flex items-start gap-2 sm:gap-3 p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors cursor-pointer"
                       onClick={() => {
-                        setSelectedTaskId(assignment.task?.id || null);
-                        setSelectedProjectId(assignment.task?.project?.id);
+                        if (!taskId) return;
+                        setSelectedTaskId(taskId);
+                        setSelectedProjectId(projectId);
                       }}
                     >
                       {/* Status Icon */}
@@ -433,10 +439,10 @@ export const DetailedTaskView: React.FC<DetailedTaskViewProps> = ({
                           </Badge>
 
                           {/* Project */}
-                          {assignment.task?.project && (
+                          {projectName && (
                             <span className="flex items-center gap-1 text-muted-foreground">
                               <Folder className="h-3 w-3" />
-                              {assignment.task.project.name}
+                              {projectName}
                             </span>
                           )}
 
@@ -495,8 +501,9 @@ export const DetailedTaskView: React.FC<DetailedTaskViewProps> = ({
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem
                             onClick={() => {
-                              setSelectedTaskId(assignment.task?.id || null);
-                              setSelectedProjectId(assignment.task?.project?.id);
+                              if (!taskId) return;
+                              setSelectedTaskId(taskId);
+                              setSelectedProjectId(projectId);
                             }}
                           >
                             View Details
