@@ -51,13 +51,14 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, viewMode = "grid" })
   // Use real statistics or fallback to defaults
   // Normalize progress: backend may return 0-1 decimal, frontend expects 0-100 percentage
   const rawProgress = project.statistics?.progress ?? 0;
-  // Values 0-1 (inclusive) are treated as decimals (multiply by 100),
-  // values > 1 are treated as percentages (use directly, capped at 100).
+  // Values strictly between 0 and 1 are treated as decimals (multiply by 100).
+  // Values >= 1 (including 1.0) are treated as percentages (use directly, capped at 100).
+  // This assumes backend sends 1.0 for 100% completion, not 1 for 1%.
   // NaN and negative values are normalized to 0.
   let progress: number;
   if (!Number.isFinite(rawProgress) || rawProgress < 0) {
     progress = 0;
-  } else if (rawProgress <= 1) {
+  } else if (rawProgress > 0 && rawProgress < 1) {
     progress = Math.round(rawProgress * 100);
   } else {
     progress = Math.min(Math.round(rawProgress), 100);
