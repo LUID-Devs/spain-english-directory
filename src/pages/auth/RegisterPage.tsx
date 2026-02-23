@@ -60,13 +60,13 @@ const RegisterPage = () => {
   const metRequirements = getMetRequirements();
   const allRequirementsMet = metRequirements.every(req => req.met);
 
-  // Redirect if already authenticated
+  // Redirect if already authenticated (only when backend auth is fully established with userId)
   useEffect(() => {
-    if (!authLoading && isAuthenticated && user && !hasRedirected) {
+    if (!authLoading && isAuthenticated && user?.userId && !hasRedirected) {
       setHasRedirected(true);
       navigate('/dashboard', { replace: true });
     }
-  }, [isAuthenticated, authLoading, user, navigate, hasRedirected]);
+  }, [isAuthenticated, authLoading, user?.userId, navigate, hasRedirected]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
