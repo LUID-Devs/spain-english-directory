@@ -49,7 +49,19 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, viewMode = "grid" })
   }, [showDropdown]);
   
   // Use real statistics or fallback to defaults
-  const progress = project.statistics?.progress || 0;
+  // Normalize progress: backend may return 0-1 decimal, frontend expects 0-100 percentage
+  const rawProgress = project.statistics?.progress ?? 0;
+  // Values 0-1 (inclusive) are treated as decimals (multiply by 100),
+  // values > 1 are treated as percentages (use directly, capped at 100).
+  // NaN and negative values are normalized to 0.
+  let progress: number;
+  if (!Number.isFinite(rawProgress) || rawProgress < 0) {
+    progress = 0;
+  } else if (rawProgress <= 1) {
+    progress = Math.round(rawProgress * 100);
+  } else {
+    progress = Math.min(Math.round(rawProgress), 100);
+  }
   const totalTasks = project.statistics?.totalTasks || project.taskCount || 0;
   const completedTasks = project.statistics?.completedTasks || 0;
   const projectStatus = project.statistics?.status || 'Active';
