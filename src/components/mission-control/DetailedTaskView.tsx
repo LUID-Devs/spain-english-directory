@@ -118,12 +118,12 @@ export const DetailedTaskView: React.FC<DetailedTaskViewProps> = ({
     // Search filter
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(
-        (a) =>
-          a.task.title.toLowerCase().includes(query) ||
-          a.task.project?.name.toLowerCase().includes(query) ||
-          a.agent?.displayName.toLowerCase().includes(query)
-      );
+      filtered = filtered.filter((a) => {
+        const title = a.task?.title?.toLowerCase() || "";
+        const projectName = a.task?.project?.name?.toLowerCase() || "";
+        const agentName = a.agent?.displayName?.toLowerCase() || "";
+        return title.includes(query) || projectName.includes(query) || agentName.includes(query);
+      });
     }
 
     // Agent filter
