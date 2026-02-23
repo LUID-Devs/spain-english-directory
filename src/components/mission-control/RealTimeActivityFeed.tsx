@@ -57,12 +57,15 @@ export const RealTimeActivityFeed: React.FC<RealTimeActivityFeedProps> = ({
   initialActivities = [],
   isLoading: initialLoading,
 }) => {
-  const [activities, setActivities] = useState<ActivityLog[]>(initialActivities);
+  const sanitizedInitialActivities = Array.isArray(initialActivities)
+    ? initialActivities
+    : [];
+  const [activities, setActivities] = useState<ActivityLog[]>(sanitizedInitialActivities);
   const [newActivityCount, setNewActivityCount] = useState(0);
 
   // Update activities when initialActivities changes
   useEffect(() => {
-    setActivities(initialActivities);
+    setActivities(Array.isArray(initialActivities) ? initialActivities : []);
   }, [initialActivities]);
 
   // Handle new activity from WebSocket

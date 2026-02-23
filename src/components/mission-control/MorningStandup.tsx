@@ -67,6 +67,14 @@ export const MorningStandup: React.FC<MorningStandupProps> = ({
     );
   }
 
+  const yesterday = data.yesterday ?? [];
+  const today = data.today ?? [];
+  const highlights = data.highlights ?? {
+    totalCompleted: 0,
+    totalBlocked: 0,
+    activeAgents: 0,
+  };
+
   return (
     <Card className="overflow-hidden">
       <CardHeader className="p-4 sm:p-6">
@@ -81,12 +89,12 @@ export const MorningStandup: React.FC<MorningStandupProps> = ({
           <div className="flex items-center gap-2">
             <Badge variant="outline" className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
               <CheckCircle2 className="h-3 w-3 mr-1" />
-              {data.highlights.totalCompleted} Done
+              {highlights.totalCompleted} Done
             </Badge>
-            {data.highlights.totalBlocked > 0 && (
+            {highlights.totalBlocked > 0 && (
               <Badge variant="outline" className="bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">
                 <AlertTriangle className="h-3 w-3 mr-1" />
-                {data.highlights.totalBlocked} Blocked
+                {highlights.totalBlocked} Blocked
               </Badge>
             )}
           </div>
@@ -101,11 +109,11 @@ export const MorningStandup: React.FC<MorningStandupProps> = ({
                 <Calendar className="h-4 w-4" />
                 Yesterday
               </h3>
-              {data.yesterday.length === 0 ? (
+              {yesterday.length === 0 ? (
                 <p className="text-sm text-muted-foreground pl-6">No completed work recorded</p>
               ) : (
                 <div className="space-y-3">
-                  {data.yesterday.map((agentSummary) => {
+                  {yesterday.map((agentSummary) => {
                     const emoji = characterEmojis[agentSummary.agent.name] || "🤖";
                     
                     return (
@@ -188,11 +196,11 @@ export const MorningStandup: React.FC<MorningStandupProps> = ({
                 <Calendar className="h-4 w-4" />
                 Today&apos;s Plan
               </h3>
-              {data.today.length === 0 ? (
+              {today.length === 0 ? (
                 <p className="text-sm text-muted-foreground pl-6">No pending tasks</p>
               ) : (
                 <div className="space-y-3">
-                  {data.today.map((agentPlan) => (
+                  {today.map((agentPlan) => (
                     <div
                       key={agentPlan.agent.id}
                       className="border rounded-lg p-3 bg-card"
@@ -228,15 +236,15 @@ export const MorningStandup: React.FC<MorningStandupProps> = ({
         {/* Summary Stats */}
         <div className="grid grid-cols-3 gap-2 mt-4 pt-4 border-t">
           <div className="text-center">
-            <p className="text-lg font-semibold text-green-600">{data.highlights.totalCompleted}</p>
+            <p className="text-lg font-semibold text-green-600">{highlights.totalCompleted}</p>
             <p className="text-xs text-muted-foreground">Completed Yesterday</p>
           </div>
           <div className="text-center">
-            <p className="text-lg font-semibold">{data.highlights.activeAgents}</p>
+            <p className="text-lg font-semibold">{highlights.activeAgents}</p>
             <p className="text-xs text-muted-foreground">Active Agents</p>
           </div>
           <div className="text-center">
-            <p className="text-lg font-semibold text-red-600">{data.highlights.totalBlocked}</p>
+            <p className="text-lg font-semibold text-red-600">{highlights.totalBlocked}</p>
             <p className="text-xs text-muted-foreground">Blocked Items</p>
           </div>
         </div>
