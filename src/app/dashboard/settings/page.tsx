@@ -16,7 +16,6 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Edit, Key, Shield, User, Mail, Building2, Crown, Loader2, AlertTriangle, LogOut, UserPlus, Archive } from "lucide-react";
-import { PasswordInput } from "@/components/ui/password-input";
 import { cn } from "@/lib/utils";
 import { escapeHtml } from "@/lib/escapeHtml";
 import InviteToWorkspaceModal from "@/components/InviteToWorkspaceModal";

@@ -18,7 +18,7 @@ import {
 } from "@mui/x-data-grid";
 
 import { dataGridClassNames, dataGridSxStyles } from "@/lib/utils";
-import { Users, Loader2, AlertCircle, UserPlus, Mail } from "lucide-react";
+import { Users as UsersIcon, Loader2, AlertCircle, UserPlus, Mail } from "lucide-react";
 
 const CustomToolBar = () => (
   <GridToolbarContainer className="toolbar flex gap-2">
@@ -151,7 +151,7 @@ const Users = () => {
           </div>
         </div>
         <EmptyState
-          icon={Users}
+          icon={UsersIcon}
           title="No team members yet"
           description="Invite team members to collaborate on projects. They'll appear here once they join."
           action={{

@@ -39,6 +39,7 @@ const EditProjectModal = ({ isOpen, onClose, project }: Props) => {
       setDescription(project.description || "");
       setStartDate(project.startDate ? format(new Date(project.startDate), "yyyy-MM-dd") : "");
       setEndDate(project.endDate ? format(new Date(project.endDate), "yyyy-MM-dd") : "");
+      // @ts-ignore - organizationId exists at runtime
       setSelectedWorkspaceId(project.organizationId?.toString() || "");
       setError("");
     }

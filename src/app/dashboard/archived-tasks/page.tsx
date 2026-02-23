@@ -1,18 +1,11 @@
 import React, { useMemo, useState } from "react";
-import {
-  Priority,
-  Task,
-  Status,
-  Project,
-} from "@/hooks/useApi";
 import { useGetProjectsQuery, useGetTasksQuery, useUnarchiveTaskMutation } from "@/hooks/useApi";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Archive, AlertCircle, ArchiveRestore } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Search, Archive, ArchiveRestore } from "lucide-react";
 import { useTaskModal } from "@/contexts/TaskModalContext";
 
 // Task status styling helper
@@ -89,7 +82,7 @@ const ArchivedTasksPage = () => {
 
   const handleUnarchive = async (taskId: number) => {
     try {
-      await (unarchiveTask as any)(taskId).unwrap();
+      await unarchiveTask(taskId).unwrap();
       refetch();
     } catch (error) {
       console.error('Failed to unarchive task:', error);
@@ -221,7 +214,7 @@ const ArchivedTasksPage = () => {
                         )}
                         {task.tags && (
                           <div className="flex flex-wrap gap-1 mt-2">
-                            {task.tags.split(",").map((tag, i) => (
+                            {task.tags.split(",").map((tag: string, i: number) => (
                               <Badge key={i} variant="outline" className="text-xs">
                                 {tag.trim()}
                               </Badge>

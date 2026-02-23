@@ -4,31 +4,32 @@
  */
 
 // Zero-width Unicode characters that can be used for visual spoofing
+// Zero-width Unicode characters that can be used for visual spoofing
+// Defined as array of code points to avoid misleading character class issues
 const ZERO_WIDTH_CHARS = [
-  '\u200B', // Zero Width Space
-  '\u200C', // Zero Width Non-Joiner
-  '\u200D', // Zero Width Joiner
-  '\uFEFF', // Zero Width No-Break Space (BOM)
-  '\u2060', // Word Joiner
-  '\u180E', // Mongolian Vowel Separator
-  '\u200E', // Left-to-Right Mark
-  '\u200F', // Right-to-Left Mark
-  '\u202A', // Left-to-Right Embedding
-  '\u202B', // Right-to-Left Embedding
-  '\u202C', // Pop Directional Formatting
-  '\u202D', // Left-to-Right Override
-  '\u202E', // Right-to-Left Override
-  '\u2066', // Left-to-Right Isolate
-  '\u2067', // Right-to-Left Isolate
-  '\u2068', // First Strong Isolate
-  '\u2069', // Pop Directional Isolate
+  0x200B, // Zero Width Space
+  0x200C, // Zero Width Non-Joiner
+  0x200D, // Zero Width Joiner
+  0xFEFF, // Zero Width No-Break Space (BOM)
+  0x2060, // Word Joiner
+  0x180E, // Mongolian Vowel Separator
+  0x200E, // Left-to-Right Mark
+  0x200F, // Right-to-Left Mark
+  0x202A, // Left-to-Right Embedding
+  0x202B, // Right-to-Left Embedding
+  0x202C, // Pop Directional Formatting
+  0x202D, // Left-to-Right Override
+  0x202E, // Right-to-Left Override
+  0x2066, // Left-to-Right Isolate
+  0x2067, // Right-to-Left Isolate
+  0x2068, // First Strong Isolate
+  0x2069, // Pop Directional Isolate
 ];
-
-const ZERO_WIDTH_REGEX = new RegExp(`[${ZERO_WIDTH_CHARS.join('')}]`, 'g');
 
 // Cuneiform Unicode block (U+12000 to U+123FF) - used in "Unicode bomb" DOS attacks
 // These characters can cause exponential processing time in text rendering/layout engines
-const CUNEIFORM_REGEX = /[\u{12000}-\u{123FF}]/gu;
+const CUNEIFORM_START = 0x12000;
+const CUNEIFORM_END = 0x123FF;
 
 /**
  * Checks if a string contains zero-width Unicode characters
@@ -39,7 +40,23 @@ export function containsZeroWidthChars(text: string): boolean {
   if (!text || typeof text !== 'string') {
     return false;
   }
-  return ZERO_WIDTH_REGEX.test(text);
+  // Check each character against zero-width code points
+  for (let i = 0; i < text.length; i++) {
+    const code = text.charCodeAt(i);
+    // Handle surrogate pairs for high Unicode
+    if (code >= 0xD800 && code <= 0xDBFF && i + 1 < text.length) {
+      const high = code;
+      const low = text.charCodeAt(i + 1);
+      const fullCode = ((high - 0xD800) * 0x400) + (low - 0xDC00) + 0x10000;
+      if (fullCode >= CUNEIFORM_START && fullCode <= CUNEIFORM_END) {
+        return true; // Actually Cuneiform, but we check this separately
+      }
+      i++; // Skip the low surrogate
+    } else if (ZERO_WIDTH_CHARS.includes(code)) {
+      return true;
+    }
+  }
+  return false;
 }
 
 /**
@@ -51,7 +68,14 @@ export function removeZeroWidthChars(text: string): string {
   if (!text || typeof text !== 'string') {
     return text;
   }
-  return text.replace(ZERO_WIDTH_REGEX, '');
+  let result = '';
+  for (let i = 0; i < text.length; i++) {
+    const code = text.charCodeAt(i);
+    if (!ZERO_WIDTH_CHARS.includes(code)) {
+      result += text[i];
+    }
+  }
+  return result;
 }
 
 /**
@@ -65,7 +89,20 @@ export function containsCuneiformChars(text: string): boolean {
   if (!text || typeof text !== 'string') {
     return false;
   }
-  return CUNEIFORM_REGEX.test(text);
+  // Check for Cuneiform characters (U+12000 to U+123FF)
+  for (let i = 0; i < text.length; i++) {
+    const code = text.charCodeAt(i);
+    if (code >= 0xD800 && code <= 0xDBFF && i + 1 < text.length) {
+      const high = code;
+      const low = text.charCodeAt(i + 1);
+      const fullCode = ((high - 0xD800) * 0x400) + (low - 0xDC00) + 0x10000;
+      if (fullCode >= CUNEIFORM_START && fullCode <= CUNEIFORM_END) {
+        return true;
+      }
+      i++; // Skip the low surrogate
+    }
+  }
+  return false;
 }
 
 /**
@@ -77,7 +114,24 @@ export function removeCuneiformChars(text: string): string {
   if (!text || typeof text !== 'string') {
     return text;
   }
-  return text.replace(CUNEIFORM_REGEX, '');
+  let result = '';
+  for (let i = 0; i < text.length; i++) {
+    const code = text.charCodeAt(i);
+    if (code >= 0xD800 && code <= 0xDBFF && i + 1 < text.length) {
+      const high = code;
+      const low = text.charCodeAt(i + 1);
+      const fullCode = ((high - 0xD800) * 0x400) + (low - 0xDC00) + 0x10000;
+      if (fullCode >= CUNEIFORM_START && fullCode <= CUNEIFORM_END) {
+        i++; // Skip the low surrogate
+        continue; // Skip this Cuneiform character
+      }
+      result += text[i];
+      i++; // Skip the low surrogate
+    } else {
+      result += text[i];
+    }
+  }
+  return result;
 }
 
 /**

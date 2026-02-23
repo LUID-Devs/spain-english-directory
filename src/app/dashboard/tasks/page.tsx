@@ -148,7 +148,7 @@ const TasksPage = () => {
   } = useGetTasksByUserQuery(userId || 0, { skip: userId === null });
 
   // Undoable bulk delete hook
-  const { deleteWithUndo: deleteTasksWithUndo, isPending: isDeletePending } = useUndoableBulkDelete({
+  const { deleteWithUndo: deleteTasksWithUndo, isPending: checkDeletePending } = useUndoableBulkDelete({
     onDelete: async (taskIds) => {
       const result = await apiService.bulkDeleteTasks(taskIds);
       clearSelection();
@@ -367,7 +367,7 @@ const TasksPage = () => {
     
     setIsBulkProcessing(true);
     try {
-      const result = await apiService.bulkAssignAgents(Array.from(selectedTasks), [agentId]);
+      const result = await apiService.bulkAssignTasks(Array.from(selectedTasks), agentId);
       toast.success(`Assigned ${result.updatedCount} tasks to agent`);
       clearSelection();
       refetchTasks();
@@ -436,8 +436,7 @@ const TasksPage = () => {
         author,
         assignee,
         project,
-        task.createdAt ? new Date(task.createdAt).toLocaleDateString() : '',
-        task.updatedAt ? new Date(task.updatedAt).toLocaleDateString() : ''
+        task.createdAt ? new Date(task.createdAt).toLocaleDateString() : ''
       ];
     });
     
@@ -784,7 +783,7 @@ const TasksPage = () => {
           {/* Status Change Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="secondary" size="sm" disabled={isBulkProcessing || isDeletePending} className="h-8">
+              <Button variant="secondary" size="sm" disabled={isBulkProcessing || checkDeletePending()} className="h-8">
                 <CheckSquare className="h-4 w-4 mr-1" />
                 Status
                 <ChevronDown className="h-3 w-3 ml-1" />
@@ -804,7 +803,7 @@ const TasksPage = () => {
           {/* Assign Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="secondary" size="sm" disabled={isBulkProcessing || isDeletePending} className="h-8">
+              <Button variant="secondary" size="sm" disabled={isBulkProcessing || checkDeletePending()} className="h-8">
                 <UserCheck className="h-4 w-4 mr-1" />
                 Assign
                 <ChevronDown className="h-3 w-3 ml-1" />
@@ -824,7 +823,7 @@ const TasksPage = () => {
           {/* Move to Project Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="secondary" size="sm" disabled={isBulkProcessing || isDeletePending} className="h-8">
+              <Button variant="secondary" size="sm" disabled={isBulkProcessing || checkDeletePending()} className="h-8">
                 <FolderKanban className="h-4 w-4 mr-1" />
                 Move
                 <ChevronDown className="h-3 w-3 ml-1" />
@@ -847,12 +846,12 @@ const TasksPage = () => {
           <Button 
             variant="destructive" 
             size="sm" 
-            disabled={isBulkProcessing || isDeletePending}
+            disabled={isBulkProcessing || checkDeletePending()}
             onClick={() => setShowDeleteConfirm(true)}
             className="h-8"
           >
             <Trash2 className="h-4 w-4 mr-1" />
-            {isDeletePending ? 'Deleting...' : 'Delete'}
+            {checkDeletePending() ? 'Deleting...' : 'Delete'}
           </Button>
         </div>
       )}
@@ -974,7 +973,7 @@ const TasksPage = () => {
                     </div>
                     {task.tags && (
                       <div className="flex flex-wrap gap-1 mt-2 pl-7">
-                        {task.tags.split(",").map((tag, i) => (
+                        {task.tags.split(",").map((tag: string, i: number) => (
                           <Badge key={i} variant="outline" className="text-xs">
                             {tag.trim()}
                           </Badge>
@@ -1043,7 +1042,7 @@ const TasksPage = () => {
                             )}
                             {task.tags && (
                               <div className="flex flex-wrap gap-1 mt-2">
-                                {task.tags.split(",").map((tag, i) => (
+                                {task.tags.split(",").map((tag: string, i: number) => (
                                   <Badge key={i} variant="outline" className="text-xs">
                                     {tag.trim()}
                                   </Badge>
