@@ -216,18 +216,6 @@ const RegisterPage = () => {
     }
   };
 
-  // Show loading state while checking authentication
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center px-4">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-gray-500/30 border-t-gray-500 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-400">Checking authentication...</p>
-        </div>
-      </div>
-    );
-  }
-
   if (showConfirmation) {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center px-4 relative overflow-hidden">
