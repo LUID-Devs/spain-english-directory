@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Check, X } from "lucide-react";
 import GoogleSignInButton from "@/components/GoogleSignInButton";
-import { useAuth } from "@/app/authProvider";
+// useAuth import removed: registration should be public
 import { PasswordInput } from "@/components/ui/password-input";
 
 // Password requirement type
@@ -28,8 +28,6 @@ const RegisterPage = () => {
   const [resendCountdown, setResendCountdown] = useState(0);
   const [resendAttempts, setResendAttempts] = useState(0);
   const navigate = useNavigate();
-  const { isAuthenticated, isLoading: authLoading, user } = useAuth();
-  const [hasRedirected, setHasRedirected] = React.useState(false);
 
   // Countdown timer for resend functionality
   useEffect(() => {
@@ -60,13 +58,7 @@ const RegisterPage = () => {
   const metRequirements = getMetRequirements();
   const allRequirementsMet = metRequirements.every(req => req.met);
 
-  // Redirect if already authenticated (only when backend auth is fully established with userId)
-  useEffect(() => {
-    if (!authLoading && isAuthenticated && user?.userId && !hasRedirected) {
-      setHasRedirected(true);
-      navigate('/dashboard', { replace: true });
-    }
-  }, [isAuthenticated, authLoading, user?.userId, navigate, hasRedirected]);
+  // Registration should stay accessible even if auth state is still resolving.
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -223,18 +215,6 @@ const RegisterPage = () => {
       setLoading(false);
     }
   };
-
-  // Show loading state while checking authentication
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center px-4">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-gray-500/30 border-t-gray-500 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-400">Checking authentication...</p>
-        </div>
-      </div>
-    );
-  }
 
   if (showConfirmation) {
     return (
