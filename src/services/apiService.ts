@@ -581,6 +581,15 @@ class ApiService {
   }
 
   async createProject(project: Partial<Project>): Promise<Project> {
+    // Validate for zero-width characters to prevent visual spoofing
+    if (project.name) {
+      const { validateProjectContent } = await import('../lib/validation');
+      const { isValid, error } = validateProjectContent(project.name, project.description);
+      if (!isValid) {
+        throw new Error(error);
+      }
+    }
+
     return this.request<Project>('/projects', {
       method: 'POST',
       body: JSON.stringify(project),
@@ -593,6 +602,15 @@ class ApiService {
   }
 
   async updateProject(id: string, project: Partial<Project>): Promise<Project> {
+    // Validate for zero-width characters if name or description is being updated
+    if (project.name !== undefined || project.description !== undefined) {
+      const { validateProjectContent } = await import('../lib/validation');
+      const { isValid, error } = validateProjectContent(project.name || '', project.description);
+      if (!isValid) {
+        throw new Error(error);
+      }
+    }
+
     return this.request<Project>(`/projects/${id}`, {
       method: 'PUT',
       body: JSON.stringify(project),
@@ -637,6 +655,13 @@ class ApiService {
   }
 
   async createStatus(projectId: number, data: { name: string; color?: string }): Promise<TaskStatus> {
+    // Validate for zero-width characters in status name
+    const { validateStatusContent } = await import('../lib/validation');
+    const { isValid, error } = validateStatusContent(data.name);
+    if (!isValid) {
+      throw new Error(error);
+    }
+
     return this.request<TaskStatus>(`/projects/${projectId}/statuses`, {
       method: 'POST',
       body: JSON.stringify(data),
@@ -644,6 +669,15 @@ class ApiService {
   }
 
   async updateStatus(projectId: number, statusId: number, data: { name?: string; color?: string; order?: number }): Promise<TaskStatus> {
+    // Validate for zero-width characters if name is being updated
+    if (data.name !== undefined) {
+      const { validateStatusContent } = await import('../lib/validation');
+      const { isValid, error } = validateStatusContent(data.name);
+      if (!isValid) {
+        throw new Error(error);
+      }
+    }
+
     return this.request<TaskStatus>(`/projects/${projectId}/statuses/${statusId}`, {
       method: 'PUT',
       body: JSON.stringify(data),
@@ -693,6 +727,15 @@ class ApiService {
   }
 
   async createTask(task: Partial<Task>): Promise<Task> {
+    // Validate for zero-width characters to prevent visual spoofing
+    if (task.title) {
+      const { validateTaskContent } = await import('../lib/validation');
+      const { isValid, error } = validateTaskContent(task.title, task.description);
+      if (!isValid) {
+        throw new Error(error);
+      }
+    }
+
     return this.request<Task>('/tasks', {
       method: 'POST',
       body: JSON.stringify(task),
@@ -700,6 +743,15 @@ class ApiService {
   }
 
   async updateTask(taskId: number, task: Partial<Task>): Promise<Task> {
+    // Validate for zero-width characters if title or description is being updated
+    if (task.title !== undefined || task.description !== undefined) {
+      const { validateTaskContent } = await import('../lib/validation');
+      const { isValid, error } = validateTaskContent(task.title || '', task.description);
+      if (!isValid) {
+        throw new Error(error);
+      }
+    }
+
     return this.request<Task>(`/tasks/${taskId}`, {
       method: 'PUT',
       body: JSON.stringify(task),
@@ -766,6 +818,13 @@ class ApiService {
   }
 
   async createComment(taskId: number, text: string, userId: number, imageUrl?: string): Promise<Comment> {
+    // Validate for zero-width characters in comment text
+    const { validateCommentContent } = await import('../lib/validation');
+    const { isValid, error } = validateCommentContent(text);
+    if (!isValid) {
+      throw new Error(error);
+    }
+
     return this.request<Comment>(`/tasks/${taskId}/comments`, {
       method: 'POST',
       body: JSON.stringify({ text, userId, imageUrl }),
@@ -780,6 +839,13 @@ class ApiService {
   }
 
   async updateComment(commentId: number, text: string, userId: number): Promise<Comment> {
+    // Validate for zero-width characters in comment text
+    const { validateCommentContent } = await import('../lib/validation');
+    const { isValid, error } = validateCommentContent(text);
+    if (!isValid) {
+      throw new Error(error);
+    }
+
     return this.request<Comment>(`/comments/${commentId}`, {
       method: 'PUT',
       body: JSON.stringify({ text, userId }),
@@ -1261,6 +1327,15 @@ class ApiService {
   }
 
   async createGoal(goal: Partial<Goal>): Promise<Goal> {
+    // Validate for zero-width characters to prevent visual spoofing
+    if (goal.title !== undefined || goal.description !== undefined) {
+      const { validateGoalContent } = await import('../lib/validation');
+      const { isValid, error } = validateGoalContent(goal.title, goal.description);
+      if (!isValid) {
+        throw new Error(error);
+      }
+    }
+
     const response = await this.request<{ success: boolean; goal: Goal; message: string }>('/goals', {
       method: 'POST',
       body: JSON.stringify(goal),
@@ -1269,6 +1344,15 @@ class ApiService {
   }
 
   async updateGoal(goalId: number, data: Partial<Goal>): Promise<Goal> {
+    // Validate for zero-width characters if title or description is being updated
+    if (data.title !== undefined || data.description !== undefined) {
+      const { validateGoalContent } = await import('../lib/validation');
+      const { isValid, error } = validateGoalContent(data.title, data.description);
+      if (!isValid) {
+        throw new Error(error);
+      }
+    }
+
     const response = await this.request<{ success: boolean; goal: Goal }>(`/goals/${goalId}`, {
       method: 'PUT',
       body: JSON.stringify(data),
@@ -1622,6 +1706,15 @@ class ApiService {
   // ==================== BULK OPERATIONS ====================
 
   async bulkUpdateTasks(taskIds: number[], updates: Partial<Task>): Promise<{ success: boolean; updatedCount: number }> {
+    // Validate for zero-width characters if title or description is being updated
+    if (updates.title !== undefined || updates.description !== undefined) {
+      const { validateTaskContent } = await import('../lib/validation');
+      const { isValid, error } = validateTaskContent(updates.title || '', updates.description);
+      if (!isValid) {
+        throw new Error(error);
+      }
+    }
+
     return this.request<{ success: boolean; updatedCount: number }>('/tasks/bulk/update', {
       method: 'PATCH',
       body: JSON.stringify({ taskIds, updates }),
