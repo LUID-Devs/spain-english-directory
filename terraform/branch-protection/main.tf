@@ -23,7 +23,7 @@ resource "github_branch_protection" "task_luid_web_main" {
   # Require status checks
   required_status_checks {
     strict   = true  # Require branches to be up-to-date before merging
-    contexts = []    # No CI checks required yet (no workflow runs on PRs)
+    contexts = ["ci"] # Require CI checks to pass
   }
 
   # Require pull request reviews
@@ -50,7 +50,7 @@ resource "github_branch_protection" "task_luid_backend_main" {
 
   required_status_checks {
     strict   = true
-    contexts = []  # No CI checks required yet
+    contexts = ["ci"]
   }
 
   required_pull_request_reviews {
@@ -74,7 +74,7 @@ resource "github_branch_protection" "resume_luid_web_main" {
 
   required_status_checks {
     strict   = true
-    contexts = []  # No CI checks required yet
+    contexts = ["ci"]
   }
 
   required_pull_request_reviews {
@@ -98,7 +98,7 @@ resource "github_branch_protection" "resume_luid_backend_main" {
 
   required_status_checks {
     strict   = true
-    contexts = []  # No CI checks required yet
+    contexts = ["ci"]
   }
 
   required_pull_request_reviews {
