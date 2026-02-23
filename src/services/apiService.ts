@@ -1700,6 +1700,115 @@ class ApiService {
     return this.request<TeamAnalyticsSummaryResponse>(`/api/analytics/teams/${teamId}/summary`);
   }
 
+  // ==================== TIMELINE API ====================
+
+  async getTimeline(params?: {
+    limit?: number;
+    offset?: number;
+    eventTypes?: TimelineEventType[];
+    categories?: TimelineEventCategory[];
+    taskId?: number;
+    projectId?: number;
+    fromDate?: string;
+    toDate?: string;
+  }): Promise<{
+    success: boolean;
+    events: TimelineEvent[];
+    pagination: { total: number; limit: number; offset: number; hasMore: boolean };
+  }> {
+    const queryParams = new URLSearchParams();
+    if (params?.limit !== undefined) queryParams.append('limit', params.limit.toString());
+    if (params?.offset !== undefined) queryParams.append('offset', params.offset.toString());
+    if (params?.taskId !== undefined) queryParams.append('taskId', params.taskId.toString());
+    if (params?.projectId !== undefined) queryParams.append('projectId', params.projectId.toString());
+    if (params?.fromDate) queryParams.append('fromDate', params.fromDate);
+    if (params?.toDate) queryParams.append('toDate', params.toDate);
+    if (params?.eventTypes) {
+      params.eventTypes.forEach(eventType => queryParams.append('eventTypes', eventType));
+    }
+    if (params?.categories) {
+      params.categories.forEach(category => queryParams.append('categories', category));
+    }
+
+    const queryString = queryParams.toString();
+    return this.request(`/api/timeline${queryString ? `?${queryString}` : ''}`);
+  }
+
+  async getTaskTimeline(taskId: number, params?: { limit?: number; offset?: number }): Promise<{
+    success: boolean;
+    events: TimelineEvent[];
+    pagination: { total: number; limit: number; offset: number; hasMore: boolean };
+  }> {
+    const queryParams = new URLSearchParams();
+    if (params?.limit !== undefined) queryParams.append('limit', params.limit.toString());
+    if (params?.offset !== undefined) queryParams.append('offset', params.offset.toString());
+
+    const queryString = queryParams.toString();
+    return this.request(`/api/timeline/task/${taskId}${queryString ? `?${queryString}` : ''}`);
+  }
+
+  // ==================== ROADMAP API ====================
+
+  async getRoadmapData(organizationId?: number): Promise<{
+    projects: RoadmapProject[];
+    milestones: Milestone[];
+    dependencies: ProjectDependency[];
+  }> {
+    const queryParams = new URLSearchParams();
+    if (organizationId) queryParams.append('organizationId', organizationId.toString());
+    const queryString = queryParams.toString();
+    return this.request(`/api/roadmap${queryString ? `?${queryString}` : ''}`);
+  }
+
+  async getMilestones(projectId?: number, organizationId?: number): Promise<Milestone[]> {
+    const queryParams = new URLSearchParams();
+    if (organizationId) queryParams.append('organizationId', organizationId.toString());
+    if (projectId) queryParams.append('projectId', projectId.toString());
+    const queryString = queryParams.toString();
+    return this.request(`/api/roadmap/milestones${queryString ? `?${queryString}` : ''}`);
+  }
+
+  async createMilestone(data: CreateMilestoneRequest): Promise<Milestone> {
+    return this.request('/api/roadmap/milestones', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateMilestone(milestoneId: number, data: Partial<CreateMilestoneRequest>): Promise<Milestone> {
+    return this.request(`/api/roadmap/milestones/${milestoneId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteMilestone(milestoneId: number): Promise<{ success: boolean }> {
+    return this.request(`/api/roadmap/milestones/${milestoneId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async getProjectDependencies(projectId?: number, organizationId?: number): Promise<ProjectDependency[]> {
+    const queryParams = new URLSearchParams();
+    if (organizationId) queryParams.append('organizationId', organizationId.toString());
+    if (projectId) queryParams.append('projectId', projectId.toString());
+    const queryString = queryParams.toString();
+    return this.request(`/api/roadmap/dependencies${queryString ? `?${queryString}` : ''}`);
+  }
+
+  async createProjectDependency(data: CreateDependencyRequest): Promise<ProjectDependency> {
+    return this.request('/api/roadmap/dependencies', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteProjectDependency(dependencyId: number): Promise<{ success: boolean }> {
+    return this.request(`/api/roadmap/dependencies/${dependencyId}`, {
+      method: 'DELETE',
+    });
+  }
+
   // ==================== BULK OPERATIONS ====================
 
   async bulkUpdateTasks(taskIds: number[], updates: Partial<Task>): Promise<{ success: boolean; updatedCount: number }> {
