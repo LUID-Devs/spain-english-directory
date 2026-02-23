@@ -60,6 +60,22 @@ const MissionControlPage = () => {
   const { data: morningStandup, isLoading: standupLoading } = useMorningStandup(activeOrganization?.id);
   const { data: agentTasks, isLoading: tasksLoading } = useAgentTasks();
 
+  // WebSocket handlers - MUST be before any early return
+  const handleAgentUpdate = useCallback((_updatedAgent: AgentWithOnlineStatus) => {
+    // React Query will automatically refetch, but we can also optimistically update
+  }, []);
+
+  const handleActivity = useCallback((_activity: ActivityLog) => {
+    // New activity received via WebSocket
+  }, []);
+
+  // WebSocket connection for real-time updates - MUST be before any early return
+  const { isConnected, connectionError } = useWebSocket({
+    organizationId: activeOrganization?.id,
+    onAgentUpdate: handleAgentUpdate,
+    onActivity: handleActivity,
+  });
+
   // Show skeleton while main data is loading
   const isInitialLoading = agentsLoading && monitoringLoading;
   if (isInitialLoading) {
@@ -80,22 +96,6 @@ const MissionControlPage = () => {
     awayAgents: monitoringData?.agents?.filter((a) => a.heartbeatStatus === "away").length || 0,
     offlineAgents: monitoringData?.agents?.filter((a) => a.heartbeatStatus === "offline").length || 0,
   };
-
-  // WebSocket handlers (must be called before any early return)
-  const handleAgentUpdate = useCallback((updatedAgent: AgentWithOnlineStatus) => {
-    // React Query will automatically refetch, but we can also optimistically update
-  }, []);
-
-  const handleActivity = useCallback((activity: ActivityLog) => {
-    // New activity received via WebSocket
-  }, []);
-
-  // WebSocket connection for real-time updates
-  const { isConnected, connectionError } = useWebSocket({
-    organizationId: activeOrganization?.id,
-    onAgentUpdate: handleAgentUpdate,
-    onActivity: handleActivity,
-  });
 
   return (
     <div className="container h-full w-full bg-background p-4 sm:p-6 lg:p-8">

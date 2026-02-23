@@ -60,15 +60,7 @@ const UsersPage = () => {
   const [removeOrganizationMember] = useRemoveOrganizationMemberMutation();
   const { currentUser } = useUserStore();
   
-  // Get current organization ID
-  const currentOrganizationId = currentUser?.activeOrganizationId || 
-    (typeof window !== 'undefined' ? Number(localStorage.getItem('activeOrganizationId')) : null);
-  
-  // Fetch member tasks when remove dialog is opened
-  const { data: memberTasks, isLoading: isLoadingTasks, refetch: refetchMemberTasks } = useGetMemberTasksQuery(
-    currentOrganizationId,
-    selectedUser?.userId || null
-  );
+  // State declarations - MUST be before any usage
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
@@ -76,6 +68,16 @@ const UsersPage = () => {
   const [selectedUser, setSelectedUser] = useState<UserWithStats | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [unassignTasks, setUnassignTasks] = useState(false);
+  
+  // Get current organization ID
+  const currentOrganizationId = currentUser?.activeOrganizationId || 
+    (typeof window !== 'undefined' ? Number(localStorage.getItem('activeOrganizationId')) : null);
+  
+  // Fetch member tasks when remove dialog is opened - now selectedUser is declared before use
+  const { data: memberTasks, isLoading: isLoadingTasks, refetch: refetchMemberTasks } = useGetMemberTasksQuery(
+    currentOrganizationId,
+    selectedUser?.userId || null
+  );
 
   const handleManageRole = (user: UserWithStats) => {
     setSelectedUser(user);
