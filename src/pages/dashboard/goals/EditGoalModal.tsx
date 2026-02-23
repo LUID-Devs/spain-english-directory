@@ -94,7 +94,7 @@ export function EditGoalModal({ goal, isOpen, onClose }: EditGoalModalProps) {
       goalType,
       visibility,
       targetDate: targetDate || undefined,
-      projectId: projectId ? parseInt(projectId) : null,
+      projectId: projectId ? parseInt(projectId) : undefined,
     };
 
     // Add completedAt if status changed to completed

@@ -422,7 +422,8 @@ class ApiService {
   private baseUrl: string;
 
   constructor() {
-    this.baseUrl = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
+    const rawBaseUrl = (import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || '').trim();
+    this.baseUrl = rawBaseUrl.replace(/\/$/, '');
   }
 
   private resolveEndpoint(endpoint: string): string {

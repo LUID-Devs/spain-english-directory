@@ -36,7 +36,7 @@ const AutomationRuleForm: React.FC<AutomationRuleFormProps> = ({
 
   const isEdit = !!rule;
   const { data: projects } = useGetProjectsQuery({}, { skip: !organizationId });
-  const { data: agents } = useGetAgentsQuery(undefined, { skip: !organizationId });
+  const { data: agents } = useGetAgentsQuery({ skip: !organizationId });
 
   const [name, setName] = useState(rule?.name || '');
   const [description, setDescription] = useState(rule?.description || '');

@@ -47,17 +47,22 @@ import {
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { useAuth } from "@/app/authProvider";
 
-const MissionControlPage = () => {
+const MissionControlContent = ({
+  activeOrganization,
+  user,
+}: {
+  activeOrganization: NonNullable<ReturnType<typeof useAuth>["activeOrganization"]>;
+  user: ReturnType<typeof useAuth>["user"];
+}) => {
   const [activeTab, setActiveTab] = useState("agents");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isGoalTemplateModalOpen, setIsGoalTemplateModalOpen] = useState(false);
-  const { activeOrganization, user } = useAuth();
-  
+
   // Fetch data
-  const { data: agents, isLoading: agentsLoading } = useAgents(activeOrganization?.id);
-  const { data: monitoringData, isLoading: monitoringLoading } = useMonitoringData(activeOrganization?.id);
-  const { data: nightPatrol, isLoading: nightPatrolLoading } = useNightPatrol(activeOrganization?.id);
-  const { data: morningStandup, isLoading: standupLoading } = useMorningStandup(activeOrganization?.id);
+  const { data: agents, isLoading: agentsLoading } = useAgents(activeOrganization.id);
+  const { data: monitoringData, isLoading: monitoringLoading } = useMonitoringData(activeOrganization.id);
+  const { data: nightPatrol, isLoading: nightPatrolLoading } = useNightPatrol(activeOrganization.id);
+  const { data: morningStandup, isLoading: standupLoading } = useMorningStandup(activeOrganization.id);
   const { data: agentTasks, isLoading: tasksLoading } = useAgentTasks();
 
   // WebSocket handlers - MUST be before any early return
@@ -71,7 +76,7 @@ const MissionControlPage = () => {
 
   // WebSocket connection for real-time updates - MUST be before any early return
   const { isConnected, connectionError } = useWebSocket({
-    organizationId: activeOrganization?.id,
+    organizationId: activeOrganization.id,
     onAgentUpdate: handleAgentUpdate,
     onActivity: handleActivity,
   });
@@ -83,7 +88,7 @@ const MissionControlPage = () => {
   }
 
   // Check if user can manage agents (admin or owner)
-  const canManageAgents = activeOrganization?.role === "admin" || activeOrganization?.role === "owner";
+  const canManageAgents = activeOrganization.role === "admin" || activeOrganization.role === "owner";
 
   // Calculate stats
   const stats = {
@@ -331,7 +336,7 @@ const MissionControlPage = () => {
 
             <TabsContent value="activity" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
               <RealTimeActivityFeed 
-                organizationId={activeOrganization?.id}
+                organizationId={activeOrganization.id}
                 initialActivities={monitoringData?.activities}
                 isLoading={monitoringLoading}
               />
@@ -372,10 +377,20 @@ const MissionControlPage = () => {
       <GoalTemplatesQuickCreate
         isOpen={isGoalTemplateModalOpen}
         onClose={() => setIsGoalTemplateModalOpen(false)}
-        organizationId={activeOrganization?.id}
+        organizationId={activeOrganization.id}
       />
     </div>
   );
+};
+
+const MissionControlPage = () => {
+  const { activeOrganization, user, isLoading } = useAuth();
+
+  if (isLoading || !activeOrganization) {
+    return <DashboardSkeleton />;
+  }
+
+  return <MissionControlContent activeOrganization={activeOrganization} user={user} />;
 };
 
 export default MissionControlPage;

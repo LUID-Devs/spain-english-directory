@@ -3,7 +3,7 @@ import { toast } from 'sonner';
 import { useApiStore } from '@/stores/apiStore';
 import { useUserStore } from '@/stores/userStore';
 import { useRequestManager } from '@/stores/requestManager';
-import { apiService, Status, Priority, Task, Project, User, Comment, Attachment } from '@/services/apiService';
+import { apiService, Status, Priority, Task, Project, User, Comment, Attachment, UserWithStats, SavedView } from '@/services/apiService';
 
 // Utility function to create RTK Query-like mutation results
 const createMutationResult = <T>(promise: Promise<T>) => {

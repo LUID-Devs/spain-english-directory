@@ -477,10 +477,10 @@ export const DetailedTaskView: React.FC<DetailedTaskViewProps> = ({
                             <p className="text-xs font-medium">{assignment.agent.displayName}</p>
                             <Badge
                               className={`text-[10px] text-white ${
-                                roleColors[assignment.agent.role] || "bg-gray-500"
+                                roleColors[assignment.agent.role || ''] || "bg-gray-500"
                               }`}
                             >
-                              {assignment.agent.role.replace("-", " ")}
+                              {(assignment.agent.role || 'member').replace("-", " ")}
                             </Badge>
                           </div>
                         </div>

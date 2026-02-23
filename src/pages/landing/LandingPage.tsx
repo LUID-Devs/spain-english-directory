@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   CheckCircle,
@@ -21,9 +21,13 @@ import {
   Globe,
   TrendingUp,
   Award,
+  Menu,
+  X,
 } from 'lucide-react';
 
 const LandingPage = () => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   // Compute values during render to prevent hydration mismatch
   const year = useMemo(() => new Date().getFullYear(), []);
 
@@ -144,6 +148,78 @@ const LandingPage = () => {
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col">
+      {/* Top Navigation */}
+      <nav className="border-b border-neutral-900 bg-black/80 backdrop-blur">
+        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
+              <CheckCircle className="w-5 h-5 text-white" />
+            </div>
+            <span className="font-semibold text-lg">TaskLuid</span>
+          </Link>
+          <div className="hidden md:flex items-center gap-6">
+            <Link to="/features" className="text-sm text-neutral-400 hover:text-white transition-colors">
+              Features
+            </Link>
+            <Link to="/pricing" className="text-sm text-neutral-400 hover:text-white transition-colors">
+              Pricing
+            </Link>
+            <Link to="/auth/login" className="text-sm text-neutral-400 hover:text-white transition-colors">
+              Sign In
+            </Link>
+            <Link
+              to="/auth/register"
+              className="text-sm px-4 py-2 rounded-full bg-white text-black font-medium hover:bg-neutral-200 transition-colors"
+            >
+              Get Started
+            </Link>
+          </div>
+          <button
+            type="button"
+            className="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-lg border border-neutral-800 text-neutral-300 hover:text-white hover:border-neutral-700 transition-colors"
+            onClick={() => setIsMobileMenuOpen((open) => !open)}
+            aria-label="Toggle navigation"
+            aria-expanded={isMobileMenuOpen}
+          >
+            {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
+        </div>
+        {isMobileMenuOpen && (
+          <div className="md:hidden border-t border-neutral-900 bg-black/95">
+            <div className="px-4 py-4 flex flex-col gap-3">
+              <Link
+                to="/features"
+                className="text-sm text-neutral-300 hover:text-white transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Features
+              </Link>
+              <Link
+                to="/pricing"
+                className="text-sm text-neutral-300 hover:text-white transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Pricing
+              </Link>
+              <Link
+                to="/auth/login"
+                className="text-sm text-neutral-300 hover:text-white transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Sign In
+              </Link>
+              <Link
+                to="/auth/register"
+                className="text-sm inline-flex items-center justify-center px-4 py-2 rounded-full bg-white text-black font-medium hover:bg-neutral-200 transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Get Started
+              </Link>
+            </div>
+          </div>
+        )}
+      </nav>
+
       {/* Hero Section */}
       <div className="flex-1 flex items-center justify-center px-4 pt-14 pb-12">
         <div className="text-center max-w-3xl">

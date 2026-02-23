@@ -309,18 +309,18 @@ export default function GoalsPage() {
                       </div>
 
                       {/* Linked Tasks */}
-                      {goal._count?.linkedTasks > 0 && (
+                      {(goal._count?.linkedTasks ?? 0) > 0 && (
                         <span className="flex items-center gap-1">
                           <Link className="h-3 w-3" />
-                          {goal._count.linkedTasks} tasks
+                          {goal._count?.linkedTasks ?? 0} tasks
                         </span>
                       )}
 
                       {/* Child Goals */}
-                      {goal._count?.childGoals > 0 && (
+                      {(goal._count?.childGoals ?? 0) > 0 && (
                         <span className="flex items-center gap-1">
                           <Target className="h-3 w-3" />
-                          {goal._count.childGoals} sub-goals
+                          {goal._count?.childGoals ?? 0} sub-goals
                         </span>
                       )}
 

@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/app/authProvider';
 import { useGetProjectsQuery, useGetTasksByUserQuery } from '@/hooks/useApi';
+import type { Comment, Attachment } from '@/services/apiService';
 import Header from '@/components/Header';
 import ActivityCard, { TimelineActivity, ActivityType } from '@/components/ActivityCard';
 import { format, isToday, isYesterday, isThisWeek, parseISO } from 'date-fns';
@@ -92,7 +93,7 @@ const TimelinePage = () => {
       }
       
       // Comments
-      (task.comments || []).forEach(comment => {
+      (task.comments || []).forEach((comment: Comment) => {
         activities.push({
           id: `comment-${comment.id}`,
           type: 'comment_added',
@@ -109,7 +110,7 @@ const TimelinePage = () => {
       });
       
       // Attachments
-      (task.attachments || []).forEach(attachment => {
+      (task.attachments || []).forEach((attachment: Attachment) => {
         activities.push({
           id: `attachment-${attachment.id}`,
           type: 'file_uploaded',

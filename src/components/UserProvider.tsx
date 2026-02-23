@@ -20,7 +20,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 
       // If user is authenticated, set the user from auth
       if (auth.isAuthenticated && auth.user) {
-        const userIdentifier = auth.user.sub || auth.user.email || auth.user.userId || "";
+        const userIdentifier = auth.user.sub || auth.user.email || String(auth.user.userId) || "";
         setUserIdentifier(userIdentifier);
         
         try {
@@ -32,7 +32,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
             setCurrentUser(auth.user);
           } else if (userIdentifier) {
             // Otherwise fetch the complete user data
-            const user = await apiService.getAuthUser(userIdentifier);
+            const user = await apiService.getAuthUser(String(userIdentifier));
             setCurrentUser(user);
           }
         } catch (error) {

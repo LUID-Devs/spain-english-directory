@@ -275,9 +275,7 @@ export function staticPrerenderPlugin(): Plugin {
               <input type="text" placeholder="Full Name" class="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500" />
               <input type="email" placeholder="Email" class="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500" />
               <input type="password" placeholder="Password" class="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500" />
-              <button class="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium transition-colors">
-                Create Account
-              </button>
+              <button class="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium transition-colors text-white" aria-label="Create Account">Create Account</button>
             </div>
             <p class="mt-6 text-sm text-gray-400">
               Already have an account? <a href="/auth/login" class="hover:text-white transition-colors">Sign in</a>
@@ -957,7 +955,7 @@ export function staticPrerenderPlugin(): Plugin {
           <!-- Footer -->
           <footer class="border-t border-neutral-800 py-6 px-4">
             <div class="max-w-4xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
-              <p class="text-sm text-neutral-500">&amp;copy; ${currentYear} LuidKit — Part of Luid Suite</p>
+              <p class="text-sm text-neutral-500">&copy; ${currentYear} LuidKit — Part of Luid Suite</p>
               <div class="flex gap-6 text-sm">
                 <a href="/privacy" class="text-neutral-400 hover:text-gray-400 transition-colors">Privacy Policy</a>
                 <a href="/terms" class="text-neutral-400 hover:text-gray-400 transition-colors">Terms of Service</a>

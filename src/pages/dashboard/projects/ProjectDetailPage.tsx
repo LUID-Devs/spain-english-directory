@@ -20,7 +20,8 @@ const ProjectDetailPage = () => {
   );
 
   // Fetch users for assignee filter
-  const { data: users = [] } = useGetUsersQuery();
+  const { data: usersData } = useGetUsersQuery();
+  const users = useMemo(() => usersData || [], [usersData]);
 
   // Fetch statuses for status filter
   const { data: statusesData } = useGetProjectStatusesQuery(Number(id));
