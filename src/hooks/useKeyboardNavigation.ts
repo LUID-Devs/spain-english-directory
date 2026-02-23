@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useLayoutEffect } from 'react';
 
 interface UseKeyboardNavigationOptions {
   itemSelector: string;
@@ -48,7 +48,7 @@ export const useKeyboardNavigation = ({
   }, [itemSelector, enabled]);
 
   // Update selected element when index changes
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!enabled || selectedIndex < 0) {
       setSelectedElement(null);
       return;
