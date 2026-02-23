@@ -286,15 +286,15 @@ export interface TaskAssignment {
   taskId: number;
   status: string;
   assignedAt: string;
-  task: {
-    id: number;
-    title: string;
-    status: string;
-    priority: string;
+  task?: {
+    id?: number;
+    title?: string;
+    status?: string;
+    priority?: string;
     dueDate?: string;
     project?: {
-      id: number;
-      name: string;
+      id?: number;
+      name?: string;
     };
     author?: {
       userId: number;
