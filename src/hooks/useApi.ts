@@ -1809,7 +1809,7 @@ export const useUploadAttachmentMutation = () => {
     unwrap: () => uploadAttachment(args, onProgress)
   }), [uploadAttachment]);
 
-  return [mutationWrapper, { isLoading }];
+  return [mutationWrapper, { isLoading }] as const;
 };
 
 export const useDeleteAttachmentMutation = () => {
