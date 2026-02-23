@@ -378,7 +378,7 @@ const BoardView = ({
 type TaskColumnProps = {
   status: string;
   tasks: TaskType[];
-  moveTask: (taskId: number, toStatus: string) => void;
+  moveTask: (taskId: number, toStatus: string, fromStatus?: string) => void;
   onTaskSelect: (task: { taskId: number; editMode: boolean }) => void;
   onEditStatus: (status: string) => void;
   onDeleteStatus: (status: string) => void;
@@ -408,7 +408,9 @@ const TaskColumn = React.memo(({
 }: TaskColumnProps) => {
   const [{ isOver }, drop] = useDrop(() => ({
     accept: "task",
-    drop: (item: { id: number; status?: string }) => moveTask(item.id, status, item.status),
+    drop: (item: { id: number; status?: string }, _monitor: DropTargetMonitor) => {
+      moveTask(item.id, status, item.status);
+    },
     collect: (monitor: DropTargetMonitor) => ({
       isOver: !!monitor.isOver()
     }),

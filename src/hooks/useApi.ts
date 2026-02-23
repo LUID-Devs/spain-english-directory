@@ -419,7 +419,7 @@ export const useCreateTaskMutation = () => {
     unwrap: () => createTask(args)
   }), [createTask]);
 
-  return [mutationWrapper, { isLoading: false }];
+  return [mutationWrapper, { isLoading: false }] as const;
 };
 
 export const useCreateProjectMutation = () => {
@@ -449,7 +449,7 @@ export const useCreateProjectMutation = () => {
     unwrap: () => createProject(args)
   }), [createProject]);
 
-  return [mutationWrapper, { isLoading: false }];
+  return [mutationWrapper, { isLoading: false }] as const;
 };
 
 export const useUpdateTaskMutation = () => {
@@ -507,7 +507,7 @@ export const useUpdateTaskMutation = () => {
     unwrap: () => updateTask(args)
   }), [updateTask]);
 
-  return [mutationWrapper, { isLoading: false }];
+  return [mutationWrapper, { isLoading: false }] as const;
 };
 
 export const useReorderTasksMutation = () => {
@@ -543,7 +543,7 @@ export const useReorderTasksMutation = () => {
     unwrap: () => reorderTasks(args.taskOrders)
   }), [reorderTasks]);
 
-  return [mutationWrapper, { isLoading: false }];
+  return [mutationWrapper, { isLoading: false }] as const;
 };
 
 export const useUploadTaskDescriptionImageMutation = () => {
@@ -554,7 +554,7 @@ export const useUploadTaskDescriptionImageMutation = () => {
     };
   }, []);
 
-  return [uploadImage, { isLoading: false }];
+  return [uploadImage, { isLoading: false }] as const;
 };
 
 export const useUpdateProjectMutation = () => {
@@ -626,7 +626,7 @@ export const useUpdateProjectMutation = () => {
     unwrap: () => updateProject(args)
   }), [updateProject]);
 
-  return [mutationWrapper, { isLoading: false }];
+  return [mutationWrapper, { isLoading: false }] as const;
 };
 
 //Hook for teams query
@@ -806,7 +806,7 @@ export const useDeleteTaskMutation = () => {
     unwrap: () => deleteTask(taskId)
   }), [deleteTask]);
 
-  return [mutationWrapper, { isLoading: false }];
+  return [mutationWrapper, { isLoading: false }] as const;
 };
 
 export const useArchiveTaskMutation = () => {
@@ -848,7 +848,7 @@ export const useArchiveTaskMutation = () => {
     unwrap: () => archiveTask(taskId)
   }), [archiveTask]);
 
-  return [mutationWrapper, { isLoading: false }];
+  return [mutationWrapper, { isLoading: false }] as const;
 };
 
 export const useUnarchiveTaskMutation = () => {
@@ -890,7 +890,7 @@ export const useUnarchiveTaskMutation = () => {
     unwrap: () => unarchiveTask(taskId)
   }), [unarchiveTask]);
 
-  return [mutationWrapper, { isLoading: false }];
+  return [mutationWrapper, { isLoading: false }] as const;
 };
 
 export const useUpdateTaskStatusMutation = () => {
@@ -937,7 +937,7 @@ export const useUpdateTaskStatusMutation = () => {
     unwrap: () => updateTaskStatus(args)
   }), [updateTaskStatus]);
 
-  return [mutationWrapper, { isLoading: false }];
+  return [mutationWrapper, { isLoading: false }] as const;
 };
 
 export const useCreateCommentMutation = () => {
@@ -987,7 +987,7 @@ export const useCreateCommentMutation = () => {
     unwrap: () => createComment(args)
   }), [createComment]);
 
-  return [mutationWrapper, { isLoading: false }];
+  return [mutationWrapper, { isLoading: false }] as const;
 };
 
 export const useUploadCommentImageMutation = () => {
@@ -998,7 +998,7 @@ export const useUploadCommentImageMutation = () => {
     };
   }, []);
 
-  return [uploadCommentImage, { isLoading: false }];
+  return [uploadCommentImage, { isLoading: false }] as const;
 };
 
 export const useDeleteProjectMutation = () => {
@@ -1044,7 +1044,7 @@ export const useDeleteProjectMutation = () => {
     unwrap: () => deleteProject(projectId)
   }), [deleteProject]);
 
-  return [mutationWrapper, { isLoading: false }];
+  return [mutationWrapper, { isLoading: false }] as const;
 };
 
 export const useFavoriteProjectMutation = () => {
@@ -1103,7 +1103,7 @@ export const useFavoriteProjectMutation = () => {
     unwrap: () => favoriteProject(args)
   }), [favoriteProject]);
 
-  return [mutationWrapper, { isLoading: false }];
+  return [mutationWrapper, { isLoading: false }] as const;
 };
 
 export const useUnfavoriteProjectMutation = () => {
@@ -1162,7 +1162,7 @@ export const useUnfavoriteProjectMutation = () => {
     unwrap: () => unfavoriteProject(args)
   }), [unfavoriteProject]);
 
-  return [mutationWrapper, { isLoading: false }];
+  return [mutationWrapper, { isLoading: false }] as const;
 };
 
 export const useArchiveProjectMutation = () => {
@@ -1220,7 +1220,7 @@ export const useArchiveProjectMutation = () => {
     unwrap: () => archiveProject(projectId)
   }), [archiveProject]);
 
-  return [mutationWrapper, { isLoading: false }];
+  return [mutationWrapper, { isLoading: false }] as const;
 };
 
 export const useUnarchiveProjectMutation = () => {
@@ -1278,7 +1278,7 @@ export const useUnarchiveProjectMutation = () => {
     unwrap: () => unarchiveProject(projectId)
   }), [unarchiveProject]);
 
-  return [mutationWrapper, { isLoading: false }];
+  return [mutationWrapper, { isLoading: false }] as const;
 };
 
 // Hook for users with stats
@@ -1363,7 +1363,7 @@ export const useInviteUserMutation = () => {
     unwrap: () => inviteUser(args)
   }), [inviteUser]);
 
-  return [mutationWrapper, { isLoading: false }];
+  return [mutationWrapper, { isLoading: false }] as const;
 };
 
 export const useUpdateUserRoleMutation = () => {
@@ -1433,7 +1433,7 @@ export const useUpdateUserRoleMutation = () => {
     unwrap: () => updateUserRole(args)
   }), [updateUserRole]);
 
-  return [mutationWrapper, { isLoading: false }];
+  return [mutationWrapper, { isLoading: false }] as const;
 };
 
 export const useGetMemberTasksQuery = (organizationId: number | null, userId: number | null) => {
@@ -1503,7 +1503,7 @@ export const useRemoveOrganizationMemberMutation = () => {
     unwrap: () => removeOrganizationMember(args)
   }), [removeOrganizationMember]);
 
-  return [mutationWrapper, { isLoading: false }];
+  return [mutationWrapper, { isLoading: false }] as const;
 };
 
 // Search hooks
@@ -1837,7 +1837,7 @@ export const useDeleteAttachmentMutation = () => {
     unwrap: () => deleteAttachment(args)
   }), [deleteAttachment]);
 
-  return [deleteAttachment, { isLoading: false }];
+  return [deleteAttachment, { isLoading: false }] as const;
 };
 
 // Comment mutations
@@ -1878,7 +1878,7 @@ export const useUpdateCommentMutation = () => {
     unwrap: () => updateComment(args)
   }), [updateComment]);
 
-  return [mutationWrapper, { isLoading: false }];
+  return [mutationWrapper, { isLoading: false }] as const;
 };
 
 export const useDeleteCommentMutation = () => {
@@ -1906,7 +1906,7 @@ export const useDeleteCommentMutation = () => {
     unwrap: () => deleteComment(args)
   }), [deleteComment]);
 
-  return [mutationWrapper, { isLoading: false }];
+  return [mutationWrapper, { isLoading: false }] as const;
 };
 
 // Task Status hooks
@@ -1972,7 +1972,7 @@ export const useCreateStatusMutation = () => {
     unwrap: () => createStatus(args)
   }), [createStatus]);
 
-  return [mutationWrapper, { isLoading: false }];
+  return [mutationWrapper, { isLoading: false }] as const;
 };
 
 export const useUpdateStatusMutation = () => {
@@ -1993,7 +1993,7 @@ export const useUpdateStatusMutation = () => {
     unwrap: () => updateStatus(args)
   }), [updateStatus]);
 
-  return [mutationWrapper, { isLoading: false }];
+  return [mutationWrapper, { isLoading: false }] as const;
 };
 
 export const useDeleteStatusMutation = () => {
@@ -2014,7 +2014,7 @@ export const useDeleteStatusMutation = () => {
     unwrap: () => deleteStatus(args)
   }), [deleteStatus]);
 
-  return [mutationWrapper, { isLoading: false }];
+  return [mutationWrapper, { isLoading: false }] as const;
 };
 
 export const useReorderStatusesMutation = () => {
@@ -2035,7 +2035,7 @@ export const useReorderStatusesMutation = () => {
     unwrap: () => reorderStatuses(args)
   }), [reorderStatuses]);
 
-  return [mutationWrapper, { isLoading: false }];
+  return [mutationWrapper, { isLoading: false }] as const;
 };
 
 // ==================== SAVED VIEWS HOOKS ====================
