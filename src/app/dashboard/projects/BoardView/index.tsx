@@ -22,8 +22,6 @@ import {
   Trash2,
   Eye,
   Clock,
-  User,
-  Calendar,
   AlertTriangle,
   Target,
   Activity,
@@ -35,13 +33,12 @@ import {
   Unlock,
   ChevronLeft,
   ChevronRight,
-  GripVertical,
   Copy,
   Share2,
   AlertCircle
 } from "lucide-react";
 import { toast } from "sonner";
-import { format, formatDistanceToNow, isAfter, isBefore } from "date-fns";
+import { format, formatDistanceToNow, isBefore } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -52,7 +49,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import DeleteTaskModal from "@/components/DeleteTaskModal";
 import { useTaskModal } from "@/contexts/TaskModalContext";
@@ -286,7 +282,7 @@ const BoardView = ({
     [newStatusIds[currentIndex], newStatusIds[newIndex]] = [newStatusIds[newIndex], newStatusIds[currentIndex]];
 
     try {
-      await (reorderStatuses as any)({ projectId: Number(id), statusIds: newStatusIds }).unwrap();
+      await reorderStatuses({ projectId: Number(id), statusIds: newStatusIds }).unwrap();
       refetchStatuses();
     } catch (error) {
       console.error('Failed to reorder statuses:', error);
@@ -424,7 +420,7 @@ const TaskColumn = React.memo(({
   const isWipWarning = wipLimit !== Infinity && tasksCount >= wipLimit * 0.8 && tasksCount <= wipLimit;
 
   const getStatusConfig = (status: string) => {
-    const configs: Record<string, { variant: "outline" | "secondary" | "default"; icon: any; className: string }> = {
+    const configs: Record<string, { variant: "outline" | "secondary" | "default"; icon: React.ComponentType<{ className?: string }>; className: string }> = {
       "To Do": {
         variant: "outline",
         icon: ListIcon,
@@ -619,9 +615,8 @@ const getPriorityConfig = (priority: TaskType["priority"]) => {
 };
 
 const Task = React.memo(({ task, onTaskSelect }: TaskProps) => {
-  const [isEditMode, setIsEditMode] = React.useState(false);
-  const [showDropdown, setShowDropdown] = React.useState(false);
-  const [showDeleteModal, setShowDeleteModal] = React.useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteTask, { isLoading: isDeleting }] = useDeleteTaskMutation();
   const [createTask, { isLoading: isDuplicating }] = useCreateTaskMutation();
   const [{ isDragging }, drag] = useDrag(() => ({
@@ -634,16 +629,13 @@ const Task = React.memo(({ task, onTaskSelect }: TaskProps) => {
 
   const taskTagsSplit = task.tags ? task.tags.split(",") : [];
 
-  const formattedStartDate = task.startDate
-    ? format(new Date(task.startDate), "P")
-    : "";
   const formattedDueDate = task.dueDate
     ? format(new Date(task.dueDate), "P")
     : "";
 
   const numberOfComments = (task.comments && task.comments.length) || 0;
 
-  const handleCardClick = (e: React.MouseEvent) => {
+  const handleCardClick = () => {
     // Don't open modal if dragging or if clicking on menu button
     if (!isDragging) {
       onTaskSelect({ taskId: task.id, editMode: false });
@@ -708,9 +700,10 @@ const Task = React.memo(({ task, onTaskSelect }: TaskProps) => {
       await createTask(duplicatedTask).unwrap();
       // Dispatch event to refresh the board
       window.dispatchEvent(new CustomEvent('taskUpdated'));
-    } catch (error: any) {
+    } catch (error) {
       console.error('Failed to duplicate task:', error);
-      toast.error(error?.data?.message || 'Failed to duplicate task. Please try again.');
+      const err = error as { data?: { message?: string } };
+      toast.error(err?.data?.message || 'Failed to duplicate task. Please try again.');
     }
   };
 
@@ -730,8 +723,9 @@ const Task = React.memo(({ task, onTaskSelect }: TaskProps) => {
           label: "Undo",
           onClick: async () => {
             try {
-              // Prepare task data for recreation (exclude id, createdAt, updatedAt)
-              const { id, createdAt, updatedAt, comments, attachments, ...taskData } = taskToRestore;
+              // Prepare task data for recreation (exclude id, createdAt, comments, attachments)
+              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+              const { id: _id, createdAt: _createdAt, comments: _comments, attachments: _attachments, ...taskData } = taskToRestore;
               
               // Recreate the task
               const restoredTask = await createTask(taskData).unwrap();
@@ -742,7 +736,7 @@ const Task = React.memo(({ task, onTaskSelect }: TaskProps) => {
               
               // Open the restored task in edit mode
               onTaskSelect({ taskId: restoredTask.id, editMode: true });
-            } catch (restoreError: any) {
+            } catch (restoreError) {
               console.error('Failed to restore task:', restoreError);
               toast.error('Failed to restore task. Please try again.', {
                 duration: 5000,
@@ -754,9 +748,10 @@ const Task = React.memo(({ task, onTaskSelect }: TaskProps) => {
           // Task is permanently deleted after toast closes
         },
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error('Failed to delete task:', error);
-      toast.error(error?.data?.message || 'Failed to delete task. Please try again.', {
+      const err = error as { data?: { message?: string } };
+      toast.error(err?.data?.message || 'Failed to delete task. Please try again.', {
         duration: 5000,
       });
       setShowDeleteModal(false);
@@ -793,7 +788,6 @@ const Task = React.memo(({ task, onTaskSelect }: TaskProps) => {
   };
 
   const priorityConfig = getPriorityConfig(task.priority);
-  const PriorityIcon = priorityConfig.icon;
   const dueDateStatus = getDueDateStatus();
 
   // Handle keyboard navigation
