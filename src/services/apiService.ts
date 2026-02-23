@@ -605,7 +605,7 @@ class ApiService {
     // Validate for zero-width characters if name or description is being updated
     if (project.name !== undefined || project.description !== undefined) {
       const { validateProjectContent } = await import('../lib/validation');
-      const { isValid, error } = validateProjectContent(project.name || '', project.description);
+      const { isValid, error } = validateProjectContent(project.name, project.description);
       if (!isValid) {
         throw new Error(error);
       }
@@ -746,7 +746,7 @@ class ApiService {
     // Validate for zero-width characters if title or description is being updated
     if (task.title !== undefined || task.description !== undefined) {
       const { validateTaskContent } = await import('../lib/validation');
-      const { isValid, error } = validateTaskContent(task.title || '', task.description);
+      const { isValid, error } = validateTaskContent(task.title, task.description);
       if (!isValid) {
         throw new Error(error);
       }
@@ -1709,7 +1709,7 @@ class ApiService {
     // Validate for zero-width characters if title or description is being updated
     if (updates.title !== undefined || updates.description !== undefined) {
       const { validateTaskContent } = await import('../lib/validation');
-      const { isValid, error } = validateTaskContent(updates.title || '', updates.description);
+      const { isValid, error } = validateTaskContent(updates.title, updates.description);
       if (!isValid) {
         throw new Error(error);
       }
