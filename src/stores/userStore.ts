@@ -3,12 +3,13 @@ import { subscribeWithSelector } from 'zustand/middleware';
 
 interface User {
   userId: number;
-  cognitoId: string;
+  cognitoId?: string;
   username: string;
   email: string;
   profilePictureUrl?: string;
   teamId?: number;
-  role: string;
+  role?: string;
+  activeOrganizationId?: number;
   subscription?: {
     id: string;
     status: string;

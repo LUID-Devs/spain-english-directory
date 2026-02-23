@@ -260,7 +260,7 @@ const ProjectsPage = () => {
             </div>
 
             <div className="flex flex-wrap gap-2">
-              <Select value={sortBy} onValueChange={setSortBy}>
+              <Select value={sortBy} onValueChange={(value) => setSortBy(value as "name" | "date" | "progress")}>
                 <SelectTrigger className="w-full sm:w-40">
                   <SortAsc className="h-4 w-4 mr-2 shrink-0" />
                   <SelectValue />

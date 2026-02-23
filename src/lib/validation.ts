@@ -189,13 +189,18 @@ export function validateNoCuneiformChars(
  * @returns An object with isValid boolean and optional error message
  */
 export function validateTaskContent(
-  title: string,
+  title?: string,
   description?: string
 ): { isValid: boolean; error?: string } {
+  if (!title && !description) {
+    return { isValid: true };
+  }
   // Check for zero-width characters
-  const titleValidation = validateNoZeroWidthChars(title, 'Title');
-  if (!titleValidation.isValid) {
-    return titleValidation;
+  if (title) {
+    const titleValidation = validateNoZeroWidthChars(title, 'Title');
+    if (!titleValidation.isValid) {
+      return titleValidation;
+    }
   }
 
   if (description) {
@@ -206,9 +211,11 @@ export function validateTaskContent(
   }
 
   // Check for Cuneiform characters
-  const titleCuneiformValidation = validateNoCuneiformChars(title, 'Title');
-  if (!titleCuneiformValidation.isValid) {
-    return titleCuneiformValidation;
+  if (title) {
+    const titleCuneiformValidation = validateNoCuneiformChars(title, 'Title');
+    if (!titleCuneiformValidation.isValid) {
+      return titleCuneiformValidation;
+    }
   }
 
   if (description) {
@@ -228,13 +235,19 @@ export function validateTaskContent(
  * @returns An object with isValid boolean and optional error message
  */
 export function validateProjectContent(
-  name: string,
+  name?: string,
   description?: string
 ): { isValid: boolean; error?: string } {
+  if (!name && !description) {
+    return { isValid: true };
+  }
+
   // Check for zero-width characters
-  const nameValidation = validateNoZeroWidthChars(name, 'Name');
-  if (!nameValidation.isValid) {
-    return nameValidation;
+  if (name) {
+    const nameValidation = validateNoZeroWidthChars(name, 'Name');
+    if (!nameValidation.isValid) {
+      return nameValidation;
+    }
   }
 
   if (description) {
@@ -245,9 +258,11 @@ export function validateProjectContent(
   }
 
   // Check for Cuneiform characters
-  const nameCuneiformValidation = validateNoCuneiformChars(name, 'Name');
-  if (!nameCuneiformValidation.isValid) {
-    return nameCuneiformValidation;
+  if (name) {
+    const nameCuneiformValidation = validateNoCuneiformChars(name, 'Name');
+    if (!nameCuneiformValidation.isValid) {
+      return nameCuneiformValidation;
+    }
   }
 
   if (description) {
@@ -266,8 +281,11 @@ export function validateProjectContent(
  * @returns An object with isValid boolean and optional error message
  */
 export function validateCommentContent(
-  text: string
+  text?: string
 ): { isValid: boolean; error?: string } {
+  if (!text) {
+    return { isValid: true };
+  }
   // Check for zero-width characters
   const textValidation = validateNoZeroWidthChars(text, 'Comment text');
   if (!textValidation.isValid) {
