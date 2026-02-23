@@ -102,7 +102,7 @@ export function staticPrerenderPlugin(): Plugin {
               </div>
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div class="flex items-center justify-center gap-2 text-sm text-neutral-400">
-                  <span>Crafted with care by an indie developer</span>
+                  <span>Made with care by an indie developer</span>
                 </div>
                 <div class="flex items-center justify-center gap-2 text-sm text-neutral-400">
                   <span>No VC funding, no feature bloat</span>
