@@ -22,7 +22,7 @@ export function sanitizeHtml(input: string | null | undefined): string {
     '/': '&#x2F;',
   };
 
-  return input.replace(/[&<>"'\/]/g, (char) => htmlEscapes[char] || char);
+  return input.replace(/[&<>"'/]/g, (char) => htmlEscapes[char] || char);
 }
 
 /**

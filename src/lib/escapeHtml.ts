@@ -18,7 +18,7 @@ const htmlEscapes: Record<string, string> = {
  */
 export function escapeHtml(input: string | null | undefined): string {
   if (!input || typeof input !== 'string') return '';
-  return input.replace(/[&<>"'\/]/g, (char) => htmlEscapes[char] || char);
+  return input.replace(/[&<>"'/]/g, (char) => htmlEscapes[char] || char);
 }
 
 /**
