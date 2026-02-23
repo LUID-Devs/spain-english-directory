@@ -177,7 +177,7 @@ const TaskDetailPage = ({ params }: Props) => {
               Try Again
             </button>
             <Link
-              href="/dashboard/projects"
+              to="/dashboard/projects"
               className="inline-flex items-center gap-2 px-4 py-2 bg-muted text-foreground rounded-lg hover:bg-accent transition-colors"
             >
               <ArrowLeft className="h-4 w-4" />
@@ -200,7 +200,7 @@ const TaskDetailPage = ({ params }: Props) => {
             The task you're looking for doesn't exist or has been deleted.
           </p>
           <Link
-            href="/dashboard/projects"
+            to="/dashboard/projects"
             className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -217,7 +217,7 @@ const TaskDetailPage = ({ params }: Props) => {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
           <Link
-            href={`/dashboard/projects/${task.projectId}`}
+            to={`/dashboard/projects/${task.projectId}`}
             className="flex items-center gap-2 px-3 py-2 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-accent"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -355,7 +355,7 @@ const TaskDetailPage = ({ params }: Props) => {
                   className="w-full p-2 border border-border rounded bg-background text-foreground"
                 >
                   <option value="">Unassigned</option>
-                  {users.map((user) => (
+                  {users?.map((user) => (
                     <option key={user.userId} value={user.userId}>{user.username}</option>
                   ))}
                 </select>

@@ -286,26 +286,6 @@ const ListView = ({
   const selectionMode = selectedTaskIds.size > 0;
 
   const priorityOrder = { "Urgent": 0, "High": 1, "Medium": 2, "Low": 3, "Backlog": 4 };
-
-  // Handle keyboard shortcuts
-  React.useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Ctrl/Cmd + A to select all visible tasks
-      if ((e.ctrlKey || e.metaKey) && e.key === 'a' && selectionMode) {
-        e.preventDefault();
-        handleSelectAll();
-      }
-      // Escape to clear selection
-      if (e.key === 'Escape' && selectionMode) {
-        handleClearSelection();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectionMode, paginatedTasks]);
-
-  // Handle task reordering during drag
   const moveTask = useCallback((dragIndex: number, hoverIndex: number) => {
     if (!tasks) return;
     
@@ -444,6 +424,24 @@ const ListView = ({
     const allIds = paginatedTasks.map(t => t.id);
     setSelectedTaskIds(new Set(allIds));
   }, [paginatedTasks]);
+
+  // Handle keyboard shortcuts
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ctrl/Cmd + A to select all visible tasks
+      if ((e.ctrlKey || e.metaKey) && e.key === 'a' && selectionMode) {
+        e.preventDefault();
+        handleSelectAll();
+      }
+      // Escape to clear selection
+      if (e.key === 'Escape' && selectionMode) {
+        handleClearSelection();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectionMode, paginatedTasks, handleSelectAll, handleClearSelection]);
 
   // Bulk operations
   const handleBulkComplete = useCallback(async () => {
