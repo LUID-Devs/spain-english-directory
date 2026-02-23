@@ -666,9 +666,11 @@ export function staticPrerenderPlugin(): Plugin {
           <div class="flex-1 flex items-center justify-center px-4 pt-14 pb-12">
             <div class="text-center max-w-3xl">
               <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neutral-900/80 border border-neutral-800 mb-6">
+                <span class="w-4 h-4 text-emerald-400">✓</span>
                 <span class="text-sm text-neutral-300">Free tier available — No credit card required</span>
               </div>
               <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neutral-900/80 border border-neutral-800 mb-6">
+                <span class="w-4 h-4 text-rose-500">♥</span>
                 <span class="text-sm text-neutral-400">Part of Luid Suite</span>
               </div>
               <p class="text-sm text-neutral-500 mb-2">File Convert Pro</p>
@@ -698,15 +700,15 @@ export function staticPrerenderPlugin(): Plugin {
               </div>
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div class="flex items-center justify-center gap-2 text-sm text-neutral-400">
-                  <svg class="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19.5 12.572 12 21 4.5 12.572A4.5 4.5 0 1 1 12 7.61a4.5 4.5 0 1 1 7.5 4.962" /></svg>
+                  <span class="w-4 h-4 text-rose-500">♥</span>
                   <span>Made with care by an indie developer</span>
                 </div>
                 <div class="flex items-center justify-center gap-2 text-sm text-neutral-400">
-                  <svg class="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><path d="m9 11 3 3L22 4" /></svg>
+                  <span class="w-4 h-4 text-emerald-500">✓</span>
                   <span>No subscription traps, no hidden fees</span>
                 </div>
                 <div class="flex items-center justify-center gap-2 text-sm text-neutral-400">
-                  <svg class="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67 0C7.5 20.5 4 18 4 13V5a1 1 0 0 1 1-1c2 0 4.5-1.2 6-2.5 1.5 1.3 4 2.5 6 2.5a1 1 0 0 1 1 1z" /></svg>
+                  <span class="w-4 h-4 text-emerald-500">🛡</span>
                   <span>Your files never leave secure servers</span>
                 </div>
               </div>
@@ -893,10 +895,10 @@ export function staticPrerenderPlugin(): Plugin {
                   </div>
                   <p class="text-sm text-neutral-400 mt-2">Perfect for occasional conversions.</p>
                   <ul class="mt-4 space-y-2 text-sm text-neutral-300">
-                    <li class="flex items-center gap-2"><svg class="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><path d="m9 11 3 3L22 4" /></svg>Up to 10 conversions/day</li>
-                    <li class="flex items-center gap-2"><svg class="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><path d="m9 11 3 3L22 4" /></svg>Files up to 10MB</li>
-                    <li class="flex items-center gap-2"><svg class="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><path d="m9 11 3 3L22 4" /></svg>All file formats</li>
-                    <li class="flex items-center gap-2"><svg class="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><path d="m9 11 3 3L22 4" /></svg>1-hour file retention</li>
+                    <li class="flex items-center gap-2"><span class="text-emerald-400">✓</span>Up to 10 conversions/day</li>
+                    <li class="flex items-center gap-2"><span class="text-emerald-400">✓</span>Files up to 10MB</li>
+                    <li class="flex items-center gap-2"><span class="text-emerald-400">✓</span>All file formats</li>
+                    <li class="flex items-center gap-2"><span class="text-emerald-400">✓</span>1-hour file retention</li>
                   </ul>
                   <a href="/auth/register" class="mt-6 w-full inline-flex items-center justify-center px-6 py-3 border border-neutral-700 text-neutral-300 rounded-lg hover:bg-neutral-800 transition-all">
                     Get Started Free
@@ -909,11 +911,11 @@ export function staticPrerenderPlugin(): Plugin {
                   </div>
                   <p class="text-sm text-neutral-400 mt-2">For power users and professionals.</p>
                   <ul class="mt-4 space-y-2 text-sm text-neutral-200">
-                    <li class="flex items-center gap-2"><svg class="w-4 h-4 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>Unlimited conversions</li>
-                    <li class="flex items-center gap-2"><svg class="w-4 h-4 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>Files up to 100MB</li>
-                    <li class="flex items-center gap-2"><svg class="w-4 h-4 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>Priority processing</li>
-                    <li class="flex items-center gap-2"><svg class="w-4 h-4 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>24-hour file retention</li>
-                    <li class="flex items-center gap-2"><svg class="w-4 h-4 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>Batch conversion</li>
+                    <li class="flex items-center gap-2"><span class="text-indigo-300">⚡</span>Unlimited conversions</li>
+                    <li class="flex items-center gap-2"><span class="text-indigo-300">⚡</span>Files up to 100MB</li>
+                    <li class="flex items-center gap-2"><span class="text-indigo-300">⚡</span>Priority processing</li>
+                    <li class="flex items-center gap-2"><span class="text-indigo-300">⚡</span>24-hour file retention</li>
+                    <li class="flex items-center gap-2"><span class="text-indigo-300">⚡</span>Batch conversion</li>
                   </ul>
                   <a href="/auth/register" class="mt-6 w-full inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-lg hover:from-indigo-600 hover:to-purple-600 transition-all">
                     Upgrade to Pro
