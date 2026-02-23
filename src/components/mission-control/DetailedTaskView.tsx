@@ -139,7 +139,7 @@ export const DetailedTaskView: React.FC<DetailedTaskViewProps> = ({
     // Priority filter
     if (selectedPriority !== "all") {
       filtered = filtered.filter(
-        (a) => a.task.priority?.toLowerCase() === selectedPriority.toLowerCase()
+        (a) => a.task?.priority?.toLowerCase() === selectedPriority.toLowerCase()
       );
     }
 
@@ -149,14 +149,14 @@ export const DetailedTaskView: React.FC<DetailedTaskViewProps> = ({
 
       switch (sortField) {
         case "priority": {
-          const priorityA = priorityConfig[a.task.priority?.toLowerCase() || "medium"]?.value || 0;
-          const priorityB = priorityConfig[b.task.priority?.toLowerCase() || "medium"]?.value || 0;
+          const priorityA = priorityConfig[a.task?.priority?.toLowerCase() || "medium"]?.value || 0;
+          const priorityB = priorityConfig[b.task?.priority?.toLowerCase() || "medium"]?.value || 0;
           comparison = priorityB - priorityA;
           break;
         }
         case "dueDate": {
-          const dateA = a.task.dueDate ? new Date(a.task.dueDate).getTime() : Infinity;
-          const dateB = b.task.dueDate ? new Date(b.task.dueDate).getTime() : Infinity;
+          const dateA = a.task?.dueDate ? new Date(a.task.dueDate).getTime() : Infinity;
+          const dateB = b.task?.dueDate ? new Date(b.task.dueDate).getTime() : Infinity;
           comparison = dateA - dateB;
           break;
         }
@@ -183,7 +183,7 @@ export const DetailedTaskView: React.FC<DetailedTaskViewProps> = ({
     }, {} as Record<string, number>);
 
     const overdue = filteredAndSortedTasks.filter((a) => {
-      if (!a.task.dueDate) return false;
+      if (!a.task?.dueDate) return false;
       return new Date(a.task.dueDate) < new Date() && a.status !== "completed";
     }).length;
 
@@ -382,11 +382,11 @@ export const DetailedTaskView: React.FC<DetailedTaskViewProps> = ({
               ) : (
                 filteredAndSortedTasks.map((assignment) => {
                   const statusCfg = statusConfig[assignment.status] || statusConfig.inbox;
-                  const priorityCfg = priorityConfig[assignment.task.priority?.toLowerCase() || "medium"];
+                  const priorityCfg = priorityConfig[assignment.task?.priority?.toLowerCase() || "medium"];
                   const StatusIcon = statusCfg.icon;
                   const emoji = assignment.agent ? characterEmojis[assignment.agent.name] || "🤖" : "🤖";
                   const isOverdue =
-                    assignment.task.dueDate &&
+                    assignment.task?.dueDate &&
                     new Date(assignment.task.dueDate) < new Date() &&
                     assignment.status !== "completed";
 
@@ -395,8 +395,8 @@ export const DetailedTaskView: React.FC<DetailedTaskViewProps> = ({
                       key={assignment.id}
                       className="group flex items-start gap-2 sm:gap-3 p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors cursor-pointer"
                       onClick={() => {
-                        setSelectedTaskId(assignment.task.id);
-                        setSelectedProjectId(assignment.task.project?.id);
+                        setSelectedTaskId(assignment.task?.id || null);
+                        setSelectedProjectId(assignment.task?.project?.id);
                       }}
                     >
                       {/* Status Icon */}
@@ -408,7 +408,7 @@ export const DetailedTaskView: React.FC<DetailedTaskViewProps> = ({
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start gap-2">
                           <h4 className="font-medium text-sm line-clamp-2 flex-1">
-                            {assignment.task.title}
+                            {assignment.task?.title || "Untitled Task"}
                           </h4>
                           {isOverdue && (
                             <Badge variant="destructive" className="text-[10px] shrink-0">
@@ -424,7 +424,7 @@ export const DetailedTaskView: React.FC<DetailedTaskViewProps> = ({
                             variant="outline"
                             className={`${priorityCfg?.color} ${priorityCfg?.bgColor} border-0`}
                           >
-                            {priorityCfg?.label || assignment.task.priority || "Medium"}
+                            {priorityCfg?.label || assignment.task?.priority || "Medium"}
                           </Badge>
 
                           {/* Status */}
@@ -433,7 +433,7 @@ export const DetailedTaskView: React.FC<DetailedTaskViewProps> = ({
                           </Badge>
 
                           {/* Project */}
-                          {assignment.task.project && (
+                          {assignment.task?.project && (
                             <span className="flex items-center gap-1 text-muted-foreground">
                               <Folder className="h-3 w-3" />
                               {assignment.task.project.name}
@@ -441,7 +441,7 @@ export const DetailedTaskView: React.FC<DetailedTaskViewProps> = ({
                           )}
 
                           {/* Due Date */}
-                          {assignment.task.dueDate && (
+                          {assignment.task?.dueDate && (
                             <span
                               className={`flex items-center gap-1 ${
                                 isOverdue ? "text-red-500" : "text-muted-foreground"
@@ -495,8 +495,8 @@ export const DetailedTaskView: React.FC<DetailedTaskViewProps> = ({
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem
                             onClick={() => {
-                              setSelectedTaskId(assignment.task.id);
-                              setSelectedProjectId(assignment.task.project?.id);
+                              setSelectedTaskId(assignment.task?.id || null);
+                              setSelectedProjectId(assignment.task?.project?.id);
                             }}
                           >
                             View Details
