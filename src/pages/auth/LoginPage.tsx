@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Hub } from "aws-amplify/utils";
+import { confirmSignIn, signIn } from "aws-amplify/auth";
 import { useAuth } from "@/app/authProvider";
 import GoogleSignInButton from "@/components/GoogleSignInButton";
 import { PasswordInput } from "@/components/ui/password-input";
@@ -14,9 +15,7 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [challenge, setChallenge] = useState<{
-    challenge: string;
-    session: string;
-    challengeParameters: Record<string, string>;
+    signInStep: string;
   } | null>(null);
   const [mfaCode, setMfaCode] = useState("");
   const navigate = useNavigate();
@@ -75,29 +74,37 @@ const LoginPage = () => {
     setError("");
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify(formData),
+      const result = await signIn({
+        username: formData.username,
+        password: formData.password,
       });
 
-      const data = await response.json();
+      const signInStep = result?.nextStep?.signInStep;
 
-      if (!response.ok) {
-        throw new Error(data.message || "Login failed");
+      if (signInStep && signInStep !== "DONE") {
+        if (
+          signInStep === "CONFIRM_SIGN_IN_WITH_SMS_CODE" ||
+          signInStep === "CONFIRM_SIGN_IN_WITH_TOTP_CODE"
+        ) {
+          setChallenge({ signInStep });
+          return;
+        }
+
+        if (signInStep === "CONFIRM_SIGN_UP") {
+          throw new Error("Please confirm your account before signing in.");
+        }
+
+        if (signInStep === "RESET_PASSWORD") {
+          throw new Error("Password reset required. Please reset your password.");
+        }
+
+        throw new Error(`Additional sign-in step required: ${signInStep}`);
       }
 
-      if (data.challenge) {
-        // Handle MFA challenge
-        setChallenge(data);
-      } else if (data.success) {
-        // Successful login - refresh auth state.
-        // Navigation is handled by the auth redirect effect once backend auth is ready.
-        await refreshAuth();
-      }
+      setChallenge(null);
+      // Successful login - refresh auth state.
+      // Navigation is handled by the auth redirect effect once backend auth is ready.
+      await refreshAuth();
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "Login failed. Please try again.");
     } finally {
@@ -111,34 +118,17 @@ const LoginPage = () => {
     setError("");
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/respond-to-challenge`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({
-          challengeName: challenge?.challenge,
-          session: challenge?.session,
-          challengeResponses: {
-            SMS_MFA_CODE: mfaCode,
-            SOFTWARE_TOKEN_MFA_CODE: mfaCode,
-          },
-          username: formData.username,
-        }),
-      });
+      const result = await confirmSignIn({ challengeResponse: mfaCode });
+      const signInStep = result?.nextStep?.signInStep;
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "MFA verification failed");
+      if (signInStep && signInStep !== "DONE") {
+        throw new Error(`Additional sign-in step required: ${signInStep}`);
       }
 
-      if (data.success) {
-        // Successful MFA - refresh auth state.
-        // Navigation is handled by the auth redirect effect once backend auth is ready.
-        await refreshAuth();
-      }
+      setChallenge(null);
+      // Successful MFA - refresh auth state.
+      // Navigation is handled by the auth redirect effect once backend auth is ready.
+      await refreshAuth();
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "MFA verification failed. Please try again.");
     } finally {

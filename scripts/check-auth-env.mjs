@@ -29,7 +29,7 @@ const parseEnv = (content) => {
 const env = parseEnv(envContent);
 const apiBaseUrl = env.VITE_API_BASE_URL || "";
 const redirectUri = env.VITE_COGNITO_REDIRECT_URI || "";
-const expectedLocalCallback = "http://localhost:3000/auth/callback";
+const expectedLocalCallback = "http://localhost:5173/auth/callback";
 
 let hasError = false;
 

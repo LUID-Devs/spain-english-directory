@@ -165,46 +165,48 @@ export const TaskTimer: React.FC<TaskTimerProps> = ({
 
   // Detail variant - full timer for modal
   return (
-    <div className={cn("flex items-center gap-2", className)}>
+    <div className={cn("flex flex-col gap-2", className)}>
       <div className="flex items-center gap-2 bg-muted rounded-lg px-3 py-2">
         <Timer className="h-4 w-4 text-muted-foreground" />
         <span className="text-sm font-mono font-medium min-w-[70px]">
           {formatDuration(localElapsed)}
         </span>
       </div>
-      
-      {localIsRunning ? (
-        <>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handlePause}
-            className="gap-1"
-          >
-            <Pause className="h-4 w-4" />
-            Pause
-          </Button>
+
+      <div className="flex flex-wrap gap-2">
+        {localIsRunning ? (
+          <>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handlePause}
+              className="gap-1"
+            >
+              <Pause className="h-4 w-4" />
+              Pause
+            </Button>
+            <Button
+              variant="default"
+              size="sm"
+              onClick={handleStop}
+              className="gap-1"
+            >
+              <Square className="h-4 w-4" />
+              Stop & Log
+            </Button>
+          </>
+        ) : (
           <Button
             variant="default"
             size="sm"
-            onClick={handleStop}
+            onClick={handleStart}
             className="gap-1"
           >
-            <Square className="h-4 w-4" />
-            Stop & Log
+            <Play className="h-4 w-4" />
+            Start Timer
           </Button>
-        </>
-      ) : (
-        <Button
-          variant="default"
-          size="sm"
-          onClick={handleStart}
-          className="gap-1"
-        >
-          <Play className="h-4 w-4" />
-          Start Timer
-        </Button>
-      )}
+        )}
+      </div>
     </div>
   );
 };

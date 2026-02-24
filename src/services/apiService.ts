@@ -56,6 +56,47 @@ export enum Priority {
   Backlog = "Backlog",
 }
 
+const PRIORITY_TO_API_MAP: Record<Priority, string> = {
+  [Priority.Urgent]: "P0",
+  [Priority.High]: "P1",
+  [Priority.Medium]: "P2",
+  [Priority.Low]: "P3",
+  [Priority.Backlog]: "P3",
+};
+
+const PRIORITY_FROM_API_MAP: Record<string, Priority> = {
+  P0: Priority.Urgent,
+  P1: Priority.High,
+  P2: Priority.Medium,
+  P3: Priority.Low,
+};
+
+const mapPriorityForApi = (priority?: string | null): string | null | undefined => {
+  if (priority == null) return priority;
+  if (priority in PRIORITY_TO_API_MAP) {
+    return PRIORITY_TO_API_MAP[priority as Priority];
+  }
+  return priority;
+};
+
+const mapPriorityFromApi = (priority?: string | null): string | null | undefined => {
+  if (priority == null) return priority;
+  const normalized = priority.toUpperCase();
+  return PRIORITY_FROM_API_MAP[normalized] ?? priority;
+};
+
+const mapTaskPriorityFromApi = <T extends { priority?: string | null }>(task: T): T => {
+  if (!task || !task.priority) return task;
+  const mapped = mapPriorityFromApi(task.priority);
+  if (mapped === task.priority) return task;
+  return { ...task, priority: mapped } as T;
+};
+
+const mapTasksPriorityFromApi = <T extends { priority?: string | null }>(tasks: T[] | null | undefined): T[] => {
+  if (!tasks) return [];
+  return tasks.map(mapTaskPriorityFromApi);
+};
+
 export enum TaskType {
   Feature = "Feature",
   Bug = "Bug",
@@ -748,15 +789,18 @@ class ApiService {
     }
 
     const queryString = params.toString();
-    return this.request<Task[]>(`/tasks${queryString ? `?${queryString}` : ''}`);
+    const tasks = await this.request<Task[]>(`/tasks${queryString ? `?${queryString}` : ''}`);
+    return mapTasksPriorityFromApi(tasks);
   }
 
   async getTask(taskId: number): Promise<Task> {
-    return this.request<Task>(`/tasks/${taskId}`);
+    const task = await this.request<Task>(`/tasks/${taskId}`);
+    return mapTaskPriorityFromApi(task);
   }
 
   async getTasksByUser(userId: number): Promise<Task[]> {
-    return this.request<Task[]>(`/tasks/user/${userId}`);
+    const tasks = await this.request<Task[]>(`/tasks/user/${userId}`);
+    return mapTasksPriorityFromApi(tasks);
   }
 
   async createTask(task: Partial<Task>): Promise<Task> {
@@ -768,10 +812,16 @@ class ApiService {
       }
     }
 
-    return this.request<Task>('/tasks', {
+    const payload = {
+      ...task,
+      priority: mapPriorityForApi(task.priority as string | null | undefined),
+    };
+
+    const created = await this.request<Task>('/tasks', {
       method: 'POST',
-      body: JSON.stringify(task),
+      body: JSON.stringify(payload),
     });
+    return mapTaskPriorityFromApi(created);
   }
 
   async updateTask(taskId: number, task: Partial<Task>): Promise<Task> {
@@ -783,10 +833,16 @@ class ApiService {
       }
     }
 
-    return this.request<Task>(`/tasks/${taskId}`, {
+    const payload = {
+      ...task,
+      priority: mapPriorityForApi(task.priority as string | null | undefined),
+    };
+
+    const updated = await this.request<Task>(`/tasks/${taskId}`, {
       method: 'PUT',
-      body: JSON.stringify(task),
+      body: JSON.stringify(payload),
     });
+    return mapTaskPriorityFromApi(updated);
   }
 
   async deleteTask(taskId: number): Promise<{ message: string }> {
@@ -796,10 +852,11 @@ class ApiService {
   }
 
   async updateTaskStatus(taskId: number, status: string): Promise<Task> {
-    return this.request<Task>(`/tasks/${taskId}/status`, {
+    const updated = await this.request<Task>(`/tasks/${taskId}/status`, {
       method: 'PATCH',
       body: JSON.stringify({ status }),
     });
+    return mapTaskPriorityFromApi(updated);
   }
 
   async uploadTaskDescriptionImage(formData: FormData): Promise<{ imageUrl: string }> {
@@ -832,15 +889,23 @@ class ApiService {
 
   // Task Archive
   async archiveTask(taskId: number): Promise<{ message: string; task: Task }> {
-    return this.request<{ message: string; task: Task }>(`/tasks/${taskId}/archive`, {
+    const response = await this.request<{ message: string; task: Task }>(`/tasks/${taskId}/archive`, {
       method: 'PATCH',
     });
+    return {
+      ...response,
+      task: mapTaskPriorityFromApi(response.task),
+    };
   }
 
   async unarchiveTask(taskId: number): Promise<{ message: string; task: Task }> {
-    return this.request<{ message: string; task: Task }>(`/tasks/${taskId}/unarchive`, {
+    const response = await this.request<{ message: string; task: Task }>(`/tasks/${taskId}/unarchive`, {
       method: 'PATCH',
     });
+    return {
+      ...response,
+      task: mapTaskPriorityFromApi(response.task),
+    };
   }
 
   // Comments
@@ -1136,10 +1201,22 @@ class ApiService {
 
   // AI Task Parsing
   async parseTaskWithAI(text: string, teamMembers: string[]): Promise<AIParseTaskResponse> {
-    return this.request<AIParseTaskResponse>('/api/ai/parse-task', {
+    const response = await this.request<AIParseTaskResponse>('/api/ai/parse-task', {
       method: 'POST',
       body: JSON.stringify({ text, teamMembers }),
     });
+
+    if (response?.data?.priority) {
+      return {
+        ...response,
+        data: {
+          ...response.data,
+          priority: mapPriorityFromApi(response.data.priority) as ParsedTaskData["priority"],
+        },
+      };
+    }
+
+    return response;
   }
 
   async getAIStatus(): Promise<AIStatusResponse> {
@@ -1163,9 +1240,14 @@ class ApiService {
     };
     creditsUsed?: number;
   }> {
+    const payload = {
+      ...taskData,
+      priority: mapPriorityForApi(taskData.priority) as string,
+    };
+
     return this.request('/api/ai/suggest-due-date', {
       method: 'POST',
-      body: JSON.stringify(taskData),
+      body: JSON.stringify(payload),
     });
   }
 
@@ -1900,10 +1982,14 @@ class ApiService {
   }
 
   async applyTemplate(templateId: number, data: ApplyTemplateRequest): Promise<{ task: Task }> {
-    return this.request<{ task: Task }>(`/api/form-templates/${templateId}/apply`, {
+    const response = await this.request<{ task: Task }>(`/api/form-templates/${templateId}/apply`, {
       method: 'POST',
       body: JSON.stringify(data),
     });
+    return {
+      ...response,
+      task: mapTaskPriorityFromApi(response.task),
+    };
   }
 
   // Form Fields
@@ -2309,6 +2395,7 @@ export interface TimeLog {
   user?: {
     userId: number;
     username: string;
+    email?: string;
     profilePictureUrl?: string;
   };
   task?: {
@@ -2787,4 +2874,3 @@ export interface ApplyTemplateRequest {
   tags?: string[];
   customFields?: Record<string, any>;
 }
-

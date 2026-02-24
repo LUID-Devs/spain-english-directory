@@ -404,6 +404,41 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
     return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
   };
 
+  const getTimeLogDurationSeconds = (log: TimeLog): number => {
+    const startMs = new Date(log.startedAt).getTime();
+    const endMs = log.endedAt ? new Date(log.endedAt).getTime() : null;
+
+    if (!Number.isNaN(startMs) && endMs && !Number.isNaN(endMs) && endMs >= startMs) {
+      return Math.floor((endMs - startMs) / 1000);
+    }
+
+    if (typeof log.durationMinutes === "number") {
+      return Math.round(log.durationMinutes * 60);
+    }
+
+    return 0;
+  };
+
+  const getTimeLogUserName = (log: TimeLog): string => {
+    const username = log.user?.username?.trim() || "";
+    const looksLikeToken = /^[0-9a-f-]{16,}$/i.test(username);
+    if (username && !looksLikeToken) {
+      return username;
+    }
+
+    const email = log.user?.email?.trim();
+    if (email) {
+      return email;
+    }
+
+    const fallbackId = log.user?.userId ?? log.userId;
+    if (typeof fallbackId === "number") {
+      return `User ${fallbackId}`;
+    }
+
+    return username || "Unknown";
+  };
+
   // Time tracking handlers
   const handleStartTimer = useCallback(async () => {
     try {
@@ -421,13 +456,16 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
       await stopTimer(activeTimeLogId).unwrap();
       // Update the time log with the description if provided
       if (description.trim()) {
-        await updateTimeLog({ logId: activeTimeLogId, description: description.trim() }).unwrap();
+        try {
+          await updateTimeLog({ logId: activeTimeLogId, description: description.trim() }).unwrap();
+        } catch (updateError) {
+          console.warn("Failed to update time log description:", updateError);
+        }
       }
-      await refetchTimeLogs();
-      await refetchTimeEstimate();
-      await refetchActiveTimer();
     } catch (error) {
       console.error("Failed to stop timer:", error);
+    } finally {
+      await Promise.allSettled([refetchTimeLogs(), refetchTimeEstimate(), refetchActiveTimer()]);
     }
   }, [stopTimer, activeTimeLogId, updateTimeLog, refetchTimeLogs, refetchTimeEstimate, refetchActiveTimer]);
 
@@ -551,9 +589,8 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
               </div>
 
               {/* Right Column - Sidebar Metadata (shows first on mobile) */}
-              <div className="w-full lg:w-64 flex-shrink-0 order-1 lg:order-2 border-b lg:border-b-0 pb-4 lg:pb-0">
-                {/* Mobile: 2-column grid, Desktop: single column */}
-                <div className="grid grid-cols-2 lg:grid-cols-1 gap-3 lg:gap-4">
+              <div className="w-full lg:w-72 flex-shrink-0 order-1 lg:order-2 border-b lg:border-b-0 pb-4 lg:pb-0">
+                <div className="flex flex-col gap-4">
                   {/* Status */}
                   <div className="space-y-1 lg:space-y-2">
                     <div className="flex items-center gap-2">
@@ -758,7 +795,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                   </div>
 
                   {/* AI Agent Assignee */}
-                  <div className="space-y-1 lg:space-y-2 col-span-2 lg:col-span-1">
+                  <div className="space-y-1 lg:space-y-2">
                     <Label className="flex items-center gap-2 text-foreground font-medium text-xs lg:text-sm">
                       <Bot className="h-3 w-3 lg:h-4 lg:w-4" />
                       AI Agent
@@ -815,7 +852,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                   </div>
 
                   {/* Time Tracking */}
-                  <div className="space-y-1 lg:space-y-2 col-span-2 lg:col-span-1">
+                  <div className="space-y-1 lg:space-y-2">
                     <TimeTrackingSection
                       taskId={taskId}
                       timeEstimate={timeEstimateData?.estimatedMinutes}
@@ -823,9 +860,9 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                         id: log.id,
                         taskId: log.taskId,
                         userId: log.userId,
-                        userName: log.user?.username || 'Unknown',
+                        userName: getTimeLogUserName(log),
                         userAvatar: log.user?.profilePictureUrl,
-                        duration: (log.durationMinutes || 0) * 60,
+                        duration: getTimeLogDurationSeconds(log),
                         description: log.description,
                         startedAt: log.startedAt,
                         endedAt: log.endedAt || log.startedAt,
@@ -874,7 +911,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                   </div>
 
                   {/* Tags - full width on mobile */}
-                  <div className="space-y-1 lg:space-y-2 col-span-2 lg:col-span-1">
+                  <div className="space-y-1 lg:space-y-2">
                     <Label className="text-foreground font-medium text-xs lg:text-sm">Tags</Label>
                     <Input
                       value={editForm.tags}
@@ -885,7 +922,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                   </div>
 
                   {/* Author - full width on mobile */}
-                  <div className="space-y-1 lg:space-y-2 col-span-2 lg:col-span-1">
+                  <div className="space-y-1 lg:space-y-2">
                     <Label className="text-foreground font-medium text-xs lg:text-sm">Author</Label>
                     <div className="text-sm text-muted-foreground p-2 border rounded bg-muted/30">
                       {task.author?.username || "Unknown"}
@@ -893,7 +930,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                   </div>
 
                   {/* Git Activity - full width */}
-                  <div className="space-y-2 col-span-2">
+                  <div className="space-y-2">
                     <Label className="flex items-center gap-2 text-foreground font-medium text-xs lg:text-sm">
                       <svg className="h-3 w-3 lg:h-4 lg:w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="m12 2 0 20"/><path d="m2 12 20 0"/></svg>
@@ -905,7 +942,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                   </div>
 
                   {/* Git Review Panel */}
-                  <div className="space-y-2 col-span-2">
+                  <div className="space-y-2">
                     <GitReviewPanelWrapper taskId={taskId} gitLinks={gitLinks} />
                   </div>
                 </div>
