@@ -623,6 +623,23 @@ export function staticPrerenderPlugin(): Plugin {
         </div>
       `
     },
+    '/auth/sign-in': {
+      title: 'Sign In - TaskLuid',
+      description: 'Sign in to your TaskLuid account to manage your tasks and projects.',
+      content: `
+        <div class="min-h-screen bg-black text-white flex items-center justify-center px-4">
+          <div class="text-center max-w-md w-full">
+            <h1 class="text-3xl font-bold mb-2">Redirecting...</h1>
+            <p class="text-gray-400 mb-8">Taking you to the login page</p>
+            <div class="space-y-4">
+              <a href="/auth/login" class="block w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium transition-colors text-center">
+                Continue to Sign In
+              </a>
+            </div>
+          </div>
+        </div>
+      `
+    },
     '/register': {
       title: 'Sign Up - TaskLuid',
       description: 'Create your TaskLuid account and start managing your tasks efficiently.',
