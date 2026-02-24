@@ -50,8 +50,10 @@ export const TaskTimer: React.FC<TaskTimerProps> = ({
 
   // Sync with props
   useEffect(() => {
-    setLocalElapsed(elapsedTime);
-    setLocalIsRunning(isRunning);
+    queueMicrotask(() => {
+      setLocalElapsed(elapsedTime);
+      setLocalIsRunning(isRunning);
+    });
   }, [elapsedTime, isRunning]);
 
   // Timer tick
@@ -88,7 +90,11 @@ export const TaskTimer: React.FC<TaskTimerProps> = ({
         size="sm"
         onClick={(e) => {
           e.stopPropagation();
-          localIsRunning ? handlePause() : handleStart();
+          if (localIsRunning) {
+            handlePause();
+          } else {
+            handleStart();
+          }
         }}
         className={cn(
           "h-6 px-2 text-[10px] gap-1 transition-colors",

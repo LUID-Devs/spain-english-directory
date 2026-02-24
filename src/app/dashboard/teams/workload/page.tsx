@@ -99,7 +99,7 @@ const TeamWorkloadPage = () => {
 
   // Fetch all tasks for the organization
   const { data: tasks, isLoading: isLoadingTasks, refetch: refetchTasks } = useGetTasksQuery(
-    // @ts-ignore - organizationId is supported at runtime but not in types
+    // @ts-expect-error - organizationId is supported at runtime but not in types
     { organizationId: activeOrganization?.id },
     { skip: !activeOrganization?.id }
   );

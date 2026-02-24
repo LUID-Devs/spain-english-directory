@@ -31,13 +31,15 @@ export function EditAgentModal({ isOpen, onClose, agent }: EditAgentModalProps) 
   // Reset form when agent changes
   useEffect(() => {
     if (agent) {
-      setDisplayName(agent.displayName);
-      setRole(agent.role);
-      setPersonality(
-        typeof agent.personality === "object" && agent.personality
-          ? (agent.personality as { description?: string }).description || ""
-          : ""
-      );
+      queueMicrotask(() => {
+        setDisplayName(agent.displayName);
+        setRole(agent.role);
+        setPersonality(
+          typeof agent.personality === "object" && agent.personality
+            ? (agent.personality as { description?: string }).description || ""
+            : ""
+        );
+      });
     }
   }, [agent]);
 

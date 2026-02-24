@@ -619,7 +619,7 @@ export const useUpdateProjectMutation = () => {
       toast.error('Failed to update project', { id: loadingToast });
       throw error;
     }
-  }, [projects.data, setProjects, currentUser?.userId]);
+  }, [projects.data, setProjects, currentUser]);
 
   // Return the function that returns a mutation object with unwrap method
   const mutationWrapper = useCallback((args: { id: string | number; project: any }) => ({
@@ -1096,7 +1096,7 @@ export const useFavoriteProjectMutation = () => {
       toast.error('Failed to favorite project');
       throw error;
     }
-  }, [projects.data, setProjects, currentUser?.userId]);
+  }, [projects.data, setProjects, currentUser]);
 
   // Return the function that returns a mutation object with unwrap method
   const mutationWrapper = useCallback((args: { id: string; userId: number }) => ({
@@ -1155,7 +1155,7 @@ export const useUnfavoriteProjectMutation = () => {
       toast.error('Failed to remove from favorites');
       throw error;
     }
-  }, [projects.data, setProjects, currentUser?.userId]);
+  }, [projects.data, setProjects, currentUser]);
 
   // Return the function that returns a mutation object with unwrap method
   const mutationWrapper = useCallback((args: { id: string; userId: number }) => ({

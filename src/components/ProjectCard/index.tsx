@@ -484,7 +484,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, viewMode = "grid" })
               const endDate = new Date(project.endDate);
               const isOverdue = endDate < now;
               const daysPastDue = isOverdue ? Math.floor((now.getTime() - endDate.getTime()) / (1000 * 60 * 60 * 24)) : 0;
-              const isDueSoon = endDate < new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+              const isDueSoon = endDate < new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
               
               // Only show warning if due soon or overdue by less than 1 year
               return (isDueSoon && (!isOverdue || daysPastDue < 365));

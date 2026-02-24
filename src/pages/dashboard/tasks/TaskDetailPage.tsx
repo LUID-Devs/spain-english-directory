@@ -21,13 +21,14 @@ const TaskDetailPage = () => {
   const isValidTaskId = Boolean(id) && !Number.isNaN(taskId);
 
   useEffect(() => {
-    setShowFallback(false);
-
+    // Reset and trigger fallback display after delay
     const timeout = setTimeout(() => {
       setShowFallback(true);
     }, 350);
 
-    return () => clearTimeout(timeout);
+    return () => {
+      clearTimeout(timeout);
+    };
   }, [id, isTaskModalOpen]);
 
   const { data: task, isLoading, error } = useGetTaskQuery(taskId, {

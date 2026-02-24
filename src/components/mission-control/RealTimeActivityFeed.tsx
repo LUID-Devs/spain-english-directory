@@ -65,7 +65,7 @@ export const RealTimeActivityFeed: React.FC<RealTimeActivityFeedProps> = ({
 
   // Update activities when initialActivities changes
   useEffect(() => {
-    setActivities(Array.isArray(initialActivities) ? initialActivities : []);
+    queueMicrotask(() => setActivities(Array.isArray(initialActivities) ? initialActivities : []));
   }, [initialActivities]);
 
   // Handle new activity from WebSocket

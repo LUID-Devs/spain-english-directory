@@ -133,7 +133,7 @@ export const CustomFieldRenderer: React.FC<CustomFieldRendererProps> = ({
         </div>
       );
 
-    case 'multiselect':
+    case 'multiselect': {
       const selectedValues = Array.isArray(value) ? value : [];
       return (
         <div className="space-y-1">
@@ -164,6 +164,7 @@ export const CustomFieldRenderer: React.FC<CustomFieldRendererProps> = ({
           {renderHelpText()}
         </div>
       );
+    }
 
     case 'checkbox':
       return (
@@ -242,16 +243,18 @@ export const CustomFieldDisplay: React.FC<CustomFieldDisplayProps> = ({ field, v
       case 'checkbox':
         return value ? 'Yes' : 'No';
       
-      case 'select':
+      case 'select': {
         const option = field.options?.find((o: FormFieldOption) => o.value === value);
         return option?.label || value;
+      }
       
-      case 'multiselect':
+      case 'multiselect': {
         const values = Array.isArray(value) ? value : [value];
         return values.map((v: string) => {
           const opt = field.options?.find((o: FormFieldOption) => o.value === v);
           return opt?.label || v;
         }).join(', ');
+      }
       
       case 'url':
         return (

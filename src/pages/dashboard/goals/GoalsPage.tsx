@@ -60,14 +60,21 @@ export default function GoalsPage() {
 
   // Build hierarchical structure
   const buildGoalHierarchy = (goals: Goal[]): GoalWithHierarchy[] => {
+    // Ensure goals is a valid array
+    if (!Array.isArray(goals)) {
+      console.warn('[GoalsPage] buildGoalHierarchy received non-array:', goals);
+      return [];
+    }
+    
     const goalMap = new Map<number, GoalWithHierarchy>();
     const childrenMap = new Map<number, GoalWithHierarchy[]>();
     const rootGoals: GoalWithHierarchy[] = [];
 
-    goals?.forEach((goal) => {
+    goals.forEach((goal) => {
+      if (!goal || typeof goal.id !== 'number') return;
       const withLevel = { ...goal, level: 0 } as GoalWithHierarchy;
       goalMap.set(goal.id, withLevel);
-      if (!goal.parentGoalId) {
+      if (goal.parentGoalId === null || goal.parentGoalId === undefined) {
         rootGoals.push(withLevel);
       } else {
         const list = childrenMap.get(goal.parentGoalId) || [];
@@ -90,7 +97,8 @@ export default function GoalsPage() {
     rootGoals.forEach((root) => addGoal(root, 0));
 
     // Add any orphaned/cyclic goals to prevent blank screens from recursion issues
-    goals?.forEach((goal) => {
+    goals.forEach((goal) => {
+      if (!goal || typeof goal.id !== 'number') return;
       if (!visited.has(goal.id)) {
         const fallback = goalMap.get(goal.id);
         if (fallback) addGoal(fallback, 0);
@@ -102,8 +110,9 @@ export default function GoalsPage() {
 
   const hierarchicalGoals = buildGoalHierarchy(goals || []);
 
-  // Filter by type
+  // Filter by type with safety checks
   const filteredGoals = hierarchicalGoals.filter((goal) => {
+    if (!goal || typeof goal !== 'object') return false;
     if (filter === 'all' || filter === 'active' || filter === 'completed') return true;
     return goal.goalType === filter;
   });

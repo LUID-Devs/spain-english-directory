@@ -23,14 +23,22 @@ const fallbackContext: TaskModalContextType = {
   isTaskModalOpen: false,
   currentTaskId: null,
 };
-let hasLoggedMissingProviderWarning = false;
 
-export const useTaskModal = () => {
+const warnedComponents = new Set<string>();
+
+export const useTaskModal = (componentName?: string) => {
   const context = useContext(TaskModalContext);
+  
   if (!context) {
-    if (import.meta.env.DEV && !hasLoggedMissingProviderWarning) {
-      hasLoggedMissingProviderWarning = true;
-      console.warn('useTaskModal called without TaskModalProvider; using fallback context.');
+    // Schedule warning outside of render to avoid issues
+    if (import.meta.env.DEV) {
+      const key = componentName || 'unknown';
+      if (!warnedComponents.has(key)) {
+        warnedComponents.add(key);
+        queueMicrotask(() => {
+          console.warn('useTaskModal called without TaskModalProvider; using fallback context.');
+        });
+      }
     }
     return fallbackContext;
   }
@@ -64,7 +72,7 @@ export const TaskModalProvider: React.FC<TaskModalProviderProps> = ({ children }
     if (taskData && openedViaDirectUrl && !backgroundLocationRef.current?.includes('/projects/')) {
       // Set background location to the task's project
       backgroundLocationRef.current = `/dashboard/projects/${taskData.projectId}`;
-      setCurrentProjectId(taskData.projectId);
+      queueMicrotask(() => setCurrentProjectId(taskData.projectId));
     }
   }, [taskData, openedViaDirectUrl]);
 
@@ -83,24 +91,28 @@ export const TaskModalProvider: React.FC<TaskModalProviderProps> = ({ children }
           backgroundLocationRef.current === '/dashboard' ||
           !backgroundLocationRef.current.includes('/projects/');
 
-        if (isDirectUrlAccess) {
-          // Mark as opened via direct URL so we fetch task data for projectId
-          setOpenedViaDirectUrl(true);
-          // Temporary default - will be updated when task data loads
-          backgroundLocationRef.current = '/dashboard';
-        }
+        queueMicrotask(() => {
+          if (isDirectUrlAccess) {
+            // Mark as opened via direct URL so we fetch task data for projectId
+            setOpenedViaDirectUrl(true);
+            // Temporary default - will be updated when task data loads
+            backgroundLocationRef.current = '/dashboard';
+          }
 
-        setCurrentTaskId(taskId);
-        setIsTaskModalOpen(true);
+          setCurrentTaskId(taskId);
+          setIsTaskModalOpen(true);
+        });
       }
     } else {
       // Not on a task URL, close modal if open
       if (isTaskModalOpen) {
-        setIsTaskModalOpen(false);
-        setCurrentTaskId(null);
-        setCurrentProjectId(undefined);
-        setEditMode(false);
-        setOpenedViaDirectUrl(false);
+        queueMicrotask(() => {
+          setIsTaskModalOpen(false);
+          setCurrentTaskId(null);
+          setCurrentProjectId(undefined);
+          setEditMode(false);
+          setOpenedViaDirectUrl(false);
+        });
       }
       // Update background location when not on task page
       backgroundLocationRef.current = location.pathname;

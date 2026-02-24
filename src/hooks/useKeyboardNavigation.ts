@@ -50,12 +50,12 @@ export const useKeyboardNavigation = ({
   // Update selected element when index changes
   useLayoutEffect(() => {
     if (!enabled || selectedIndex < 0) {
-      setSelectedElement(null);
+      queueMicrotask(() => setSelectedElement(null));
       return;
     }
 
     const element = itemRefs.current[selectedIndex];
-    setSelectedElement(element || null);
+    queueMicrotask(() => setSelectedElement(element || null));
 
     if (element && onSelect) {
       onSelect(element);

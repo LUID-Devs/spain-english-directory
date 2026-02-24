@@ -91,13 +91,15 @@ const TaskCard = React.memo(({ task, isSelected = false, onSelect, selectionMode
   
   // Calculate elapsed time from server + local offset
   useEffect(() => {
-    if (isThisTaskActive && activeTimerData?.timer) {
-      setActiveLogId(activeTimerData.timer.id);
-      setLocalElapsedTime(activeTimerData.timer.elapsedMinutes * 60);
-    } else {
-      setActiveLogId(null);
-      setLocalElapsedTime(0);
-    }
+    queueMicrotask(() => {
+      if (isThisTaskActive && activeTimerData?.timer) {
+        setActiveLogId(activeTimerData.timer.id);
+        setLocalElapsedTime(activeTimerData.timer.elapsedMinutes * 60);
+      } else {
+        setActiveLogId(null);
+        setLocalElapsedTime(0);
+      }
+    });
   }, [isThisTaskActive, activeTimerData]);
   
   // Local timer tick when running

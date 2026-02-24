@@ -48,7 +48,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
   // Reset search when closed
   useEffect(() => {
     if (!isOpen) {
-      setSearchQuery('');
+      queueMicrotask(() => setSearchQuery(''));
     }
   }, [isOpen]);
 

@@ -272,7 +272,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     if (isMarkdownMode && editor) {
       const html = editor.getHTML();
       const md = turndownService.turndown(html);
-      setMarkdownContent(md);
+      queueMicrotask(() => setMarkdownContent(md));
     }
   }, [isMarkdownMode, editor]);
 
@@ -285,10 +285,10 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     // Check for Speech Synthesis support
     const hasSynthesis = 'speechSynthesis' in window;
     
-    setSpeechSupported({
+    queueMicrotask(() => setSpeechSupported({
       recognition: hasRecognition,
       synthesis: hasSynthesis,
-    });
+    }));
 
     if (hasRecognition) {
       const recognition = new SpeechRecognition();

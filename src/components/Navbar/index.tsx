@@ -19,7 +19,7 @@ const Navbar = () => {
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    setPrefersReducedMotion(mediaQuery.matches);
+    queueMicrotask(() => setPrefersReducedMotion(mediaQuery.matches));
 
     const handleChange = (event: MediaQueryListEvent) => {
       setPrefersReducedMotion(event.matches);

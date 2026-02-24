@@ -262,19 +262,23 @@ const NavbarSearch = forwardRef<NavbarSearchRef, NavbarSearchProps>(({
   useEffect(() => {
     if (searchTerm.length >= 2) {
       const parsed = parseSearchQuery(searchTerm);
-      setParsedQuery(parsed);
+      queueMicrotask(() => {
+        setParsedQuery(parsed);
 
-      // Switch to syntax mode if operators detected, otherwise basic
-      if (parsed.hasOperators) {
-        setSearchMode('syntax');
-      } else if (searchMode === 'syntax') {
-        setSearchMode('basic');
-      }
+        // Switch to syntax mode if operators detected, otherwise basic
+        if (parsed.hasOperators) {
+          setSearchMode('syntax');
+        } else if (searchMode === 'syntax') {
+          setSearchMode('basic');
+        }
+      });
     } else {
-      setParsedQuery(null);
-      if (searchMode === 'syntax') {
-        setSearchMode('basic');
-      }
+      queueMicrotask(() => {
+        setParsedQuery(null);
+        if (searchMode === 'syntax') {
+          setSearchMode('basic');
+        }
+      });
     }
   }, [searchTerm]);
 
@@ -455,16 +459,18 @@ const NavbarSearch = forwardRef<NavbarSearchRef, NavbarSearchProps>(({
 
   // Auto-show results when we have a search term >= 3 characters
   useEffect(() => {
-    if (searchTerm.length >= 3 && searchMode === 'basic') {
-      setShowResults(true);
-      setShowSuggestions(false);
-    } else if (searchTerm.length >= 2 && searchTerm.length < 3) {
-      setShowSuggestions(true);
-      setShowResults(false);
-    } else {
-      setShowResults(false);
-      setShowSuggestions(false);
-    }
+    queueMicrotask(() => {
+      if (searchTerm.length >= 3 && searchMode === 'basic') {
+        setShowResults(true);
+        setShowSuggestions(false);
+      } else if (searchTerm.length >= 2 && searchTerm.length < 3) {
+        setShowSuggestions(true);
+        setShowResults(false);
+      } else {
+        setShowResults(false);
+        setShowSuggestions(false);
+      }
+    });
   }, [searchTerm, searchMode]);
 
   // Cleanup debounce on unmount

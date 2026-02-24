@@ -35,13 +35,15 @@ const EditProjectModal = ({ isOpen, onClose, project }: Props) => {
   // Populate form with project data when modal opens
   useEffect(() => {
     if (isOpen && project) {
-      setProjectName(project.name);
-      setDescription(project.description || "");
-      setStartDate(project.startDate ? format(new Date(project.startDate), "yyyy-MM-dd") : "");
-      setEndDate(project.endDate ? format(new Date(project.endDate), "yyyy-MM-dd") : "");
-      // @ts-ignore - organizationId exists at runtime
-      setSelectedWorkspaceId(project.organizationId?.toString() || "");
-      setError("");
+      queueMicrotask(() => {
+        setProjectName(project.name);
+        setDescription(project.description || "");
+        setStartDate(project.startDate ? format(new Date(project.startDate), "yyyy-MM-dd") : "");
+        setEndDate(project.endDate ? format(new Date(project.endDate), "yyyy-MM-dd") : "");
+        // @ts-expect-error - organizationId exists at runtime
+        setSelectedWorkspaceId(project.organizationId?.toString() || "");
+        setError("");
+      });
     }
   }, [isOpen, project]);
 

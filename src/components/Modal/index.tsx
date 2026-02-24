@@ -15,13 +15,13 @@ const Modal = ({ children, isOpen, onClose, name }: Props) => {
 
   useEffect(() => {
     if (isOpen) {
-      setShouldRender(true);
+      queueMicrotask(() => setShouldRender(true));
       // Small delay to ensure the element is in the DOM before animating
       requestAnimationFrame(() => {
         setIsVisible(true);
       });
     } else {
-      setIsVisible(false);
+      queueMicrotask(() => setIsVisible(false));
       // Wait for animation to complete before unmounting
       const timer = setTimeout(() => {
         setShouldRender(false);

@@ -109,14 +109,16 @@ export const SmartFilterBar: React.FC<SmartFilterBarProps> = ({
   } = useAIParseSearchFilter();
 
   useEffect(() => {
-    setInputValue(value);
-    if (value) {
-      setParsedResult(parseSmartFilter(value));
-    } else {
-      setParsedResult(null);
-      setWasAIInterpreted(false);
-      setAIConfidence(null);
-    }
+    queueMicrotask(() => {
+      setInputValue(value);
+      if (value) {
+        setParsedResult(parseSmartFilter(value));
+      } else {
+        setParsedResult(null);
+        setWasAIInterpreted(false);
+        setAIConfidence(null);
+      }
+    });
   }, [value]);
 
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
