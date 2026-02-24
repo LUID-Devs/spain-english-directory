@@ -26,13 +26,13 @@ interface GoalWithHierarchy extends Goal {
 export default function GoalsPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { activeOrganization } = useAuth();
+  const { activeOrganization, isLoading: isAuthLoading } = useAuth();
   const organizationId = activeOrganization?.id;
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
   const [filter, setFilter] = useState<'all' | 'active' | 'completed' | 'company' | 'team' | 'individual'>('all');
 
-  const { data: goals, isLoading, error: queryError } = useQuery({
+  const { data: goals, isPending, error: queryError } = useQuery({
     queryKey: ['goals', organizationId, filter],
     queryFn: async () => {
       if (!organizationId) return [];
@@ -119,7 +119,25 @@ export default function GoalsPage() {
     }
   };
 
-  if (isLoading) {
+  if (isAuthLoading) {
+    return <GoalsPageSkeleton />;
+  }
+
+  if (!organizationId) {
+    return (
+      <div className="container mx-auto px-4 py-6 max-w-7xl">
+        <div className="flex flex-col items-center justify-center py-12">
+          <AlertCircle className="h-16 w-16 text-destructive mb-4" />
+          <h2 className="text-xl font-semibold text-foreground mb-2">No Organization</h2>
+          <p className="text-muted-foreground mb-4 text-center max-w-md">
+            You need to be part of an organization to view goals.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (isPending) {
     return <GoalsPageSkeleton />;
   }
 
