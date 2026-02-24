@@ -230,7 +230,7 @@ export default function GoalsPage() {
               <div>
                 <p className="text-sm text-muted-foreground">Completed</p>
                 <p className="text-2xl font-bold">
-                  {goals?.filter((g) => g.status === 'completed').length || 0}
+                  {goals?.filter((g) => g.status === 'completed')?.length || 0}
                 </p>
               </div>
               <TrendingUp className="h-8 w-8 text-green-500 opacity-50" />
