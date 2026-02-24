@@ -16,7 +16,7 @@ jobs:
           script: |
             const pr = context.payload.check_run.pull_requests?.[0];
             if (!pr) {
-              core.setFailed("No PR attached to Greptile check");
+              core.notice("No PR attached to Greptile check; skipping confidence gate");
               return;
             }
 
