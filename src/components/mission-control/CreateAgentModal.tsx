@@ -62,31 +62,33 @@ export function CreateAgentModal({ isOpen, onClose }: CreateAgentModalProps) {
       }
 
       // Fallback: Use execCommand for older browsers or non-secure contexts
-      const textArea = document.createElement('textarea');
+      const textArea = document.createElement("textarea");
       textArea.value = createdAgent.apiKey;
-      textArea.style.position = 'fixed';
-      textArea.style.left = '-9999px';
-      textArea.style.top = '0';
-      document.body.appendChild(textArea);
-      textArea.focus();
-      textArea.select();
+      textArea.style.position = "fixed";
+      textArea.style.left = "-9999px";
+      textArea.style.top = "0";
 
       try {
-        const successful = document.execCommand('copy');
-        document.body.removeChild(textArea);
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
 
+        const successful = document.execCommand("copy");
         if (successful) {
           setCopied(true);
           setTimeout(() => setCopied(false), 2000);
         } else {
-          setCopyError('Copy failed. Please select and copy the key manually.');
+          setCopyError("Copy failed. Please select and copy the key manually.");
         }
       } catch (err) {
-        document.body.removeChild(textArea);
-        setCopyError('Copy failed. Please select and copy the key manually.');
+        setCopyError("Copy failed. Please select and copy the key manually.");
+      } finally {
+        if (textArea.parentNode) {
+          textArea.parentNode.removeChild(textArea);
+        }
       }
     } catch (error) {
-      setCopyError('Copy failed. Please select and copy the key manually.');
+      setCopyError("Copy failed. Please select and copy the key manually.");
     }
   };
 
