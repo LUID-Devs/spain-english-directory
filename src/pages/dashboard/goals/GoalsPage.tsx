@@ -37,7 +37,7 @@ export default function GoalsPage() {
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
   const [filter, setFilter] = useState<'all' | 'active' | 'completed' | 'company' | 'team' | 'individual'>('all');
 
-  const { data: goals, isPending, error: queryError } = useQuery({
+  const { data: goals, isPending, isError, error, refetch } = useQuery({
     queryKey: ['goals', organizationId, filter],
     queryFn: async () => {
       if (!organizationId) return [];
@@ -46,6 +46,8 @@ export default function GoalsPage() {
     },
     enabled: !!organizationId,
   });
+
+  const normalizedGoals = Array.isArray(goals) ? goals : [];
 
   const deleteMutation = useMutation({
     mutationFn: (goalId: number) => apiService.deleteGoal(goalId),
@@ -108,7 +110,7 @@ export default function GoalsPage() {
     return result;
   };
 
-  const hierarchicalGoals = buildGoalHierarchy(goals || []);
+  const hierarchicalGoals = buildGoalHierarchy(normalizedGoals);
 
   // Filter by type with safety checks
   const filteredGoals = hierarchicalGoals.filter((goal) => {
@@ -167,16 +169,16 @@ export default function GoalsPage() {
     return <GoalsPageSkeleton />;
   }
 
-  if (queryError) {
+  if (isError) {
     return (
       <div className="container mx-auto px-4 py-6 max-w-7xl">
         <div className="flex flex-col items-center justify-center py-12">
           <AlertCircle className="h-16 w-16 text-destructive mb-4" />
           <h2 className="text-xl font-semibold text-foreground mb-2">Failed to load goals</h2>
           <p className="text-muted-foreground mb-4 text-center max-w-md">
-            {queryError instanceof Error ? queryError.message : 'An unexpected error occurred while fetching goals.'}
+            {(error as Error)?.message || 'An unexpected error occurred while fetching goals.'}
           </p>
-          <Button onClick={() => queryClient.invalidateQueries({ queryKey: ['goals'] })}>
+          <Button onClick={() => refetch()}>
             Try Again
           </Button>
         </div>
@@ -224,7 +226,7 @@ export default function GoalsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Total Goals</p>
-                <p className="text-2xl font-bold">{goals?.length || 0}</p>
+                <p className="text-2xl font-bold">{normalizedGoals.length}</p>
               </div>
               <Target className="h-8 w-8 text-primary opacity-50" />
             </div>
@@ -236,7 +238,7 @@ export default function GoalsPage() {
               <div>
                 <p className="text-sm text-muted-foreground">Completed</p>
                 <p className="text-2xl font-bold">
-                  {goals?.filter((g) => g.status === 'completed')?.length || 0}
+                  {normalizedGoals.filter((g) => g.status === 'completed').length}
                 </p>
               </div>
               <TrendingUp className="h-8 w-8 text-green-500 opacity-50" />
@@ -249,9 +251,9 @@ export default function GoalsPage() {
               <div>
                 <p className="text-sm text-muted-foreground">Avg Progress</p>
                 <p className="text-2xl font-bold">
-                  {goals?.length
+                  {normalizedGoals.length
                     ? Math.round(
-                        goals.reduce((acc, g) => acc + (g.progress || 0), 0) / goals.length
+                        normalizedGoals.reduce((acc, g) => acc + (g.progress || 0), 0) / normalizedGoals.length
                       )
                     : 0}
                   %
@@ -269,7 +271,7 @@ export default function GoalsPage() {
               <div>
                 <p className="text-sm text-muted-foreground">Linked Tasks</p>
                 <p className="text-2xl font-bold">
-                  {goals?.reduce((acc, g) => acc + (g._count?.linkedTasks || 0), 0) || 0}
+                  {normalizedGoals.reduce((acc, g) => acc + (g._count?.linkedTasks || 0), 0)}
                 </p>
               </div>
               <Link className="h-8 w-8 text-blue-500 opacity-50" />
