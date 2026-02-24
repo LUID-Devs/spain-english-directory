@@ -26,8 +26,13 @@ interface GoalWithHierarchy extends Goal {
 export default function GoalsPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { activeOrganization, isLoading: isAuthLoading } = useAuth();
-  const organizationId = activeOrganization?.id;
+  const { activeOrganization, isLoading: isAuthLoading, user } = useAuth();
+  const storedOrganizationId = typeof window !== 'undefined'
+    ? Number(localStorage.getItem('activeOrganizationId'))
+    : undefined;
+  const organizationId = activeOrganization?.id
+    ?? (user?.activeOrganizationId as number | undefined)
+    ?? (Number.isFinite(storedOrganizationId) ? storedOrganizationId : undefined);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
   const [filter, setFilter] = useState<'all' | 'active' | 'completed' | 'company' | 'team' | 'individual'>('all');
