@@ -70,7 +70,7 @@ const PricingPage = () => {
             <Link to="/features" className="text-sm text-neutral-400 hover:text-white transition-colors">
               Features
             </Link>
-            <Link to="/pricing" className="text-sm text-neutral-400 hover:text-white transition-colors">
+            <Link to="/pricing" className="text-sm text-white transition-colors">
               Pricing
             </Link>
             <Link to="/auth/login" className="text-sm text-neutral-400 hover:text-white transition-colors">
