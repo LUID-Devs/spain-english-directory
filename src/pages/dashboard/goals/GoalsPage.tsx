@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Target, Plus, Calendar, ChevronRight, TrendingUp, MoreHorizontal, Trash2, Edit, Link } from 'lucide-react';
+import { Target, Plus, Calendar, ChevronRight, TrendingUp, MoreHorizontal, Trash2, Edit, Link, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -32,7 +32,7 @@ export default function GoalsPage() {
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
   const [filter, setFilter] = useState<'all' | 'active' | 'completed' | 'company' | 'team' | 'individual'>('all');
 
-  const { data: goals, isLoading } = useQuery({
+  const { data: goals, isLoading, error: queryError } = useQuery({
     queryKey: ['goals', organizationId, filter],
     queryFn: async () => {
       if (!organizationId) return [];
@@ -121,6 +121,23 @@ export default function GoalsPage() {
 
   if (isLoading) {
     return <GoalsPageSkeleton />;
+  }
+
+  if (queryError) {
+    return (
+      <div className="container mx-auto px-4 py-6 max-w-7xl">
+        <div className="flex flex-col items-center justify-center py-12">
+          <AlertCircle className="h-16 w-16 text-destructive mb-4" />
+          <h2 className="text-xl font-semibold text-foreground mb-2">Failed to load goals</h2>
+          <p className="text-muted-foreground mb-4 text-center max-w-md">
+            {queryError instanceof Error ? queryError.message : 'An unexpected error occurred while fetching goals.'}
+          </p>
+          <Button onClick={() => queryClient.invalidateQueries({ queryKey: ['goals'] })}>
+            Try Again
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   return (
