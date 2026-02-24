@@ -7,6 +7,7 @@ import {
   CheckCircle,
   Sparkles,
   Heart,
+  Menu,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -38,6 +39,7 @@ const planFeatures: PlanFeature[] = [
 
 const PricingPage = () => {
   const [isAnnual, setIsAnnual] = useState(true);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const monthlyPrice = 10;
   const annualPrice = 8; // per month when billed annually
@@ -64,15 +66,67 @@ const PricingPage = () => {
             </div>
             <span className="font-semibold text-lg">TaskLuid</span>
           </Link>
-          <div className="flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-4">
             <Link to="/features" className="text-sm text-neutral-400 hover:text-white transition-colors">
               Features
+            </Link>
+            <Link to="/pricing" className="text-sm text-neutral-400 hover:text-white transition-colors">
+              Pricing
             </Link>
             <Link to="/auth/login" className="text-sm text-neutral-400 hover:text-white transition-colors">
               Sign In
             </Link>
+            <Link
+              to="/auth/register"
+              className="text-sm px-4 py-2 rounded-full bg-white text-black font-medium hover:bg-neutral-200 transition-colors"
+            >
+              Get Started
+            </Link>
           </div>
+          <button
+            type="button"
+            className="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-lg border border-neutral-800 text-neutral-300 hover:text-white hover:border-neutral-700 transition-colors"
+            onClick={() => setIsMobileMenuOpen((open) => !open)}
+            aria-label="Toggle navigation"
+            aria-expanded={isMobileMenuOpen}
+          >
+            {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
         </div>
+        {isMobileMenuOpen && (
+          <div className="md:hidden border-t border-neutral-900 bg-black/95">
+            <div className="px-4 py-4 flex flex-col gap-3">
+              <Link
+                to="/features"
+                className="text-sm text-neutral-300 hover:text-white transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Features
+              </Link>
+              <Link
+                to="/pricing"
+                className="text-sm text-neutral-300 hover:text-white transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Pricing
+              </Link>
+              <Link
+                to="/auth/login"
+                className="text-sm text-neutral-300 hover:text-white transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Sign In
+              </Link>
+              <Link
+                to="/auth/register"
+                className="text-sm inline-flex items-center justify-center px-4 py-2 rounded-full bg-white text-black font-medium hover:bg-neutral-200 transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Get Started
+              </Link>
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* Hero */}
