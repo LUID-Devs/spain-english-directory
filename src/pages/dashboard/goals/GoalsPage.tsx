@@ -56,31 +56,51 @@ export default function GoalsPage() {
   // Build hierarchical structure
   const buildGoalHierarchy = (goals: Goal[]): GoalWithHierarchy[] => {
     const goalMap = new Map<number, GoalWithHierarchy>();
-    const rootGoals: GoalWithHierarchy[] = [];
+    const orderedGoals: GoalWithHierarchy[] = [];
+    const visited = new Set<number>();
 
-    // First pass: create map and identify roots
     goals?.forEach((goal) => {
       goalMap.set(goal.id, { ...goal, level: 0 });
-      if (!goal.parentGoalId) {
-        rootGoals.push(goalMap.get(goal.id)!);
-      }
     });
 
-    // Second pass: build hierarchy
-    const addChildren = (parentGoal: GoalWithHierarchy, level: number) => {
-      const children = goals?.filter((g) => g.parentGoalId === parentGoal.id) || [];
+    const addGoalWithChildren = (goal: GoalWithHierarchy, level: number) => {
+      if (visited.has(goal.id)) {
+        return;
+      }
+
+      visited.add(goal.id);
+      goal.level = level;
+      orderedGoals.push(goal);
+
+      const children = goals?.filter((g) => g.parentGoalId === goal.id) || [];
       children.forEach((child) => {
-        const childWithLevel = goalMap.get(child.id)!;
-        childWithLevel.level = level;
-        // Insert child after parent in rootGoals
-        const parentIndex = rootGoals.findIndex((g) => g.id === parentGoal.id);
-        rootGoals.splice(parentIndex + 1, 0, childWithLevel);
-        addChildren(childWithLevel, level + 1);
+        const childNode = goalMap.get(child.id);
+        if (childNode) {
+          addGoalWithChildren(childNode, level + 1);
+        }
       });
     };
 
-    rootGoals.forEach((root) => addChildren(root, 1));
-    return rootGoals;
+    // Roots: no parent or parent missing from fetched data
+    goals?.forEach((goal) => {
+      const parentId = goal.parentGoalId;
+      if (!parentId || !goalMap.has(parentId)) {
+        const node = goalMap.get(goal.id);
+        if (node) {
+          addGoalWithChildren(node, 0);
+        }
+      }
+    });
+
+    // Ensure all goals are included even if there are cycles or missing parents
+    goals?.forEach((goal) => {
+      const node = goalMap.get(goal.id);
+      if (node && !visited.has(node.id)) {
+        addGoalWithChildren(node, 0);
+      }
+    });
+
+    return orderedGoals;
   };
 
   const hierarchicalGoals = buildGoalHierarchy(goals || []);
