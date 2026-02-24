@@ -69,6 +69,27 @@ const DocsPage = React.lazy(() => import('@/pages/docs/DocsPage'));
 // Public Status Pages (lazy loaded)
 const ProjectStatusPage = React.lazy(() => import('@/pages/status/ProjectStatusPage'));
 
+const resolveLandingVariant = () => {
+  const configuredVariant = import.meta.env.VITE_LANDING_VARIANT;
+  if (configuredVariant) {
+    return configuredVariant;
+  }
+
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname.toLowerCase();
+    if (host.includes('luidkit') || host.includes('fileconvertpro')) {
+      return 'luidkit';
+    }
+  }
+
+  return 'taskluid';
+};
+
+const RootLandingPage = () => {
+  const landingVariant = React.useMemo(() => resolveLandingVariant(), []);
+  return landingVariant === 'luidkit' ? <LuidKitLandingPage /> : <LandingPage />;
+};
+
 // Inner app component that can use auth context
 function AppContent() {
   const { isDarkMode } = useGlobalStore();
@@ -265,7 +286,7 @@ function AppContent() {
           } />
 
           {/* Root route - show landing page */}
-          <Route path="/" element={<LandingPage />} />
+          <Route path="/" element={<RootLandingPage />} />
           
           {/* 404 Not Found - Show proper error page instead of redirecting */}
           <Route path="*" element={<NotFoundPage />} />

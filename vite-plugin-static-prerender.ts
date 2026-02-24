@@ -987,6 +987,12 @@ export function staticPrerenderPlugin(): Plugin {
     }
   };
 
+  const landingVariant = process.env.VITE_LANDING_VARIANT;
+
+  if (landingVariant === 'luidkit' && publicPages['/luidkit']) {
+    publicPages['/'] = publicPages['/luidkit'];
+  }
+
   return {
     name: 'static-prerender',
     apply: 'build',
@@ -1054,10 +1060,11 @@ export function staticPrerenderPlugin(): Plugin {
       // Copy landing page content to root index.html for SEO on homepage
       // The root / route should serve prerendered content, not the SPA shell
       const rootIndexPath = path.join(distPath, 'index.html');
-      const landingIndexPath = path.join(distPath, 'landing', 'index.html');
+      const landingRoute = landingVariant === 'luidkit' ? 'luidkit' : 'landing';
+      const landingIndexPath = path.join(distPath, landingRoute, 'index.html');
       if (fs.existsSync(landingIndexPath)) {
         fs.copyFileSync(landingIndexPath, rootIndexPath);
-        console.log(`[static-prerender] Copied landing page to /index.html for SEO`);
+        console.log(`[static-prerender] Copied ${landingRoute} page to /index.html for SEO`);
       }
       
       // Also preserve a copy of SPA shell for client-side routes that need it
