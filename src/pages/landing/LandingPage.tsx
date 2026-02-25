@@ -138,18 +138,21 @@ const LandingPage = () => {
       desc: 'Kanban view that stays out of your way',
       gradient: 'from-indigo-500/30 to-purple-500/30',
       icon: ListChecks,
+      image: '/p1.jpeg',
     },
     {
       title: 'AI Task Parsing',
       desc: 'Turn messy notes into structured tasks instantly',
       gradient: 'from-emerald-500/30 to-indigo-500/30',
       icon: Sparkles,
+      image: '/p2.jpeg',
     },
     {
       title: 'Team Collaboration',
       desc: 'Assign, comment, and track progress together',
       gradient: 'from-purple-500/30 to-pink-500/30',
       icon: Users,
+      image: '/p3.jpeg',
     },
   ];
 
@@ -282,6 +285,19 @@ const LandingPage = () => {
             >
               Sign In
             </Link>
+          </div>
+
+          {/* Hero Screenshot */}
+          <div className="mb-10">
+            <div className="relative mx-auto max-w-4xl rounded-2xl border border-neutral-800 bg-neutral-900/40 p-2 shadow-2xl">
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-indigo-500/20 via-purple-500/10 to-transparent pointer-events-none" />
+              <img
+                src="/i1.jpg"
+                alt="TaskLuid dashboard preview"
+                className="relative w-full rounded-xl border border-neutral-800 object-cover"
+                loading="lazy"
+              />
+            </div>
           </div>
 
           {/* Social Proof */}
@@ -444,64 +460,12 @@ const LandingPage = () => {
           <div className="relative mb-8 rounded-2xl overflow-hidden border border-neutral-800 bg-neutral-900/30">
             <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-transparent pointer-events-none" />
             <div className="p-4 sm:p-8">
-              {/* Mock Dashboard UI */}
-              <div className="rounded-xl border border-neutral-800 bg-neutral-950 overflow-hidden shadow-2xl">
-                {/* Mock Header */}
-                <div className="flex items-center gap-2 px-4 py-3 border-b border-neutral-800 bg-neutral-900/50">
-                  <div className="flex gap-1.5">
-                    <div className="w-3 h-3 rounded-full bg-red-500/80" />
-                    <div className="w-3 h-3 rounded-full bg-amber-500/80" />
-                    <div className="w-3 h-3 rounded-full bg-emerald-500/80" />
-                  </div>
-                  <div className="flex-1 text-center">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-neutral-800/50 text-xs text-neutral-400">
-                      <div className="w-3 h-3 rounded bg-indigo-500/50" />
-                      TaskLuid Dashboard
-                    </div>
-                  </div>
-                </div>
-                {/* Mock Content */}
-                <div className="p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-3 gap-4">
-                  {/* Sidebar Mock */}
-                  <div className="hidden lg:block space-y-2">
-                    <div className="h-8 w-32 rounded bg-neutral-800/50" />
-                    <div className="h-6 w-24 rounded bg-neutral-800/30 mt-4" />
-                    <div className="h-6 w-28 rounded bg-neutral-800/30" />
-                    <div className="h-6 w-20 rounded bg-neutral-800/30" />
-                    <div className="h-6 w-24 rounded bg-neutral-800/30" />
-                  </div>
-                  {/* Main Content Mock */}
-                  <div className="lg:col-span-2 space-y-3">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="h-6 w-32 rounded bg-neutral-800/50" />
-                      <div className="h-8 w-24 rounded bg-indigo-500/30" />
-                    </div>
-                    {/* Task Cards Mock */}
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-3 p-3 rounded-lg bg-neutral-800/30 border border-neutral-800/50">
-                        <div className="w-4 h-4 rounded border-2 border-emerald-500/50" />
-                        <div className="flex-1 h-4 w-48 rounded bg-neutral-700/50" />
-                        <div className="h-5 w-16 rounded-full bg-indigo-500/20" />
-                      </div>
-                      <div className="flex items-center gap-3 p-3 rounded-lg bg-neutral-800/30 border border-neutral-800/50">
-                        <div className="w-4 h-4 rounded border-2 border-amber-500/50" />
-                        <div className="flex-1 h-4 w-64 rounded bg-neutral-700/50" />
-                        <div className="h-5 w-20 rounded-full bg-purple-500/20" />
-                      </div>
-                      <div className="flex items-center gap-3 p-3 rounded-lg bg-neutral-800/30 border border-neutral-800/50">
-                        <div className="w-4 h-4 rounded border-2 border-neutral-600" />
-                        <div className="flex-1 h-4 w-40 rounded bg-neutral-700/50" />
-                        <div className="h-5 w-14 rounded-full bg-emerald-500/20" />
-                      </div>
-                      <div className="flex items-center gap-3 p-3 rounded-lg bg-neutral-800/30 border border-neutral-800/50">
-                        <div className="w-4 h-4 rounded border-2 border-neutral-600" />
-                        <div className="flex-1 h-4 w-56 rounded bg-neutral-700/50" />
-                        <div className="h-5 w-16 rounded-full bg-amber-500/20" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <img
+                src="/i2.jpg"
+                alt="TaskLuid dashboard preview"
+                className="w-full rounded-xl border border-neutral-800 object-cover shadow-2xl"
+                loading="lazy"
+              />
             </div>
           </div>
 
@@ -514,6 +478,14 @@ const LandingPage = () => {
               >
                 <div className={`absolute inset-0 rounded-xl bg-gradient-to-br ${screenshot.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
                 <div className="relative">
+                  <div className="w-full mb-4 rounded-lg border border-neutral-800 bg-neutral-950/60 overflow-hidden">
+                    <img
+                      src={screenshot.image}
+                      alt={screenshot.title}
+                      className="w-full h-40 object-cover"
+                      loading="lazy"
+                    />
+                  </div>
                   <div className="w-10 h-10 mb-4 rounded-lg bg-gradient-to-br from-neutral-800 to-neutral-900 flex items-center justify-center border border-neutral-700">
                     <screenshot.icon className="w-5 h-5 text-neutral-300" />
                   </div>

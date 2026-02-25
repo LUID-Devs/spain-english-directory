@@ -153,6 +153,7 @@ function AppContent() {
           <Route path="/auth/login" element={<LoginPage />} />
           <Route path="/auth/sign-in" element={<Navigate to="/auth/login" replace />} />
           <Route path="/auth/register" element={<RegisterPage />} />
+          <Route path="/auth/sign-up" element={<Navigate to="/auth/register" replace />} />
           <Route path="/auth/callback" element={<OAuthCallbackPage />} />
           <Route path="/auth/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/auth/reset-password" element={<ResetPasswordPage />} />
