@@ -465,7 +465,11 @@ class ApiService {
   private baseUrl: string;
 
   constructor() {
-    const rawBaseUrl = (import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || '').trim();
+    const rawBaseUrl = (
+      import.meta.env.VITE_API_BASE_URL ||
+      import.meta.env.VITE_API_URL ||
+      'https://api.taskluid.com'
+    ).trim();
     this.baseUrl = rawBaseUrl.replace(/\/$/, '');
   }
 
