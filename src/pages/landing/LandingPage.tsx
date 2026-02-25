@@ -174,6 +174,24 @@ const LandingPage = () => {
     },
   ];
 
+  const screenshotGallery = [
+    {
+      title: 'Project dashboard overview',
+      desc: 'See priorities, owners, and progress in one view.',
+      src: '/i1.jpg',
+    },
+    {
+      title: 'Task detail + activity',
+      desc: 'Conversation, checklists, and context alongside every task.',
+      src: '/i4.jpg',
+    },
+    {
+      title: 'Analytics & milestones',
+      desc: 'Track velocity, deadlines, and team workload visually.',
+      src: '/i7.jpg',
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-black text-white flex flex-col">
       {/* Top Navigation */}
