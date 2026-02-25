@@ -40,6 +40,7 @@ export function EditGoalModal({ goal, isOpen, onClose }: EditGoalModalProps) {
   const [visibility, setVisibility] = useState(goal.visibility);
   const [targetDate, setTargetDate] = useState(goal.targetDate ? goal.targetDate.split('T')[0] : '');
   const [projectId, setProjectId] = useState(goal.projectId?.toString() || '');
+  const displayProgress = typeof goal.calculatedProgress === 'number' ? goal.calculatedProgress : goal.progress;
 
   const { data: projects } = useQuery({
     queryKey: ['projects'],
@@ -244,7 +245,7 @@ export function EditGoalModal({ goal, isOpen, onClose }: EditGoalModalProps) {
           {/* Progress */}
           {status === 'active' && (
             <div className="space-y-2">
-              <Label>Progress: {goal.progress}%</Label>
+              <Label>Progress: {displayProgress}%</Label>
               <p className="text-xs text-muted-foreground">
                 Progress is automatically calculated based on linked tasks
               </p>

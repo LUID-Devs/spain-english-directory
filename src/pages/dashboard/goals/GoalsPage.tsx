@@ -153,6 +153,12 @@ export default function GoalsPage() {
     }
   };
 
+  const getGoalProgressValue = (goal: Goal) => (
+    typeof goal.calculatedProgress === 'number'
+      ? goal.calculatedProgress
+      : (goal.progress || 0)
+  );
+
   if (isAuthLoading) {
     return <GoalsPageSkeleton />;
   }
@@ -259,7 +265,7 @@ export default function GoalsPage() {
                 <p className="text-2xl font-bold">
                   {normalizedGoals.length
                     ? Math.round(
-                        normalizedGoals.reduce((acc, g) => acc + (g.progress || 0), 0) / normalizedGoals.length
+                        normalizedGoals.reduce((acc, g) => acc + getGoalProgressValue(g), 0) / normalizedGoals.length
                       )
                     : 0}
                   %
@@ -373,8 +379,8 @@ export default function GoalsPage() {
                     <div className="flex flex-wrap items-center gap-4 mt-3 text-sm text-muted-foreground">
                       {/* Progress */}
                       <div className="flex items-center gap-2 flex-1 min-w-[200px]">
-                        <Progress value={goal.progress || 0} className="h-2" />
-                        <span className="shrink-0">{goal.progress || 0}%</span>
+                        <Progress value={getGoalProgressValue(goal)} className="h-2" />
+                        <span className="shrink-0">{getGoalProgressValue(goal)}%</span>
                       </div>
 
                       {/* Linked Tasks */}

@@ -572,10 +572,12 @@ class ApiService {
         let errorMessage = `API Error: ${response.status} ${response.statusText}`;
         try {
           const errorData = await response.json();
-          if (errorData && errorData.message) {
+          if (errorData && typeof errorData.message === 'string') {
             errorMessage = errorData.message;
-          } else if (errorData && errorData.error) {
+          } else if (errorData && typeof errorData.error === 'string') {
             errorMessage = errorData.error;
+          } else if (errorData?.error && typeof errorData.error.message === 'string') {
+            errorMessage = errorData.error.message;
           }
         } catch {
           // If parsing fails, use the default error message
@@ -624,10 +626,12 @@ class ApiService {
       let errorMessage = `API Error: ${response.status} ${response.statusText}`;
       try {
         const errorData = await response.json();
-        if (errorData && errorData.message) {
+        if (errorData && typeof errorData.message === 'string') {
           errorMessage = errorData.message;
-        } else if (errorData && errorData.error) {
+        } else if (errorData && typeof errorData.error === 'string') {
           errorMessage = errorData.error;
+        } else if (errorData?.error && typeof errorData.error.message === 'string') {
+          errorMessage = errorData.error.message;
         }
       } catch {
         // If parsing fails, use the default error message

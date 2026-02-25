@@ -35,7 +35,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useAuth } from '@/app/authProvider';
 
 interface Cycle {
   id: number;
@@ -49,7 +48,6 @@ export default function GoalDetailPage() {
   const { goalId } = useParams<{ goalId: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { activeOrganization } = useAuth();
   const [isLinkDialogOpen, setIsLinkDialogOpen] = useState(false);
   const [selectedCycleId, setSelectedCycleId] = useState<string>('');
 
@@ -74,17 +72,8 @@ export default function GoalDetailPage() {
     queryKey: ['available-cycles', goal?.teamId],
     queryFn: async () => {
       if (!goal?.teamId) return [];
-      const response = await fetch(
-        `/api/teams/${goal.teamId}/cycles`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        }
-      );
-      if (!response.ok) throw new Error('Failed to fetch cycles');
-      const data = await response.json();
-      return data.cycles || [];
+      const response = await apiService.getTeamCycles(goal.teamId);
+      return response.cycles || [];
     },
     enabled: !!goal?.teamId,
   });
@@ -190,6 +179,8 @@ export default function GoalDetailPage() {
     );
   }
 
+  const displayProgress = typeof goal.calculatedProgress === 'number' ? goal.calculatedProgress : (goal.progress || 0);
+
   return (
     <div className="container mx-auto px-4 py-6 max-w-5xl">
       {/* Header */}
@@ -224,7 +215,7 @@ export default function GoalDetailPage() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <p className="text-sm text-muted-foreground">Overall Progress</p>
-              <p className="text-3xl font-bold">{goal.progress || 0}%</p>
+              <p className="text-3xl font-bold">{displayProgress}%</p>
             </div>
             <div className="text-right">
               <p className="text-sm text-muted-foreground">Target Date</p>
@@ -235,7 +226,7 @@ export default function GoalDetailPage() {
               </p>
             </div>
           </div>
-          <Progress value={goal.progress || 0} className="h-3" />
+          <Progress value={displayProgress} className="h-3" />
         </CardContent>
       </Card>
 
