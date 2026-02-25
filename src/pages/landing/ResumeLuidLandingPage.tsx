@@ -138,7 +138,7 @@ const ResumeLuidLandingPage = () => {
               Sign In
             </Link>
             <Link
-              to="/auth/register"
+              to="/auth/sign-up"
               className="text-sm px-4 py-2 rounded-full bg-white text-black font-medium hover:bg-neutral-200 transition-colors"
             >
               Build Your Resume
@@ -179,7 +179,7 @@ const ResumeLuidLandingPage = () => {
                 Sign In
               </Link>
               <Link
-                to="/auth/register"
+                to="/auth/sign-up"
                 className="text-sm inline-flex items-center justify-center px-4 py-2 rounded-full bg-white text-black font-medium hover:bg-neutral-200 transition-colors"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
@@ -219,7 +219,7 @@ const ResumeLuidLandingPage = () => {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10">
             <Link
-              to="/auth/register"
+              to="/auth/sign-up"
               className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-medium rounded-lg hover:from-emerald-600 hover:to-teal-600 transition-all duration-300 shadow-lg shadow-emerald-500/20"
             >
               Create Your Resume Free
@@ -457,7 +457,7 @@ const ResumeLuidLandingPage = () => {
                 <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-emerald-400" />AI suggestions</li>
               </ul>
               <Link
-                to="/auth/register"
+                to="/auth/sign-up"
                 className="mt-6 w-full inline-flex items-center justify-center px-6 py-3 border border-neutral-700 text-neutral-300 rounded-lg hover:bg-neutral-800 transition-all"
               >
                 Get Started Free
@@ -477,7 +477,7 @@ const ResumeLuidLandingPage = () => {
                 <li className="flex items-center gap-2"><Zap className="w-4 h-4 text-emerald-300" />Cover letter builder</li>
               </ul>
               <Link
-                to="/auth/register"
+                to="/auth/sign-up"
                 className="mt-6 w-full inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-lg hover:from-emerald-600 hover:to-teal-600 transition-all"
               >
                 Upgrade to Pro
@@ -496,7 +496,7 @@ const ResumeLuidLandingPage = () => {
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
-              to="/auth/register"
+              to="/auth/sign-up"
               className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-medium rounded-lg hover:from-emerald-600 hover:to-teal-600 transition-all duration-300 shadow-lg shadow-emerald-500/20"
             >
               Create Your Resume Free
