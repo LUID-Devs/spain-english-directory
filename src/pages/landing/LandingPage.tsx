@@ -280,9 +280,16 @@ const LandingPage = () => {
           <p className="text-lg text-indigo-300 mb-4 max-w-2xl mx-auto font-medium">
             Simple enough to start. Powerful enough to grow.
           </p>
-          <p className="text-sm text-neutral-500 mb-8">
-            Not too basic like Trello. Not too complex like Asana. Just right.
+          <p className="text-sm text-neutral-500 mb-4">
+            Free to start. Upgrade when you need more power.
           </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 text-xs text-neutral-300 mb-8">
+            <span className="px-3 py-1 rounded-full border border-neutral-800 bg-neutral-900/60">Free plan included</span>
+            <span className="px-3 py-1 rounded-full border border-neutral-800 bg-neutral-900/60">Pro €10/mo (or €8/mo annually)</span>
+            <Link to="/pricing" className="text-indigo-300 hover:text-indigo-200 transition-colors">
+              See full pricing
+            </Link>
+          </div>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
             <Link

@@ -14,6 +14,14 @@ const LoginPage = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({
+    email: "",
+    password: "",
+  });
+  const [touchedFields, setTouchedFields] = useState({
+    email: false,
+    password: false,
+  });
   const [challenge, setChallenge] = useState<{
     signInStep: string;
   } | null>(null);
@@ -29,6 +37,23 @@ const LoginPage = () => {
     if (!redirect || !redirect.startsWith('/')) return '/dashboard';
     return redirect;
   }, [location.search]);
+
+  const validateEmail = (value: string) => {
+    if (!value.trim()) return "Email required";
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(value) ? "" : "Invalid email format";
+  };
+
+  const validatePassword = (value: string) => {
+    if (!value.trim()) return "Password required";
+    return "";
+  };
+
+  const emailValidation = validateEmail(formData.username);
+  const passwordValidation = validatePassword(formData.password);
+  const isFormValid = !emailValidation && !passwordValidation;
+  const emailError = touchedFields.email ? fieldErrors.email : "";
+  const passwordError = touchedFields.password ? fieldErrors.password : "";
 
   // Redirect if already authenticated (only once)
   useEffect(() => {
@@ -65,11 +90,59 @@ const LoginPage = () => {
       ...prev,
       [name]: value
     }));
+
+    if (name === "username" && touchedFields.email) {
+      setFieldErrors(prev => ({
+        ...prev,
+        email: validateEmail(value),
+      }));
+    }
+
+    if (name === "password" && touchedFields.password) {
+      setFieldErrors(prev => ({
+        ...prev,
+        password: validatePassword(value),
+      }));
+    }
+
     setError("");
+  };
+
+  const handleInputBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+
+    if (name === "username") {
+      setTouchedFields(prev => ({ ...prev, email: true }));
+      setFieldErrors(prev => ({
+        ...prev,
+        email: validateEmail(value),
+      }));
+    }
+
+    if (name === "password") {
+      setTouchedFields(prev => ({ ...prev, password: true }));
+      setFieldErrors(prev => ({
+        ...prev,
+        password: validatePassword(value),
+      }));
+    }
   };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const emailError = validateEmail(formData.username);
+    const passwordError = validatePassword(formData.password);
+
+    if (emailError || passwordError) {
+      setTouchedFields({ email: true, password: true });
+      setFieldErrors({
+        email: emailError,
+        password: passwordError,
+      });
+      return;
+    }
+
     setLoading(true);
     setError("");
 
@@ -405,12 +478,20 @@ const LoginPage = () => {
                     autoComplete="email"
                     value={formData.username}
                     onChange={handleInputChange}
+                    onBlur={handleInputBlur}
                     required
-                    className="w-full px-4 py-3 bg-gray-900/50 border border-blue-500/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300"
+                    className={`w-full px-4 py-3 bg-gray-900/50 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 transition-all duration-300 ${
+                      emailError
+                        ? "border-red-500/60 focus:ring-red-500/50 focus:border-red-500/70"
+                        : "border-blue-500/20 focus:ring-blue-500/50 focus:border-blue-500/50"
+                    }`}
                     placeholder="you@example.com"
                     whileFocus={{ scale: 1.02 }}
                     transition={{ type: "spring", stiffness: 300, damping: 20 }}
                   />
+                  {emailError && (
+                    <p className="mt-2 text-sm text-red-400">{emailError}</p>
+                  )}
                 </div>
 
                 <div>
@@ -430,15 +511,25 @@ const LoginPage = () => {
                     name="password"
                     value={formData.password}
                     onChange={handleInputChange}
+                    onBlur={handleInputBlur}
                     required
                     autoComplete="current-password"
                     placeholder="••••••••"
+                    className={
+                      passwordError
+                        ? "border-red-500/60 focus:ring-red-500/50 focus:border-red-500/70"
+                        : "border-blue-500/20 focus:ring-blue-500/50 focus:border-blue-500/50"
+                    }
+                    containerClassName="rounded-lg"
                   />
+                  {passwordError && (
+                    <p className="mt-2 text-sm text-red-400">{passwordError}</p>
+                  )}
                 </div>
 
                 <motion.button
                   type="submit"
-                  disabled={loading}
+                  disabled={loading || !isFormValid}
                   className="w-full px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-semibold rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-500/25"
                   whileHover={{ scale: 1.02, y: -2 }}
                   whileTap={{ scale: 0.98 }}
@@ -481,6 +572,7 @@ const LoginPage = () => {
                 </Link>
               </div>
             </motion.div>
+
           </div>
         </div>
       </motion.div>
