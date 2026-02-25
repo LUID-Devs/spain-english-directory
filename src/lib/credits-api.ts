@@ -2,6 +2,8 @@
  * TaskLuid credits/subscription API (app-local backend).
  */
 
+import { limitedFetch } from '@/services/limitedFetch';
+
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
 
 const buildUrl = (path: string): string => `${API_BASE_URL}${path}`;
@@ -29,7 +31,7 @@ export async function getBalance(token: string): Promise<CreditBalance | null> {
   if (!token) return null;
 
   try {
-    const response = await fetch(buildUrl('/credits/balance'), {
+    const response = await limitedFetch(buildUrl('/credits/balance'), {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -66,7 +68,7 @@ export async function getSubscriptionStatus(token: string): Promise<Subscription
   if (!token) return null;
 
   try {
-    const response = await fetch(buildUrl('/credits/subscription-status'), {
+    const response = await limitedFetch(buildUrl('/credits/subscription-status'), {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -96,7 +98,7 @@ export async function checkCredits(token: string, amount: number): Promise<boole
   if (!token) return false;
 
   try {
-    const response = await fetch(buildUrl(`/credits/check?amount=${amount}`), {
+    const response = await limitedFetch(buildUrl(`/credits/check?amount=${amount}`), {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${token}`,

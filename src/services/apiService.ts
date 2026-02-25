@@ -1,4 +1,5 @@
 import { validateTaskContent, validateProjectContent, validateCommentContent, validateGoalContent, validateStatusContent } from '../lib/validation';
+import { limitedFetch } from './limitedFetch';
 
 // Types (moved from old api.ts)
 export interface Project {
@@ -560,7 +561,7 @@ class ApiService {
     // console.log('API Request:', url, config);
 
     try {
-      const response = await fetch(url, config);
+      const response = await limitedFetch(url, config);
       
       if (!response.ok) {
         // Handle authentication failures
@@ -616,7 +617,7 @@ class ApiService {
       headers,
     };
 
-    const response = await fetch(url, config);
+    const response = await limitedFetch(url, config);
 
     if (!response.ok) {
       if (response.status === 401) {

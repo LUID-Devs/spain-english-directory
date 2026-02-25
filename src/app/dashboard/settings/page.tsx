@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/app/authProvider";
 import { fetchAuthSession, signInWithRedirect } from 'aws-amplify/auth';
+import { limitedFetch } from '@/services/limitedFetch';
 import { toast } from "sonner";
 import { SubscriptionDashboard } from "@/components/subscription/SubscriptionDashboard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -315,15 +316,18 @@ const SettingsPage = () => {
     
     try {
       const headers = await getAuthHeaders();
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/change-password`, {
-        method: 'POST',
-        credentials: 'include',
-        headers,
-        body: JSON.stringify({
-          currentPassword: passwordForm.currentPassword,
-          newPassword: passwordForm.newPassword,
-        }),
-      });
+      const response = await limitedFetch(
+        `${import.meta.env.VITE_API_BASE_URL}/auth/change-password`,
+        {
+          method: 'POST',
+          credentials: 'include',
+          headers,
+          body: JSON.stringify({
+            currentPassword: passwordForm.currentPassword,
+            newPassword: passwordForm.newPassword,
+          }),
+        }
+      );
 
       const data = await response.json();
 
@@ -350,24 +354,40 @@ const SettingsPage = () => {
   };
 
   const handleProfileUpdate = async () => {
+    const trimmedEmail = profileForm.email.trim();
+
+    if (!trimmedEmail) {
+      toast.error("Email is required.");
+      return;
+    }
+
+    if (!isValidEmail(trimmedEmail)) {
+      toast.error("Please enter a valid email address.");
+      return;
+    }
+
+    if (!user?.userId) {
+      console.error("No user ID found");
+      toast.error("User not authenticated.");
+      return;
+    }
+
     setIsProfileLoading(true);
     
     try {
-      if (!user?.userId) {
-        console.error("No user ID found");
-        return;
-      }
-
       const headers = await getAuthHeaders();
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/users/${user.userId}/profile`, {
-        method: 'PUT',
-        credentials: 'include',
-        headers,
-        body: JSON.stringify({
-          username: profileForm.username,
-          email: profileForm.email,
-        }),
-      });
+      const response = await limitedFetch(
+        `${import.meta.env.VITE_API_BASE_URL}/users/${user.userId}/profile`,
+        {
+          method: 'PUT',
+          credentials: 'include',
+          headers,
+          body: JSON.stringify({
+            username: profileForm.username.trim(),
+            email: trimmedEmail,
+          }),
+        }
+      );
 
       const data = await response.json();
 
