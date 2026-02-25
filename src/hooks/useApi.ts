@@ -651,9 +651,7 @@ export const useGetTeamsQuery = (params: any = undefined, options: { skip?: bool
       setLoading('teams', true);
       const teamsData = await getOrCreateRequest(
         'teams:global',
-        () => (typeof apiService.getTeams === 'function'
-          ? apiService.getTeams()
-          : apiService.request<Team[]>('/teams')),
+        () => apiService.request<Team[]>('/teams'),
         2500
       );
       setTeams(teamsData);
