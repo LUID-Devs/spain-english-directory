@@ -28,6 +28,13 @@ import {
 const LandingPage = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  const trackPricingClick = () => {
+    if (typeof window === 'undefined') return;
+    (window as Window & { umami?: { track?: (eventName: string) => void } }).umami?.track?.(
+      'taskluid_pricing_nav_click'
+    );
+  };
+
   // Compute values during render to prevent hydration mismatch
   const year = useMemo(() => new Date().getFullYear(), []);
 
@@ -161,7 +168,11 @@ const LandingPage = () => {
             <Link to="/features" className="text-sm text-neutral-400 hover:text-white transition-colors">
               Features
             </Link>
-            <Link to="/pricing" className="text-sm text-neutral-400 hover:text-white transition-colors">
+            <Link
+              to="/pricing"
+              className="text-sm text-neutral-400 hover:text-white transition-colors"
+              onClick={trackPricingClick}
+            >
               Pricing
             </Link>
             <Link to="/auth/login" className="text-sm text-neutral-400 hover:text-white transition-colors">
@@ -197,7 +208,10 @@ const LandingPage = () => {
               <Link
                 to="/pricing"
                 className="text-sm text-neutral-300 hover:text-white transition-colors"
-                onClick={() => setIsMobileMenuOpen(false)}
+                onClick={() => {
+                  trackPricingClick();
+                  setIsMobileMenuOpen(false);
+                }}
               >
                 Pricing
               </Link>
