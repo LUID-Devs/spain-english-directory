@@ -39,12 +39,12 @@ const LandingPage = () => {
   const year = useMemo(() => new Date().getFullYear(), []);
 
   const highlights = [
-    { icon: Sparkles, title: 'AI-assisted workflows', desc: 'Turn notes into tasks and keep momentum.' },
-    { icon: Users, title: 'Client-ready', desc: 'Assign work, add context, and keep clients aligned.' },
-    { icon: BarChart3, title: 'Clear progress', desc: 'Track priorities, billable hours, and outcomes fast.' },
-    { icon: Calendar, title: 'Timelines that stick', desc: 'Deadlines and milestones that actually help.' },
-    { icon: Shield, title: 'Privacy-first', desc: 'Your data stays yours, always.' },
-    { icon: Code, title: 'API + webhooks', desc: 'Integrate TaskLuid with your stack.' },
+    { icon: ListChecks, title: 'Kanban + list views', desc: 'Switch between board and list layouts to match how you work.' },
+    { icon: Sparkles, title: 'AI task parsing', desc: 'Turn messy notes into clean, actionable tasks instantly.' },
+    { icon: Users, title: 'Team collaboration', desc: 'Assign owners, leave comments, and keep everyone aligned.' },
+    { icon: TrendingUp, title: 'Progress analytics', desc: 'Track velocity, blockers, and project health at a glance.' },
+    { icon: Zap, title: 'Automations & templates', desc: 'Build repeatable workflows for recurring work.' },
+    { icon: Code, title: 'API + webhooks', desc: 'Sync TaskLuid with the rest of your stack.' },
   ];
 
   const howItWorks = [
@@ -153,6 +153,24 @@ const LandingPage = () => {
       gradient: 'from-purple-500/30 to-pink-500/30',
       icon: Users,
       image: '/p3.jpeg',
+    },
+  ];
+
+  const screenshotGallery = [
+    {
+      title: 'Project dashboard overview',
+      desc: 'See priorities, owners, and progress in one view.',
+      src: '/i1.jpg',
+    },
+    {
+      title: 'Task detail + activity',
+      desc: 'Conversation, checklists, and context alongside every task.',
+      src: '/i4.jpg',
+    },
+    {
+      title: 'Analytics & milestones',
+      desc: 'Track velocity, deadlines, and team workload visually.',
+      src: '/i7.jpg',
     },
   ];
 
@@ -266,7 +284,7 @@ const LandingPage = () => {
             Not too basic like Trello. Not too complex like Asana. Just right.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
             <Link
               to="/auth/register"
               className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-medium rounded-lg hover:from-indigo-600 hover:to-purple-600 transition-all duration-300 shadow-lg shadow-indigo-500/20"
@@ -286,6 +304,10 @@ const LandingPage = () => {
               Sign In
             </Link>
           </div>
+          <p className="text-xs text-neutral-500 mb-10">
+            Free plan available. Pro starts at <span className="text-neutral-300">€10/month</span> (or €8/month annually).{' '}
+            <Link to="/pricing" className="text-neutral-200 underline underline-offset-4 hover:text-white">See full pricing</Link>.
+          </p>
 
           {/* Hero Screenshot */}
           <div className="mb-10">
@@ -454,6 +476,29 @@ const LandingPage = () => {
             <p className="text-sm text-neutral-500 mt-2 max-w-xl mx-auto">
               A clean interface that gets out of your way. No clutter, no steep learning curve.
             </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            {screenshotGallery.map((shot) => (
+              <div
+                key={shot.title}
+                className="rounded-2xl border border-neutral-800 bg-neutral-900/40 overflow-hidden shadow-xl"
+              >
+                <div className="relative">
+                  <img
+                    src={shot.src}
+                    alt={shot.title}
+                    className="w-full h-48 object-cover"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                </div>
+                <div className="p-4">
+                  <h3 className="text-sm font-semibold text-white mb-1">{shot.title}</h3>
+                  <p className="text-xs text-neutral-400">{shot.desc}</p>
+                </div>
+              </div>
+            ))}
           </div>
 
           {/* Main Demo Preview */}
