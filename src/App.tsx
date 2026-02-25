@@ -15,6 +15,11 @@ import KeyboardShortcutsHelp from '@/components/KeyboardShortcutsHelp';
 import RouteErrorBoundary from '@/components/RouteErrorBoundary';
 import AuthErrorDisplay from '@/components/AuthErrorDisplay';
 
+// Landing Pages - eagerly loaded for SEO and fast first paint
+import LandingPage from '@/pages/landing/LandingPage';
+import LuidKitLandingPage from '@/pages/landing/LuidKitLandingPage';
+import ResumeLuidLandingPage from '@/pages/landing/ResumeLuidLandingPage';
+
 // Auth Components (eager imports for immediate auth flow)
 import LoginPage from '@/pages/auth/LoginPage';
 import RegisterPage from '@/pages/auth/RegisterPage';
@@ -51,9 +56,6 @@ const ArchivedTasksPage = React.lazy(() => import('@/app/dashboard/archived-task
 const AutomationPage = React.lazy(() => import('@/pages/dashboard/automation/AutomationPage'));
 
 // Other Pages (lazy loaded)
-const LandingPage = React.lazy(() => import('@/pages/landing/LandingPage'));
-const LuidKitLandingPage = React.lazy(() => import('@/pages/landing/LuidKitLandingPage'));
-const ResumeLuidLandingPage = React.lazy(() => import('@/pages/landing/ResumeLuidLandingPage'));
 // Pricing page - must be prerendered for SEO (see vite-plugin-static-prerender.ts)
 const PricingPage = React.lazy(() => import('@/pages/pricing/PricingPage'));
 const FeaturesPage = React.lazy(() => import('@/pages/features/FeaturesPage'));
