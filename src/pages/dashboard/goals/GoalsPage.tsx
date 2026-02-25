@@ -27,11 +27,17 @@ export default function GoalsPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { activeOrganization, isLoading: isAuthLoading, user } = useAuth();
-  const storedOrganizationId = typeof window !== 'undefined'
-    ? Number(localStorage.getItem('activeOrganizationId'))
-    : undefined;
+  const storedOrganizationValue = typeof window !== 'undefined'
+    ? localStorage.getItem('activeOrganizationId')
+    : null;
+  const storedOrganizationId = storedOrganizationValue ? Number(storedOrganizationValue) : undefined;
+  const userOrganizationId = typeof user?.activeOrganizationId === 'number'
+    ? user.activeOrganizationId
+    : typeof user?.activeOrganizationId === 'string'
+      ? Number(user.activeOrganizationId)
+      : undefined;
   const organizationId = activeOrganization?.id
-    ?? (user?.activeOrganizationId as number | undefined)
+    ?? (Number.isFinite(userOrganizationId) ? userOrganizationId : undefined)
     ?? (Number.isFinite(storedOrganizationId) ? storedOrganizationId : undefined);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
