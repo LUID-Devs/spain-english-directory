@@ -50,6 +50,65 @@ function getAssetFilenames(distPath: string): { js: string; css: string } {
   return { js: jsFile, css: cssFile };
 }
 
+// SEO Meta configuration for each page
+interface SEOMeta {
+  title: string;
+  description: string;
+  keywords?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  ogImage?: string;
+  ogType?: string;
+  twitterCard?: string;
+  twitterTitle?: string;
+  twitterDescription?: string;
+  twitterImage?: string;
+  canonicalUrl?: string;
+  jsonLd?: Record<string, unknown>;
+}
+
+// Helper to generate JSON-LD structured data
+function generateSoftwareApplicationJsonLd(
+  name: string,
+  description: string,
+  url: string,
+  offers?: { price: string; priceCurrency: string }
+): Record<string, unknown> {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name,
+    description,
+    url,
+    applicationCategory: 'Productivity',
+    operatingSystem: 'Any',
+    offers: offers || {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'USD',
+    },
+    author: {
+      '@type': 'Organization',
+      name: 'Luid Suite',
+      url: 'https://luidkit.com',
+    },
+  };
+}
+
+function generateOrganizationJsonLd(): Record<string, unknown> {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'Luid Suite',
+    url: 'https://luidkit.com',
+    logo: 'https://luidkit.com/logo.png',
+    sameAs: [
+      'https://twitter.com/luidkit',
+      'https://github.com/luidkit',
+    ],
+  };
+}
+
 /**
  * Vite plugin to inject static HTML content for public pages
  * This fixes SEO by ensuring search engines see actual content
@@ -58,10 +117,34 @@ export function staticPrerenderPlugin(): Plugin {
   // Use current year to match client-side rendering and avoid hydration mismatches
   const currentYear = new Date().getFullYear();
   
-  const publicPages: Record<string, { title: string; description: string; content: string }> = {
+  // Default site URL for canonical links
+  const siteUrl = process.env.VITE_SITE_URL || 'https://taskluid.com';
+  
+  // Default OG image
+  const defaultOgImage = `${siteUrl}/og-image.png`;
+
+  const publicPages: Record<string, { meta: SEOMeta; content: string }> = {
     '/landing': {
-      title: 'TaskLuid - AI-Powered Project Management Platform',
-      description: 'The lightweight project hub for teams who want to ship without the bloat. AI-assisted workflows, team collaboration, and clear progress tracking.',
+      meta: {
+        title: 'TaskLuid - AI-Powered Project Management Platform',
+        description: 'The lightweight project hub for teams who want to ship without the bloat. AI-assisted workflows, team collaboration, and clear progress tracking.',
+        keywords: 'project management, task management, team collaboration, AI workflows, productivity tool, task tracking, project planning',
+        ogTitle: 'TaskLuid - AI-Powered Project Management Platform',
+        ogDescription: 'The lightweight project hub for teams who want to ship without the bloat.',
+        ogImage: `${siteUrl}/og-taskluid.png`,
+        ogType: 'website',
+        twitterCard: 'summary_large_image',
+        twitterTitle: 'TaskLuid - AI-Powered Project Management Platform',
+        twitterDescription: 'The lightweight project hub for teams who want to ship without the bloat.',
+        twitterImage: `${siteUrl}/og-taskluid.png`,
+        canonicalUrl: `${siteUrl}/landing`,
+        jsonLd: generateSoftwareApplicationJsonLd(
+          'TaskLuid',
+          'AI-powered project management platform for teams',
+          `${siteUrl}/landing`,
+          { price: '0', priceCurrency: 'USD' }
+        ),
+      },
       content: `
         <div class="min-h-screen bg-black text-white flex flex-col">
           <!-- Hero Section -->
@@ -240,8 +323,17 @@ export function staticPrerenderPlugin(): Plugin {
       `
     },
     '/auth/login': {
-      title: 'Sign In - TaskLuid',
-      description: 'Sign in to your TaskLuid account to manage your tasks and projects.',
+      meta: {
+        title: 'Sign In - TaskLuid',
+        description: 'Sign in to your TaskLuid account to manage your tasks and projects.',
+        keywords: 'login, sign in, task management, project management',
+        ogTitle: 'Sign In - TaskLuid',
+        ogDescription: 'Sign in to your TaskLuid account',
+        ogType: 'website',
+        twitterCard: 'summary',
+        canonicalUrl: `${siteUrl}/auth/login`,
+        jsonLd: generateSoftwareApplicationJsonLd('TaskLuid Login', 'Sign in to TaskLuid', `${siteUrl}/auth/login`),
+      },
       content: `
         <div class="min-h-screen bg-black text-white flex items-center justify-center px-4">
           <div class="text-center max-w-md w-full">
@@ -264,8 +356,17 @@ export function staticPrerenderPlugin(): Plugin {
       `
     },
     '/auth/register': {
-      title: 'Sign Up - TaskLuid',
-      description: 'Create your TaskLuid account and start managing your tasks efficiently.',
+      meta: {
+        title: 'Sign Up - TaskLuid',
+        description: 'Create your TaskLuid account and start managing your tasks efficiently. Free to start, no credit card required.',
+        keywords: 'sign up, register, free account, task management, project management',
+        ogTitle: 'Sign Up - TaskLuid',
+        ogDescription: 'Create your TaskLuid account and start managing your tasks efficiently.',
+        ogType: 'website',
+        twitterCard: 'summary',
+        canonicalUrl: `${siteUrl}/auth/register`,
+        jsonLd: generateSoftwareApplicationJsonLd('TaskLuid Registration', 'Create a TaskLuid account', `${siteUrl}/auth/register`),
+      },
       content: `
         <div class="min-h-screen bg-black text-white flex items-center justify-center px-4">
           <div class="text-center max-w-md w-full">
@@ -287,8 +388,11 @@ export function staticPrerenderPlugin(): Plugin {
       `
     },
     '/auth/forgot-password': {
-      title: 'Forgot Password - TaskLuid',
-      description: 'Reset your TaskLuid account password.',
+      meta: {
+        title: 'Forgot Password - TaskLuid',
+        description: 'Reset your TaskLuid account password.',
+        canonicalUrl: `${siteUrl}/auth/forgot-password`,
+      },
       content: `
         <div class="min-h-screen bg-black text-white flex items-center justify-center px-4">
           <div class="text-center max-w-md w-full">
@@ -308,8 +412,17 @@ export function staticPrerenderPlugin(): Plugin {
       `
     },
     '/pricing': {
-      title: 'Pricing - TaskLuid',
-      description: 'Choose the right plan for your team. Free and paid plans available.',
+      meta: {
+        title: 'Pricing - TaskLuid',
+        description: 'Choose the right plan for your team. Free and paid plans available. Start free and upgrade when you need more power.',
+        keywords: 'pricing, plans, free tier, pro plan, task management pricing',
+        ogTitle: 'Pricing - TaskLuid',
+        ogDescription: 'Choose the right plan for your team. Free and paid plans available.',
+        ogType: 'website',
+        twitterCard: 'summary',
+        canonicalUrl: `${siteUrl}/pricing`,
+        jsonLd: generateSoftwareApplicationJsonLd('TaskLuid Pricing', 'TaskLuid pricing plans', `${siteUrl}/pricing`, { price: '0', priceCurrency: 'USD' }),
+      },
       content: `
         <div class="min-h-screen bg-black text-white">
           <div class="container mx-auto px-4 py-16">
@@ -355,8 +468,11 @@ export function staticPrerenderPlugin(): Plugin {
       `
     },
     '/privacy': {
-      title: 'Privacy Policy - TaskLuid',
-      description: 'Learn how TaskLuid collects, uses, and protects your personal information.',
+      meta: {
+        title: 'Privacy Policy - TaskLuid',
+        description: 'Learn how TaskLuid collects, uses, and protects your personal information.',
+        canonicalUrl: `${siteUrl}/privacy`,
+      },
       content: `
         <div class="min-h-screen bg-black text-white">
           <div class="container mx-auto px-4 py-16 max-w-3xl">
@@ -377,8 +493,11 @@ export function staticPrerenderPlugin(): Plugin {
       `
     },
     '/terms': {
-      title: 'Terms of Service - TaskLuid',
-      description: 'Read the Terms of Service for using TaskLuid.',
+      meta: {
+        title: 'Terms of Service - TaskLuid',
+        description: 'Read the Terms of Service for using TaskLuid.',
+        canonicalUrl: `${siteUrl}/terms`,
+      },
       content: `
         <div class="min-h-screen bg-black text-white">
           <div class="container mx-auto px-4 py-16 max-w-3xl">
@@ -399,8 +518,11 @@ export function staticPrerenderPlugin(): Plugin {
       `
     },
     '/cookies': {
-      title: 'Cookie Policy - TaskLuid',
-      description: 'Learn about how TaskLuid uses cookies.',
+      meta: {
+        title: 'Cookie Policy - TaskLuid',
+        description: 'Learn about how TaskLuid uses cookies.',
+        canonicalUrl: `${siteUrl}/cookies`,
+      },
       content: `
         <div class="min-h-screen bg-black text-white">
           <div class="container mx-auto px-4 py-16 max-w-3xl">
@@ -422,8 +544,11 @@ export function staticPrerenderPlugin(): Plugin {
       `
     },
     '/help': {
-      title: 'Help Center - TaskLuid',
-      description: 'Get help with TaskLuid. Find guides, tutorials, and answers to common questions.',
+      meta: {
+        title: 'Help Center - TaskLuid',
+        description: 'Get help with TaskLuid. Find guides, tutorials, and answers to common questions.',
+        canonicalUrl: `${siteUrl}/help`,
+      },
       content: `
         <div class="min-h-screen bg-black text-white">
           <nav class="border-b border-neutral-800">
@@ -474,8 +599,11 @@ export function staticPrerenderPlugin(): Plugin {
       `
     },
     '/docs': {
-      title: 'Documentation - TaskLuid',
-      description: 'Complete documentation for TaskLuid. API references, guides, and tutorials.',
+      meta: {
+        title: 'Documentation - TaskLuid',
+        description: 'Complete documentation for TaskLuid. API references, guides, and tutorials.',
+        canonicalUrl: `${siteUrl}/docs`,
+      },
       content: `
         <div class="min-h-screen bg-black text-white">
           <nav class="border-b border-neutral-800">
@@ -530,8 +658,16 @@ export function staticPrerenderPlugin(): Plugin {
       `
     },
     '/features': {
-      title: 'Features - TaskLuid',
-      description: 'Discover TaskLuid features: AI-powered task management, team collaboration, automation, and advanced analytics.',
+      meta: {
+        title: 'Features - TaskLuid',
+        description: 'Discover TaskLuid features: AI-powered task management, team collaboration, automation, and advanced analytics.',
+        keywords: 'features, AI task management, team collaboration, automation, analytics, project management',
+        ogTitle: 'Features - TaskLuid',
+        ogDescription: 'Discover TaskLuid features: AI-powered task management, team collaboration, automation, and advanced analytics.',
+        ogType: 'website',
+        twitterCard: 'summary_large_image',
+        canonicalUrl: `${siteUrl}/features`,
+      },
       content: `
         <div class="min-h-screen bg-black text-white">
           <nav class="border-b border-neutral-800">
@@ -607,8 +743,11 @@ export function staticPrerenderPlugin(): Plugin {
     },
     // Legacy redirect pages for SEO/backward compatibility
     '/login': {
-      title: 'Sign In - TaskLuid',
-      description: 'Sign in to your TaskLuid account to manage your tasks and projects.',
+      meta: {
+        title: 'Sign In - TaskLuid',
+        description: 'Sign in to your TaskLuid account to manage your tasks and projects.',
+        canonicalUrl: `${siteUrl}/auth/login`,
+      },
       content: `
         <div class="min-h-screen bg-black text-white flex items-center justify-center px-4">
           <div class="text-center max-w-md w-full">
@@ -624,8 +763,11 @@ export function staticPrerenderPlugin(): Plugin {
       `
     },
     '/auth/sign-in': {
-      title: 'Sign In - TaskLuid',
-      description: 'Sign in to your TaskLuid account to manage your tasks and projects.',
+      meta: {
+        title: 'Sign In - TaskLuid',
+        description: 'Sign in to your TaskLuid account to manage your tasks and projects.',
+        canonicalUrl: `${siteUrl}/auth/login`,
+      },
       content: `
         <div class="min-h-screen bg-black text-white flex items-center justify-center px-4">
           <div class="text-center max-w-md w-full">
@@ -641,8 +783,11 @@ export function staticPrerenderPlugin(): Plugin {
       `
     },
     '/register': {
-      title: 'Sign Up - TaskLuid',
-      description: 'Create your TaskLuid account and start managing your tasks efficiently.',
+      meta: {
+        title: 'Sign Up - TaskLuid',
+        description: 'Create your TaskLuid account and start managing your tasks efficiently.',
+        canonicalUrl: `${siteUrl}/auth/register`,
+      },
       content: `
         <div class="min-h-screen bg-black text-white flex items-center justify-center px-4">
           <div class="text-center max-w-md w-full">
@@ -658,8 +803,11 @@ export function staticPrerenderPlugin(): Plugin {
       `
     },
     '/forgot-password': {
-      title: 'Forgot Password - TaskLuid',
-      description: 'Reset your TaskLuid account password.',
+      meta: {
+        title: 'Forgot Password - TaskLuid',
+        description: 'Reset your TaskLuid account password.',
+        canonicalUrl: `${siteUrl}/auth/forgot-password`,
+      },
       content: `
         <div class="min-h-screen bg-black text-white flex items-center justify-center px-4">
           <div class="text-center max-w-md w-full">
@@ -675,19 +823,35 @@ export function staticPrerenderPlugin(): Plugin {
       `
     },
     '/luidkit': {
-      title: 'LuidKit - Free File Converter | Convert Any File Format',
-      description: 'Convert any file to any format. Fast, secure, and free to start. 50+ formats supported including PDF, DOCX, JPG, PNG, XLSX, and more. No software installation needed.',
+      meta: {
+        title: 'LuidKit - Free File Converter | Convert Any File Format',
+        description: 'Convert any file to any format. Fast, secure, and free to start. 50+ formats supported including PDF, DOCX, JPG, PNG, XLSX, and more. No software installation needed.',
+        keywords: 'file converter, PDF converter, image converter, document converter, free file conversion, online converter',
+        ogTitle: 'LuidKit - Free File Converter | Convert Any File Format',
+        ogDescription: 'Convert any file to any format. Fast, secure, and free to start. 50+ formats supported.',
+        ogImage: `${siteUrl}/og-luidkit.png`,
+        ogType: 'website',
+        twitterCard: 'summary_large_image',
+        twitterTitle: 'LuidKit - Free File Converter',
+        twitterDescription: 'Convert any file to any format. Fast, secure, and free to start.',
+        twitterImage: `${siteUrl}/og-luidkit.png`,
+        canonicalUrl: `${siteUrl}/luidkit`,
+        jsonLd: generateSoftwareApplicationJsonLd(
+          'LuidKit',
+          'Free online file converter supporting 50+ formats',
+          `${siteUrl}/luidkit`,
+          { price: '0', priceCurrency: 'USD' }
+        ),
+      },
       content: `
         <div class="min-h-screen bg-black text-white flex flex-col">
           <!-- Hero Section -->
           <div class="flex-1 flex items-center justify-center px-4 pt-14 pb-12">
             <div class="text-center max-w-3xl">
               <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neutral-900/80 border border-neutral-800 mb-6">
-                <span class="w-4 h-4 text-emerald-400">✓</span>
                 <span class="text-sm text-neutral-300">Free tier available — No credit card required</span>
               </div>
               <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neutral-900/80 border border-neutral-800 mb-6">
-                <span class="w-4 h-4 text-rose-500">♥</span>
                 <span class="text-sm text-neutral-400">Part of Luid Suite</span>
               </div>
               <p class="text-sm text-neutral-500 mb-2">File Convert Pro</p>
@@ -717,15 +881,12 @@ export function staticPrerenderPlugin(): Plugin {
               </div>
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div class="flex items-center justify-center gap-2 text-sm text-neutral-400">
-                  <span class="w-4 h-4 text-rose-500">♥</span>
                   <span>Made with care by an indie developer</span>
                 </div>
                 <div class="flex items-center justify-center gap-2 text-sm text-neutral-400">
-                  <span class="w-4 h-4 text-emerald-500">✓</span>
                   <span>No subscription traps, no hidden fees</span>
                 </div>
                 <div class="flex items-center justify-center gap-2 text-sm text-neutral-400">
-                  <span class="w-4 h-4 text-emerald-500">🛡</span>
                   <span>Your files never leave secure servers</span>
                 </div>
               </div>
@@ -811,58 +972,118 @@ export function staticPrerenderPlugin(): Plugin {
             </div>
           </section>
 
-          <!-- Features Section -->
-          <section class="px-4 py-16 border-t border-neutral-900">
+          <!-- Footer -->
+          <footer class="border-t border-neutral-800 py-6 px-4">
+            <div class="max-w-4xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+              <p class="text-sm text-neutral-500">
+                &copy; ${currentYear} LuidKit — Part of Luid Suite
+              </p>
+              <div class="flex gap-6 text-sm">
+                <a href="/privacy" class="text-neutral-400 hover:text-gray-400 transition-colors">Privacy Policy</a>
+                <a href="/terms" class="text-neutral-400 hover:text-gray-400 transition-colors">Terms of Service</a>
+                <a href="/cookies" class="text-neutral-400 hover:text-gray-400 transition-colors">Cookie Policy</a>
+              </div>
+            </div>
+          </footer>
+        </div>
+      `
+    },
+    '/resumeluid': {
+      meta: {
+        title: 'ResumeLuid - AI Resume Builder | Create Professional Resumes',
+        description: 'Build a professional resume that gets you hired. AI-powered resume builder with ATS-friendly templates. Free to start, no credit card required.',
+        keywords: 'resume builder, AI resume, professional resume, ATS-friendly resume, CV maker, resume templates, job application',
+        ogTitle: 'ResumeLuid - AI Resume Builder | Create Professional Resumes',
+        ogDescription: 'Build a professional resume that gets you hired. AI-powered resume builder with ATS-friendly templates.',
+        ogImage: `${siteUrl}/og-resumeluid.png`,
+        ogType: 'website',
+        twitterCard: 'summary_large_image',
+        twitterTitle: 'ResumeLuid - AI Resume Builder',
+        twitterDescription: 'Build a professional resume that gets you hired. AI-powered with ATS-friendly templates.',
+        twitterImage: `${siteUrl}/og-resumeluid.png`,
+        canonicalUrl: `${siteUrl}/resumeluid`,
+        jsonLd: generateSoftwareApplicationJsonLd(
+          'ResumeLuid',
+          'AI-powered resume builder with professional templates',
+          `${siteUrl}/resumeluid`,
+          { price: '0', priceCurrency: 'USD' }
+        ),
+      },
+      content: `
+        <div class="min-h-screen bg-black text-white flex flex-col">
+          <!-- Hero Section -->
+          <div class="flex-1 flex items-center justify-center px-4 pt-14 pb-12">
+            <div class="text-center max-w-3xl">
+              <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neutral-900/80 border border-neutral-800 mb-6">
+                <span class="text-sm text-neutral-300">Now with AI-powered writing assistance</span>
+              </div>
+              <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neutral-900/80 border border-neutral-800 mb-6">
+                <span class="text-sm text-neutral-400">Part of Luid Suite</span>
+              </div>
+              <p class="text-sm text-neutral-500 mb-2">AI Resume Builder</p>
+              <h1 class="text-5xl md:text-6xl font-bold bg-gradient-to-r from-emerald-300 via-teal-200 to-emerald-300 bg-clip-text text-transparent mb-6">
+                ResumeLuid
+              </h1>
+              <p class="text-xl md:text-2xl text-gray-200 mb-4 max-w-2xl mx-auto font-medium">
+                Build a resume that gets you hired.
+              </p>
+              <p class="text-base text-neutral-400 mb-8 max-w-xl mx-auto">
+                AI-powered resume builder with professional templates, smart suggestions, and ATS-optimized formatting. 
+                Free to start — no credit card required.
+              </p>
+              <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10">
+                <a href="/auth/register" class="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-medium rounded-lg hover:from-emerald-600 hover:to-teal-600 transition-all duration-300 shadow-lg shadow-emerald-500/20">
+                  Create Your Resume Free
+                </a>
+                <a href="#features" class="w-full sm:w-auto px-8 py-4 border border-neutral-700 text-neutral-300 rounded-lg hover:bg-neutral-900 transition-all duration-300">
+                  Learn More
+                </a>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="flex items-center justify-center gap-2 text-sm text-neutral-400">
+                  <span>Free tier with no credit card required</span>
+                </div>
+                <div class="flex items-center justify-center gap-2 text-sm text-neutral-400">
+                  <span>Your data belongs to you, always</span>
+                </div>
+                <div class="flex items-center justify-center gap-2 text-sm text-neutral-400">
+                  <span>Templates designed by HR professionals</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Features -->
+          <section id="features" class="px-4 py-16 border-t border-neutral-900">
             <div class="max-w-5xl mx-auto">
               <div class="text-center mb-10">
-                <p class="text-sm text-neutral-500 mb-2">Why LuidKit</p>
-                <h2 class="text-3xl font-semibold">Privacy-first by design</h2>
-                <p class="text-sm text-neutral-500 mt-2 max-w-xl mx-auto">
-                  While other converters harvest your data, we delete it. No accounts required, no tracking, no nonsense.
-                </p>
+                <p class="text-sm text-neutral-500 mb-2">Why ResumeLuid</p>
+                <h2 class="text-3xl font-semibold">Everything you need to stand out</h2>
               </div>
               <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div class="p-6 rounded-xl bg-neutral-900/50 border border-neutral-800 hover:border-neutral-700 transition-colors">
-                  <div class="w-10 h-10 mb-4 rounded-lg bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center">
-                    <svg class="w-5 h-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
-                  </div>
-                  <h3 class="font-semibold text-white mb-2">Drag &amp; Drop</h3>
-                  <p class="text-sm text-neutral-400">Simply drag files into your browser. No software to install.</p>
+                <div class="p-6 rounded-xl bg-neutral-900/50 border border-neutral-800">
+                  <h3 class="font-semibold text-white mb-2">AI-Powered Writing</h3>
+                  <p class="text-sm text-neutral-400">Get smart suggestions for bullet points, summaries, and skills based on your experience.</p>
                 </div>
-                <div class="p-6 rounded-xl bg-neutral-900/50 border border-neutral-800 hover:border-neutral-700 transition-colors">
-                  <div class="w-10 h-10 mb-4 rounded-lg bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center">
-                    <svg class="w-5 h-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-                  </div>
-                  <h3 class="font-semibold text-white mb-2">Lightning Fast</h3>
-                  <p class="text-sm text-neutral-400">Cloud-powered conversion completes in seconds, not minutes.</p>
+                <div class="p-6 rounded-xl bg-neutral-900/50 border border-neutral-800">
+                  <h3 class="font-semibold text-white mb-2">ATS-Friendly Templates</h3>
+                  <p class="text-sm text-neutral-400">Professional designs that pass Applicant Tracking Systems and impress recruiters.</p>
                 </div>
-                <div class="p-6 rounded-xl bg-neutral-900/50 border border-neutral-800 hover:border-neutral-700 transition-colors">
-                  <div class="w-10 h-10 mb-4 rounded-lg bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center">
-                    <svg class="w-5 h-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-                  </div>
+                <div class="p-6 rounded-xl bg-neutral-900/50 border border-neutral-800">
                   <h3 class="font-semibold text-white mb-2">Privacy First</h3>
-                  <p class="text-sm text-neutral-400">Files are encrypted in transit and auto-deleted after 1 hour.</p>
+                  <p class="text-sm text-neutral-400">Your data is encrypted and never sold. Export and delete anytime with full control.</p>
                 </div>
-                <div class="p-6 rounded-xl bg-neutral-900/50 border border-neutral-800 hover:border-neutral-700 transition-colors">
-                  <div class="w-10 h-10 mb-4 rounded-lg bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center">
-                    <svg class="w-5 h-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                  </div>
-                  <h3 class="font-semibold text-white mb-2">Works Everywhere</h3>
-                  <p class="text-sm text-neutral-400">Convert on any device with a browser — Windows, Mac, Linux, mobile.</p>
+                <div class="p-6 rounded-xl bg-neutral-900/50 border border-neutral-800">
+                  <h3 class="font-semibold text-white mb-2">Multi-Format Export</h3>
+                  <p class="text-sm text-neutral-400">Download as PDF, DOCX, or plain text. Perfect for any application method.</p>
                 </div>
-                <div class="p-6 rounded-xl bg-neutral-900/50 border border-neutral-800 hover:border-neutral-700 transition-colors">
-                  <div class="w-10 h-10 mb-4 rounded-lg bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center">
-                    <svg class="w-5 h-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 01-2 2v4a2 2 0 012 2h14a2 2 0 012-2v-4a2 2 0 01-2-2m-2-4h.01M17 16h.01" /></svg>
-                  </div>
-                  <h3 class="font-semibold text-white mb-2">Batch Processing</h3>
-                  <p class="text-sm text-neutral-400">Convert multiple files at once. Save hours of manual work.</p>
+                <div class="p-6 rounded-xl bg-neutral-900/50 border border-neutral-800">
+                  <h3 class="font-semibold text-white mb-2">Build in Minutes</h3>
+                  <p class="text-sm text-neutral-400">Intuitive interface with smart defaults. Create a professional resume in under 10 minutes.</p>
                 </div>
-                <div class="p-6 rounded-xl bg-neutral-900/50 border border-neutral-800 hover:border-neutral-700 transition-colors">
-                  <div class="w-10 h-10 mb-4 rounded-lg bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center">
-                    <svg class="w-5 h-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                  </div>
-                  <h3 class="font-semibold text-white mb-2">24/7 Available</h3>
-                  <p class="text-sm text-neutral-400">No queues, no waiting. Convert whenever you need to.</p>
+                <div class="p-6 rounded-xl bg-neutral-900/50 border border-neutral-800">
+                  <h3 class="font-semibold text-white mb-2">Easy Sharing</h3>
+                  <p class="text-sm text-neutral-400">Generate a shareable link or download directly. Send to employers however you prefer.</p>
                 </div>
               </div>
             </div>
@@ -873,24 +1094,23 @@ export function staticPrerenderPlugin(): Plugin {
             <div class="max-w-5xl mx-auto">
               <div class="text-center mb-10">
                 <p class="text-sm text-neutral-500 mb-2">Simple Process</p>
-                <h2 class="text-3xl font-semibold">Convert in 3 Easy Steps</h2>
-                <p class="text-sm text-neutral-500 mt-2">No learning curve. No technical knowledge required.</p>
+                <h2 class="text-3xl font-semibold">Build your resume in 3 easy steps</h2>
               </div>
               <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="p-6 rounded-xl bg-neutral-900/50 border border-neutral-800 hover:border-neutral-700 transition-colors relative">
-                  <div class="text-xs uppercase tracking-widest text-indigo-400 mb-3">Step 01</div>
-                  <h3 class="font-semibold text-white mb-2">Upload Your File</h3>
-                  <p class="text-sm text-neutral-400">Drag and drop or click to select. We support 50+ file formats.</p>
+                <div class="p-6 rounded-xl bg-neutral-900/50 border border-neutral-800">
+                  <div class="text-xs uppercase tracking-widest text-emerald-400 mb-3">Step 01</div>
+                  <h3 class="font-semibold text-white mb-2">Choose a Template</h3>
+                  <p class="text-sm text-neutral-400">Pick from professionally designed, ATS-optimized resume templates.</p>
                 </div>
-                <div class="p-6 rounded-xl bg-neutral-900/50 border border-neutral-800 hover:border-neutral-700 transition-colors relative">
-                  <div class="text-xs uppercase tracking-widest text-indigo-400 mb-3">Step 02</div>
-                  <h3 class="font-semibold text-white mb-2">Choose Output Format</h3>
-                  <p class="text-sm text-neutral-400">Pick from our extensive list of compatible formats.</p>
+                <div class="p-6 rounded-xl bg-neutral-900/50 border border-neutral-800">
+                  <div class="text-xs uppercase tracking-widest text-emerald-400 mb-3">Step 02</div>
+                  <h3 class="font-semibold text-white mb-2">Fill Your Details</h3>
+                  <p class="text-sm text-neutral-400">Add your experience, education, and skills. AI helps polish your content.</p>
                 </div>
-                <div class="p-6 rounded-xl bg-neutral-900/50 border border-neutral-800 hover:border-neutral-700 transition-colors relative">
-                  <div class="text-xs uppercase tracking-widest text-indigo-400 mb-3">Step 03</div>
-                  <h3 class="font-semibold text-white mb-2">Download &amp; Go</h3>
-                  <p class="text-sm text-neutral-400">Get your converted file instantly. No email required.</p>
+                <div class="p-6 rounded-xl bg-neutral-900/50 border border-neutral-800">
+                  <div class="text-xs uppercase tracking-widest text-emerald-400 mb-3">Step 03</div>
+                  <h3 class="font-semibold text-white mb-2">Download &amp; Apply</h3>
+                  <p class="text-sm text-neutral-400">Export as PDF or DOCX and start applying to your dream jobs.</p>
                 </div>
               </div>
             </div>
@@ -901,7 +1121,7 @@ export function staticPrerenderPlugin(): Plugin {
             <div class="max-w-5xl mx-auto text-center">
               <div class="mb-10">
                 <p class="text-sm text-neutral-500 mb-2">Simple Pricing</p>
-                <h2 class="text-3xl font-semibold">Start Free, Upgrade When You Need</h2>
+                <h2 class="text-3xl font-semibold">Start free, upgrade when ready</h2>
                 <p class="text-sm text-neutral-500 mt-2">No hidden fees. Cancel anytime.</p>
               </div>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
@@ -910,71 +1130,38 @@ export function staticPrerenderPlugin(): Plugin {
                     <h3 class="text-lg font-semibold">Free</h3>
                     <span class="text-sm text-neutral-400">EUR 0 / month</span>
                   </div>
-                  <p class="text-sm text-neutral-400 mt-2">Perfect for occasional conversions.</p>
+                  <p class="text-sm text-neutral-400 mt-2">Perfect for creating your first resume.</p>
                   <ul class="mt-4 space-y-2 text-sm text-neutral-300">
-                    <li class="flex items-center gap-2"><span class="text-emerald-400">✓</span>Up to 10 conversions/day</li>
-                    <li class="flex items-center gap-2"><span class="text-emerald-400">✓</span>Files up to 10MB</li>
-                    <li class="flex items-center gap-2"><span class="text-emerald-400">✓</span>All file formats</li>
-                    <li class="flex items-center gap-2"><span class="text-emerald-400">✓</span>1-hour file retention</li>
+                    <li>1 resume</li>
+                    <li>Basic templates</li>
+                    <li>PDF export</li>
+                    <li>AI suggestions</li>
                   </ul>
-                  <a href="/auth/register" class="mt-6 w-full inline-flex items-center justify-center px-6 py-3 border border-neutral-700 text-neutral-300 rounded-lg hover:bg-neutral-800 transition-all">
-                    Get Started Free
-                  </a>
                 </div>
-                <div class="p-6 rounded-xl border border-indigo-500/40 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 text-left">
+                <div class="p-6 rounded-xl border border-emerald-500/40 bg-gradient-to-br from-emerald-500/10 to-teal-500/10 text-left">
                   <div class="flex items-center justify-between">
                     <h3 class="text-lg font-semibold">Pro</h3>
-                    <span class="text-sm text-neutral-300">EUR 10 / month</span>
+                    <span class="text-sm text-neutral-300">EUR 8 / month</span>
                   </div>
-                  <p class="text-sm text-neutral-400 mt-2">For power users and professionals.</p>
+                  <p class="text-sm text-neutral-400 mt-2">For serious job seekers.</p>
                   <ul class="mt-4 space-y-2 text-sm text-neutral-200">
-                    <li class="flex items-center gap-2"><span class="text-indigo-300">⚡</span>Unlimited conversions</li>
-                    <li class="flex items-center gap-2"><span class="text-indigo-300">⚡</span>Files up to 100MB</li>
-                    <li class="flex items-center gap-2"><span class="text-indigo-300">⚡</span>Priority processing</li>
-                    <li class="flex items-center gap-2"><span class="text-indigo-300">⚡</span>24-hour file retention</li>
-                    <li class="flex items-center gap-2"><span class="text-indigo-300">⚡</span>Batch conversion</li>
+                    <li>Unlimited resumes</li>
+                    <li>All premium templates</li>
+                    <li>PDF + DOCX export</li>
+                    <li>Advanced AI writing</li>
+                    <li>Cover letter builder</li>
                   </ul>
-                  <a href="/auth/register" class="mt-6 w-full inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-lg hover:from-indigo-600 hover:to-purple-600 transition-all">
-                    Upgrade to Pro
-                  </a>
                 </div>
               </div>
-            </div>
-          </section>
-
-          <!-- CTA Section -->
-          <section class="px-4 py-16 border-t border-neutral-900">
-            <div class="max-w-4xl mx-auto text-center">
-              <h2 class="text-3xl font-bold mb-4">Ready to convert your first file?</h2>
-              <p class="text-neutral-400 mb-8 max-w-xl mx-auto">
-                Join thousands of users who trust LuidKit for their file conversion needs.
-              </p>
-              <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <a href="/auth/register" class="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-medium rounded-lg hover:from-indigo-600 hover:to-purple-600 transition-all duration-300 shadow-lg shadow-indigo-500/20">
-                  Start Converting Free
-                </a>
-                <a href="/landing" class="w-full sm:w-auto px-8 py-4 border border-neutral-700 text-neutral-300 rounded-lg hover:bg-neutral-900 transition-all duration-300">
-                  Explore TaskLuid
-                </a>
-              </div>
-            </div>
-          </section>
-
-          <!-- Personal Commitment -->
-          <section class="px-4 py-12 border-t border-neutral-900">
-            <div class="max-w-2xl mx-auto text-center">
-              <blockquote class="text-lg text-neutral-300 italic mb-4">
-                "I built LuidKit because I was tired of file converters that bombard you with ads,
-                install malware, or sell your data. This is clean, fast, and actually respects your privacy."
-              </blockquote>
-              <p class="text-sm text-neutral-500">— The Developer</p>
             </div>
           </section>
 
           <!-- Footer -->
           <footer class="border-t border-neutral-800 py-6 px-4">
             <div class="max-w-4xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
-              <p class="text-sm text-neutral-500">&copy; ${currentYear} LuidKit — Part of Luid Suite</p>
+              <p class="text-sm text-neutral-500">
+                &copy; ${currentYear} ResumeLuid — Part of Luid Suite
+              </p>
               <div class="flex gap-6 text-sm">
                 <a href="/privacy" class="text-neutral-400 hover:text-gray-400 transition-colors">Privacy Policy</a>
                 <a href="/terms" class="text-neutral-400 hover:text-gray-400 transition-colors">Terms of Service</a>
@@ -984,7 +1171,7 @@ export function staticPrerenderPlugin(): Plugin {
           </footer>
         </div>
       `
-    }
+    },
   };
 
   const landingVariant = process.env.VITE_LANDING_VARIANT || 'taskluid';
@@ -992,6 +1179,8 @@ export function staticPrerenderPlugin(): Plugin {
   // Always set root page to the appropriate landing variant to ensure consistent SSR/hydration
   if (landingVariant === 'luidkit' && publicPages['/luidkit']) {
     publicPages['/'] = publicPages['/luidkit'];
+  } else if (landingVariant === 'resumeluid' && publicPages['/resumeluid']) {
+    publicPages['/'] = publicPages['/resumeluid'];
   } else if (publicPages['/landing']) {
     publicPages['/'] = publicPages['/landing'];
   }
@@ -1024,6 +1213,9 @@ export function staticPrerenderPlugin(): Plugin {
       fs.writeFileSync(path.join(authDir, 'index.html'), authRedirectHtml);
       console.log(`[static-prerender] Generated /auth/ redirect to /auth/login`);
       
+      // Generate Organization JSON-LD for all pages
+      const organizationJsonLd = generateOrganizationJsonLd();
+      
       Object.entries(publicPages).forEach(([route, data]) => {
         const routePath = route === '/' ? '' : route;
         const fullPath = path.join(distPath, routePath, 'index.html');
@@ -1034,20 +1226,83 @@ export function staticPrerenderPlugin(): Plugin {
           fs.mkdirSync(dir, { recursive: true });
         }
         
+        // Build meta tags
+        const meta = data.meta;
+        const metaTags: string[] = [];
+        
+        // Basic meta tags
+        metaTags.push(`<meta charset="UTF-8" />`);
+        metaTags.push(`<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover" />`);
+        metaTags.push(`<title>${meta.title}</title>`);
+        metaTags.push(`<meta name="description" content="${meta.description}" />`);
+        
+        if (meta.keywords) {
+          metaTags.push(`<meta name="keywords" content="${meta.keywords}" />`);
+        }
+        
+        // Canonical URL
+        if (meta.canonicalUrl) {
+          metaTags.push(`<link rel="canonical" href="${meta.canonicalUrl}" />`);
+        }
+        
+        // OpenGraph tags
+        if (meta.ogTitle) {
+          metaTags.push(`<meta property="og:title" content="${meta.ogTitle}" />`);
+        }
+        if (meta.ogDescription) {
+          metaTags.push(`<meta property="og:description" content="${meta.ogDescription}" />`);
+        }
+        if (meta.ogImage) {
+          metaTags.push(`<meta property="og:image" content="${meta.ogImage}" />`);
+        }
+        if (meta.ogType) {
+          metaTags.push(`<meta property="og:type" content="${meta.ogType}" />`);
+        }
+        if (meta.canonicalUrl) {
+          metaTags.push(`<meta property="og:url" content="${meta.canonicalUrl}" />`);
+        }
+        metaTags.push(`<meta property="og:site_name" content="Luid Suite" />`);
+        metaTags.push(`<meta property="og:locale" content="en_US" />`);
+        
+        // Twitter Card tags
+        if (meta.twitterCard) {
+          metaTags.push(`<meta name="twitter:card" content="${meta.twitterCard}" />`);
+        }
+        if (meta.twitterTitle) {
+          metaTags.push(`<meta name="twitter:title" content="${meta.twitterTitle}" />`);
+        }
+        if (meta.twitterDescription) {
+          metaTags.push(`<meta name="twitter:description" content="${meta.twitterDescription}" />`);
+        }
+        if (meta.twitterImage) {
+          metaTags.push(`<meta name="twitter:image" content="${meta.twitterImage}" />`);
+        }
+        metaTags.push(`<meta name="twitter:site" content="@luidkit" />`);
+        
+        // Robots meta
+        metaTags.push(`<meta name="robots" content="index, follow, max-image-preview:large" />`);
+        
+        // Icons
+        metaTags.push(`<link rel="icon" type="image/x-icon" href="/favicon.ico" />`);
+        metaTags.push(`<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />`);
+        metaTags.push(`<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />`);
+        metaTags.push(`<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />`);
+        metaTags.push(`<link rel="manifest" href="/manifest.json" />`);
+        metaTags.push(`<meta name="theme-color" content="#000000" />`);
+        
+        // JSON-LD structured data
+        const jsonLdData = meta.jsonLd || {};
+        const structuredDataScript = `<script type="application/ld+json">${JSON.stringify([
+          jsonLdData,
+          organizationJsonLd
+        ])}</script>`;
+        
         // Generate HTML with static content and correct asset paths
         const html = `<!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover" />
-    <title>${data.title}</title>
-    <meta name="description" content="${data.description}" />
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-    <link rel="manifest" href="/manifest.json" />
-    <meta name="theme-color" content="#000000" />
+    ${metaTags.join('\n    ')}
+    ${structuredDataScript}
     <script type="module" crossorigin src="/assets/${assets.js}"></script>
     <link rel="stylesheet" crossorigin href="/assets/${assets.css}" />
   </head>
@@ -1063,7 +1318,14 @@ export function staticPrerenderPlugin(): Plugin {
       // Copy landing page content to root index.html for SEO on homepage
       // The root / route should serve prerendered content, not the SPA shell
       const rootIndexPath = path.join(distPath, 'index.html');
-      const landingRoute = landingVariant === 'luidkit' ? 'luidkit' : 'landing';
+      let landingRoute: string;
+      if (landingVariant === 'luidkit') {
+        landingRoute = 'luidkit';
+      } else if (landingVariant === 'resumeluid') {
+        landingRoute = 'resumeluid';
+      } else {
+        landingRoute = 'landing';
+      }
       const landingIndexPath = path.join(distPath, landingRoute, 'index.html');
       if (fs.existsSync(landingIndexPath)) {
         fs.copyFileSync(landingIndexPath, rootIndexPath);
@@ -1074,7 +1336,7 @@ export function staticPrerenderPlugin(): Plugin {
       
       // Also preserve a copy of SPA shell for client-side routes that need it
       // This is used by the server as fallback for authenticated/dashboard routes
-      console.log(`[static-prerender] Done generating static pages`);
+      console.log(`[static-prerender] Done generating static pages with comprehensive SEO meta tags`);
     }
   };
 }
