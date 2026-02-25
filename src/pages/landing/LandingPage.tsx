@@ -33,8 +33,8 @@ const LandingPage = () => {
 
   const highlights = [
     { icon: Sparkles, title: 'AI-assisted workflows', desc: 'Turn notes into tasks and keep momentum.' },
-    { icon: Users, title: 'Team-ready', desc: 'Assign work, add context, and stay aligned.' },
-    { icon: BarChart3, title: 'Clear progress', desc: 'Track priorities, blockers, and outcomes fast.' },
+    { icon: Users, title: 'Client-ready', desc: 'Assign work, add context, and keep clients aligned.' },
+    { icon: BarChart3, title: 'Clear progress', desc: 'Track priorities, billable hours, and outcomes fast.' },
     { icon: Calendar, title: 'Timelines that stick', desc: 'Deadlines and milestones that actually help.' },
     { icon: Shield, title: 'Privacy-first', desc: 'Your data stays yours, always.' },
     { icon: Code, title: 'API + webhooks', desc: 'Integrate TaskLuid with your stack.' },
@@ -42,16 +42,16 @@ const LandingPage = () => {
 
   const howItWorks = [
     {
-      title: 'Capture work in seconds',
-      desc: 'Log tasks, attach context, and assign owners without the overhead.',
+      title: 'Onboard clients in seconds',
+      desc: 'Create a workspace, invite your client, and start collaborating without the overhead.',
     },
     {
-      title: 'Prioritize with clarity',
-      desc: 'Group by status, milestones, or deadlines to keep the team aligned.',
+      title: 'Capture work from anywhere',
+      desc: 'Email, meeting notes, Slack—turn any input into tasks without switching contexts.',
     },
     {
-      title: 'Ship with momentum',
-      desc: 'Track progress, remove blockers, and close the loop faster.',
+      title: 'Ship and get paid',
+      desc: 'Track progress, share updates, and deliver work that keeps clients coming back.',
     },
   ];
 
@@ -81,7 +81,7 @@ const LandingPage = () => {
   ];
 
   const stats = [
-    { value: 'Growing', label: 'Community', icon: Users },
+    { value: 'Minutes', label: 'To Get Started', icon: Zap },
     { value: 'Self-hosted', label: 'Option', icon: Server },
     { value: 'MIT License', label: 'Open source', icon: CheckCircle },
     { value: 'Active', label: 'Development', icon: Star },
@@ -89,22 +89,22 @@ const LandingPage = () => {
 
   const testimonials = [
     {
-      quote: "Simple, focused, and exactly what I needed. No bloat, no complexity—just task management that works.",
-      author: 'Early Adopter',
-      role: 'Indie Developer',
-      avatar: 'EA',
+      quote: "Notion was too slow. Trello was too simple. TaskLuid is just right for managing my client projects.",
+      author: 'Sarah K.',
+      role: 'Freelance Designer',
+      avatar: 'SK',
     },
     {
-      quote: "The AI task parsing is genuinely useful. I paste my messy notes and it organizes them instantly.",
-      author: 'Beta Tester',
-      role: 'Product Builder',
-      avatar: 'BT',
+      quote: "I tried Asana but spent more time managing my tasks than doing them. TaskLuid gets out of my way.",
+      author: 'Marcus T.',
+      role: 'Independent Developer',
+      avatar: 'MT',
     },
     {
-      quote: "Love that I can self-host it. My data stays on my own servers and I control everything.",
-      author: 'Self-hosted User',
-      role: 'Privacy-focused Team',
-      avatar: 'SH',
+      quote: "Finally, a PM tool that respects my time. Simple when I need simple, powerful when I need power.",
+      author: 'Jenny L.',
+      role: 'Marketing Consultant',
+      avatar: 'JL',
     },
   ];
 
@@ -116,14 +116,14 @@ const LandingPage = () => {
   ];
 
   const usedBy = [
-    { name: 'Indie Hackers', type: 'Community' },
-    { name: 'Open Source Teams', type: 'Developers' },
-    { name: 'Small Agencies', type: 'Service' },
-    { name: 'Bootstrapped Startups', type: 'Product' },
-    { name: 'Remote Teams', type: 'Distributed' },
+    { name: 'Freelancers', type: 'Solo Pros' },
+    { name: 'Consultants', type: 'Advisory' },
+    { name: 'Design Studios', type: 'Creative' },
+    { name: 'Dev Agencies', type: 'Service' },
+    { name: 'Content Creators', type: 'Media' },
   ];
 
-  const socialProof = ['Indie teams', 'Solo builders', 'Remote-first crews', 'Product studios'];
+  const socialProof = ['Solo freelancers', 'Consultants', 'Agencies', 'Creators', 'Indie builders'];
 
   const productScreenshots = [
     {
@@ -239,11 +239,14 @@ const LandingPage = () => {
           <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-gray-300 via-gray-100 to-gray-300 bg-clip-text text-transparent mb-6">
             TaskLuid
           </h1>
-          <p className="text-xl text-gray-200 mb-4 max-w-2xl mx-auto">
-            The lightweight project hub for teams who want to ship without the bloat.
+          <p className="text-xl text-gray-200 mb-2 max-w-2xl mx-auto">
+            The Goldilocks project tool for freelancers.
+          </p>
+          <p className="text-lg text-indigo-300 mb-4 max-w-2xl mx-auto font-medium">
+            Simple enough to start. Powerful enough to grow.
           </p>
           <p className="text-sm text-neutral-500 mb-8">
-            Free to start. Upgrade when you need more power.
+            Not too basic like Trello. Not too complex like Asana. Just right.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10">
@@ -325,6 +328,89 @@ const LandingPage = () => {
                 <p className="text-sm text-neutral-400">{feature.desc}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Goldilocks Comparison - Why TaskLuid */}
+      <section className="px-4 py-16 border-t border-neutral-900 bg-gradient-to-b from-black to-neutral-950">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-10">
+            <p className="text-sm text-neutral-500 mb-2">The Goldilocks choice</p>
+            <h2 className="text-3xl font-semibold">Not too simple. Not too complex. Just right.</h2>
+            <p className="text-sm text-neutral-500 mt-2 max-w-xl mx-auto">
+              We built TaskLuid because existing tools force you to choose between too basic and too bloated.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Trello - Too Simple */}
+            <div className="p-6 rounded-xl bg-neutral-900/30 border border-neutral-800 opacity-70">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-8 h-8 rounded bg-blue-500/20 flex items-center justify-center text-xs font-bold text-blue-400">T</div>
+                <h3 className="font-semibold text-neutral-400">Trello</h3>
+              </div>
+              <div className="text-xs uppercase tracking-wider text-red-400 mb-3">Too Simple</div>
+              <ul className="space-y-2 text-sm text-neutral-500">
+                <li className="flex items-start gap-2">
+                  <span className="text-red-500">✗</span> No real timelines or deadlines
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-red-500">✗</span> Hard to track multiple clients
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-red-500">✗</span> No invoicing or time tracking
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-red-500">✗</span> Limited reporting for client updates
+                </li>
+              </ul>
+            </div>
+            {/* Asana/Notion - Too Complex */}
+            <div className="p-6 rounded-xl bg-neutral-900/30 border border-neutral-800 opacity-70">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-8 h-8 rounded bg-pink-500/20 flex items-center justify-center text-xs font-bold text-pink-400">A</div>
+                <h3 className="font-semibold text-neutral-400">Asana / Notion</h3>
+              </div>
+              <div className="text-xs uppercase tracking-wider text-red-400 mb-3">Too Complex</div>
+              <ul className="space-y-2 text-sm text-neutral-500">
+                <li className="flex items-start gap-2">
+                  <span className="text-red-500">✗</span> Steep learning curve
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-red-500">✗</span> Setup takes hours, not minutes
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-red-500">✗</span> Feature overload you never use
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-red-500">✗</span> More managing than doing
+                </li>
+              </ul>
+            </div>
+            {/* TaskLuid - Just Right */}
+            <div className="p-6 rounded-xl bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border border-indigo-500/30">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
+                  <CheckCircle className="w-4 h-4 text-white" />
+                </div>
+                <h3 className="font-semibold text-white">TaskLuid</h3>
+              </div>
+              <div className="text-xs uppercase tracking-wider text-emerald-400 mb-3">Just Right ✓</div>
+              <ul className="space-y-2 text-sm text-neutral-300">
+                <li className="flex items-start gap-2">
+                  <span className="text-emerald-400">✓</span> Client projects with clear timelines
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-emerald-400">✓</span> Multiple workspaces per client
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-emerald-400">✓</span> Start in minutes, no setup required
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-emerald-400">✓</span> Only the features you actually need
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       </section>
@@ -432,6 +518,49 @@ const LandingPage = () => {
             >
               Try it free — no credit card required
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Freelancer-Specific Features */}
+      <section className="px-4 py-16 border-t border-neutral-900">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-10">
+            <p className="text-sm text-neutral-500 mb-2">Built for how you work</p>
+            <h2 className="text-3xl font-semibold">Freelancer-first features</h2>
+            <p className="text-sm text-neutral-500 mt-2 max-w-xl mx-auto">
+              Everything you need to manage client work—nothing you don't.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="p-5 rounded-xl bg-neutral-900/50 border border-neutral-800 hover:border-neutral-700 transition-colors">
+              <div className="w-10 h-10 mb-4 rounded-lg bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center">
+                <Users className="w-5 h-5 text-indigo-400" />
+              </div>
+              <h3 className="font-semibold text-white mb-2">Multi-Client Workspaces</h3>
+              <p className="text-sm text-neutral-400">Separate workspaces for each client. Keep projects organized and private.</p>
+            </div>
+            <div className="p-5 rounded-xl bg-neutral-900/50 border border-neutral-800 hover:border-neutral-700 transition-colors">
+              <div className="w-10 h-10 mb-4 rounded-lg bg-gradient-to-br from-emerald-500/20 to-indigo-500/20 flex items-center justify-center">
+                <Calendar className="w-5 h-5 text-emerald-400" />
+              </div>
+              <h3 className="font-semibold text-white mb-2">Client-Facing Timelines</h3>
+              <p className="text-sm text-neutral-400">Share project timelines with clients. Set expectations and hit deadlines.</p>
+            </div>
+            <div className="p-5 rounded-xl bg-neutral-900/50 border border-neutral-800 hover:border-neutral-700 transition-colors">
+              <div className="w-10 h-10 mb-4 rounded-lg bg-gradient-to-br from-amber-500/20 to-orange-500/20 flex items-center justify-center">
+                <Zap className="w-5 h-5 text-amber-400" />
+              </div>
+              <h3 className="font-semibold text-white mb-2">AI Task Parsing</h3>
+              <p className="text-sm text-neutral-400">Paste client emails or notes. AI converts them into structured tasks instantly.</p>
+            </div>
+            <div className="p-5 rounded-xl bg-neutral-900/50 border border-neutral-800 hover:border-neutral-700 transition-colors">
+              <div className="w-10 h-10 mb-4 rounded-lg bg-gradient-to-br from-rose-500/20 to-pink-500/20 flex items-center justify-center">
+                <BarChart3 className="w-5 h-5 text-rose-400" />
+              </div>
+              <h3 className="font-semibold text-white mb-2">Progress Reports</h3>
+              <p className="text-sm text-neutral-400">Generate progress updates for clients in seconds. Keep them informed effortlessly.</p>
+            </div>
           </div>
         </div>
       </section>

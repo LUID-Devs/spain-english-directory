@@ -59,12 +59,9 @@ const SettingsPage = () => {
     email: user?.email || "Not available",
   };
 
-  const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  const displayEmail = (email: string) => {
-    if (!email || email === "Not available") return "Not available";
-    if (!isValidEmail(email)) return "Invalid email on file";
-    return email;
-  };
+  const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  const sanitizedEmail = isValidEmail(userSettings.email) ? userSettings.email : "";
+  const displayEmail = sanitizedEmail || "Not available";
 
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
   const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
@@ -75,7 +72,7 @@ const SettingsPage = () => {
   });
   const [profileForm, setProfileForm] = useState({
     username: userSettings.username,
-    email: userSettings.email,
+    email: sanitizedEmail,
   });
   const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
   const [isPasswordLoading, setIsPasswordLoading] = useState(false);
@@ -450,7 +447,7 @@ const SettingsPage = () => {
               <Label className="text-sm font-medium">Email Address</Label>
               <div className="flex items-center gap-2">
                 <div className="flex-1 p-3 bg-muted rounded-md text-sm">
-                  {escapeHtml(displayEmail(userSettings.email))}
+                  {escapeHtml(displayEmail)}
                 </div>
                 <Badge variant="outline" className="gap-1">
                   <Mail className="h-3 w-3" />
@@ -510,7 +507,7 @@ const SettingsPage = () => {
                       setIsProfileDialogOpen(false);
                       setProfileForm({
                         username: userSettings.username,
-                        email: userSettings.email,
+                        email: sanitizedEmail,
                       });
                     }}
                   >
@@ -660,7 +657,7 @@ const SettingsPage = () => {
                   <div>
                     <p className="text-sm font-medium">Google Account</p>
                     <p className="text-xs text-muted-foreground">
-                      {isGoogleAuth ? `Connected - ${escapeHtml(displayEmail(userSettings.email))}` : "Not connected"}
+                      {isGoogleAuth ? `Connected - ${escapeHtml(displayEmail)}` : "Not connected"}
                     </p>
                   </div>
                 </div>
