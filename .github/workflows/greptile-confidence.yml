@@ -21,8 +21,30 @@ jobs:
             const pr = context.payload.pull_request;
             const pullNumber = pr?.number;
             const headSha = pr?.head?.sha;
+            const action = context.payload.action;
             if (!pullNumber || !headSha) {
               core.notice("No PR context available; skipping confidence gate");
+              return;
+            }
+
+            const { data: existingChecks } = await github.rest.checks.listForRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: headSha,
+              check_name: "confidence_gate",
+              per_page: 100
+            });
+
+            const priorCompleted = existingChecks.check_runs.find((run) => {
+              const isGitHubActions = run.app?.slug === "github-actions";
+              const isCurrentRun = (run.details_url || "").includes(`/actions/runs/${context.runId}/`);
+              return isGitHubActions && !isCurrentRun && run.status === "completed";
+            });
+
+            if (priorCompleted && action !== "edited") {
+              core.notice(
+                `Reusing prior confidence gate result for ${headSha.slice(0, 7)} (${priorCompleted.conclusion}); skipping duplicate run.`
+              );
               return;
             }
 
