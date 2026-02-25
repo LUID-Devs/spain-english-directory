@@ -312,133 +312,183 @@ const LoginPage = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="w-full max-w-md relative z-10"
+        className="w-full max-w-5xl relative z-10"
       >
-        {/* Header */}
-        <div className="text-center mb-8">
-          <Link to="/landing" className="inline-block">
-            <motion.div
-              className="flex items-center justify-center gap-3 mb-4"
-              whileHover={{ scale: 1.05 }}
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            >
-              <img
-                src="/logo.png"
-                alt="LUID"
-                className="w-10 h-10 rounded-lg"
-              />
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                TaskLuid
-              </h1>
-            </motion.div>
-          </Link>
-          <p className="text-gray-300">Sign in to your account</p>
-        </div>
-
-        {/* Auth Card */}
-        <motion.div 
-          className="p-8 bg-black/60 backdrop-blur-xl border border-blue-500/20 rounded-2xl shadow-2xl"
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          {error && (
-            <motion.div 
-              className="mb-6 p-4 bg-red-900/30 border border-red-500/50 rounded-lg text-red-300 text-sm"
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              {error}
-            </motion.div>
-          )}
-
-          <form onSubmit={handleLogin} className="space-y-6">
-            <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-2">
-                Username
-              </label>
-              <motion.input
-                id="username"
-                name="username"
-                type="text"
-                value={formData.username}
-                onChange={handleInputChange}
-                required
-                className="w-full px-4 py-3 bg-gray-900/50 border border-blue-500/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300"
-                placeholder="Enter your username"
-                whileFocus={{ scale: 1.02 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              />
+        <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] items-start">
+          <div className="space-y-8 text-left">
+            <div className="inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-4 py-1 text-xs font-semibold text-blue-200">
+              Free forever · Upgrade when ready
+            </div>
+            <div className="space-y-3">
+              <h2 className="text-4xl font-semibold text-white">Welcome back to your dashboard</h2>
+              <p className="text-gray-300 text-lg">
+                Sign in to pick up where you left off. TaskLuid keeps your projects, tasks, and team
+                updates in one calm, focused workspace.
+              </p>
             </div>
 
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <label htmlFor="password" className="block text-sm font-medium text-gray-300">
-                  Password
-                </label>
-                <Link
-                  to="/auth/forgot-password"
-                  className="text-sm text-gray-400 hover:text-gray-300 transition-colors duration-300 cursor-pointer"
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-6 space-y-4">
+              <h3 className="text-lg font-semibold text-white">Why TaskLuid?</h3>
+              <ul className="space-y-3 text-gray-300">
+                <li className="flex items-start gap-3">
+                  <span className="mt-2 h-2 w-2 rounded-full bg-blue-400"></span>
+                  <span>AI-powered task summaries and smart filters so you see what matters first.</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="mt-2 h-2 w-2 rounded-full bg-purple-400"></span>
+                  <span>Simple project spaces for teams, clients, and personal goals.</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="mt-2 h-2 w-2 rounded-full bg-emerald-400"></span>
+                  <span>Automations and integrations that keep your stack in sync.</span>
+                </li>
+              </ul>
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-6 space-y-4">
+              <h3 className="text-lg font-semibold text-white">Trusted by builders</h3>
+              <p className="text-sm text-gray-400">Join 2,000+ teams keeping work on track with TaskLuid.</p>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="rounded-xl border border-white/10 bg-black/30 p-4 text-sm text-gray-300">
+                  “We onboarded in a day and finally have clarity on what ships this week.”
+                  <div className="mt-3 text-xs text-gray-500">— Alex, Product Lead</div>
+                </div>
+                <div className="rounded-xl border border-white/10 bg-black/30 p-4 text-sm text-gray-300">
+                  “The dashboard keeps our team aligned without weekly status meetings.”
+                  <div className="mt-3 text-xs text-gray-500">— Priya, Ops Manager</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            {/* Header */}
+            <div className="text-center mb-8">
+              <Link to="/landing" className="inline-block">
+                <motion.div
+                  className="flex items-center justify-center gap-3 mb-4"
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
                 >
-                  Forgot password?
+                  <img
+                    src="/logo.png"
+                    alt="LUID"
+                    className="w-10 h-10 rounded-lg"
+                  />
+                  <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                    TaskLuid
+                  </h1>
+                </motion.div>
+              </Link>
+              <p className="text-gray-300">Sign in to your account</p>
+            </div>
+
+            {/* Auth Card */}
+            <motion.div
+              className="p-8 bg-black/60 backdrop-blur-xl border border-blue-500/20 rounded-2xl shadow-2xl"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              {error && (
+                <motion.div
+                  className="mb-6 p-4 bg-red-900/30 border border-red-500/50 rounded-lg text-red-300 text-sm"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {error}
+                </motion.div>
+              )}
+
+              <form onSubmit={handleLogin} className="space-y-6">
+                <div>
+                  <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-2">
+                    Username
+                  </label>
+                  <motion.input
+                    id="username"
+                    name="username"
+                    type="text"
+                    value={formData.username}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-4 py-3 bg-gray-900/50 border border-blue-500/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300"
+                    placeholder="Enter your username"
+                    whileFocus={{ scale: 1.02 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                  />
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label htmlFor="password" className="block text-sm font-medium text-gray-300">
+                      Password
+                    </label>
+                    <Link
+                      to="/auth/forgot-password"
+                      className="text-sm text-gray-400 hover:text-gray-300 transition-colors duration-300 cursor-pointer"
+                    >
+                      Forgot password?
+                    </Link>
+                  </div>
+                  <PasswordInput
+                    id="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    required
+                    placeholder="••••••••"
+                  />
+                </div>
+
+                <motion.button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-semibold rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-500/25"
+                  whileHover={{ scale: 1.02, y: -2 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                >
+                  {loading ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                      Signing in...
+                    </div>
+                  ) : (
+                    "Sign in"
+                  )}
+                </motion.button>
+              </form>
+
+              {/* Divider */}
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-700"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="bg-black/60 px-4 text-gray-400">Or continue with</span>
+                </div>
+              </div>
+
+              {/* Google Sign-In Button */}
+              <GoogleSignInButton
+                text="Sign in with Google"
+                onError={(error) => setError(error)}
+              />
+
+              <div className="mt-6 text-center text-sm text-gray-400">
+                Don&apos;t have an account?{" "}
+                <Link
+                  to="/auth/register"
+                  className="text-gray-400 hover:text-gray-300 font-medium transition-colors duration-300"
+                >
+                  Sign up
                 </Link>
               </div>
-              <PasswordInput
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleInputChange}
-                required
-                placeholder="••••••••"
-              />
-            </div>
-
-            <motion.button
-              type="submit"
-              disabled={loading}
-              className="w-full px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-semibold rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-500/25"
-              whileHover={{ scale: 1.02, y: -2 }}
-              whileTap={{ scale: 0.98 }}
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            >
-              {loading ? (
-                <div className="flex items-center justify-center gap-2">
-                  <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
-                  Signing in...
-                </div>
-              ) : (
-                "Sign in"
-              )}
-            </motion.button>
-          </form>
-
-          {/* Divider */}
-          <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-700"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="bg-black/60 px-4 text-gray-400">Or continue with</span>
-            </div>
+            </motion.div>
           </div>
-
-          {/* Google Sign-In Button */}
-          <GoogleSignInButton
-            text="Sign in with Google"
-            onError={(error) => setError(error)}
-          />
-
-          <div className="mt-6 text-center text-sm text-gray-400">
-            Don&apos;t have an account?{" "}
-            <Link
-              to="/auth/register"
-              className="text-gray-400 hover:text-gray-300 font-medium transition-colors duration-300"
-            >
-              Sign up
-            </Link>
-          </div>
-        </motion.div>
+        </div>
       </motion.div>
     </div>
   );

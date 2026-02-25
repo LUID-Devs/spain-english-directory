@@ -517,195 +517,266 @@ const RegisterPage = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="w-full max-w-md relative z-10"
+        className="w-full max-w-5xl relative z-10"
       >
-        {/* Header */}
-        <div className="text-center mb-8">
-          <Link to="/landing" className="inline-block">
-            <motion.div
-              className="flex items-center justify-center gap-3 mb-4"
-              whileHover={{ scale: 1.05 }}
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            >
-              <img
-                src="/logo.png"
-                alt="LUID"
-                className="w-10 h-10 rounded-lg"
-              />
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                TaskLuid
-              </h1>
-            </motion.div>
-          </Link>
-          <p className="text-gray-300">Create your account</p>
-        </div>
-
-        {/* Auth Card */}
-        <motion.div 
-          className="p-8 bg-black/60 backdrop-blur-xl border border-blue-500/20 rounded-2xl shadow-2xl"
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          {error && (
-            <motion.div 
-              className="mb-6 p-4 bg-red-900/30 border border-red-500/50 rounded-lg text-red-300 text-sm"
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              {error}
-            </motion.div>
-          )}
-
-          <form onSubmit={handleRegister} className="space-y-6">
-            {/* Username */}
-            <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-2">
-                Username
-              </label>
-              <motion.input
-                id="username"
-                name="username"
-                type="text"
-                value={formData.username}
-                onChange={handleInputChange}
-                required
-                className="w-full px-4 py-3 bg-gray-900/50 border border-blue-500/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300"
-                placeholder="Choose a username"
-                whileFocus={{ scale: 1.02 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              />
+        <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] items-start">
+          <div className="space-y-8 text-left">
+            <div className="inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-purple-500/10 px-4 py-1 text-xs font-semibold text-purple-200">
+              Free forever · Get started in minutes
+            </div>
+            <div className="space-y-3">
+              <h2 className="text-4xl font-semibold text-white">Start managing work without the busywork</h2>
+              <p className="text-gray-300 text-lg">
+                TaskLuid helps you plan, prioritize, and ship faster with a simple dashboard that grows with
+                your team.
+              </p>
             </div>
 
-            {/* Email */}
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
-                Email
-              </label>
-              <motion.input
-                id="email"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                required
-                className="w-full px-4 py-3 bg-gray-900/50 border border-blue-500/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300"
-                placeholder="you@example.com"
-                whileFocus={{ scale: 1.02 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              />
-            </div>
-
-            {/* Password */}
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
-                Password
-              </label>
-              <PasswordInput
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleInputChange}
-                required
-                placeholder="Create a password"
-              />
-              
-              {/* Password Requirements Checklist */}
-              <div className="mt-3 space-y-2">
-                <p className="text-xs text-gray-400 font-medium">Password requirements:</p>
-                <div className="space-y-1.5">
-                  {metRequirements.map((req) => (
-                    <motion.div
-                      key={req.id}
-                      className="flex items-center gap-2 text-xs"
-                      initial={false}
-                      animate={{ opacity: 1 }}
-                    >
-                      <motion.div
-                        initial={false}
-                        animate={{
-                          scale: req.met ? 1 : 1,
-                          color: req.met ? "#22c55e" : "#9ca3af"
-                        }}
-                        transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                      >
-                        {req.met ? (
-                          <Check className="w-4 h-4 text-green-500" />
-                        ) : (
-                          <X className="w-4 h-4 text-gray-500" />
-                        )}
-                      </motion.div>
-                      <span className={req.met ? "text-green-400" : "text-gray-400"}>
-                        {req.label}
-                      </span>
-                    </motion.div>
-                  ))}
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-6 space-y-4">
+              <h3 className="text-lg font-semibold text-white">3 steps to get started</h3>
+              <div className="space-y-4 text-gray-300">
+                <div className="flex items-start gap-4">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500/20 text-sm font-semibold text-blue-200">1</div>
+                  <div>
+                    <p className="font-medium text-white">Create your account</p>
+                    <p className="text-sm text-gray-400">Set up in under a minute — no credit card required.</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-4">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-purple-500/20 text-sm font-semibold text-purple-200">2</div>
+                  <div>
+                    <p className="font-medium text-white">Build your first project</p>
+                    <p className="text-sm text-gray-400">Capture tasks, goals, and timelines in one place.</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-4">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500/20 text-sm font-semibold text-emerald-200">3</div>
+                  <div>
+                    <p className="font-medium text-white">Invite your team</p>
+                    <p className="text-sm text-gray-400">Share progress, automate updates, and stay aligned.</p>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Confirm Password */}
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-300 mb-2">
-                Confirm Password
-              </label>
-              <PasswordInput
-                id="confirmPassword"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleInputChange}
-                required
-                placeholder="Confirm your password"
-              />
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-6 space-y-4">
+              <h3 className="text-lg font-semibold text-white">Why TaskLuid?</h3>
+              <ul className="space-y-3 text-gray-300">
+                <li className="flex items-start gap-3">
+                  <span className="mt-2 h-2 w-2 rounded-full bg-blue-400"></span>
+                  <span>Clear status dashboards that replace scattered spreadsheets.</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="mt-2 h-2 w-2 rounded-full bg-purple-400"></span>
+                  <span>Personalized insights so every teammate knows what to do next.</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="mt-2 h-2 w-2 rounded-full bg-emerald-400"></span>
+                  <span>Automations and integrations to keep work flowing.</span>
+                </li>
+              </ul>
             </div>
 
-            <motion.button
-              type="submit"
-              disabled={loading || !allRequirementsMet}
-              aria-label={loading ? "Creating account, please wait" : "Create Account"}
-              className="w-full px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-semibold rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-500/25 min-h-[48px]"
-              whileHover={{ scale: allRequirementsMet ? 1.02 : 1, y: allRequirementsMet ? -2 : 0 }}
-              whileTap={{ scale: allRequirementsMet ? 0.98 : 1 }}
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-6 space-y-4">
+              <h3 className="text-lg font-semibold text-white">Trusted by builders</h3>
+              <p className="text-sm text-gray-400">Join 2,000+ teams shipping faster with TaskLuid.</p>
+              <div className="rounded-xl border border-white/10 bg-black/30 p-4 text-sm text-gray-300">
+                “We finally got a clear roadmap everyone can trust.”
+                <div className="mt-3 text-xs text-gray-500">— Maya, Founder</div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            {/* Header */}
+            <div className="text-center mb-8">
+              <Link to="/landing" className="inline-block">
+                <motion.div
+                  className="flex items-center justify-center gap-3 mb-4"
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                >
+                  <img
+                    src="/logo.png"
+                    alt="LUID"
+                    className="w-10 h-10 rounded-lg"
+                  />
+                  <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                    TaskLuid
+                  </h1>
+                </motion.div>
+              </Link>
+              <p className="text-gray-300">Create your account</p>
+            </div>
+
+            {/* Auth Card */}
+            <motion.div
+              className="p-8 bg-black/60 backdrop-blur-xl border border-blue-500/20 rounded-2xl shadow-2xl"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
             >
-              {loading ? (
-                <div className="flex items-center justify-center gap-2">
-                  <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
-                  <span>Creating account...</span>
-                </div>
-              ) : (
-                <span>Create Account</span>
+              {error && (
+                <motion.div
+                  className="mb-6 p-4 bg-red-900/30 border border-red-500/50 rounded-lg text-red-300 text-sm"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {error}
+                </motion.div>
               )}
-            </motion.button>
-          </form>
 
-          {/* Divider */}
-          <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-700"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="bg-black/60 px-4 text-gray-400">Or continue with</span>
-            </div>
+              <form onSubmit={handleRegister} className="space-y-6">
+                {/* Username */}
+                <div>
+                  <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-2">
+                    Username
+                  </label>
+                  <motion.input
+                    id="username"
+                    name="username"
+                    type="text"
+                    value={formData.username}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-4 py-3 bg-gray-900/50 border border-blue-500/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300"
+                    placeholder="Choose a username"
+                    whileFocus={{ scale: 1.02 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                  />
+                </div>
+
+                {/* Email */}
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
+                    Email
+                  </label>
+                  <motion.input
+                    id="email"
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-4 py-3 bg-gray-900/50 border border-blue-500/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300"
+                    placeholder="you@example.com"
+                    whileFocus={{ scale: 1.02 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                  />
+                </div>
+
+                {/* Password */}
+                <div>
+                  <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
+                    Password
+                  </label>
+                  <PasswordInput
+                    id="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    required
+                    placeholder="Create a password"
+                  />
+                  
+                  {/* Password Requirements Checklist */}
+                  <div className="mt-3 space-y-2">
+                    <p className="text-xs text-gray-400 font-medium">Password requirements:</p>
+                    <div className="space-y-1.5">
+                      {metRequirements.map((req) => (
+                        <motion.div
+                          key={req.id}
+                          className="flex items-center gap-2 text-xs"
+                          initial={false}
+                          animate={{ opacity: 1 }}
+                        >
+                          <motion.div
+                            initial={false}
+                            animate={{
+                              scale: req.met ? 1 : 1,
+                              color: req.met ? "#22c55e" : "#9ca3af"
+                            }}
+                            transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                          >
+                            {req.met ? (
+                              <Check className="w-4 h-4 text-green-500" />
+                            ) : (
+                              <X className="w-4 h-4 text-gray-500" />
+                            )}
+                          </motion.div>
+                          <span className={req.met ? "text-green-400" : "text-gray-400"}>
+                            {req.label}
+                          </span>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Confirm Password */}
+                <div>
+                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-300 mb-2">
+                    Confirm Password
+                  </label>
+                  <PasswordInput
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleInputChange}
+                    required
+                    placeholder="Confirm your password"
+                  />
+                </div>
+
+                <motion.button
+                  type="submit"
+                  disabled={loading || !allRequirementsMet}
+                  aria-label={loading ? "Creating account, please wait" : "Create Account"}
+                  className="w-full px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-semibold rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-500/25 min-h-[48px]"
+                  whileHover={{ scale: allRequirementsMet ? 1.02 : 1, y: allRequirementsMet ? -2 : 0 }}
+                  whileTap={{ scale: allRequirementsMet ? 0.98 : 1 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                >
+                  {loading ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                      <span>Creating account...</span>
+                    </div>
+                  ) : (
+                    <span>Create Account</span>
+                  )}
+                </motion.button>
+              </form>
+
+              {/* Divider */}
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-700"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="bg-black/60 px-4 text-gray-400">Or continue with</span>
+                </div>
+              </div>
+
+              {/* Google Sign-Up Button */}
+              <GoogleSignInButton
+                text="Sign up with Google"
+                onError={(error) => setError(error)}
+              />
+
+              <div className="mt-6 text-center text-sm text-gray-400">
+                Already have an account?{" "}
+                <Link
+                  to="/auth/login"
+                  className="text-gray-400 hover:text-gray-300 font-medium transition-colors duration-300"
+                >
+                  Sign in
+                </Link>
+              </div>
+            </motion.div>
           </div>
-
-          {/* Google Sign-Up Button */}
-          <GoogleSignInButton
-            text="Sign up with Google"
-            onError={(error) => setError(error)}
-          />
-
-          <div className="mt-6 text-center text-sm text-gray-400">
-            Already have an account?{" "}
-            <Link
-              to="/auth/login"
-              className="text-gray-400 hover:text-gray-300 font-medium transition-colors duration-300"
-            >
-              Sign in
-            </Link>
-          </div>
-        </motion.div>
+        </div>
       </motion.div>
     </div>
   );
