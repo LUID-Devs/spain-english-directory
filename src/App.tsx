@@ -53,6 +53,7 @@ const AutomationPage = React.lazy(() => import('@/pages/dashboard/automation/Aut
 // Other Pages (lazy loaded)
 const LandingPage = React.lazy(() => import('@/pages/landing/LandingPage'));
 const LuidKitLandingPage = React.lazy(() => import('@/pages/landing/LuidKitLandingPage'));
+const ResumeLuidLandingPage = React.lazy(() => import('@/pages/landing/ResumeLuidLandingPage'));
 // Pricing page - must be prerendered for SEO (see vite-plugin-static-prerender.ts)
 const PricingPage = React.lazy(() => import('@/pages/pricing/PricingPage'));
 const FeaturesPage = React.lazy(() => import('@/pages/features/FeaturesPage'));
@@ -81,6 +82,9 @@ const resolveLandingVariant = () => {
     if (host.includes('luidkit') || host.includes('fileconvertpro')) {
       return 'luidkit';
     }
+    if (host.includes('resumeluid')) {
+      return 'resumeluid';
+    }
   }
 
   return 'taskluid';
@@ -88,7 +92,13 @@ const resolveLandingVariant = () => {
 
 const RootLandingPage = () => {
   const landingVariant = React.useMemo(() => resolveLandingVariant(), []);
-  return landingVariant === 'luidkit' ? <LuidKitLandingPage /> : <LandingPage />;
+  if (landingVariant === 'luidkit') {
+    return <LuidKitLandingPage />;
+  }
+  if (landingVariant === 'resumeluid') {
+    return <ResumeLuidLandingPage />;
+  }
+  return <LandingPage />;
 };
 
 // Inner app component that can use auth context
@@ -123,6 +133,7 @@ function AppContent() {
           {/* Public Routes */}
           <Route path="/landing" element={<LandingPage />} />
           <Route path="/luidkit" element={<LuidKitLandingPage />} />
+          <Route path="/resumeluid" element={<ResumeLuidLandingPage />} />
           <Route path="/pricing" element={<PricingPage />} />
           <Route path="/features" element={<FeaturesPage />} />
 
