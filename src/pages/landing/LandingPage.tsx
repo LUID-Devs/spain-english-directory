@@ -284,7 +284,7 @@ const LandingPage = () => {
             Not too basic like Trello. Not too complex like Asana. Just right.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
             <Link
               to="/auth/register"
               className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-medium rounded-lg hover:from-indigo-600 hover:to-purple-600 transition-all duration-300 shadow-lg shadow-indigo-500/20"
@@ -304,6 +304,10 @@ const LandingPage = () => {
               Sign In
             </Link>
           </div>
+          <p className="text-xs text-neutral-500 mb-10">
+            Free plan available. Pro starts at <span className="text-neutral-300">€10/month</span> (or €8/month annually).{' '}
+            <Link to="/pricing" className="text-neutral-200 underline underline-offset-4 hover:text-white">See full pricing</Link>.
+          </p>
 
           {/* Hero Screenshot */}
           <div className="mb-10">
