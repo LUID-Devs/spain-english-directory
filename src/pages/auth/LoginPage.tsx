@@ -394,17 +394,20 @@ const LoginPage = () => {
               <form onSubmit={handleLogin} className="space-y-6">
                 <div>
                   <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-2">
-                    Username
+                    Email
                   </label>
                   <motion.input
                     id="username"
                     name="username"
-                    type="text"
+                    type="email"
+                    inputMode="email"
+                    autoCapitalize="none"
+                    autoComplete="email"
                     value={formData.username}
                     onChange={handleInputChange}
                     required
                     className="w-full px-4 py-3 bg-gray-900/50 border border-blue-500/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300"
-                    placeholder="Enter your username"
+                    placeholder="you@example.com"
                     whileFocus={{ scale: 1.02 }}
                     transition={{ type: "spring", stiffness: 300, damping: 20 }}
                   />
@@ -428,6 +431,7 @@ const LoginPage = () => {
                     value={formData.password}
                     onChange={handleInputChange}
                     required
+                    autoComplete="current-password"
                     placeholder="••••••••"
                   />
                 </div>

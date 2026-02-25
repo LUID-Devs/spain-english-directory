@@ -659,6 +659,9 @@ const RegisterPage = () => {
                     id="email"
                     name="email"
                     type="email"
+                    inputMode="email"
+                    autoCapitalize="none"
+                    autoComplete="email"
                     value={formData.email}
                     onChange={handleInputChange}
                     required
@@ -680,6 +683,7 @@ const RegisterPage = () => {
                     value={formData.password}
                     onChange={handleInputChange}
                     required
+                    autoComplete="new-password"
                     placeholder="Create a password"
                   />
                   
@@ -728,6 +732,7 @@ const RegisterPage = () => {
                     value={formData.confirmPassword}
                     onChange={handleInputChange}
                     required
+                    autoComplete="new-password"
                     placeholder="Confirm your password"
                   />
                 </div>
