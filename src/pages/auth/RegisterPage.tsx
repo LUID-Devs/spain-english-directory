@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Check, X } from "lucide-react";
 import GoogleSignInButton from "@/components/GoogleSignInButton";
-// useAuth import removed: registration should be public
+import { useAuth } from "@/app/authProvider";
 import { PasswordInput } from "@/components/ui/password-input";
 
 // Password requirement type
@@ -28,6 +28,17 @@ const RegisterPage = () => {
   const [resendCountdown, setResendCountdown] = useState(0);
   const [resendAttempts, setResendAttempts] = useState(0);
   const navigate = useNavigate();
+  const { isAuthenticated, isLoading: authLoading, user } = useAuth();
+  const [hasRedirected, setHasRedirected] = React.useState(false);
+
+  // Redirect if already authenticated (only once)
+  useEffect(() => {
+    // Only auto-redirect when backend auth is fully established (userId present)
+    if (!authLoading && isAuthenticated && user?.userId && !hasRedirected) {
+      setHasRedirected(true);
+      navigate('/dashboard', { replace: true });
+    }
+  }, [isAuthenticated, authLoading, user?.userId, navigate, hasRedirected]);
 
   // Countdown timer for resend functionality
   useEffect(() => {
@@ -215,6 +226,18 @@ const RegisterPage = () => {
       setLoading(false);
     }
   };
+
+  // Show loading state while checking authentication
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center px-4">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-gray-500/30 border-t-gray-500 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-400">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (showConfirmation) {
     return (

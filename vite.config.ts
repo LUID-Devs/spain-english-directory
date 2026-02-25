@@ -61,6 +61,7 @@ export default defineConfig({
   },
   define: {
     global: 'globalThis',
+    'import.meta.env.VITE_LANDING_VARIANT': JSON.stringify(process.env.VITE_LANDING_VARIANT || 'taskluid'),
   },
   test: {
     environment: 'node',

@@ -21,6 +21,13 @@ export const useGetAuthUserQuery = (userIdentifier: string, options: { skip?: bo
   const fetchUser = useCallback(async () => {
     if (skipRef.current || !userIdentifierRef.current) return;
     
+    // Safety check: ensure getAuthUser is available
+    if (typeof apiService.getAuthUser !== 'function') {
+      console.error('apiService.getAuthUser is not a function');
+      setError('API service not properly initialized');
+      return;
+    }
+    
     try {
       setLoading(true);
       const user = await apiService.getAuthUser(userIdentifierRef.current);
@@ -399,19 +406,14 @@ export const useCreateTaskMutation = () => {
   const { tasks, setTasks } = useApiStore();
   
   const createTask = useCallback(async (taskData: any) => {
-    try {
-      const newTask = await apiService.createTask(taskData);
-      
-      // Optimistically add new task to the list
-      if (tasks.data) {
-        setTasks([...tasks.data, newTask]);
-      }
-      
-      return newTask;
-    } catch (error) {
-      // No rollback needed since we didn't do optimistic update on error
-      throw error;
+    const newTask = await apiService.createTask(taskData);
+    
+    // Optimistically add new task to the list
+    if (tasks.data) {
+      setTasks([...tasks.data, newTask]);
     }
+    
+    return newTask;
   }, [tasks.data, setTasks]);
 
   // Return the function that returns a mutation object with unwrap method

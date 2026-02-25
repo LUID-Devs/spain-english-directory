@@ -30,10 +30,13 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
           if (auth.user.userId) {
             // If we already have a complete user object, use it
             setCurrentUser(auth.user);
-          } else if (userIdentifier) {
+          } else if (userIdentifier && typeof apiService.getAuthUser === 'function') {
             // Otherwise fetch the complete user data
             const user = await apiService.getAuthUser(String(userIdentifier));
             setCurrentUser(user);
+          } else if (userIdentifier) {
+            console.warn('apiService.getAuthUser is not available, using auth user');
+            setCurrentUser(auth.user);
           }
         } catch (error) {
           console.error('Failed to load user:', error);

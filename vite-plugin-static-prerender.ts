@@ -987,10 +987,13 @@ export function staticPrerenderPlugin(): Plugin {
     }
   };
 
-  const landingVariant = process.env.VITE_LANDING_VARIANT;
-
+  const landingVariant = process.env.VITE_LANDING_VARIANT || 'taskluid';
+  
+  // Always set root page to the appropriate landing variant to ensure consistent SSR/hydration
   if (landingVariant === 'luidkit' && publicPages['/luidkit']) {
     publicPages['/'] = publicPages['/luidkit'];
+  } else if (publicPages['/landing']) {
+    publicPages['/'] = publicPages['/landing'];
   }
 
   return {
@@ -1065,6 +1068,8 @@ export function staticPrerenderPlugin(): Plugin {
       if (fs.existsSync(landingIndexPath)) {
         fs.copyFileSync(landingIndexPath, rootIndexPath);
         console.log(`[static-prerender] Copied ${landingRoute} page to /index.html for SEO`);
+      } else {
+        console.warn(`[static-prerender] Could not find ${landingRoute}/index.html for root copy`);
       }
       
       // Also preserve a copy of SPA shell for client-side routes that need it

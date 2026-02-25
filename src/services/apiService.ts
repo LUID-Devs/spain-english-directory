@@ -636,9 +636,9 @@ class ApiService {
 
 
   // Auth
-  async getAuthUser(userSub: string): Promise<User> {
+  getAuthUser = async (userSub: string): Promise<User> => {
     return this.request<User>(`/users/${userSub}`);
-  }
+  };
 
   // Projects
   async getProjects(params: { 
