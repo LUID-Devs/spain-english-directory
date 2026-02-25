@@ -9,7 +9,7 @@ concurrency:
 
 jobs:
   confidence_gate:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.GREPTILE_CONFIDENCE_RUNNER || 'self-hosted' }}
     permissions:
       checks: read
       pull-requests: read
@@ -24,50 +24,6 @@ jobs:
             if (!pullNumber || !headSha) {
               core.notice("No PR context available; skipping confidence gate");
               return;
-            }
-
-            const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-            const maxAttempts = 18;
-            const pollIntervalMs = 10000;
-            let pendingChecks = [];
-
-            for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-              const { data } = await github.rest.checks.listForRef({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                ref: headSha,
-                per_page: 100
-              });
-
-              pendingChecks = data.check_runs.filter((run) => {
-                const isGitHubActions = run.app?.slug === "github-actions";
-                const isConfidenceGate = /Greptile Confidence Gate/i.test(run.name || "");
-                return isGitHubActions && !isConfidenceGate && run.status !== "completed";
-              });
-
-              if (pendingChecks.length === 0) {
-                core.info("All other GitHub Actions checks are completed; running confidence gate now.");
-                break;
-              }
-
-              const pendingNames = pendingChecks.map((run) => run.name).slice(0, 5).join(", ");
-              if (attempt === 1 || attempt % 3 === 0 || attempt === maxAttempts) {
-                core.info(
-                  `Waiting on ${pendingChecks.length} GitHub Actions check(s): ${pendingNames}${pendingChecks.length > 5 ? ", ..." : ""} (attempt ${attempt}/${maxAttempts})`
-                );
-              } else {
-                core.info(
-                  `Waiting for ${pendingChecks.length} check(s) to complete (attempt ${attempt}/${maxAttempts})...`
-                );
-              }
-              await sleep(pollIntervalMs);
-            }
-
-            if (pendingChecks.length > 0) {
-              const pendingNames = pendingChecks.map((run) => run.name).join(", ");
-              core.notice(
-                `Timed out waiting for checks; continuing confidence validation. Pending: ${pendingNames}`
-              );
             }
 
             const { data: prData } = await github.rest.pulls.get({
