@@ -1174,7 +1174,11 @@ export function staticPrerenderPlugin(): Plugin {
     },
   };
 
-  const landingVariant = process.env.VITE_LANDING_VARIANT || 'taskluid';
+  const normalizedSiteUrl = siteUrl.toLowerCase();
+  const landingVariant = process.env.VITE_LANDING_VARIANT
+    || (normalizedSiteUrl.includes('luidkit') || normalizedSiteUrl.includes('fileconvertpro') ? 'luidkit' : undefined)
+    || (normalizedSiteUrl.includes('resumeluid') ? 'resumeluid' : undefined)
+    || 'taskluid';
   
   // Always set root page to the appropriate landing variant to ensure consistent SSR/hydration
   if (landingVariant === 'luidkit' && publicPages['/luidkit']) {
