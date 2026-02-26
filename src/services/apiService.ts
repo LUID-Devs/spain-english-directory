@@ -216,6 +216,7 @@ export interface Task {
   archivedAt?: string;
   triaged?: boolean;
   createdAt?: string;
+  updatedAt?: string;
 
   author?: User;
   assignee?: User;
