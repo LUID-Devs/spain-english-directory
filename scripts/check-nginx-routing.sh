@@ -26,8 +26,7 @@ callback_line="$(line_of 'location = /auth/callback {')"
 callback_slash_line="$(line_of 'location = /auth/callback/ {')"
 reset_line="$(line_of 'location = /auth/reset-password {')"
 reset_slash_line="$(line_of 'location = /auth/reset-password/ {')"
-register_line="$(line_of 'location = /auth/register {')"
-register_slash_line="$(line_of 'location = /auth/register/ {')"
+register_line="$(line_of 'location ~ ^/auth/register/?$ {')"
 auth_proxy_line="$(line_of 'location /auth/ {')"
 
 require_line "/auth/callback" "$callback_line"
@@ -35,7 +34,6 @@ require_line "/auth/callback/" "$callback_slash_line"
 require_line "/auth/reset-password" "$reset_line"
 require_line "/auth/reset-password/" "$reset_slash_line"
 require_line "/auth/register" "$register_line"
-require_line "/auth/register/" "$register_slash_line"
 require_line "/auth/ (proxy)" "$auth_proxy_line"
 
 if (( callback_line >= auth_proxy_line )); then
@@ -60,11 +58,6 @@ fi
 
 if (( register_line >= auth_proxy_line )); then
   echo "[check:nginx-routing] /auth/register must be defined before /auth/ proxy."
-  exit 1
-fi
-
-if (( register_slash_line >= auth_proxy_line )); then
-  echo "[check:nginx-routing] /auth/register/ must be defined before /auth/ proxy."
   exit 1
 fi
 
