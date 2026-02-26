@@ -9,6 +9,7 @@ import { SubscriptionProvider } from '@/components/SubscriptionProvider';
 import { useQuickAddTask } from '@/hooks/useQuickAddTask';
 import { useCommandPalette } from '@/hooks/useCommandPalette';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import { UndoProvider } from '@/contexts/UndoContext';
 import QuickAddTaskModal from '@/components/QuickAddTaskModal';
 import CommandPalette from '@/components/CommandPalette';
 import KeyboardShortcutsHelp from '@/components/KeyboardShortcutsHelp';
@@ -125,7 +126,7 @@ function AppContent() {
   }, [isDarkMode]);
 
   return (
-    <>
+    <UndoProvider>
       <AuthErrorDisplay />
       <Suspense fallback={<div className="flex items-center justify-center h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
         <Routes>
@@ -301,7 +302,7 @@ function AppContent() {
 
       {/* Toast Notifications */}
       <Toaster
-        position="top-right"
+        position="bottom-right"
         toastOptions={{
           style: {
             background: isDarkMode ? '#374151' : '#ffffff',
@@ -322,7 +323,7 @@ function AppContent() {
       
       {/* Keyboard Shortcuts Help Modal */}
       <KeyboardShortcutsHelp isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)} />
-    </>
+    </UndoProvider>
   );
 }
 
