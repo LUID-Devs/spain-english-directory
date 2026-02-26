@@ -58,7 +58,7 @@ const CreateGoalPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!title.trim() || !organizationId) {
+    if (!title.trim() || organizationId == null) {
       setError('Title and organization are required.');
       return;
     }
@@ -84,6 +84,10 @@ const CreateGoalPage = () => {
         navigate('/dashboard/goals');
       }, 1500);
     } catch (err: any) {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
       setError(err?.data?.message || 'Failed to create goal. Please try again.');
     }
   };

@@ -54,7 +54,7 @@ const CreateProjectPage = () => {
 
   const filteredTasks = (tasks || [])
     .filter((task) => !task.archivedAt)
-    .filter((task) => task.title.toLowerCase().includes(taskSearch.toLowerCase()));
+    .filter((task) => task.title?.toLowerCase()?.includes(taskSearch.toLowerCase()));
 
   const toggleTaskSelection = (taskId: number, isChecked: boolean) => {
     setSelectedTaskIds((prev) =>
