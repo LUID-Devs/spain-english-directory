@@ -156,9 +156,10 @@ export function staticPrerenderPlugin(): Plugin {
               </a>
               <div class="flex items-center gap-6">
                 <a href="/features" class="text-neutral-400 hover:text-white transition-colors">Features</a>
+                <a href="/compare" class="text-neutral-400 hover:text-white transition-colors">Compare</a>
                 <a href="/pricing" class="text-neutral-400 hover:text-white transition-colors">Pricing</a>
                 <a href="/auth/login" class="text-neutral-400 hover:text-white transition-colors">Sign In</a>
-                <a href="/auth/register" class="px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-500 text-white rounded-lg hover:from-gray-500 hover:to-gray-400 transition-all">Get Started</a>
+                <a href="/auth/register" class="text-sm px-4 py-2 rounded-full bg-white text-black font-medium hover:bg-neutral-200 transition-colors">Get Started</a>
               </div>
             </div>
           </nav>
@@ -180,13 +181,18 @@ export function staticPrerenderPlugin(): Plugin {
                 Powerful simplicity for freelancers and small teams.
               </p>
               <p class="text-lg text-indigo-300 mb-4 max-w-2xl mx-auto font-medium">
-                Simple enough to start. Powerful enough to grow.
+                Powerful without the bloat. Simple enough to start, scalable enough to grow.
               </p>
               <p class="text-sm text-neutral-500 mb-8">
                 The Goldilocks zone between basic boards and enterprise bloat.
                 <a href="/compare" class="text-neutral-300 underline underline-offset-4 hover:text-white"> See the comparison</a>.
               </p>
-              <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10">
+              <div class="flex flex-col sm:flex-row items-center justify-center gap-3 text-xs text-neutral-300 mb-8">
+                <span class="px-3 py-1 rounded-full border border-neutral-800 bg-neutral-900/60">Free plan included</span>
+                <span class="px-3 py-1 rounded-full border border-neutral-800 bg-neutral-900/60">Pro €10/mo (or €8/mo annually)</span>
+                <a href="/pricing" class="text-indigo-300 hover:text-indigo-200 transition-colors">See full pricing</a>
+              </div>
+              <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
                 <a href="/auth/register" class="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-medium rounded-lg hover:from-indigo-600 hover:to-purple-600 transition-all duration-300 shadow-lg shadow-indigo-500/20">
                   Get Started Free
                 </a>
@@ -197,23 +203,10 @@ export function staticPrerenderPlugin(): Plugin {
                   Sign In
                 </a>
               </div>
-              <div class="flex flex-wrap items-center justify-center gap-3 text-xs uppercase tracking-wide text-neutral-500 mb-10">
-                <span class="px-3 py-1 rounded-full border border-neutral-800 bg-neutral-900/60">Indie teams</span>
-                <span class="px-3 py-1 rounded-full border border-neutral-800 bg-neutral-900/60">Solo builders</span>
-                <span class="px-3 py-1 rounded-full border border-neutral-800 bg-neutral-900/60">Remote-first crews</span>
-                <span class="px-3 py-1 rounded-full border border-neutral-800 bg-neutral-900/60">Product studios</span>
-              </div>
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div class="flex items-center justify-center gap-2 text-sm text-neutral-400">
-                  <span>Made with care by an indie developer</span>
-                </div>
-                <div class="flex items-center justify-center gap-2 text-sm text-neutral-400">
-                  <span>No VC funding, no feature bloat</span>
-                </div>
-                <div class="flex items-center justify-center gap-2 text-sm text-neutral-400">
-                  <span>Direct, responsive support</span>
-                </div>
-              </div>
+              <p class="text-xs text-neutral-500 mb-10">
+                Free plan available. Pro starts at <span class="text-neutral-300">€10/month</span> (or €8/month annually).
+                <a href="/pricing" class="text-neutral-200 underline underline-offset-4 hover:text-white"> See full pricing</a>.
+              </p>
             </div>
           </div>
 
@@ -884,7 +877,10 @@ export function staticPrerenderPlugin(): Plugin {
             <div class="max-w-5xl mx-auto text-center">
               <p class="text-sm text-neutral-500 mb-3">Powerful Simplicity</p>
               <h1 class="text-4xl md:text-5xl font-semibold mb-4">The Goldilocks zone between basic boards and enterprise bloat.</h1>
-              <p class="text-lg text-neutral-300 max-w-3xl mx-auto">TaskLuid is built for freelancers and small teams who need real project power without the overhead.</p>
+              <p class="text-lg text-neutral-300 max-w-3xl mx-auto">
+                TaskLuid is built for freelancers and small teams who need real project power without the overhead.
+                More capable than basic tools. Far simpler than enterprise monsters.
+              </p>
             </div>
           </header>
           <section class="px-4 pb-16">
