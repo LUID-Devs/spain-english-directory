@@ -70,6 +70,7 @@ const DocsPage = React.lazy(() => import('@/pages/docs/DocsPage'));
 
 // Public Status Pages (lazy loaded)
 const ProjectStatusPage = React.lazy(() => import('@/pages/status/ProjectStatusPage'));
+const TaskSharePage = React.lazy(() => import('@/pages/share/TaskSharePage'));
 
 const resolveLandingVariant = () => {
   const configuredVariant = import.meta.env.VITE_LANDING_VARIANT;
@@ -148,6 +149,7 @@ function AppContent() {
 
           {/* Public Project Status Routes */}
           <Route path="/status/:token" element={<ProjectStatusPage />} />
+          <Route path="/share/:token" element={<TaskSharePage />} />
 
           {/* Auth Routes */}
           <Route path="/auth/login" element={<LoginPage />} />

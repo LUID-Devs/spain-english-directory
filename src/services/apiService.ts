@@ -227,6 +227,16 @@ export interface Task {
   attachments?: Attachment[];
 }
 
+export interface TaskShareResponse {
+  success: boolean;
+  shareUrl: string;
+  token: string;
+  expiresAt: string | null;
+  allowComments: boolean;
+  requirePassword: boolean;
+  viewCount?: number;
+}
+
 export interface SearchResults {
   tasks?: Task[];
   projects?: Project[];
@@ -873,6 +883,32 @@ class ApiService {
     return this.request<{ imageUrl: string }>('/tasks/upload-description-image', {
       method: 'POST',
       body: formData,
+    });
+  }
+
+  // Task Sharing
+  async createTaskShare(
+    taskId: number,
+    data: {
+      expiresInDays?: number | null;
+      allowComments?: boolean;
+      requirePassword?: boolean;
+      password?: string;
+    } = {}
+  ): Promise<TaskShareResponse> {
+    return this.request<TaskShareResponse>(`/tasks/${taskId}/share`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getTaskShare(taskId: number): Promise<TaskShareResponse> {
+    return this.request<TaskShareResponse>(`/tasks/${taskId}/share`);
+  }
+
+  async revokeTaskShare(taskId: number): Promise<{ success: boolean; message: string }> {
+    return this.request<{ success: boolean; message: string }>(`/tasks/${taskId}/share`, {
+      method: 'DELETE',
     });
   }
 
