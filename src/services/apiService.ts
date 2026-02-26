@@ -62,7 +62,7 @@ const PRIORITY_TO_API_MAP: Record<Priority, string> = {
   [Priority.High]: "P1",
   [Priority.Medium]: "P2",
   [Priority.Low]: "P3",
-  [Priority.Backlog]: "P3",
+  [Priority.Backlog]: "P4",
 };
 
 const PRIORITY_FROM_API_MAP: Record<string, Priority> = {
@@ -70,6 +70,7 @@ const PRIORITY_FROM_API_MAP: Record<string, Priority> = {
   P1: Priority.High,
   P2: Priority.Medium,
   P3: Priority.Low,
+  P4: Priority.Backlog,
 };
 
 const mapPriorityForApi = (priority?: string | null): string | null | undefined => {
@@ -1184,8 +1185,12 @@ class ApiService {
     dateTo?: string;
     archived?: boolean;
   }): Promise<SearchResults> {
+    const normalizedParams = {
+      ...params,
+      priority: mapPriorityForApi(params.priority) as string | null | undefined,
+    };
     const queryParams = new URLSearchParams();
-    Object.entries(params).forEach(([key, value]) => {
+    Object.entries(normalizedParams).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== '') {
         queryParams.append(key, value.toString());
       }
@@ -1352,19 +1357,65 @@ class ApiService {
     }>;
     threshold: number;
   }> {
-    return this.request<{
+    type DuplicateApiResult = {
+      taskId?: number;
+      title?: string;
+      description?: string | null;
+      status?: string | null;
+      similarity: number;
+      matchedField?: 'title' | 'description' | 'both';
+      matchType?: 'title' | 'description' | 'both';
+      task?: Task;
+      updatedAt?: string;
+    };
+
+    const response = await this.request<{
       hasDuplicates: boolean;
       count: number;
-      duplicates: Array<{
-        task: Task;
-        similarity: number;
-        matchType: 'title' | 'description' | 'both';
-      }>;
+      duplicates: DuplicateApiResult[];
       threshold: number;
     }>('/tasks/check-duplicates', {
       method: 'POST',
       body: JSON.stringify(data),
     });
+
+    const normalizedDuplicates = response.duplicates
+      .map((duplicate) => {
+        if (duplicate.task && typeof duplicate.task.id === 'number') {
+          return {
+            task: mapTaskPriorityFromApi(duplicate.task),
+            similarity: duplicate.similarity,
+            matchType: duplicate.matchType ?? duplicate.matchedField ?? 'title',
+          };
+        }
+
+        if (!duplicate.taskId || !duplicate.title) {
+          return null;
+        }
+
+        const task: Task = {
+          id: duplicate.taskId,
+          title: duplicate.title,
+          description: duplicate.description ?? undefined,
+          status: duplicate.status ?? undefined,
+          projectId: data.projectId,
+          createdAt: duplicate.updatedAt ?? undefined,
+        };
+
+        return {
+          task: mapTaskPriorityFromApi(task),
+          similarity: duplicate.similarity,
+          matchType: duplicate.matchType ?? duplicate.matchedField ?? 'title',
+        };
+      })
+      .filter((duplicate): duplicate is { task: Task; similarity: number; matchType: 'title' | 'description' | 'both' } => Boolean(duplicate));
+
+    return {
+      ...response,
+      hasDuplicates: normalizedDuplicates.length > 0,
+      count: normalizedDuplicates.length,
+      duplicates: normalizedDuplicates,
+    };
   }
 
   async bulkUpdateDueDate(taskIds: number[], dueDate: string | null): Promise<{ success: boolean; message: string; updatedCount: number }> {

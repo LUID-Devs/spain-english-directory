@@ -43,6 +43,14 @@ export default function GoalsPage() {
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
   const [filter, setFilter] = useState<'all' | 'active' | 'completed' | 'company' | 'team' | 'individual'>('all');
 
+  const handleCreateGoalClick = () => {
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      navigate('/dashboard/goals/create');
+      return;
+    }
+    setIsCreateModalOpen(true);
+  };
+
   const { data: goals, isPending, isError, error, refetch } = useQuery({
     queryKey: ['goals', organizationId, filter],
     queryFn: async () => {
@@ -211,7 +219,7 @@ export default function GoalsPage() {
             Track and manage your objectives and key results
           </p>
         </div>
-        <Button onClick={() => setIsCreateModalOpen(true)} className="shrink-0">
+        <Button onClick={handleCreateGoalClick} className="shrink-0">
           <Plus className="h-4 w-4 mr-2" />
           New Goal
         </Button>
@@ -303,7 +311,7 @@ export default function GoalsPage() {
                 ? "Get started by creating your first goal"
                 : `No ${filter} goals found. Try changing the filter.`}
             </p>
-            <Button onClick={() => setIsCreateModalOpen(true)}>
+            <Button onClick={handleCreateGoalClick}>
               <Plus className="h-4 w-4 mr-2" />
               Create Goal
             </Button>

@@ -146,18 +146,26 @@ const PricingPage = () => {
           {/* Billing Toggle */}
           <div className="flex flex-col items-center gap-3 mb-12">
             <div
-              className="inline-flex items-center rounded-full bg-neutral-900/80 border border-neutral-800 p-1 shadow-sm"
+              className="relative inline-grid grid-cols-2 items-center rounded-full bg-neutral-900/80 border border-neutral-800 p-1 shadow-sm"
               role="radiogroup"
               aria-label="Billing interval"
             >
+              <span
+                aria-hidden="true"
+                className={`absolute top-1 bottom-1 left-1 w-[calc(50%-0.25rem)] rounded-full transition-transform duration-300 ease-out ${
+                  isAnnual
+                    ? 'translate-x-full bg-indigo-500 shadow-[0_0_0_1px_rgba(99,102,241,0.4)]'
+                    : 'translate-x-0 bg-white shadow-[0_0_0_1px_rgba(255,255,255,0.2)]'
+                }`}
+              />
               <button
                 type="button"
                 role="radio"
                 aria-checked={!isAnnual}
                 onClick={() => setIsAnnual(false)}
-                className={`min-w-[120px] h-11 px-5 rounded-full text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/60 ${
+                className={`relative z-10 h-12 w-40 sm:w-44 px-5 rounded-full text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/60 ${
                   !isAnnual
-                    ? 'bg-white text-black shadow-sm'
+                    ? 'text-black'
                     : 'text-neutral-400 hover:text-white'
                 }`}
               >
@@ -168,13 +176,13 @@ const PricingPage = () => {
                 role="radio"
                 aria-checked={isAnnual}
                 onClick={() => setIsAnnual(true)}
-                className={`min-w-[140px] h-11 px-5 rounded-full text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/60 ${
+                className={`relative z-10 h-12 w-40 sm:w-44 px-5 rounded-full text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/60 ${
                   isAnnual
-                    ? 'bg-indigo-500 text-white shadow-sm'
+                    ? 'text-white'
                     : 'text-neutral-400 hover:text-white'
                 }`}
               >
-                <span className="inline-flex items-center gap-2">
+                <span className="inline-flex items-center justify-center gap-2">
                   Yearly
                   <span
                     className={`px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide ${
