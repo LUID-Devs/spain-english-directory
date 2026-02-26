@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
-import { useGetProjectsQuery } from "@/hooks/useApi";
 import { useNavigate } from "react-router-dom";
+import { useGetProjectsQuery } from "@/hooks/useApi";
 import { useProjects } from "@/stores/apiStore";
 import { useCurrentUser } from "@/stores/userStore";
 import { useAuth } from "@/app/authProvider";
@@ -23,6 +23,7 @@ const FREE_PROJECT_LIMIT = 1;
 
 const ProjectsPage = () => {
   const [isNewProjectModalOpen, setIsNewProjectModalOpen] = useState(false);
+  const navigate = useNavigate();
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -30,7 +31,6 @@ const ProjectsPage = () => {
   const [activeTab, setActiveTab] = useState<"all" | "favorites" | "archived">("all");
   const [statusFilter, setStatusFilter] = useState<string>("");
 
-  const navigate = useNavigate();
   const { currentUser } = useCurrentUser();
   const { activeOrganization } = useAuth();
   const { isPro } = useSubscription();

@@ -1,20 +1,19 @@
 import Modal from "@/components/Modal";
-import { useCreateProjectMutation, useGetTasksByUserQuery, useUpdateTaskMutation } from "@/hooks/useApi";
-import React, { useState } from "react";
+import { useCreateProjectMutation } from "@/hooks/useApi";
+import React, { useMemo, useState } from "react";
 import { formatISO } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useCurrentUser } from "@/stores/userStore";
-import { toast } from "sonner";
+import { apiService, Task } from "@/services/apiService";
 import { AlertTriangle, Loader2, FolderPlus, Calendar, FileText, HelpCircle, Lock, Globe } from "lucide-react";
 
 type Props = {
@@ -24,42 +23,50 @@ type Props = {
 
 const ModalNewProject = ({ isOpen, onClose }: Props) => {
   const [createProject, { isLoading }] = useCreateProjectMutation();
-  const [updateTask] = useUpdateTaskMutation();
   const { currentUser } = useCurrentUser();
-  const { data: tasks } = useGetTasksByUserQuery(currentUser?.userId ?? null, {
-    skip: !currentUser?.userId,
-  });
   const [projectName, setProjectName] = useState("");
   const [description, setDescription] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [taskSearch, setTaskSearch] = useState("");
-  const [selectedTaskIds, setSelectedTaskIds] = useState<number[]>([]);
+  const [selectedTaskIds, setSelectedTaskIds] = useState<Set<number>>(new Set());
   const [error, setError] = useState<string>("");
+  const [availableTasks, setAvailableTasks] = useState<Task[]>([]);
+  const [tasksLoading, setTasksLoading] = useState(false);
 
-  const filteredTasks = (tasks || [])
-    .filter((task) => !task.archivedAt)
-    .filter((task) => task.title?.toLowerCase()?.includes(taskSearch.toLowerCase()));
+  React.useEffect(() => {
+    const fetchTasks = async () => {
+      if (!isOpen || !currentUser?.userId) return;
+      setTasksLoading(true);
+      try {
+        const tasks = await apiService.getTasksByUser(currentUser.userId);
+        setAvailableTasks(tasks);
+      } catch (err: any) {
+        setError(err?.message || "Failed to load tasks. Please try again.");
+      } finally {
+        setTasksLoading(false);
+      }
+    };
 
-  const toggleTaskSelection = (taskId: number, isChecked: boolean) => {
-    setSelectedTaskIds((prev) =>
-      isChecked ? [...prev, taskId] : prev.filter((id) => id !== taskId)
-    );
-  };
+    fetchTasks();
+  }, [isOpen, currentUser?.userId]);
 
-  const attachTasksToProject = async (projectId: number) => {
-    if (!selectedTaskIds.length) return;
-    const results = await Promise.allSettled(
-      selectedTaskIds.map((taskId) =>
-        updateTask({ taskId, task: { projectId } }).unwrap()
-      )
-    );
-    const failures = results.filter((result) => result.status === "rejected");
-    if (failures.length) {
-      toast.error(
-        `Project created, but ${failures.length} task${failures.length === 1 ? "" : "s"} could not be attached.`
-      );
-    }
+  const filteredTasks = useMemo(() => {
+    if (!taskSearch.trim()) return availableTasks;
+    const query = taskSearch.toLowerCase();
+    return availableTasks.filter((task) => task.title.toLowerCase().includes(query));
+  }, [availableTasks, taskSearch]);
+
+  const toggleTask = (taskId: number) => {
+    setSelectedTaskIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(taskId)) {
+        next.delete(taskId);
+      } else {
+        next.add(taskId);
+      }
+      return next;
+    });
   };
 
   const handleSubmit = async () => {
@@ -90,9 +97,8 @@ const ModalNewProject = ({ isOpen, onClose }: Props) => {
         endDate: formattedEndDate,
       }).unwrap();
 
-      const newProjectId = Number(newProject?.id);
-      if (Number.isFinite(newProjectId)) {
-        await attachTasksToProject(newProjectId);
+      if (selectedTaskIds.size > 0) {
+        await apiService.bulkMoveToProject(Array.from(selectedTaskIds), Number(newProject.id));
       }
 
       // Success - clear form and close modal
@@ -101,12 +107,12 @@ const ModalNewProject = ({ isOpen, onClose }: Props) => {
       setStartDate("");
       setEndDate("");
       setTaskSearch("");
-      setSelectedTaskIds([]);
+      setSelectedTaskIds(new Set());
       setError("");
       onClose();
     } catch (err: any) {
       // Handle error
-      setError(err?.data?.message || "Failed to create project. Please try again.");
+      setError(err?.data?.message || err?.message || "Failed to create project. Please try again.");
     }
   };
 
@@ -116,7 +122,7 @@ const ModalNewProject = ({ isOpen, onClose }: Props) => {
     setStartDate("");
     setEndDate("");
     setTaskSearch("");
-    setSelectedTaskIds([]);
+    setSelectedTaskIds(new Set());
     setError("");
     onClose();
   };
@@ -280,35 +286,42 @@ const ModalNewProject = ({ isOpen, onClose }: Props) => {
 
         {/* Attach Existing Tasks */}
         <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <Label>Attach Existing Tasks</Label>
-            <span className="text-xs text-muted-foreground">
-              {selectedTaskIds.length} selected
-            </span>
-          </div>
+          <Label className="flex items-center gap-2">
+            <FolderPlus className="h-4 w-4 text-muted-foreground" />
+            Attach Existing Tasks
+          </Label>
           <Input
-            type="text"
-            placeholder="Search your tasks..."
+            placeholder="Search tasks..."
             value={taskSearch}
             onChange={(e) => setTaskSearch(e.target.value)}
+            className="h-10"
           />
-          <div className="max-h-48 overflow-y-auto rounded-md border border-border p-3 space-y-2">
-            {filteredTasks.length === 0 ? (
-              <p className="text-xs text-muted-foreground">No tasks match your search.</p>
+          <div className="max-h-48 overflow-y-auto rounded-md border border-border p-2 space-y-2">
+            {tasksLoading ? (
+              <p className="text-xs text-muted-foreground">Loading tasks...</p>
+            ) : filteredTasks.length === 0 ? (
+              <p className="text-xs text-muted-foreground">No tasks found.</p>
             ) : (
               filteredTasks.map((task) => (
-                <label key={task.id} className="flex items-start gap-3 text-sm">
-                  <Checkbox
-                    checked={selectedTaskIds.includes(task.id)}
-                    onCheckedChange={(checked) => toggleTaskSelection(task.id, checked === true)}
+                <label key={task.id} className="flex items-start gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={selectedTaskIds.has(task.id)}
+                    onChange={() => toggleTask(task.id)}
+                    className="mt-1"
                   />
-                  <span className="text-foreground leading-snug">{task.title}</span>
+                  <div className="flex flex-col">
+                    <span className="text-foreground">{task.title}</span>
+                    {task.project?.name && (
+                      <span className="text-xs text-muted-foreground">Current: {task.project.name}</span>
+                    )}
+                  </div>
                 </label>
               ))
             )}
           </div>
           <p className="text-xs text-muted-foreground">
-            You can also move tasks later from the Tasks page.
+            Select tasks to move into this project after creation.
           </p>
         </div>
 
