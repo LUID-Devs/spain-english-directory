@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useCreateProjectMutation } from "@/hooks/useApi";
+import { useCreateProjectMutation, useGetTasksByUserQuery, useUpdateTaskMutation } from "@/hooks/useApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,6 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useCurrentUser } from "@/stores/userStore";
 import { 
   ArrowLeft, 
   FolderPlus, 
@@ -23,13 +25,22 @@ import { formatISO } from "date-fns";
 const CreateProjectPage = () => {
   const navigate = useNavigate();
   const [createProject, { isLoading }] = useCreateProjectMutation();
+  const [updateTask] = useUpdateTaskMutation();
   const timeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+
+  const { currentUser } = useCurrentUser();
+  const { data: tasks } = useGetTasksByUserQuery(currentUser?.userId ?? null, {
+    skip: !currentUser?.userId,
+  });
   
   const [projectName, setProjectName] = useState("");
   const [description, setDescription] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [taskSearch, setTaskSearch] = useState("");
+  const [selectedTaskIds, setSelectedTaskIds] = useState<number[]>([]);
   const [error, setError] = useState("");
+  const [attachmentError, setAttachmentError] = useState("");
   const [success, setSuccess] = useState(false);
 
   // Cleanup timeout on unmount
@@ -40,6 +51,31 @@ const CreateProjectPage = () => {
       }
     };
   }, []);
+
+  const filteredTasks = (tasks || [])
+    .filter((task) => !task.archivedAt)
+    .filter((task) => task.title.toLowerCase().includes(taskSearch.toLowerCase()));
+
+  const toggleTaskSelection = (taskId: number, isChecked: boolean) => {
+    setSelectedTaskIds((prev) =>
+      isChecked ? [...prev, taskId] : prev.filter((id) => id !== taskId)
+    );
+  };
+
+  const attachTasksToProject = async (projectId: number) => {
+    if (!selectedTaskIds.length) return;
+    const results = await Promise.allSettled(
+      selectedTaskIds.map((taskId) =>
+        updateTask({ taskId, task: { projectId } }).unwrap()
+      )
+    );
+    const failures = results.filter((result) => result.status === "rejected");
+    if (failures.length) {
+      setAttachmentError(
+        `Project created, but ${failures.length} task${failures.length === 1 ? "" : "s"} could not be attached. You can reassign them later.`
+      );
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,6 +91,7 @@ const CreateProjectPage = () => {
     }
     
     setError("");
+    setAttachmentError("");
 
     try {
       const formattedStartDate = formatISO(start, {
@@ -64,12 +101,17 @@ const CreateProjectPage = () => {
         representation: "complete",
       });
 
-      await createProject({
+      const newProject = await createProject({
         name: projectName,
         description,
         startDate: formattedStartDate,
         endDate: formattedEndDate,
       }).unwrap();
+
+      const newProjectId = Number(newProject?.id);
+      if (Number.isFinite(newProjectId)) {
+        await attachTasksToProject(newProjectId);
+      }
 
       setSuccess(true);
       timeoutRef.current = setTimeout(() => {
@@ -106,6 +148,11 @@ const CreateProjectPage = () => {
             <p className="text-muted-foreground">
               Redirecting to projects...
             </p>
+            {attachmentError && (
+              <p className="mt-2 text-xs text-amber-600">
+                {attachmentError}
+              </p>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -243,6 +290,41 @@ const CreateProjectPage = () => {
                 Project duration: <span className="font-medium text-foreground">{getDurationText()}</span>
               </p>
             )}
+          </div>
+
+          {/* Attach Existing Tasks */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <Label className="text-base">Attach Existing Tasks</Label>
+              <span className="text-xs text-muted-foreground">
+                {selectedTaskIds.length} selected
+              </span>
+            </div>
+            <Input
+              type="text"
+              placeholder="Search your tasks..."
+              value={taskSearch}
+              onChange={(e) => setTaskSearch(e.target.value)}
+              className="h-11"
+            />
+            <div className="max-h-48 overflow-y-auto rounded-lg border border-border bg-background p-3 space-y-2">
+              {filteredTasks.length === 0 ? (
+                <p className="text-xs text-muted-foreground">No tasks match your search.</p>
+              ) : (
+                filteredTasks.map((task) => (
+                  <label key={task.id} className="flex items-start gap-3 text-sm">
+                    <Checkbox
+                      checked={selectedTaskIds.includes(task.id)}
+                      onCheckedChange={(checked) => toggleTaskSelection(task.id, checked === true)}
+                    />
+                    <span className="text-foreground leading-snug">{task.title}</span>
+                  </label>
+                ))
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              You can also move tasks later from the Tasks page.
+            </p>
           </div>
 
           {/* Quick Tips Card */}
