@@ -116,9 +116,9 @@ const ProjectHeader = ({
   const applyView = useCallback((view: SavedView) => {
     setSelectedViewId(view.id);
     onFiltersChange({
-      priority: view.filters.priority || null,
-      status: view.filters.status || null,
-      assigneeId: view.filters.assigneeId || null,
+      priority: view.filters.priority ?? null,
+      status: view.filters.status ?? null,
+      assigneeId: view.filters.assigneeId ?? null,
     });
     if (view.filters.searchQuery) {
       onSearchChange(view.filters.searchQuery);
@@ -133,9 +133,9 @@ const ProjectHeader = ({
         // Inline applyView logic to avoid cascading renders
         setSelectedViewId(defaultView.id);
         onFiltersChange({
-          priority: defaultView.filters.priority || null,
-          status: defaultView.filters.status || null,
-          assigneeId: defaultView.filters.assigneeId || null,
+          priority: defaultView.filters.priority ?? null,
+          status: defaultView.filters.status ?? null,
+          assigneeId: defaultView.filters.assigneeId ?? null,
         });
         if (defaultView.filters.searchQuery) {
           onSearchChange(defaultView.filters.searchQuery);
@@ -301,7 +301,9 @@ const ProjectHeader = ({
     setIsSaveDialogOpen(true);
   };
 
-  const activeFiltersCount = [filters.priority, filters.status, filters.assigneeId].filter(Boolean).length;
+  const activeFiltersCount = [filters.priority, filters.status, filters.assigneeId].filter(
+    (value) => value !== null && value !== undefined
+  ).length;
   const currentView = savedViews?.find(v => v.id === selectedViewId);
 
   return (
@@ -485,7 +487,7 @@ const ProjectHeader = ({
             </div>
 
             {/* Controls */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+            <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2">
               {/* Saved Views Dropdown */}
               {savedViews && savedViews.length > 0 && (
                 <Select
@@ -554,19 +556,33 @@ const ProjectHeader = ({
                 </PopoverTrigger>
                 <PopoverContent className="w-[calc(100vw-2rem)] sm:w-80" align="end">
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-2">
                       <h4 className="font-medium">Filter Tasks</h4>
-                      {activeFiltersCount > 0 && (
+                      <div className="flex items-center gap-2">
+                        {activeFiltersCount > 0 && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={handleClearFilters}
+                            className="h-auto p-1 text-xs text-muted-foreground hover:text-foreground"
+                          >
+                            <X className="h-3 w-3 mr-1" />
+                            Clear all
+                          </Button>
+                        )}
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={handleClearFilters}
+                          onClick={() => {
+                            setIsFilterOpen(false);
+                            openSaveDialog();
+                          }}
                           className="h-auto p-1 text-xs text-muted-foreground hover:text-foreground"
                         >
-                          <X className="h-3 w-3 mr-1" />
-                          Clear all
+                          <BookmarkPlus className="h-3 w-3 mr-1" />
+                          Save view
                         </Button>
-                      )}
+                      </div>
                     </div>
 
                     {/* Priority Filter */}
