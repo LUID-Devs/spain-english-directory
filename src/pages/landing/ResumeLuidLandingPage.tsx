@@ -39,6 +39,11 @@ const ResumeLuidLandingPage = () => {
       desc: 'Professional designs that pass Applicant Tracking Systems and impress recruiters.',
     },
     {
+      icon: Award,
+      title: 'ATS Score Feedback',
+      desc: 'See real-time compatibility scores against job descriptions and fix gaps instantly.',
+    },
+    {
       icon: Shield,
       title: 'Privacy First',
       desc: 'Your data is encrypted and never sold. Export and delete anytime with full control.',
