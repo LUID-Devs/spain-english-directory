@@ -1,6 +1,7 @@
 
 import React, { useState } from "react";
 import { useGetProjectsQuery } from "@/hooks/useApi";
+import { useNavigate } from "react-router-dom";
 import { useCurrentUser } from "@/stores/userStore";
 import { Plus, Search, Grid3X3, List, Archive, Star, Filter, MoreHorizontal, SortAsc } from "lucide-react";
 import ModalNewProject from "./ModalNewProject";
@@ -22,6 +23,7 @@ const ProjectsPage = () => {
   const [activeTab, setActiveTab] = useState<"all" | "favorites" | "archived">("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   
+  const navigate = useNavigate();
   const { currentUser } = useCurrentUser();
   const { data: projects, isLoading, isError } = useGetProjectsQuery({ 
     archived: activeTab === "archived", 
@@ -52,6 +54,14 @@ const ProjectsPage = () => {
       case "archived": return "Archived Projects";
       default: return "Projects";
     }
+  };
+
+  const handleNewProjectClick = () => {
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      navigate("/dashboard/projects/create");
+      return;
+    }
+    setIsNewProjectModalOpen(true);
   };
 
   if (isLoading) {
@@ -113,7 +123,7 @@ const ProjectsPage = () => {
           </p>
         </div>
         {activeTab === "all" && (
-          <Button onClick={() => setIsNewProjectModalOpen(true)}>
+          <Button onClick={handleNewProjectClick}>
             <Plus className="h-4 w-4 mr-2" />
             New Project
           </Button>

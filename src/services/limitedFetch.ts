@@ -82,7 +82,6 @@ export const limitedFetch = async (
     try {
       const response = await fetch(input, init);
       lastResponse = response;
-
       if (!retryOnStatuses.includes(response.status) || !shouldRetryMethod) {
         return response;
       }

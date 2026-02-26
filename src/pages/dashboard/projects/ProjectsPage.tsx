@@ -1,6 +1,7 @@
 
 import React, { useState } from "react";
 import { useGetProjectsQuery } from "@/hooks/useApi";
+import { useNavigate } from "react-router-dom";
 import { useProjects } from "@/stores/apiStore";
 import { useCurrentUser } from "@/stores/userStore";
 import { useAuth } from "@/app/authProvider";
@@ -29,6 +30,7 @@ const ProjectsPage = () => {
   const [activeTab, setActiveTab] = useState<"all" | "favorites" | "archived">("all");
   const [statusFilter, setStatusFilter] = useState<string>("");
 
+  const navigate = useNavigate();
   const { currentUser } = useCurrentUser();
   const { activeOrganization } = useAuth();
   const { isPro } = useSubscription();
@@ -49,11 +51,17 @@ const ProjectsPage = () => {
    */
   const handleNewProjectClick = () => {
     const totalProjects = allProjects?.length ?? 0;
-    if (canCreateProject(totalProjects)) {
-      setIsNewProjectModalOpen(true);
-    } else {
+    if (!canCreateProject(totalProjects)) {
       setIsUpgradeModalOpen(true);
+      return;
     }
+
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      navigate("/dashboard/projects/create");
+      return;
+    }
+
+    setIsNewProjectModalOpen(true);
   };
 
   const getTabTitle = () => {

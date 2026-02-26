@@ -148,6 +148,21 @@ export function staticPrerenderPlugin(): Plugin {
       },
       content: `
         <div class="min-h-screen bg-black text-white flex flex-col">
+          <!-- Navigation -->
+          <nav class="border-b border-neutral-800 bg-black/80 backdrop-blur">
+            <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+              <a href="/" class="text-xl font-bold bg-gradient-to-r from-gray-400 to-gray-400 bg-clip-text text-transparent">
+                TaskLuid
+              </a>
+              <div class="flex items-center gap-6">
+                <a href="/features" class="text-neutral-400 hover:text-white transition-colors">Features</a>
+                <a href="/pricing" class="text-neutral-400 hover:text-white transition-colors">Pricing</a>
+                <a href="/auth/login" class="text-neutral-400 hover:text-white transition-colors">Sign In</a>
+                <a href="/auth/register" class="px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-500 text-white rounded-lg hover:from-gray-500 hover:to-gray-400 transition-all">Get Started</a>
+              </div>
+            </div>
+          </nav>
+
           <!-- Hero Section -->
           <div class="flex-1 flex items-center justify-center px-4 pt-14 pb-12">
             <div class="text-center max-w-3xl">
@@ -941,6 +956,21 @@ export function staticPrerenderPlugin(): Plugin {
       },
       content: `
         <div class="min-h-screen bg-black text-white flex flex-col">
+          <!-- Navigation -->
+          <nav class="border-b border-neutral-800 bg-black/80 backdrop-blur">
+            <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+              <a href="/" class="text-xl font-bold bg-gradient-to-r from-gray-400 to-gray-400 bg-clip-text text-transparent">
+                LuidKit
+              </a>
+              <div class="flex items-center gap-6">
+                <a href="/features" class="text-neutral-400 hover:text-white transition-colors">Features</a>
+                <a href="/pricing" class="text-neutral-400 hover:text-white transition-colors">Pricing</a>
+                <a href="/auth/login" class="text-neutral-400 hover:text-white transition-colors">Sign In</a>
+                <a href="/auth/register" class="px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-500 text-white rounded-lg hover:from-gray-500 hover:to-gray-400 transition-all">Get Started</a>
+              </div>
+            </div>
+          </nav>
+
           <!-- Hero Section -->
           <div class="flex-1 flex items-center justify-center px-4 pt-14 pb-12">
             <div class="text-center max-w-3xl">
