@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Upload, File, X, Download, RefreshCw, CheckCircle, AlertCircle, FileText, Image, FileSpreadsheet, FileCode, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -15,6 +15,23 @@ interface ConversionFile {
   convertedUrl?: string;
   error?: string;
 }
+
+// Sanitize filename to prevent XSS - removes HTML tags only
+// React JSX handles HTML escaping automatically for text content
+const sanitizeFilename = (filename: string): string => {
+  // Remove HTML tags to prevent XSS
+  return filename.replace(/<[^>]*>/g, '');
+};
+
+// Truncate filename for display
+const truncateFilename = (filename: string, maxLength: number = 30): string => {
+  const sanitized = sanitizeFilename(filename);
+  if (sanitized.length <= maxLength) return sanitized;
+  const ext = sanitized.split('.').pop() || '';
+  const nameWithoutExt = sanitized.substring(0, sanitized.lastIndexOf('.')) || sanitized;
+  const truncatedName = nameWithoutExt.substring(0, maxLength - ext.length - 3);
+  return `${truncatedName}...${ext ? '.' + ext : ''}`;
+};
 
 const formatFileSize = (bytes: number): string => {
   if (bytes === 0) return '0 Bytes';
@@ -68,10 +85,130 @@ const getTargetFormats = (fileName: string): string[] => {
   return ['pdf', 'txt'];
 };
 
+// Convert image file to target format using canvas
+const convertImage = async (file: File, targetFormat: string): Promise<Blob> => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      
+      if (!ctx) {
+        reject(new Error('Failed to get canvas context'));
+        return;
+      }
+      
+      // Fill white background for formats that don't support transparency
+      if (targetFormat === 'jpg' || targetFormat === 'jpeg' || targetFormat === 'bmp') {
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
+      
+      ctx.drawImage(img, 0, 0);
+      
+      const mimeType = `image/${targetFormat === 'jpg' ? 'jpeg' : targetFormat}`;
+      canvas.toBlob((blob) => {
+        if (blob) {
+          resolve(blob);
+        } else {
+          reject(new Error('Canvas conversion failed'));
+        }
+      }, mimeType, 0.9);
+    };
+    
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error('Failed to load image'));
+    };
+    
+    img.src = url;
+  });
+};
+
+// Convert text-based files
+const convertTextFile = async (file: File, targetFormat: string): Promise<Blob> => {
+  const text = await file.text();
+  const ext = file.name.split('.').pop()?.toLowerCase() || '';
+  
+  // Simple conversions for data formats
+  if (ext === 'json' && targetFormat === 'csv') {
+    try {
+      const data = JSON.parse(text);
+      if (Array.isArray(data) && data.length > 0) {
+        const headers = Object.keys(data[0]);
+        const csvRows = [
+          headers.join(','),
+          ...data.map(row => headers.map(h => JSON.stringify(row[h] || '')).join(','))
+        ];
+        return new Blob([csvRows.join('\n')], { type: 'text/csv' });
+      }
+    } catch {
+      // Fall through to plain text
+    }
+  }
+  
+  if ((ext === 'csv' || ext === 'xlsx' || ext === 'xls') && targetFormat === 'json') {
+    const lines = text.split('\n').filter(l => l.trim());
+    if (lines.length > 1) {
+      const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+      const data = lines.slice(1).map(line => {
+        const values = line.split(',').map(v => v.trim().replace(/^"|"$/g, ''));
+        const obj: Record<string, string> = {};
+        headers.forEach((h, i) => {
+          obj[h] = values[i] || '';
+        });
+        return obj;
+      });
+      return new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    }
+  }
+  
+  // Default: return as plain text with new extension
+  const mimeTypes: Record<string, string> = {
+    'json': 'application/json',
+    'xml': 'application/xml',
+    'yaml': 'application/yaml',
+    'html': 'text/html',
+    'txt': 'text/plain',
+    'csv': 'text/csv',
+    'md': 'text/markdown'
+  };
+  
+  return new Blob([text], { type: mimeTypes[targetFormat] || 'text/plain' });
+};
+
+// Main conversion function
+const performConversion = async (file: File, targetFormat: string): Promise<Blob> => {
+  const ext = file.name.split('.').pop()?.toLowerCase() || '';
+  const imageExts = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg', 'bmp', 'tiff'];
+  
+  if (imageExts.includes(ext)) {
+    return convertImage(file, targetFormat);
+  }
+  
+  return convertTextFile(file, targetFormat);
+};
+
 export default function ConverterPage() {
   const [files, setFiles] = useState<ConversionFile[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [targetFormat, setTargetFormat] = useState<string>('');
+  const blobUrlsRef = useRef<Set<string>>(new Set());
+
+  // Cleanup blob URLs on unmount
+  useEffect(() => {
+    return () => {
+      blobUrlsRef.current.forEach(url => {
+        URL.revokeObjectURL(url);
+      });
+      blobUrlsRef.current.clear();
+    };
+  }, []);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -83,26 +220,13 @@ export default function ConverterPage() {
     setIsDragging(false);
   }, []);
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    
-    const droppedFiles = Array.from(e.dataTransfer.files);
-    addFiles(droppedFiles);
-  }, []);
-
-  const handleFileInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFiles = Array.from(e.target.files || []);
-    addFiles(selectedFiles);
-  }, []);
-
-  const addFiles = (newFiles: File[]) => {
+  const addFiles = useCallback((newFiles: File[]) => {
     const maxSize = 10 * 1024 * 1024; // 10MB limit
     const validFiles: ConversionFile[] = [];
 
     for (const file of newFiles) {
       if (file.size > maxSize) {
-        toast.error(`${file.name} exceeds 10MB limit`);
+        toast.error(`${sanitizeFilename(file.name)} exceeds 10MB limit`);
         continue;
       }
       
@@ -126,18 +250,45 @@ export default function ConverterPage() {
         setTargetFormat(formats[0]);
       }
     }
-  };
+  }, [targetFormat]);
 
-  const removeFile = (id: string) => {
-    setFiles(prev => prev.filter(f => f.id !== id));
-  };
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    
+    const droppedFiles = Array.from(e.dataTransfer.files);
+    addFiles(droppedFiles);
+  }, [addFiles]);
 
-  const clearAll = () => {
+  const handleFileInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = Array.from(e.target.files || []);
+    addFiles(selectedFiles);
+  }, [addFiles]);
+
+  const removeFile = useCallback((id: string) => {
+    setFiles(prev => {
+      const fileToRemove = prev.find(f => f.id === id);
+      if (fileToRemove?.convertedUrl) {
+        URL.revokeObjectURL(fileToRemove.convertedUrl);
+        blobUrlsRef.current.delete(fileToRemove.convertedUrl);
+      }
+      return prev.filter(f => f.id !== id);
+    });
+  }, []);
+
+  const clearAll = useCallback(() => {
+    // Revoke all blob URLs
+    files.forEach(file => {
+      if (file.convertedUrl) {
+        URL.revokeObjectURL(file.convertedUrl);
+        blobUrlsRef.current.delete(file.convertedUrl);
+      }
+    });
     setFiles([]);
     setTargetFormat('');
-  };
+  }, [files]);
 
-  const convertFile = async (fileItem: ConversionFile) => {
+  const convertFile = useCallback(async (fileItem: ConversionFile) => {
     if (!targetFormat) {
       toast.error('Please select a target format');
       return;
@@ -156,16 +307,16 @@ export default function ConverterPage() {
         ));
       }
 
-      // Create a mock converted file (in real app, this would be from API)
+      // Perform actual conversion
+      const convertedBlob = await performConversion(fileItem.file, targetFormat);
+      
       const originalName = fileItem.name;
       const nameWithoutExt = originalName.substring(0, originalName.lastIndexOf('.')) || originalName;
       const convertedFileName = `${nameWithoutExt}.${targetFormat}`;
       
-      // Create a blob URL for download (simulating converted file)
-      const blob = new Blob([await fileItem.file.arrayBuffer()], { 
-        type: `application/${targetFormat}` 
-      });
-      const convertedUrl = URL.createObjectURL(blob);
+      // Create a blob URL for download
+      const convertedUrl = URL.createObjectURL(convertedBlob);
+      blobUrlsRef.current.add(convertedUrl);
 
       setFiles(prev => prev.map(f => 
         f.id === fileItem.id ? { 
@@ -177,7 +328,7 @@ export default function ConverterPage() {
         } : f
       ));
 
-      toast.success(`${fileItem.name} converted successfully!`);
+      toast.success(`${sanitizeFilename(fileItem.name)} converted successfully!`);
     } catch (error) {
       setFiles(prev => prev.map(f => 
         f.id === fileItem.id ? { 
@@ -186,11 +337,11 @@ export default function ConverterPage() {
           error: 'Conversion failed' 
         } : f
       ));
-      toast.error(`Failed to convert ${fileItem.name}`);
+      toast.error(`Failed to convert ${sanitizeFilename(fileItem.name)}`);
     }
-  };
+  }, [targetFormat]);
 
-  const convertAll = async () => {
+  const convertAll = useCallback(async () => {
     const pendingFiles = files.filter(f => f.status === 'pending');
     if (pendingFiles.length === 0) {
       toast.info('No files to convert');
@@ -200,9 +351,9 @@ export default function ConverterPage() {
     for (const file of pendingFiles) {
       await convertFile(file);
     }
-  };
+  }, [files, convertFile]);
 
-  const downloadFile = (fileItem: ConversionFile) => {
+  const downloadFile = useCallback((fileItem: ConversionFile) => {
     if (!fileItem.convertedUrl) return;
     
     const link = document.createElement('a');
@@ -211,9 +362,9 @@ export default function ConverterPage() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-  };
+  }, []);
 
-  const downloadAll = () => {
+  const downloadAll = useCallback(() => {
     const completedFiles = files.filter(f => f.status === 'completed');
     if (completedFiles.length === 0) {
       toast.info('No converted files to download');
@@ -223,7 +374,7 @@ export default function ConverterPage() {
     completedFiles.forEach(file => {
       setTimeout(() => downloadFile(file), 100);
     });
-  };
+  }, [files, downloadFile]);
 
   const availableFormats = files.length > 0 ? getTargetFormats(files[0].name) : [];
 
@@ -357,7 +508,12 @@ export default function ConverterPage() {
                     >
                       {getFileIcon(fileItem.name)}
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{fileItem.name}</p>
+                        <p 
+                          className="text-sm font-medium truncate"
+                          title={fileItem.name}
+                        >
+                          {truncateFilename(fileItem.name)}
+                        </p>
                         <p className="text-xs text-neutral-500">
                           {formatFileSize(fileItem.size)}
                           {fileItem.status === 'converting' && (
