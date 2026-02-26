@@ -128,15 +128,15 @@ export function staticPrerenderPlugin(): Plugin {
     '/landing': {
       meta: {
         title: 'TaskLuid - AI-Powered Project Management Platform',
-        description: 'The lightweight project hub for teams who want to ship without the bloat. AI-assisted workflows, team collaboration, and clear progress tracking.',
-        keywords: 'project management, task management, team collaboration, AI workflows, productivity tool, task tracking, project planning',
+        description: 'Powerful simplicity for freelancers and small teams. AI-assisted workflows, team collaboration, and clear progress tracking without the bloat.',
+        keywords: 'project management, task management, team collaboration, AI workflows, productivity tool, task tracking, project planning, powerful simplicity',
         ogTitle: 'TaskLuid - AI-Powered Project Management Platform',
-        ogDescription: 'The lightweight project hub for teams who want to ship without the bloat.',
+        ogDescription: 'Powerful simplicity for teams who want to ship without the bloat.',
         ogImage: `${siteUrl}/og-taskluid.png`,
         ogType: 'website',
         twitterCard: 'summary_large_image',
         twitterTitle: 'TaskLuid - AI-Powered Project Management Platform',
-        twitterDescription: 'The lightweight project hub for teams who want to ship without the bloat.',
+        twitterDescription: 'Powerful simplicity for teams who want to ship without the bloat.',
         twitterImage: `${siteUrl}/og-taskluid.png`,
         canonicalUrl: `${siteUrl}/landing`,
         jsonLd: generateSoftwareApplicationJsonLd(
@@ -176,11 +176,14 @@ export function staticPrerenderPlugin(): Plugin {
               <h1 class="text-5xl md:text-6xl font-bold bg-gradient-to-r from-gray-300 via-gray-100 to-gray-300 bg-clip-text text-transparent mb-6">
                 TaskLuid
               </h1>
-              <p class="text-xl text-gray-200 mb-4 max-w-2xl mx-auto">
-                The lightweight project hub for teams who want to ship without the bloat.
+              <p class="text-xl text-gray-200 mb-2 max-w-2xl mx-auto">
+                Powerful simplicity for freelancers and small teams.
+              </p>
+              <p class="text-lg text-indigo-300 mb-4 max-w-2xl mx-auto font-medium">
+                Simple enough to start. Powerful enough to grow.
               </p>
               <p class="text-sm text-neutral-500 mb-8">
-                Free to start. Upgrade when you need more power.
+                The Goldilocks zone between basic boards and enterprise bloat.
               </p>
               <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10">
                 <a href="/auth/register" class="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-medium rounded-lg hover:from-indigo-600 hover:to-purple-600 transition-all duration-300 shadow-lg shadow-indigo-500/20">
@@ -848,6 +851,81 @@ export function staticPrerenderPlugin(): Plugin {
                 <a href="/cookies" class="text-neutral-400 hover:text-gray-400 transition-colors">Cookies</a>
               </div>
             </div>
+          </footer>
+        </div>
+      `
+    },
+    '/compare': {
+      meta: {
+        title: 'Compare - TaskLuid',
+        description: 'Compare TaskLuid to basic boards and enterprise suites. Powerful simplicity without the bloat.',
+        keywords: 'compare task management tools, powerful simplicity, project management comparison, TaskLuid',
+        ogTitle: 'Compare TaskLuid',
+        ogDescription: 'Powerful simplicity without the bloat. See how TaskLuid compares.',
+        ogType: 'website',
+        twitterCard: 'summary_large_image',
+        canonicalUrl: `${siteUrl}/compare`,
+      },
+      content: `
+        <div class="min-h-screen bg-black text-white">
+          <nav class="border-b border-neutral-800">
+            <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+              <a href="/" class="text-xl font-bold bg-gradient-to-r from-gray-400 to-gray-400 bg-clip-text text-transparent">TaskLuid</a>
+              <div class="flex items-center gap-6">
+                <a href="/features" class="text-neutral-400 hover:text-white transition-colors">Features</a>
+                <a href="/pricing" class="text-neutral-400 hover:text-white transition-colors">Pricing</a>
+                <a href="/auth/login" class="text-neutral-400 hover:text-white transition-colors">Sign In</a>
+                <a href="/auth/register" class="px-4 py-2 bg-white text-black rounded-full font-medium hover:bg-neutral-200 transition-colors">Get Started</a>
+              </div>
+            </div>
+          </nav>
+          <header class="px-4 py-16">
+            <div class="max-w-5xl mx-auto text-center">
+              <p class="text-sm text-neutral-500 mb-3">Powerful Simplicity</p>
+              <h1 class="text-4xl md:text-5xl font-semibold mb-4">The Goldilocks zone between basic boards and enterprise bloat.</h1>
+              <p class="text-lg text-neutral-300 max-w-3xl mx-auto">TaskLuid is built for freelancers and small teams who need real project power without the overhead.</p>
+            </div>
+          </header>
+          <section class="px-4 pb-16">
+            <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div class="p-6 rounded-xl bg-neutral-900/40 border border-neutral-800">
+                <div class="text-xs uppercase tracking-wider text-red-400 mb-3">Too Simple</div>
+                <h2 class="text-xl font-semibold text-neutral-200 mb-4">Basic Boards</h2>
+                <ul class="space-y-2 text-sm text-neutral-400">
+                  <li>Shallow workflows and limited views</li>
+                  <li>Hard to track multiple clients</li>
+                  <li>Little reporting or accountability</li>
+                </ul>
+              </div>
+              <div class="p-6 rounded-xl bg-gradient-to-br from-indigo-500/15 to-purple-500/10 border border-indigo-500/30">
+                <div class="text-xs uppercase tracking-wider text-emerald-400 mb-3">Just Right</div>
+                <h2 class="text-xl font-semibold text-white mb-4">TaskLuid</h2>
+                <ul class="space-y-2 text-sm text-neutral-200">
+                  <li>Timelines, priorities, and client workspaces</li>
+                  <li>AI-assisted intake without complexity</li>
+                  <li>Automation and templates built in</li>
+                </ul>
+              </div>
+              <div class="p-6 rounded-xl bg-neutral-900/40 border border-neutral-800">
+                <div class="text-xs uppercase tracking-wider text-red-400 mb-3">Too Complex</div>
+                <h2 class="text-xl font-semibold text-neutral-200 mb-4">Enterprise Suites</h2>
+                <ul class="space-y-2 text-sm text-neutral-400">
+                  <li>Steep learning curve and heavy setup</li>
+                  <li>Feature overload you never use</li>
+                  <li>Admin overhead for small teams</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+          <section class="px-4 py-16 border-t border-neutral-900">
+            <div class="max-w-5xl mx-auto text-center">
+              <h2 class="text-3xl font-semibold mb-4">Focus on the work — not the tool.</h2>
+              <p class="text-neutral-400 mb-8">TaskLuid keeps your team in the sweet spot: fast to learn, powerful to use, and always intentional.</p>
+              <a href="/auth/register" class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-medium">Start Free</a>
+            </div>
+          </section>
+          <footer class="px-4 py-10 border-t border-neutral-900 text-center text-sm text-neutral-500">
+            &copy; ${currentYear} TaskLuid. Part of Luid Suite.
           </footer>
         </div>
       `

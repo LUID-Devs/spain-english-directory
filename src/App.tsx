@@ -57,6 +57,7 @@ const ResumeLuidLandingPage = React.lazy(() => import('@/pages/landing/ResumeLui
 // Pricing page - must be prerendered for SEO (see vite-plugin-static-prerender.ts)
 const PricingPage = React.lazy(() => import('@/pages/pricing/PricingPage'));
 const FeaturesPage = React.lazy(() => import('@/pages/features/FeaturesPage'));
+const ComparePage = React.lazy(() => import('@/pages/compare/ComparePage'));
 const InviteAcceptPage = React.lazy(() => import('@/pages/organizations/invite/InviteAcceptPage'));
 
 // Legal Pages (lazy loaded)
@@ -136,6 +137,7 @@ function AppContent() {
           <Route path="/resumeluid" element={<ResumeLuidLandingPage />} />
           <Route path="/pricing" element={<PricingPage />} />
           <Route path="/features" element={<FeaturesPage />} />
+          <Route path="/compare" element={<ComparePage />} />
 
           {/* Legal Routes */}
           <Route path="/privacy" element={<PrivacyPolicy />} />
