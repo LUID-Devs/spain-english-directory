@@ -14,6 +14,7 @@ import {
   useStopTimerMutation,
   useSetTimeEstimateMutation,
   useUpdateTimeLogMutation,
+  useCreateTaskShareMutation,
   Status,
   Priority,
   TaskType,
@@ -91,6 +92,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
   const [stopTimer] = useStopTimerMutation();
   const [setTimeEstimate] = useSetTimeEstimateMutation();
   const [updateTimeLog] = useUpdateTimeLogMutation();
+  const [createTaskShare] = useCreateTaskShareMutation();
 
   // Check if timer is running for this task
   const isTimerRunningForThisTask = activeTimerData?.timer?.taskId === taskId;
@@ -337,13 +339,17 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
     onClose();
   };
 
-  const handleShare = () => {
-    const taskUrl = `${window.location.origin}/dashboard/tasks/${taskId}`;
-    navigator.clipboard.writeText(taskUrl).then(() => {
-      toast.success("Link copied to clipboard");
-    }).catch(() => {
-      toast.error("Failed to copy link");
-    });
+  const handleShare = async () => {
+    const loadingToast = toast.loading("Creating share link...");
+
+    try {
+      const share = await createTaskShare({ taskId }).unwrap();
+      await navigator.clipboard.writeText(share.shareUrl);
+      toast.success("Share link copied to clipboard", { id: loadingToast });
+    } catch (error) {
+      console.error("Failed to create share link:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to create share link", { id: loadingToast });
+    }
   };
 
   const assignedAgentIdSet = React.useMemo(
