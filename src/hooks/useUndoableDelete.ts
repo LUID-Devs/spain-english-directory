@@ -2,6 +2,7 @@ import React, { useState, useCallback, useRef } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Undo2 } from 'lucide-react';
+import { useUndo } from '@/contexts/UndoContext';
 
 interface UndoableDeleteOptions {
   duration?: number; // milliseconds before permanent deletion
@@ -39,12 +40,16 @@ export function useUndoableDelete({
 }: UndoableDeleteOptions) {
   const [pendingDeletions, setPendingDeletions] = useState<Map<number, PendingDeletion>>(new Map());
   const toastIdMap = useRef<Map<number, string | number>>(new Map());
+  const undoIdMap = useRef<Map<number, string>>(new Map());
   
   // Use refs to track current state for callbacks (avoids stale closure issues)
   const pendingMapRef = useRef<Map<number, PendingDeletion>>(new Map());
   
   // Keep ref in sync with state
   pendingMapRef.current = pendingDeletions;
+
+  // Global undo registration
+  const { registerUndo, unregisterUndo } = useUndo();
 
   const isPending = useCallback((id: number) => {
     return pendingMapRef.current.has(id);
@@ -61,6 +66,13 @@ export function useUndoableDelete({
       if (toastId) {
         toast.dismiss(toastId);
       }
+
+      // Unregister from global undo
+      const undoId = undoIdMap.current.get(id);
+      if (undoId) {
+        unregisterUndo(undoId);
+        undoIdMap.current.delete(id);
+      }
       
       // Remove from pending
       const newMap = new Map(pendingMapRef.current);
@@ -76,13 +88,20 @@ export function useUndoableDelete({
         duration: 2000,
       });
     }
-  }, [onCancel]);
+  }, [onCancel, unregisterUndo]);
 
   const executeDeletion = useCallback(async (id: number, name: string) => {
     // Double-check we're still pending (prevent race conditions)
     if (!pendingMapRef.current.has(id)) {
       // This deletion was cancelled - don't execute
       return;
+    }
+    
+    // Unregister from global undo
+    const undoId = undoIdMap.current.get(id);
+    if (undoId) {
+      unregisterUndo(undoId);
+      undoIdMap.current.delete(id);
     }
     
     try {
@@ -102,7 +121,7 @@ export function useUndoableDelete({
       setPendingDeletions(newMap);
       toastIdMap.current.delete(id);
     }
-  }, [onDelete]);
+  }, [onDelete, unregisterUndo]);
 
   const deleteWithUndo = useCallback((id: number, name: string = itemName) => {
     // If already pending, cancel first (toggle behavior)
@@ -110,6 +129,13 @@ export function useUndoableDelete({
       cancelDeletion(id);
       return;
     }
+
+    // Register with global undo context
+    const undoId = registerUndo({
+      label: `Delete ${name}`,
+      undo: () => cancelDeletion(id),
+    });
+    undoIdMap.current.set(id, undoId);
 
     // Show toast with undo action
     const toastId = toast(
@@ -153,17 +179,22 @@ export function useUndoableDelete({
     newMap.set(id, newPending);
     pendingMapRef.current = newMap;
     setPendingDeletions(newMap);
-  }, [duration, itemName, cancelDeletion, executeDeletion]);
+  }, [duration, itemName, cancelDeletion, executeDeletion, registerUndo]);
 
   // Cleanup function for unmounting
   const cleanup = useCallback(() => {
     pendingMapRef.current.forEach((pending) => {
       clearTimeout(pending.timeoutId);
     });
+    // Unregister all from global undo
+    undoIdMap.current.forEach((undoId) => {
+      unregisterUndo(undoId);
+    });
     pendingMapRef.current.clear();
     setPendingDeletions(new Map());
     toastIdMap.current.clear();
-  }, []);
+    undoIdMap.current.clear();
+  }, [unregisterUndo]);
 
   return {
     deleteWithUndo,
