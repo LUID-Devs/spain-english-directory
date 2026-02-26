@@ -184,6 +184,7 @@ export function staticPrerenderPlugin(): Plugin {
               </p>
               <p class="text-sm text-neutral-500 mb-8">
                 The Goldilocks zone between basic boards and enterprise bloat.
+                <a href="/compare" class="text-neutral-300 underline underline-offset-4 hover:text-white"> See the comparison</a>.
               </p>
               <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10">
                 <a href="/auth/register" class="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-medium rounded-lg hover:from-indigo-600 hover:to-purple-600 transition-all duration-300 shadow-lg shadow-indigo-500/20">
@@ -895,6 +896,7 @@ export function staticPrerenderPlugin(): Plugin {
                   <li>Shallow workflows and limited views</li>
                   <li>Hard to track multiple clients</li>
                   <li>Little reporting or accountability</li>
+                  <li>No real automation support</li>
                 </ul>
               </div>
               <div class="p-6 rounded-xl bg-gradient-to-br from-indigo-500/15 to-purple-500/10 border border-indigo-500/30">
@@ -904,6 +906,7 @@ export function staticPrerenderPlugin(): Plugin {
                   <li>Timelines, priorities, and client workspaces</li>
                   <li>AI-assisted intake without complexity</li>
                   <li>Automation and templates built in</li>
+                  <li>Clear reporting that doesn’t overwhelm</li>
                 </ul>
               </div>
               <div class="p-6 rounded-xl bg-neutral-900/40 border border-neutral-800">
@@ -913,7 +916,48 @@ export function staticPrerenderPlugin(): Plugin {
                   <li>Steep learning curve and heavy setup</li>
                   <li>Feature overload you never use</li>
                   <li>Admin overhead for small teams</li>
+                  <li>Too much configuration before work begins</li>
                 </ul>
+              </div>
+            </div>
+          </section>
+          <section class="px-4 py-16 border-t border-neutral-900">
+            <div class="max-w-5xl mx-auto">
+              <div class="flex items-center gap-3 mb-6">
+                <svg class="w-6 h-6 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3zm0 0h5m4 0a3 3 0 11-6 0 3 3 0 016 0zm0 0h-1m-3-7a3 3 0 00-3-3m0 0a3 3 0 00-3 3m3-3v2m0 0h4m-4 0H8m8 6a3 3 0 00-3 3m0 0a3 3 0 00-3-3m3 3v2m0 0h4m-4 0H8" />
+                </svg>
+                <h2 class="text-2xl font-semibold">Simplicity Score</h2>
+              </div>
+              <p class="text-neutral-400 mb-6 max-w-3xl">
+                Every new feature must earn its place. We score features by impact, clarity, and effort saved —
+                so TaskLuid stays powerful without the clutter.
+              </p>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="flex items-start gap-3 p-4 rounded-lg bg-neutral-900/50 border border-neutral-800">
+                  <svg class="w-5 h-5 text-emerald-400 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <p class="text-sm text-neutral-300">Does it reduce steps for a common workflow?</p>
+                </div>
+                <div class="flex items-start gap-3 p-4 rounded-lg bg-neutral-900/50 border border-neutral-800">
+                  <svg class="w-5 h-5 text-emerald-400 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <p class="text-sm text-neutral-300">Can a new user understand it in under 60 seconds?</p>
+                </div>
+                <div class="flex items-start gap-3 p-4 rounded-lg bg-neutral-900/50 border border-neutral-800">
+                  <svg class="w-5 h-5 text-emerald-400 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <p class="text-sm text-neutral-300">Is there a measurable outcome (ship faster, fewer handoffs)?</p>
+                </div>
+                <div class="flex items-start gap-3 p-4 rounded-lg bg-neutral-900/50 border border-neutral-800">
+                  <svg class="w-5 h-5 text-emerald-400 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <p class="text-sm text-neutral-300">Does it replace a tool instead of adding another?</p>
+                </div>
               </div>
             </div>
           </section>
