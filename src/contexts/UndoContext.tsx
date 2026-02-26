@@ -67,10 +67,10 @@ export const UndoProvider: React.FC<UndoProviderProps> = ({ children }) => {
       id,
       timestamp: Date.now(),
     };
-    
+
     actionsRef.current.set(id, undoableAction);
     setLastAction(undoableAction);
-    
+
     // Auto-cleanup after 30 seconds
     const timeoutId = setTimeout(() => {
       actionsRef.current.delete(id);
@@ -78,7 +78,7 @@ export const UndoProvider: React.FC<UndoProviderProps> = ({ children }) => {
       setLastAction(current => current?.id === id ? null : current);
     }, 30000);
     timeoutsRef.current.set(id, timeoutId);
-    
+
     return id;
   }, []);
 
@@ -95,7 +95,7 @@ export const UndoProvider: React.FC<UndoProviderProps> = ({ children }) => {
   const undoLast = useCallback(() => {
     const actionToUndo = lastActionRef.current;
     if (!actionToUndo) return false;
-    
+
     try {
       actionToUndo.undo();
       actionsRef.current.delete(actionToUndo.id);
@@ -104,7 +104,7 @@ export const UndoProvider: React.FC<UndoProviderProps> = ({ children }) => {
         clearTimeout(timeoutId);
         timeoutsRef.current.delete(actionToUndo.id);
       }
-      
+
       // Find next most recent action
       let nextRecent: UndoableAction | null = null;
       actionsRef.current.forEach(action => {
