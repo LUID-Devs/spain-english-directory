@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useCallback, useRef, useState } from 'react';
+import React, { createContext, useContext, useCallback, useEffect, useRef, useState } from 'react';
 import { useGlobalShortcuts } from '@/hooks/useGlobalShortcuts';
 
 interface UndoableAction {
@@ -50,6 +50,7 @@ interface UndoProviderProps {
 export const UndoProvider: React.FC<UndoProviderProps> = ({ children }) => {
   const [lastAction, setLastAction] = useState<UndoableAction | null>(null);
   const actionsRef = useRef<Map<string, UndoableAction>>(new Map());
+  const timeoutsRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
   const idCounter = useRef(0);
 
   const generateId = () => `undo-${Date.now()}-${++idCounter.current}`;
@@ -66,16 +67,23 @@ export const UndoProvider: React.FC<UndoProviderProps> = ({ children }) => {
     setLastAction(undoableAction);
     
     // Auto-cleanup after 30 seconds
-    setTimeout(() => {
+    const timeoutId = setTimeout(() => {
       actionsRef.current.delete(id);
+      timeoutsRef.current.delete(id);
       setLastAction(current => current?.id === id ? null : current);
     }, 30000);
+    timeoutsRef.current.set(id, timeoutId);
     
     return id;
   }, []);
 
   const unregisterUndo = useCallback((id: string) => {
     actionsRef.current.delete(id);
+    const timeoutId = timeoutsRef.current.get(id);
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+      timeoutsRef.current.delete(id);
+    }
     setLastAction(current => current?.id === id ? null : current);
   }, []);
 
@@ -85,6 +93,11 @@ export const UndoProvider: React.FC<UndoProviderProps> = ({ children }) => {
     try {
       lastAction.undo();
       actionsRef.current.delete(lastAction.id);
+      const timeoutId = timeoutsRef.current.get(lastAction.id);
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+        timeoutsRef.current.delete(lastAction.id);
+      }
       
       // Find next most recent action
       let nextRecent: UndoableAction | null = null;
@@ -100,6 +113,13 @@ export const UndoProvider: React.FC<UndoProviderProps> = ({ children }) => {
       return false;
     }
   }, [lastAction]);
+
+  useEffect(() => {
+    return () => {
+      timeoutsRef.current.forEach((timeoutId) => clearTimeout(timeoutId));
+      timeoutsRef.current.clear();
+    };
+  }, []);
 
   // Register global Cmd/Ctrl+Z shortcut
   useGlobalShortcuts({
