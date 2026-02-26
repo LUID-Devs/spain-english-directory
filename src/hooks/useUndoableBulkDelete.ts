@@ -2,6 +2,7 @@ import React, { useState, useCallback, useRef } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Undo2 } from 'lucide-react';
+import { useUndo } from '@/contexts/UndoContext';
 
 interface UndoableBulkDeleteOptions {
   duration?: number; // milliseconds before permanent deletion
@@ -41,6 +42,10 @@ export function useUndoableBulkDelete({
 }: UndoableBulkDeleteOptions) {
   const [pendingDeletion, setPendingDeletion] = useState<PendingBulkDeletion | null>(null);
   const toastIdRef = useRef<string | number | null>(null);
+  const undoIdRef = useRef<string | null>(null);
+  
+  // Global undo registration
+  const { registerUndo, unregisterUndo } = useUndo();
   
   // Use refs to track current state for callbacks (avoids stale closure issues)
   const pendingRef = useRef<PendingBulkDeletion | null>(null);
@@ -67,6 +72,12 @@ export function useUndoableBulkDelete({
       if (toastIdRef.current) {
         toast.dismiss(toastIdRef.current);
       }
+
+      // Unregister from global undo
+      if (undoIdRef.current) {
+        unregisterUndo(undoIdRef.current);
+        undoIdRef.current = null;
+      }
       
       const cancelledIds = [...current.ids];
       const count = current.count;
@@ -88,7 +99,7 @@ export function useUndoableBulkDelete({
       return cancelledIds;
     }
     return [];
-  }, [onCancel, itemName, pluralName]);
+  }, [onCancel, itemName, pluralName, unregisterUndo]);
   
   // Keep cancel function ref updated
   cancelRef.current = cancelDeletion;
@@ -101,6 +112,12 @@ export function useUndoableBulkDelete({
         !current.ids.every(id => ids.includes(id))) {
       // This deletion was cancelled or superseded - don't execute
       return;
+    }
+
+    // Unregister from global undo
+    if (undoIdRef.current) {
+      unregisterUndo(undoIdRef.current);
+      undoIdRef.current = null;
     }
     
     try {
@@ -119,7 +136,7 @@ export function useUndoableBulkDelete({
       pendingRef.current = null;
       toastIdRef.current = null;
     }
-  }, [onDelete, itemName, pluralName]);
+  }, [onDelete, itemName, pluralName, unregisterUndo]);
 
   const deleteWithUndo = useCallback((ids: number[]) => {
     // If already pending, cancel first
@@ -133,6 +150,12 @@ export function useUndoableBulkDelete({
     // Store IDs in a ref that won't change for this deletion attempt
     const deletionIds = [...ids];
     const deletionCount = count;
+
+    // Register with global undo context
+    undoIdRef.current = registerUndo({
+      label: `Delete ${count} ${count === 1 ? itemName : pluralName}`,
+      undo: () => cancelRef.current?.(),
+    });
 
     // Show toast with undo action
     const toastId = toast(
@@ -184,7 +207,7 @@ export function useUndoableBulkDelete({
     const newPending = { ids: deletionIds, timeoutId, count: deletionCount };
     pendingRef.current = newPending;
     setPendingDeletion(newPending);
-  }, [duration, itemName, pluralName, executeDeletion]);
+  }, [duration, itemName, pluralName, executeDeletion, registerUndo]);
 
   // Cleanup function for unmounting
   const cleanup = useCallback(() => {
@@ -198,7 +221,11 @@ export function useUndoableBulkDelete({
       toast.dismiss(toastIdRef.current);
       toastIdRef.current = null;
     }
-  }, []);
+    if (undoIdRef.current) {
+      unregisterUndo(undoIdRef.current);
+      undoIdRef.current = null;
+    }
+  }, [unregisterUndo]);
 
   return {
     deleteWithUndo,
