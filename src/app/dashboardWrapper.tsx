@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { FolderPlus, Plus, Target } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import { useGlobalStore } from "@/stores/globalStore";
@@ -8,8 +9,16 @@ import { useAuth } from "@/app/authProvider";
 import { TaskModalProvider } from "@/contexts/TaskModalContext";
 import { cn } from "@/lib/utils";
 import { useSidebarSwipe } from "@/hooks/useSwipeGesture";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
+  const navigate = useNavigate();
   const { isSidebarCollapsed, isDarkMode, toggleSidebar, setIsSidebarCollapsed } = useGlobalStore();
 
   // Swipe gesture for opening/closing sidebar on mobile
@@ -74,6 +83,31 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
             <Navbar />
             <div className="flex-1 px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8 overflow-x-hidden">
               {children}
+            </div>
+
+            {/* Mobile quick create menu */}
+            <div className="fixed bottom-6 right-6 z-40 lg:hidden">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    size="icon"
+                    className="h-14 w-14 rounded-full shadow-lg"
+                    aria-label="Create"
+                  >
+                    <Plus className="h-6 w-6" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" side="top" className="w-52">
+                  <DropdownMenuItem onClick={() => navigate("/dashboard/projects/create")}>
+                    <FolderPlus className="mr-2 h-4 w-4" />
+                    New Project
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/dashboard/goals/create")}>
+                    <Target className="mr-2 h-4 w-4" />
+                    New Initiative
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </main>
         </div>
