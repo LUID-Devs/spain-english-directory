@@ -119,8 +119,6 @@ const CreateProjectPage = () => {
       const newProjectId = Number(newProject?.id);
       if (Number.isFinite(newProjectId)) {
         await attachTasksToProject(newProjectId);
-      if (selectedTaskIds.size > 0) {
-        await apiService.bulkMoveToProject(Array.from(selectedTaskIds), Number(newProject.id));
       }
 
       setSuccess(true);

@@ -27,7 +27,7 @@ import AttachmentsSection from "@/components/AttachmentsSection";
 import RichTextEditor from "@/components/RichTextEditor";
 import GitActivity from "@/components/GitActivity";
 import GitReviewPanel from "@/components/gitReview/GitReviewPanel";
-import apiService from "@/services/apiService";
+import { apiService } from "@/services/apiService";
 import { useAgents, useAssignTaskToAgent, useTaskAgentAssignments, useUnassignTaskFromAgent } from "@/hooks/useMissionControl";
 import {
   Dialog,
@@ -366,7 +366,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
       setShareData(data);
       setShareAllowComments(data.allowComments);
       setShareRequirePassword(data.requirePassword);
-      setSharePassword("");
+      // Don't clear password when updating existing share - preserve credential
     } catch (error) {
       const message = error instanceof Error ? error.message : "Failed to load share info";
       if (message === "Share link not found") {

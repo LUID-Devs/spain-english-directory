@@ -234,7 +234,11 @@ const TaskSharePage: React.FC = () => {
                 {data.task.description && (
                   <div>
                     <Label className="text-xs uppercase text-muted-foreground">Description</Label>
-                    <p className="mt-2 text-sm whitespace-pre-wrap">{data.task.description}</p>
+                    {/* Render HTML rich text safely */}
+                    <div
+                      className="mt-2 text-sm prose prose-sm max-w-none dark:prose-invert"
+                      dangerouslySetInnerHTML={{ __html: data.task.description }}
+                    />
                   </div>
                 )}
                 <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
