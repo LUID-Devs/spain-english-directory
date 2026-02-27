@@ -30,6 +30,7 @@ export interface FilterCriteria {
   type: FilterType;
   operator: "equals" | "notEquals" | "contains" | "before" | "after" | "between";
   value: string | string[] | Date | DateRange;
+  combineWith?: "AND" | "OR";
 }
 
 export interface DateRange {
@@ -41,7 +42,7 @@ export interface SavedFilter {
   id: string;
   name: string;
   criteria: FilterCriteria[];
-  logic: "AND" | "OR";
+  logic?: "AND" | "OR"; // legacy support
 }
 
 interface AdvancedFiltersProps {
@@ -74,7 +75,6 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
 }) => {
   // State
   const [filters, setFilters] = useState<FilterCriteria[]>([]);
-  const [logic, setLogic] = useState<"AND" | "OR">("AND");
   const [savedFilters, setSavedFilters] = useState<SavedFilter[]>([]);
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [filterName, setFilterName] = useState("");
@@ -153,15 +153,17 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
     return tasks.filter((task) => {
       if (filters.length === 0) return true;
 
-      const results = filters.map((filter) => applyFilter(task, filter));
+      let result = applyFilter(task, filters[0]);
 
-      if (logic === "AND") {
-        return results.every((r) => r);
-      } else {
-        return results.some((r) => r);
+      for (let i = 1; i < filters.length; i += 1) {
+        const current = applyFilter(task, filters[i]);
+        const combineWith = filters[i].combineWith || "AND";
+        result = combineWith === "OR" ? result || current : result && current;
       }
+
+      return result;
     });
-  }, [tasks, filters, logic]);
+  }, [tasks, filters]);
 
   // Notify parent of filter changes
   React.useEffect(() => {
@@ -176,6 +178,7 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
       type: "status",
       operator: "equals",
       value: availableStatuses[0] || "",
+      combineWith: "AND",
     };
     setFilters([...filters, newFilter]);
     if (!isExpanded) setIsExpanded(true);
@@ -204,7 +207,6 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
       id: Math.random().toString(36).substr(2, 9),
       name: filterName,
       criteria: [...filters],
-      logic,
     };
     
     persistSavedFilters([...savedFilters, newSavedFilter]);
@@ -214,8 +216,12 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
 
   // Load a saved filter
   const loadSavedFilter = (savedFilter: SavedFilter) => {
-    setFilters([...savedFilter.criteria]);
-    setLogic(savedFilter.logic);
+    const legacyLogic = savedFilter.logic || "AND";
+    const criteria = savedFilter.criteria.map((criterion, index) => ({
+      ...criterion,
+      combineWith: index === 0 ? undefined : criterion.combineWith || legacyLogic,
+    }));
+    setFilters(criteria);
     setIsExpanded(true);
   };
 
@@ -404,18 +410,7 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
           )}
         </Button>
 
-        {/* Logic Toggle */}
-        {filters.length > 1 && (
-          <Select value={logic} onValueChange={(v) => setLogic(v as "AND" | "OR")}>
-            <SelectTrigger className="w-[100px] h-8">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="AND">Match ALL</SelectItem>
-              <SelectItem value="OR">Match ANY</SelectItem>
-            </SelectContent>
-          </Select>
-        )}
+        {/* Logic handled per condition */}
 
         {/* Saved Filters Dropdown */}
         {savedFilters.length > 0 && (
@@ -498,8 +493,23 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
               </p>
             )}
             
-            {filters.map((filter) => (
+            {filters.map((filter, index) => (
               <div key={filter.id} className="flex items-center gap-2 flex-wrap">
+                {index > 0 && (
+                  <Select
+                    value={filter.combineWith || "AND"}
+                    onValueChange={(value) => updateFilter(filter.id, { combineWith: value as "AND" | "OR" })}
+                  >
+                    <SelectTrigger className="w-[90px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="AND">AND</SelectItem>
+                      <SelectItem value="OR">OR</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+
                 {/* Filter Type */}
                 <Select
                   value={filter.type}
@@ -597,8 +607,7 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
                       />
                     </div>
                     <div className="text-sm text-muted-foreground">
-                      This will save {filters.length} filter{filters.length !== 1 ? "s" : ""} with{" "}
-                      {logic === "AND" ? "ALL" : "ANY"} matching logic.
+                      This will save {filters.length} filter{filters.length !== 1 ? "s" : ""} with per-condition AND/OR logic.
                     </div>
                     <div className="flex justify-end gap-2">
                       <Button variant="outline" onClick={() => setSaveDialogOpen(false)}>
