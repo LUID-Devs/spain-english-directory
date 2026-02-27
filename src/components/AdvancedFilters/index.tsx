@@ -31,6 +31,7 @@ export interface FilterCriteria {
   operator: "equals" | "notEquals" | "contains" | "before" | "after" | "between";
   value: string | string[] | Date | DateRange;
   combineWith?: "AND" | "OR";
+  groupId?: string;
 }
 
 export interface DateRange {
@@ -43,6 +44,7 @@ export interface SavedFilter {
   name: string;
   criteria: FilterCriteria[];
   logic?: "AND" | "OR"; // legacy support
+  groupOperators?: Record<string, "AND" | "OR">;
 }
 
 interface AdvancedFiltersProps {
@@ -79,6 +81,7 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [filterName, setFilterName] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
+  const [groupOperators, setGroupOperators] = useState<Record<string, "AND" | "OR">>({});
 
   // Load saved filters from localStorage on mount
   React.useEffect(() => {
@@ -108,6 +111,38 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
     });
     return Array.from(tagsSet).sort();
   }, [tasks]);
+
+  const groupOrder = useMemo(() => {
+    const order: string[] = [];
+    const seen = new Set<string>();
+    filters.forEach((filter) => {
+      const groupId = filter.groupId || "default";
+      if (!seen.has(groupId)) {
+        seen.add(groupId);
+        order.push(groupId);
+      }
+    });
+    return order.length > 0 ? order : ["default"];
+  }, [filters]);
+
+  const groupLabels = useMemo(() => {
+    const labels: Record<string, string> = {};
+    groupOrder.forEach((groupId, index) => {
+      labels[groupId] = String.fromCharCode(65 + index);
+    });
+    return labels;
+  }, [groupOrder]);
+
+  React.useEffect(() => {
+    setGroupOperators((prev) => {
+      const next: Record<string, "AND" | "OR"> = {};
+      groupOrder.forEach((groupId, index) => {
+        if (index === 0) return;
+        next[groupId] = prev[groupId] || "AND";
+      });
+      return next;
+    });
+  }, [groupOrder]);
 
   // Apply a single filter criteria to a task
   function applyFilter(task: Task, filter: FilterCriteria): boolean {
@@ -153,17 +188,36 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
     return tasks.filter((task) => {
       if (filters.length === 0) return true;
 
-      let result = applyFilter(task, filters[0]);
+      const grouped: Record<string, FilterCriteria[]> = {};
+      filters.forEach((filter) => {
+        const groupId = filter.groupId || "default";
+        grouped[groupId] = grouped[groupId] || [];
+        grouped[groupId].push(filter);
+      });
 
-      for (let i = 1; i < filters.length; i += 1) {
-        const current = applyFilter(task, filters[i]);
-        const combineWith = filters[i].combineWith || "AND";
-        result = combineWith === "OR" ? result || current : result && current;
-      }
+      let result = true;
+      groupOrder.forEach((groupId, groupIndex) => {
+        const groupFilters = grouped[groupId] || [];
+        if (groupFilters.length === 0) return;
+
+        let groupResult = applyFilter(task, groupFilters[0]);
+        for (let i = 1; i < groupFilters.length; i += 1) {
+          const current = applyFilter(task, groupFilters[i]);
+          const combineWith = groupFilters[i].combineWith || "AND";
+          groupResult = combineWith === "OR" ? groupResult || current : groupResult && current;
+        }
+
+        if (groupIndex === 0) {
+          result = groupResult;
+        } else {
+          const groupOperator = groupOperators[groupId] || "AND";
+          result = groupOperator === "OR" ? result || groupResult : result && groupResult;
+        }
+      });
 
       return result;
     });
-  }, [tasks, filters]);
+  }, [tasks, filters, groupOrder, groupOperators]);
 
   // Notify parent of filter changes
   React.useEffect(() => {
@@ -179,7 +233,24 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
       operator: "equals",
       value: availableStatuses[0] || "",
       combineWith: "AND",
+      groupId: groupOrder[0] || "default",
     };
+    setFilters([...filters, newFilter]);
+    if (!isExpanded) setIsExpanded(true);
+  };
+
+  // Add a new filter group
+  const addGroup = () => {
+    const newGroupId = Math.random().toString(36).substr(2, 9);
+    const newFilter: FilterCriteria = {
+      id: Math.random().toString(36).substr(2, 9),
+      type: "status",
+      operator: "equals",
+      value: availableStatuses[0] || "",
+      combineWith: "AND",
+      groupId: newGroupId,
+    };
+    setGroupOperators((prev) => ({ ...prev, [newGroupId]: "AND" }));
     setFilters([...filters, newFilter]);
     if (!isExpanded) setIsExpanded(true);
   };
@@ -197,6 +268,7 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
   // Clear all filters
   const clearAllFilters = () => {
     setFilters([]);
+    setGroupOperators({});
   };
 
   // Save current filter combination
@@ -207,6 +279,7 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
       id: Math.random().toString(36).substr(2, 9),
       name: filterName,
       criteria: [...filters],
+      groupOperators,
     };
     
     persistSavedFilters([...savedFilters, newSavedFilter]);
@@ -222,6 +295,7 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
       combineWith: index === 0 ? undefined : criterion.combineWith || legacyLogic,
     }));
     setFilters(criteria);
+    setGroupOperators(savedFilter.groupOperators || {});
     setIsExpanded(true);
   };
 
@@ -233,6 +307,19 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
 
   // Get active filter count display
   const activeFilterCount = filters.length;
+
+  const groupedFilters = useMemo(() => {
+    const grouped: Record<string, FilterCriteria[]> = {};
+    groupOrder.forEach((groupId) => {
+      grouped[groupId] = [];
+    });
+    filters.forEach((filter) => {
+      const groupId = filter.groupId || "default";
+      if (!grouped[groupId]) grouped[groupId] = [];
+      grouped[groupId].push(filter);
+    });
+    return grouped;
+  }, [filters, groupOrder]);
 
   // Render filter value input based on type
   const renderFilterValueInput = (filter: FilterCriteria) => {
@@ -493,84 +580,129 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
               </p>
             )}
             
-            {filters.map((filter, index) => (
-              <div key={filter.id} className="flex items-center gap-2 flex-wrap">
-                {index > 0 && (
-                  <Select
-                    value={filter.combineWith || "AND"}
-                    onValueChange={(value) => updateFilter(filter.id, { combineWith: value as "AND" | "OR" })}
-                  >
-                    <SelectTrigger className="w-[90px]">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="AND">AND</SelectItem>
-                      <SelectItem value="OR">OR</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
+            {groupOrder.map((groupId, groupIndex) => (
+              <div key={groupId} className="space-y-2">
+                <div className="flex items-center gap-2">
+                  {groupIndex > 0 && (
+                    <Select
+                      value={groupOperators[groupId] || "AND"}
+                      onValueChange={(value) =>
+                        setGroupOperators((prev) => ({
+                          ...prev,
+                          [groupId]: value as "AND" | "OR",
+                        }))
+                      }
+                    >
+                      <SelectTrigger className="w-[90px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="AND">AND</SelectItem>
+                        <SelectItem value="OR">OR</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                  <Badge variant="outline">Group {groupLabels[groupId]}</Badge>
+                </div>
 
-                {/* Filter Type */}
-                <Select
-                  value={filter.type}
-                  onValueChange={(value: FilterType) => {
-                    // Reset value when type changes
-                    const defaultValues: Record<FilterType, string | DateRange> = {
-                      status: availableStatuses[0] || "",
-                      priority: priorityOptions[0],
-                      assignee: users?.[0]?.userId?.toString() || "",
-                      project: projects?.[0]?.id?.toString() || "",
-                      dueDate: { from: undefined, to: undefined },
-                      tags: availableTags[0] || "",
-                    };
-                    updateFilter(filter.id, { 
-                      type: value, 
-                      value: defaultValues[value],
-                      operator: value === "dueDate" ? "between" : "equals"
-                    });
-                  }}
-                >
-                  <SelectTrigger className="w-[140px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {filterTypeOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                {(groupedFilters[groupId] || []).map((filter, index) => (
+                  <div key={filter.id} className="flex items-center gap-2 flex-wrap">
+                    {index > 0 && (
+                      <Select
+                        value={filter.combineWith || "AND"}
+                        onValueChange={(value) => updateFilter(filter.id, { combineWith: value as "AND" | "OR" })}
+                      >
+                        <SelectTrigger className="w-[90px]">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="AND">AND</SelectItem>
+                          <SelectItem value="OR">OR</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
 
-                {/* Operator (only for some types) */}
-                {filter.type === "tags" && (
-                  <Select
-                    value={filter.operator}
-                    onValueChange={(value: any) => updateFilter(filter.id, { operator: value })}
-                  >
-                    <SelectTrigger className="w-[120px]">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="contains">contains</SelectItem>
-                      <SelectItem value="equals">equals</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
+                    {groupOrder.length > 1 && (
+                      <Select
+                        value={filter.groupId || groupId}
+                        onValueChange={(value) => updateFilter(filter.id, { groupId: value })}
+                      >
+                        <SelectTrigger className="w-[110px]">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {groupOrder.map((id) => (
+                            <SelectItem key={id} value={id}>
+                              Group {groupLabels[id]}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
 
-                {/* Filter Value */}
-                {renderFilterValueInput(filter)}
+                    {/* Filter Type */}
+                    <Select
+                      value={filter.type}
+                      onValueChange={(value: FilterType) => {
+                        // Reset value when type changes
+                        const defaultValues: Record<FilterType, string | DateRange> = {
+                          status: availableStatuses[0] || "",
+                          priority: priorityOptions[0],
+                          assignee: users?.[0]?.userId?.toString() || "",
+                          project: projects?.[0]?.id?.toString() || "",
+                          dueDate: { from: undefined, to: undefined },
+                          tags: availableTags[0] || "",
+                        };
+                        updateFilter(filter.id, {
+                          type: value,
+                          value: defaultValues[value],
+                          operator: value === "dueDate" ? "between" : "equals",
+                        });
+                      }}
+                    >
+                      <SelectTrigger className="w-[140px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {filterTypeOptions.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
 
-                {/* Remove Button */}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => removeFilter(filter.id)}
-                  className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                  aria-label="Remove filter"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
+                    {/* Operator (only for some types) */}
+                    {filter.type === "tags" && (
+                      <Select
+                        value={filter.operator}
+                        onValueChange={(value: any) => updateFilter(filter.id, { operator: value })}
+                      >
+                        <SelectTrigger className="w-[120px]">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="contains">contains</SelectItem>
+                          <SelectItem value="equals">equals</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
+
+                    {/* Filter Value */}
+                    {renderFilterValueInput(filter)}
+
+                    {/* Remove Button */}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeFilter(filter.id)}
+                      className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                      aria-label="Remove filter"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
               </div>
             ))}
           </div>
@@ -579,10 +711,16 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
 
           {/* Actions */}
           <div className="flex items-center justify-between">
-            <Button variant="outline" size="sm" onClick={addFilter} className="gap-1">
-              <Plus className="h-4 w-4" />
-              Add Filter
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={addFilter} className="gap-1">
+                <Plus className="h-4 w-4" />
+                Add Filter
+              </Button>
+              <Button variant="outline" size="sm" onClick={addGroup} className="gap-1">
+                <Plus className="h-4 w-4" />
+                Add Group
+              </Button>
+            </div>
 
             {filters.length > 0 && (
               <Dialog open={saveDialogOpen} onOpenChange={setSaveDialogOpen}>
