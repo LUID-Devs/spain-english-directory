@@ -189,6 +189,9 @@ const LandingPage = () => {
             <Link to="/features" className="text-sm text-neutral-400 hover:text-white transition-colors">
               Features
             </Link>
+            <Link to="/compare" className="text-sm text-neutral-400 hover:text-white transition-colors">
+              Compare
+            </Link>
             <Link
               to="/pricing"
               className="text-sm text-neutral-400 hover:text-white transition-colors"
@@ -225,6 +228,13 @@ const LandingPage = () => {
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Features
+              </Link>
+              <Link
+                to="/compare"
+                className="text-sm text-neutral-300 hover:text-white transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Compare
               </Link>
               <Link
                 to="/pricing"
@@ -275,13 +285,16 @@ const LandingPage = () => {
             TaskLuid
           </h1>
           <p className="text-xl text-gray-200 mb-2 max-w-2xl mx-auto">
-            The simple alternative to Jira and ClickUp for freelancers, small agencies, and indie teams.
+            Powerful simplicity for freelancers and small teams.
           </p>
           <p className="text-lg text-indigo-300 mb-4 max-w-2xl mx-auto font-medium">
             Powerful without the bloat. Simple enough to start, scalable enough to grow.
           </p>
           <p className="text-sm text-neutral-500 mb-8">
-            Not too basic like Trello. Not too bloated like Jira or ClickUp. Just right.
+            The Goldilocks zone between basic boards and enterprise bloat.{' '}
+            <Link to="/compare" className="text-neutral-300 underline underline-offset-4 hover:text-white">
+              See the comparison
+            </Link>.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 text-xs text-neutral-300 mb-8">
             <span className="px-3 py-1 rounded-full border border-neutral-800 bg-neutral-900/60">Free plan included</span>

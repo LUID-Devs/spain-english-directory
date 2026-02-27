@@ -4,6 +4,7 @@ import { useCurrentUser } from "@/stores/userStore";
 import { useSubscription } from "@/stores/subscriptionStore";
 import { apiService, ParsedTaskData } from "@/services/apiService";
 import React, { useState, useEffect, useMemo, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { formatISO } from "date-fns";
 import { toast } from "sonner";
 import { marked } from "marked";
@@ -50,6 +51,7 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
   const [createTask, { isLoading }] = useCreateTaskMutation() as any;
   const [uploadDescriptionImage] = useUploadTaskDescriptionImageMutation();
   const [checkDuplicates] = useCheckDuplicatesMutation();
+  const navigate = useNavigate();
   const { currentUser } = useCurrentUser();
   const { totalCredits, fetchCredits } = useSubscription();
   const {data: users} = useGetUsersQuery(undefined, {
@@ -346,6 +348,21 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
     return result;
   }, [checkDuplicates]);
 
+  const handleMergeDuplicate = useCallback((taskId: number) => {
+    toast.info(`Opening task #${taskId} to merge`);
+    onClose();
+    navigate(`/dashboard/tasks/${taskId}`);
+  }, [navigate, onClose]);
+
+  const handleLinkDuplicate = useCallback((taskId: number) => {
+    const linkMarkup = `<p>Related task: <a href="/dashboard/tasks/${taskId}">#${taskId}</a></p>`;
+    setDescription((prev) => {
+      if (prev.includes(`/dashboard/tasks/${taskId}`)) return prev;
+      return prev ? `${prev}\n${linkMarkup}` : linkMarkup;
+    });
+    toast.success(`Linked to task #${taskId}`);
+  }, []);
+
   const handleSubmit = async () => {
     if (!title || !authorUserId || !((id !== null) || projectId) || !dueDate) {
       return;
@@ -564,9 +581,8 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
                   description={description.replace(/<[^>]*>/g, '')}
                   projectId={id !== null ? Number(id) : Number(projectId)}
                   onCheckDuplicates={handleCheckDuplicates}
-                  onLinkTask={(taskId) => {
-                    toast.info(`Linking to task #${taskId} - feature coming soon`);
-                  }}
+                  onMergeTask={handleMergeDuplicate}
+                  onLinkTask={handleLinkDuplicate}
                 />
               )}
             </div>

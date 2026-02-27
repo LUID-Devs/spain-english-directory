@@ -9,6 +9,7 @@ import {
   useUpdateStatusMutation,
   useDeleteStatusMutation,
   useReorderStatusesMutation,
+  useCreateTaskShareMutation,
   TaskStatus as TaskStatusType
 } from "@/hooks/useApi";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
@@ -621,6 +622,7 @@ const Task = React.memo(({ task, onTaskSelect }: TaskProps) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteTask, { isLoading: isDeleting }] = useDeleteTaskMutation();
   const [createTask, { isLoading: isDuplicating }] = useCreateTaskMutation();
+  const [createTaskShare] = useCreateTaskShareMutation();
   const [{ isDragging }, drag] = useDrag(() => ({
     type: "task",
     item: { id: task.id, status: task.status || "To Do" },
@@ -672,13 +674,17 @@ const Task = React.memo(({ task, onTaskSelect }: TaskProps) => {
     }
   };
 
-  const handleShareTask = () => {
-    const taskUrl = `${window.location.origin}/dashboard/tasks/${task.id}`;
-    navigator.clipboard.writeText(taskUrl).then(() => {
-      toast.success("Link copied to clipboard");
-    }).catch(() => {
-      toast.error("Failed to copy link");
-    });
+  const handleShareTask = async () => {
+    const loadingToast = toast.loading("Creating share link...");
+
+    try {
+      const share = await createTaskShare({ taskId: task.id }).unwrap();
+      await navigator.clipboard.writeText(share.shareUrl);
+      toast.success("Share link copied to clipboard", { id: loadingToast });
+    } catch (error) {
+      console.error("Failed to create share link:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to create share link", { id: loadingToast });
+    }
   };
 
   const handleDuplicateTask = async () => {
