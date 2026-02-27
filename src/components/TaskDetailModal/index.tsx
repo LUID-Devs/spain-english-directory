@@ -355,8 +355,6 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
     onClose();
   };
 
-  };
-
   const handleCreateOrUpdateShare = async () => {
     setShareLoading(true);
     setShareError(null);
