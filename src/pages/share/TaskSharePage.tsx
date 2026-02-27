@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -51,7 +51,7 @@ const TaskSharePage: React.FC = () => {
   const [commentError, setCommentError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const fetchTaskShare = async (sharePassword?: string) => {
+  const fetchTaskShare = useCallback(async (sharePassword?: string) => {
     if (!token) return;
 
     try {
@@ -106,11 +106,11 @@ const TaskSharePage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
 
   useEffect(() => {
     fetchTaskShare();
-  }, [token]);
+  }, [fetchTaskShare]);
 
   const handlePasswordSubmit = (e: React.FormEvent) => {
     e.preventDefault();
