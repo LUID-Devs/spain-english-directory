@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Lock, Calendar } from "lucide-react";
+import { sanitizeHtmlContent } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -237,7 +238,7 @@ const TaskSharePage: React.FC = () => {
                     {/* Render HTML rich text safely */}
                     <div
                       className="mt-2 text-sm prose prose-sm max-w-none dark:prose-invert"
-                      dangerouslySetInnerHTML={{ __html: data.task.description }}
+                      dangerouslySetInnerHTML={{ __html: sanitizeHtmlContent(data.task.description) }}
                     />
                   </div>
                 )}
