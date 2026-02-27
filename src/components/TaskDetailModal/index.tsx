@@ -409,12 +409,17 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
 
       if (shareRequirePassword) {
         const trimmed = sharePassword.trim();
-        if (trimmed.length < 6) {
-          setShareError("Password must be at least 6 characters");
-          setShareLoading(false);
-          return;
+        const wasPasswordRequired = shareData?.requirePassword ?? false;
+        const isSettingNewPassword = trimmed.length > 0;
+
+        if (!wasPasswordRequired || isSettingNewPassword) {
+          if (trimmed.length < 6) {
+            setShareError("Password must be at least 6 characters");
+            setShareLoading(false);
+            return;
+          }
+          payload.password = trimmed;
         }
-        payload.password = trimmed;
       }
 
       const data = await apiService.createTaskShare(taskId, payload);
