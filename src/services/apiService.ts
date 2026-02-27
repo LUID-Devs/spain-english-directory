@@ -1,4 +1,3 @@
-import { validateTaskContent, validateProjectContent, validateCommentContent, validateGoalContent, validateStatusContent } from '../lib/validation';
 import { limitedFetch } from './limitedFetch';
 
 // Types (moved from old api.ts)
@@ -681,6 +680,7 @@ class ApiService {
   async createProject(project: Partial<Project>): Promise<Project> {
     // Validate for zero-width characters to prevent visual spoofing
     if (project.name !== undefined || project.description !== undefined) {
+      const { validateProjectContent } = await import('../lib/validation');
       const { isValid, error } = validateProjectContent(project.name, project.description);
       if (!isValid) {
         throw new Error(error);
@@ -701,6 +701,7 @@ class ApiService {
   async updateProject(id: string, project: Partial<Project>): Promise<Project> {
     // Validate for zero-width characters if name or description is being updated
     if (project.name !== undefined || project.description !== undefined) {
+      const { validateProjectContent } = await import('../lib/validation');
       const { isValid, error } = validateProjectContent(project.name, project.description);
       if (!isValid) {
         throw new Error(error);
@@ -752,6 +753,7 @@ class ApiService {
 
   async createStatus(projectId: number, data: { name: string; color?: string }): Promise<TaskStatus> {
     // Validate for zero-width characters in status name
+    const { validateStatusContent } = await import('../lib/validation');
     const { isValid, error } = validateStatusContent(data.name);
     if (!isValid) {
       throw new Error(error);
@@ -766,6 +768,7 @@ class ApiService {
   async updateStatus(projectId: number, statusId: number, data: { name?: string; color?: string; order?: number }): Promise<TaskStatus> {
     // Validate for zero-width characters if name is being updated
     if (data.name !== undefined) {
+      const { validateStatusContent } = await import('../lib/validation');
       const { isValid, error } = validateStatusContent(data.name);
       if (!isValid) {
         throw new Error(error);
@@ -826,6 +829,7 @@ class ApiService {
   async createTask(task: Partial<Task>): Promise<Task> {
     // Validate for zero-width characters to prevent visual spoofing
     if (task.title !== undefined || task.description !== undefined) {
+      const { validateTaskContent } = await import('../lib/validation');
       const { isValid, error } = validateTaskContent(task.title, task.description);
       if (!isValid) {
         throw new Error(error);
@@ -847,6 +851,7 @@ class ApiService {
   async updateTask(taskId: number, task: Partial<Task>): Promise<Task> {
     // Validate for zero-width characters if title or description is being updated
     if (task.title !== undefined || task.description !== undefined) {
+      const { validateTaskContent } = await import('../lib/validation');
       const { isValid, error } = validateTaskContent(task.title, task.description);
       if (!isValid) {
         throw new Error(error);
@@ -961,6 +966,7 @@ class ApiService {
 
   async createComment(taskId: number, text: string, userId: number, imageUrl?: string): Promise<Comment> {
     // Validate for zero-width characters in comment text
+    const { validateCommentContent } = await import('../lib/validation');
     const { isValid, error } = validateCommentContent(text);
     if (!isValid) {
       throw new Error(error);
@@ -981,6 +987,7 @@ class ApiService {
 
   async updateComment(commentId: number, text: string, userId: number): Promise<Comment> {
     // Validate for zero-width characters in comment text
+    const { validateCommentContent } = await import('../lib/validation');
     const { isValid, error } = validateCommentContent(text);
     if (!isValid) {
       throw new Error(error);
@@ -1539,6 +1546,7 @@ class ApiService {
   async createGoal(goal: Partial<Goal>): Promise<Goal> {
     // Validate for zero-width characters to prevent visual spoofing
     if (goal.title !== undefined || goal.description !== undefined) {
+      const { validateGoalContent } = await import('../lib/validation');
       const { isValid, error } = validateGoalContent(goal.title, goal.description);
       if (!isValid) {
         throw new Error(error);
@@ -1555,6 +1563,7 @@ class ApiService {
   async updateGoal(goalId: number, data: Partial<Goal>): Promise<Goal> {
     // Validate for zero-width characters if title or description is being updated
     if (data.title !== undefined || data.description !== undefined) {
+      const { validateGoalContent } = await import('../lib/validation');
       const { isValid, error } = validateGoalContent(data.title, data.description);
       if (!isValid) {
         throw new Error(error);
@@ -2025,6 +2034,7 @@ class ApiService {
   async bulkUpdateTasks(taskIds: number[], updates: Partial<Task>): Promise<{ success: boolean; updatedCount: number }> {
     // Validate for zero-width characters if title or description is being updated
     if (updates.title !== undefined || updates.description !== undefined) {
+      const { validateTaskContent } = await import('../lib/validation');
       const { isValid, error } = validateTaskContent(updates.title, updates.description);
       if (!isValid) {
         throw new Error(error);
