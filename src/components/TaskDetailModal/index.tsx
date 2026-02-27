@@ -1098,7 +1098,6 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
         </div>
       </DialogContent>
     </Dialog>
-    </>
   );
 };
 
