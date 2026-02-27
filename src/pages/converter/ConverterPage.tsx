@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { Upload, File, X, Download, RefreshCw, CheckCircle, AlertCircle, FileText, Image, FileSpreadsheet, FileCode, Zap } from 'lucide-react';
+import { Upload, File, X, Download, RefreshCw, CheckCircle, AlertCircle, FileText, Image as ImageIcon, FileSpreadsheet, FileCode, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
@@ -41,6 +41,8 @@ const formatFileSize = (bytes: number): string => {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 };
 
+const binarySpreadsheetExts = ['xls', 'xlsx', 'ods'];
+
 const getFileIcon = (fileName: string) => {
   const ext = fileName.split('.').pop()?.toLowerCase() || '';
   const imageExts = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg', 'bmp', 'tiff'];
@@ -48,7 +50,7 @@ const getFileIcon = (fileName: string) => {
   const sheetExts = ['xls', 'xlsx', 'csv', 'ods'];
   const codeExts = ['json', 'xml', 'yaml', 'html', 'md', 'js', 'ts', 'jsx', 'tsx'];
 
-  if (imageExts.includes(ext)) return <Image className="w-5 h-5 text-purple-400" />;
+  if (imageExts.includes(ext)) return <ImageIcon className="w-5 h-5 text-purple-400" />;
   if (docExts.includes(ext)) return <FileText className="w-5 h-5 text-blue-400" />;
   if (sheetExts.includes(ext)) return <FileSpreadsheet className="w-5 h-5 text-green-400" />;
   if (codeExts.includes(ext)) return <FileCode className="w-5 h-5 text-rose-400" />;
@@ -73,6 +75,9 @@ const getTargetFormats = (fileName: string): string[] => {
   // Spreadsheet conversions
   const sheetExts = ['xls', 'xlsx', 'csv', 'ods'];
   if (sheetExts.includes(ext)) {
+    if (binarySpreadsheetExts.includes(ext)) {
+      return [ext];
+    }
     return ['csv', 'xlsx', 'json', 'ods'];
   }
   
@@ -88,7 +93,7 @@ const getTargetFormats = (fileName: string): string[] => {
 // Convert image file to target format using canvas
 const convertImage = async (file: File, targetFormat: string): Promise<Blob> => {
   return new Promise((resolve, reject) => {
-    const img = new Image();
+    const img = new window.Image();
     const url = URL.createObjectURL(file);
     
     img.onload = () => {
@@ -132,8 +137,16 @@ const convertImage = async (file: File, targetFormat: string): Promise<Blob> => 
 
 // Convert text-based files
 const convertTextFile = async (file: File, targetFormat: string): Promise<Blob> => {
-  const text = await file.text();
   const ext = file.name.split('.').pop()?.toLowerCase() || '';
+
+  if (binarySpreadsheetExts.includes(ext)) {
+    if (targetFormat === ext) {
+      return file.slice(0, file.size, file.type || 'application/octet-stream');
+    }
+    throw new Error('Binary spreadsheet conversion is not supported in the browser yet.');
+  }
+
+  const text = await file.text();
   
   // Simple conversions for data formats
   if (ext === 'json' && targetFormat === 'csv') {
@@ -152,7 +165,7 @@ const convertTextFile = async (file: File, targetFormat: string): Promise<Blob> 
     }
   }
   
-  if ((ext === 'csv' || ext === 'xlsx' || ext === 'xls') && targetFormat === 'json') {
+  if (ext === 'csv' && targetFormat === 'json') {
     const lines = text.split('\n').filter(l => l.trim());
     if (lines.length > 1) {
       const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
@@ -371,8 +384,8 @@ export default function ConverterPage() {
       return;
     }
 
-    completedFiles.forEach(file => {
-      setTimeout(() => downloadFile(file), 100);
+    completedFiles.forEach((file, index) => {
+      setTimeout(() => downloadFile(file), 150 * index);
     });
   }, [files, downloadFile]);
 
@@ -594,7 +607,7 @@ export default function ConverterPage() {
         {/* Supported Formats */}
         <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
           <div className="p-4 rounded-lg bg-neutral-900/50 border border-neutral-800">
-            <Image className="w-8 h-8 mx-auto mb-2 text-purple-400" />
+            <ImageIcon className="w-8 h-8 mx-auto mb-2 text-purple-400" />
             <p className="text-sm font-medium">Images</p>
             <p className="text-xs text-neutral-500">JPG, PNG, WebP, GIF</p>
           </div>
