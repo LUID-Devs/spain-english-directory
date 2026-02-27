@@ -1,6 +1,5 @@
 
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useGetProjectsQuery } from "@/hooks/useApi";
 import { useProjects } from "@/stores/apiStore";
 import { useCurrentUser } from "@/stores/userStore";
@@ -57,6 +56,15 @@ const ProjectsPage = () => {
       } else {
         setIsNewProjectModalOpen(true);
       }
+    } else {
+      setIsUpgradeModalOpen(true);
+    }
+  };
+
+  const handleNewProjectMobileClick = () => {
+    const totalProjects = allProjects?.length ?? 0;
+    if (canCreateProject(totalProjects)) {
+      navigate("/dashboard/projects/create");
     } else {
       setIsUpgradeModalOpen(true);
     }

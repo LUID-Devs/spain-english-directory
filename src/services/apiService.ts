@@ -1,3 +1,4 @@
+import { validateTaskContent, validateProjectContent, validateCommentContent, validateGoalContent, validateStatusContent } from '../lib/validation';
 import { limitedFetch } from './limitedFetch';
 
 // Types (moved from old api.ts)
@@ -61,7 +62,7 @@ const PRIORITY_TO_API_MAP: Record<Priority, string> = {
   [Priority.High]: "P1",
   [Priority.Medium]: "P2",
   [Priority.Low]: "P3",
-  [Priority.Backlog]: "P4",
+  [Priority.Backlog]: "P3",
 };
 
 const PRIORITY_FROM_API_MAP: Record<string, Priority> = {
@@ -69,7 +70,6 @@ const PRIORITY_FROM_API_MAP: Record<string, Priority> = {
   P1: Priority.High,
   P2: Priority.Medium,
   P3: Priority.Low,
-  P4: Priority.Backlog,
 };
 
 const mapPriorityForApi = (priority?: string | null): string | null | undefined => {
@@ -123,37 +123,11 @@ export interface SavedView {
 }
 
 export interface TaskShareResponse {
-  success: boolean;
   shareUrl: string;
   token: string;
-  expiresAt: string | null;
-  allowComments: boolean;
-  requirePassword: boolean;
-  viewCount?: number;
-}
-
-export interface PublicTaskShare {
-  task: {
-    id: number;
-    title: string;
-    description?: string | null;
-    status?: string | null;
-    priority?: string | null;
-    project?: {
-      id: number;
-      name: string;
-    } | null;
-    assignedTo?: string | null;
-    updatedAt?: string;
-  };
-  allowComments: boolean;
-  externalComments?: Array<{
-    id: number;
-    text: string;
-    authorName: string;
-    createdAt: string;
-  }>;
   expiresAt?: string | null;
+  allowComments?: boolean;
+  requirePassword?: boolean;
 }
 
 export interface User {
@@ -249,7 +223,6 @@ export interface Task {
   archivedAt?: string;
   triaged?: boolean;
   createdAt?: string;
-  updatedAt?: string;
 
   author?: User;
   assignee?: User;
@@ -262,6 +235,39 @@ export interface Task {
   attachments?: Attachment[];
 }
 
+export interface TaskShareInfo {
+  success?: boolean;
+  shareUrl: string;
+  token: string;
+  expiresAt?: string | null;
+  allowComments: boolean;
+  requirePassword: boolean;
+  viewCount?: number;
+}
+
+export interface PublicTaskShare {
+  task: {
+    id: number;
+    title: string;
+    description?: string | null;
+    status?: string | null;
+    priority?: string | null;
+    project?: {
+      id: number;
+      name: string;
+    } | null;
+    assignedTo?: string | null;
+    updatedAt?: string;
+  };
+  allowComments: boolean;
+  externalComments?: Array<{
+    id: number;
+    text: string;
+    authorName: string;
+    createdAt: string;
+  }>;
+  expiresAt?: string | null;
+}
 export interface SearchResults {
   tasks?: Task[];
   projects?: Project[];
@@ -681,9 +687,9 @@ class ApiService {
 
 
   // Auth
-  getAuthUser = async (userSub: string): Promise<User> => {
+  async getAuthUser(userSub: string): Promise<User> {
     return this.request<User>(`/users/${userSub}`);
-  };
+  }
 
   // Projects
   async getProjects(params: { 
@@ -706,7 +712,6 @@ class ApiService {
   async createProject(project: Partial<Project>): Promise<Project> {
     // Validate for zero-width characters to prevent visual spoofing
     if (project.name !== undefined || project.description !== undefined) {
-      const { validateProjectContent } = await import('../lib/validation');
       const { isValid, error } = validateProjectContent(project.name, project.description);
       if (!isValid) {
         throw new Error(error);
@@ -727,7 +732,6 @@ class ApiService {
   async updateProject(id: string, project: Partial<Project>): Promise<Project> {
     // Validate for zero-width characters if name or description is being updated
     if (project.name !== undefined || project.description !== undefined) {
-      const { validateProjectContent } = await import('../lib/validation');
       const { isValid, error } = validateProjectContent(project.name, project.description);
       if (!isValid) {
         throw new Error(error);
@@ -779,7 +783,6 @@ class ApiService {
 
   async createStatus(projectId: number, data: { name: string; color?: string }): Promise<TaskStatus> {
     // Validate for zero-width characters in status name
-    const { validateStatusContent } = await import('../lib/validation');
     const { isValid, error } = validateStatusContent(data.name);
     if (!isValid) {
       throw new Error(error);
@@ -794,7 +797,6 @@ class ApiService {
   async updateStatus(projectId: number, statusId: number, data: { name?: string; color?: string; order?: number }): Promise<TaskStatus> {
     // Validate for zero-width characters if name is being updated
     if (data.name !== undefined) {
-      const { validateStatusContent } = await import('../lib/validation');
       const { isValid, error } = validateStatusContent(data.name);
       if (!isValid) {
         throw new Error(error);
@@ -847,8 +849,8 @@ class ApiService {
     return mapTaskPriorityFromApi(task);
   }
 
-  async getTaskShare(taskId: number): Promise<TaskShareResponse> {
-    return this.request<TaskShareResponse>(`/tasks/${taskId}/share`);
+  async getTaskShare(taskId: number): Promise<TaskShareInfo> {
+    return this.request<TaskShareInfo>(`/tasks/${taskId}/share`);
   }
 
   async createTaskShare(
@@ -859,8 +861,8 @@ class ApiService {
       requirePassword?: boolean;
       password?: string;
     } = {}
-  ): Promise<TaskShareResponse> {
-    return this.request<TaskShareResponse>(`/tasks/${taskId}/share`, {
+  ): Promise<TaskShareInfo> {
+    return this.request<TaskShareInfo>(`/tasks/${taskId}/share`, {
       method: 'POST',
       body: JSON.stringify(payload),
     });
@@ -886,7 +888,6 @@ class ApiService {
   async createTask(task: Partial<Task>): Promise<Task> {
     // Validate for zero-width characters to prevent visual spoofing
     if (task.title !== undefined || task.description !== undefined) {
-      const { validateTaskContent } = await import('../lib/validation');
       const { isValid, error } = validateTaskContent(task.title, task.description);
       if (!isValid) {
         throw new Error(error);
@@ -908,7 +909,6 @@ class ApiService {
   async updateTask(taskId: number, task: Partial<Task>): Promise<Task> {
     // Validate for zero-width characters if title or description is being updated
     if (task.title !== undefined || task.description !== undefined) {
-      const { validateTaskContent } = await import('../lib/validation');
       const { isValid, error } = validateTaskContent(task.title, task.description);
       if (!isValid) {
         throw new Error(error);
@@ -939,6 +939,31 @@ class ApiService {
       body: JSON.stringify({ status }),
     });
     return mapTaskPriorityFromApi(updated);
+  }
+
+  async createTaskShare(
+    taskId: number,
+    data: {
+      expiresInDays?: number | null;
+      allowComments?: boolean;
+      requirePassword?: boolean;
+      password?: string;
+    } = {}
+  ): Promise<TaskShareResponse> {
+    return this.request<TaskShareResponse>(`/tasks/${taskId}/share`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getTaskShare(taskId: number): Promise<TaskShareResponse> {
+    return this.request<TaskShareResponse>(`/tasks/${taskId}/share`);
+  }
+
+  async revokeTaskShare(taskId: number): Promise<{ success: boolean; message: string }> {
+    return this.request<{ success: boolean; message: string }>(`/tasks/${taskId}/share`, {
+      method: 'DELETE',
+    });
   }
 
   async uploadTaskDescriptionImage(formData: FormData): Promise<{ imageUrl: string }> {
@@ -997,7 +1022,6 @@ class ApiService {
 
   async createComment(taskId: number, text: string, userId: number, imageUrl?: string): Promise<Comment> {
     // Validate for zero-width characters in comment text
-    const { validateCommentContent } = await import('../lib/validation');
     const { isValid, error } = validateCommentContent(text);
     if (!isValid) {
       throw new Error(error);
@@ -1018,7 +1042,6 @@ class ApiService {
 
   async updateComment(commentId: number, text: string, userId: number): Promise<Comment> {
     // Validate for zero-width characters in comment text
-    const { validateCommentContent } = await import('../lib/validation');
     const { isValid, error } = validateCommentContent(text);
     if (!isValid) {
       throw new Error(error);
@@ -1259,12 +1282,8 @@ class ApiService {
     dateTo?: string;
     archived?: boolean;
   }): Promise<SearchResults> {
-    const normalizedParams = {
-      ...params,
-      priority: mapPriorityForApi(params.priority) as string | null | undefined,
-    };
     const queryParams = new URLSearchParams();
-    Object.entries(normalizedParams).forEach(([key, value]) => {
+    Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== '') {
         queryParams.append(key, value.toString());
       }
@@ -1431,65 +1450,19 @@ class ApiService {
     }>;
     threshold: number;
   }> {
-    type DuplicateApiResult = {
-      taskId?: number;
-      title?: string;
-      description?: string | null;
-      status?: string | null;
-      similarity: number;
-      matchedField?: 'title' | 'description' | 'both';
-      matchType?: 'title' | 'description' | 'both';
-      task?: Task;
-      updatedAt?: string;
-    };
-
-    const response = await this.request<{
+    return this.request<{
       hasDuplicates: boolean;
       count: number;
-      duplicates: DuplicateApiResult[];
+      duplicates: Array<{
+        task: Task;
+        similarity: number;
+        matchType: 'title' | 'description' | 'both';
+      }>;
       threshold: number;
     }>('/tasks/check-duplicates', {
       method: 'POST',
       body: JSON.stringify(data),
     });
-
-    const normalizedDuplicates = response.duplicates
-      .map((duplicate) => {
-        if (duplicate.task && typeof duplicate.task.id === 'number') {
-          return {
-            task: mapTaskPriorityFromApi(duplicate.task),
-            similarity: duplicate.similarity,
-            matchType: duplicate.matchType ?? duplicate.matchedField ?? 'title',
-          };
-        }
-
-        if (!duplicate.taskId || !duplicate.title) {
-          return null;
-        }
-
-        const task: Task = {
-          id: duplicate.taskId,
-          title: duplicate.title,
-          description: duplicate.description ?? undefined,
-          status: duplicate.status ?? undefined,
-          projectId: data.projectId,
-          createdAt: duplicate.updatedAt ?? undefined,
-        };
-
-        return {
-          task: mapTaskPriorityFromApi(task),
-          similarity: duplicate.similarity,
-          matchType: duplicate.matchType ?? duplicate.matchedField ?? 'title',
-        };
-      })
-      .filter((duplicate): duplicate is { task: Task; similarity: number; matchType: 'title' | 'description' | 'both' } => Boolean(duplicate));
-
-    return {
-      ...response,
-      hasDuplicates: normalizedDuplicates.length > 0,
-      count: normalizedDuplicates.length,
-      duplicates: normalizedDuplicates,
-    };
   }
 
   async bulkUpdateDueDate(taskIds: number[], dueDate: string | null): Promise<{ success: boolean; message: string; updatedCount: number }> {
@@ -1577,7 +1550,6 @@ class ApiService {
   async createGoal(goal: Partial<Goal>): Promise<Goal> {
     // Validate for zero-width characters to prevent visual spoofing
     if (goal.title !== undefined || goal.description !== undefined) {
-      const { validateGoalContent } = await import('../lib/validation');
       const { isValid, error } = validateGoalContent(goal.title, goal.description);
       if (!isValid) {
         throw new Error(error);
@@ -1594,7 +1566,6 @@ class ApiService {
   async updateGoal(goalId: number, data: Partial<Goal>): Promise<Goal> {
     // Validate for zero-width characters if title or description is being updated
     if (data.title !== undefined || data.description !== undefined) {
-      const { validateGoalContent } = await import('../lib/validation');
       const { isValid, error } = validateGoalContent(data.title, data.description);
       if (!isValid) {
         throw new Error(error);
@@ -2065,7 +2036,6 @@ class ApiService {
   async bulkUpdateTasks(taskIds: number[], updates: Partial<Task>): Promise<{ success: boolean; updatedCount: number }> {
     // Validate for zero-width characters if title or description is being updated
     if (updates.title !== undefined || updates.description !== undefined) {
-      const { validateTaskContent } = await import('../lib/validation');
       const { isValid, error } = validateTaskContent(updates.title, updates.description);
       if (!isValid) {
         throw new Error(error);
