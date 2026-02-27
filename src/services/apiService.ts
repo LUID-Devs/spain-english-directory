@@ -123,11 +123,37 @@ export interface SavedView {
 }
 
 export interface TaskShareResponse {
+  success: boolean;
   shareUrl: string;
   token: string;
+  expiresAt: string | null;
+  allowComments: boolean;
+  requirePassword: boolean;
+  viewCount?: number;
+}
+
+export interface PublicTaskShare {
+  task: {
+    id: number;
+    title: string;
+    description?: string | null;
+    status?: string | null;
+    priority?: string | null;
+    project?: {
+      id: number;
+      name: string;
+    } | null;
+    assignedTo?: string | null;
+    updatedAt?: string;
+  };
+  allowComments: boolean;
+  externalComments?: Array<{
+    id: number;
+    text: string;
+    authorName: string;
+    createdAt: string;
+  }>;
   expiresAt?: string | null;
-  allowComments?: boolean;
-  requirePassword?: boolean;
 }
 
 export interface User {
@@ -230,19 +256,10 @@ export interface Task {
   project?: {
     id: number;
     name: string;
+    visibility?: string;
   };
   comments?: Comment[];
   attachments?: Attachment[];
-}
-
-export interface TaskShareResponse {
-  success: boolean;
-  shareUrl: string;
-  token: string;
-  expiresAt: string | null;
-  allowComments: boolean;
-  requirePassword: boolean;
-  viewCount?: number;
 }
 
 export interface SearchResults {
@@ -830,6 +847,37 @@ class ApiService {
     return mapTaskPriorityFromApi(task);
   }
 
+  async getTaskShare(taskId: number): Promise<TaskShareResponse> {
+    return this.request<TaskShareResponse>(`/tasks/${taskId}/share`);
+  }
+
+  async createTaskShare(
+    taskId: number,
+    payload: {
+      expiresInDays?: number | null;
+      allowComments?: boolean;
+      requirePassword?: boolean;
+      password?: string;
+    } = {}
+  ): Promise<TaskShareResponse> {
+    return this.request<TaskShareResponse>(`/tasks/${taskId}/share`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async revokeTaskShare(taskId: number): Promise<{ success: boolean; message: string }> {
+    return this.request<{ success: boolean; message: string }>(`/tasks/${taskId}/share`, {
+      method: 'DELETE',
+    });
+  }
+
+  async getPublicTaskShare(token: string, sharePassword?: string): Promise<PublicTaskShare> {
+    return this.request<PublicTaskShare>(`/share/${token}`, {
+      headers: sharePassword ? { 'x-share-password': sharePassword } : {},
+    });
+  }
+
   async getTasksByUser(userId: number): Promise<Task[]> {
     const tasks = await this.request<Task[]>(`/tasks/user/${userId}`);
     return mapTasksPriorityFromApi(tasks);
@@ -893,61 +941,10 @@ class ApiService {
     return mapTaskPriorityFromApi(updated);
   }
 
-  async createTaskShare(
-    taskId: number,
-    data: {
-      expiresInDays?: number | null;
-      allowComments?: boolean;
-      requirePassword?: boolean;
-      password?: string;
-    } = {}
-  ): Promise<TaskShareResponse> {
-    return this.request<TaskShareResponse>(`/tasks/${taskId}/share`, {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
-  }
-
-  async getTaskShare(taskId: number): Promise<TaskShareResponse> {
-    return this.request<TaskShareResponse>(`/tasks/${taskId}/share`);
-  }
-
-  async revokeTaskShare(taskId: number): Promise<{ success: boolean; message: string }> {
-    return this.request<{ success: boolean; message: string }>(`/tasks/${taskId}/share`, {
-      method: 'DELETE',
-    });
-  }
-
   async uploadTaskDescriptionImage(formData: FormData): Promise<{ imageUrl: string }> {
     return this.request<{ imageUrl: string }>('/tasks/upload-description-image', {
       method: 'POST',
       body: formData,
-    });
-  }
-
-  // Task Sharing
-  async createTaskShare(
-    taskId: number,
-    data: {
-      expiresInDays?: number | null;
-      allowComments?: boolean;
-      requirePassword?: boolean;
-      password?: string;
-    } = {}
-  ): Promise<TaskShareResponse> {
-    return this.request<TaskShareResponse>(`/tasks/${taskId}/share`, {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
-  }
-
-  async getTaskShare(taskId: number): Promise<TaskShareResponse> {
-    return this.request<TaskShareResponse>(`/tasks/${taskId}/share`);
-  }
-
-  async revokeTaskShare(taskId: number): Promise<{ success: boolean; message: string }> {
-    return this.request<{ success: boolean; message: string }>(`/tasks/${taskId}/share`, {
-      method: 'DELETE',
     });
   }
 

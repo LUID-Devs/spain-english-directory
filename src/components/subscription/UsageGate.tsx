@@ -20,6 +20,7 @@ interface UsageGateProps {
   children: React.ReactNode;
   feature?: string;
   requiresPro?: boolean;
+  requiresEnterprise?: boolean;
   creditsRequired?: number;
 }
 
@@ -27,19 +28,27 @@ export function UsageGate({
   children,
   feature = 'this feature',
   requiresPro = false,
+  requiresEnterprise = false,
   creditsRequired = 0,
 }: UsageGateProps) {
   const {
     isPro,
+    isEnterprise,
     totalCredits,
     canAffordOperation,
   } = useSubscription();
 
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-  const [blockReason, setBlockReason] = useState<'pro' | 'credits' | null>(null);
+  const [blockReason, setBlockReason] = useState<'pro' | 'enterprise' | 'credits' | null>(null);
 
   // Check if user can proceed with the action
   const checkAccess = useCallback((): boolean => {
+    // Check Enterprise requirement
+    if (requiresEnterprise && !isEnterprise) {
+      setBlockReason('enterprise');
+      return false;
+    }
+
     // Check Pro requirement
     if (requiresPro && !isPro) {
       setBlockReason('pro');
@@ -53,7 +62,7 @@ export function UsageGate({
     }
 
     return true;
-  }, [requiresPro, isPro, creditsRequired, canAffordOperation]);
+  }, [requiresEnterprise, isEnterprise, requiresPro, isPro, creditsRequired, canAffordOperation]);
 
   // Render children with click handler that checks access
   const handleAction = (originalHandler?: () => void) => {
@@ -103,34 +112,26 @@ export function UsageGate({
         fullWidth
       >
         <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          {blockReason === 'pro' ? (
-            <>
-              <Crown size={24} />
-              Pro Feature Required
-            </>
-          ) : (
+          {blockReason === 'credits' ? (
             <>
               <Coins size={24} />
               Insufficient Credits
+            </>
+          ) : blockReason === 'enterprise' ? (
+            <>
+              <Crown size={24} />
+              Enterprise Feature Required
+            </>
+          ) : (
+            <>
+              <Crown size={24} />
+              Pro Feature Required
             </>
           )}
         </DialogTitle>
 
         <DialogContent>
-          {blockReason === 'pro' ? (
-            <Box sx={{ mb: 3 }}>
-              <Alert severity="info" sx={{ mb: 2 }}>
-                <strong>{feature}</strong> requires a TaskLuid Pro subscription.
-              </Alert>
-              <Typography variant="body1" sx={{ mb: 2 }}>Upgrade to TaskLuid Pro to unlock:</Typography>
-              <Box component="ul" sx={{ pl: 3 }}>
-                <li>Unlimited tasks and projects</li>
-                <li>Monthly credit allowance</li>
-                <li>AI-powered features</li>
-                <li>Priority support</li>
-              </Box>
-            </Box>
-          ) : (
+          {blockReason === 'credits' ? (
             <Box sx={{ mb: 3 }}>
               <Alert severity="warning" sx={{ mb: 2 }}>
                 You need <strong>{creditsRequired} credits</strong> for this operation,
@@ -142,6 +143,21 @@ export function UsageGate({
               <Box component="ul" sx={{ pl: 3 }}>
                 <li>Upgrading to TaskLuid Pro for monthly credits</li>
                 <li>Purchasing additional credit packs</li>
+              </Box>
+            </Box>
+          ) : (
+            <Box sx={{ mb: 3 }}>
+              <Alert severity="info" sx={{ mb: 2 }}>
+                <strong>{feature}</strong> requires a TaskLuid {blockReason === 'enterprise' ? 'Enterprise' : 'Pro'} subscription.
+              </Alert>
+              <Typography variant="body1" sx={{ mb: 2 }}>
+                Upgrade to TaskLuid {blockReason === 'enterprise' ? 'Enterprise' : 'Pro'} to unlock:
+              </Typography>
+              <Box component="ul" sx={{ pl: 3 }}>
+                <li>Unlimited tasks and projects</li>
+                <li>Monthly credit allowance</li>
+                <li>AI-powered features</li>
+                <li>Priority support</li>
               </Box>
             </Box>
           )}
@@ -156,7 +172,7 @@ export function UsageGate({
             variant="contained"
             startIcon={<ExternalLink size={16} />}
           >
-            {blockReason === 'pro' ? 'Upgrade to Pro' : 'Get Credits'}
+            {blockReason === 'credits' ? 'Get Credits' : blockReason === 'enterprise' ? 'Contact Sales' : 'Upgrade to Pro'}
           </Button>
         </DialogActions>
       </Dialog>

@@ -3,9 +3,11 @@ import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import { sanitizeHtmlContent } from "@/lib/utils";
 
-const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "http://localhost:8080").replace(/\/$/, "");
+const SHARE_API_BASE_URL = API_BASE_URL.endsWith("/api") ? API_BASE_URL : `${API_BASE_URL}/api`;
 
 interface SharedTask {
   id: number;
@@ -43,6 +45,7 @@ const TaskSharePage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [passwordRequired, setPasswordRequired] = useState(false);
   const [password, setPassword] = useState("");
+  const [passwordError, setPasswordError] = useState<string | null>(null);
   const [activePassword, setActivePassword] = useState<string | null>(null);
 
   const [authorName, setAuthorName] = useState("");
@@ -57,6 +60,7 @@ const TaskSharePage: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
+      setPasswordError(null);
 
       const headers: Record<string, string> = {
         "Content-Type": "application/json",
@@ -66,7 +70,7 @@ const TaskSharePage: React.FC = () => {
         headers["x-share-password"] = sharePassword;
       }
 
-      const response = await fetch(`${API_URL}/share/${token}`, { headers });
+      const response = await fetch(`${SHARE_API_BASE_URL}/share/${token}`, { headers });
 
       if (response.status === 401) {
         setPasswordRequired(true);
@@ -75,7 +79,7 @@ const TaskSharePage: React.FC = () => {
       }
 
       if (response.status === 403) {
-        setError("Invalid password. Please try again.");
+        setPasswordError("Invalid password. Please try again.");
         setPasswordRequired(true);
         setLoading(false);
         return;
@@ -114,6 +118,7 @@ const TaskSharePage: React.FC = () => {
 
   const handlePasswordSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setPasswordError(null);
     fetchTaskShare(password);
   };
 
@@ -138,7 +143,7 @@ const TaskSharePage: React.FC = () => {
         headers["x-share-password"] = activePassword;
       }
 
-      const response = await fetch(`${API_URL}/share/${token}/comments`, {
+      const response = await fetch(`${SHARE_API_BASE_URL}/share/${token}/comments`, {
         method: "POST",
         headers,
         body: JSON.stringify({
@@ -224,6 +229,9 @@ const TaskSharePage: React.FC = () => {
                 required
               />
             </div>
+            {passwordError && (
+              <p className="text-sm text-destructive">{passwordError}</p>
+            )}
             <Button type="submit" className="w-full">Unlock Task</Button>
           </form>
         </div>
@@ -238,23 +246,25 @@ const TaskSharePage: React.FC = () => {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="max-w-3xl mx-auto px-4 py-10 space-y-8">
-        <header className="space-y-2">
+        <header className="space-y-3">
           <p className="text-sm uppercase tracking-wide text-muted-foreground">Shared Task</p>
           <h1 className="text-3xl font-semibold">{data.task.title}</h1>
-          <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
-            {data.task.project?.name && (
-              <span>Project: <span className="font-medium text-foreground">{data.task.project.name}</span></span>
-            )}
+          <div className="flex flex-wrap gap-2">
             {data.task.status && (
-              <span>Status: <span className="font-medium text-foreground">{data.task.status}</span></span>
+              <Badge variant="secondary">{data.task.status}</Badge>
             )}
             {data.task.priority && (
-              <span>Priority: <span className="font-medium text-foreground">{data.task.priority}</span></span>
+              <Badge variant="outline">{data.task.priority}</Badge>
             )}
-            {data.task.assignedTo && (
-              <span>Assignee: <span className="font-medium text-foreground">{data.task.assignedTo}</span></span>
+            {data.task.project?.name && (
+              <Badge variant="outline">{data.task.project.name}</Badge>
             )}
           </div>
+          {data.task.assignedTo && (
+            <div className="text-sm text-muted-foreground">
+              Assignee: <span className="font-medium text-foreground">{data.task.assignedTo}</span>
+            </div>
+          )}
           {lastUpdated && (
             <p className="text-xs text-muted-foreground">Last updated: {lastUpdated}</p>
           )}

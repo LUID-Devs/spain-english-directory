@@ -33,7 +33,7 @@ interface CreditsState {
 
 // Subscription state interface
 interface SubscriptionState {
-  planType: 'free' | 'pro';
+  planType: 'free' | 'pro' | 'enterprise';
   status: 'active' | 'inactive' | 'cancelled' | 'past_due';
   currentPeriodEnd?: string;
   cancelAtPeriodEnd?: boolean;
@@ -52,6 +52,7 @@ interface SubscriptionStoreState {
 
   // Computed properties
   isPro: boolean;
+  isEnterprise: boolean;
 
   // Actions
   setLoading: (loading: boolean) => void;
@@ -92,6 +93,7 @@ export const useSubscriptionStore = create<SubscriptionStoreState>()(
     loading: false,
     error: null,
     isPro: false,
+    isEnterprise: false,
 
     // Actions
     setLoading: (loading) => set({ loading }),
@@ -110,6 +112,7 @@ export const useSubscriptionStore = create<SubscriptionStoreState>()(
           credits: initialCreditsState,
           subscription: initialSubscriptionState,
           isPro: false,
+          isEnterprise: false,
           loading: false,
         });
         return null;
@@ -120,7 +123,8 @@ export const useSubscriptionStore = create<SubscriptionStoreState>()(
       try {
         const { subscription, credits } = await creditsApi.fetchSubscriptionData(token);
 
-        const isPro = subscription?.planType === 'pro' && subscription?.status === 'active';
+        const isEnterprise = subscription?.planType === 'enterprise' && subscription?.status === 'active';
+        const isPro = (subscription?.planType === 'pro' || subscription?.planType === 'enterprise') && subscription?.status === 'active';
 
         const newCreditsState = credits ? {
           totalCredits: credits.total_credits,
@@ -132,6 +136,7 @@ export const useSubscriptionStore = create<SubscriptionStoreState>()(
           subscription: subscription || initialSubscriptionState,
           credits: newCreditsState,
           isPro,
+          isEnterprise,
           loading: false,
           error: null,
         });
@@ -182,7 +187,7 @@ export const useSubscriptionStore = create<SubscriptionStoreState>()(
      */
     isProUser: () => {
       const { subscription, isPro } = get();
-      return isPro || (subscription.planType === 'pro' && subscription.status === 'active');
+      return isPro || ((subscription.planType === 'pro' || subscription.planType === 'enterprise') && subscription.status === 'active');
     },
 
     /**
@@ -203,6 +208,7 @@ export const useSubscriptionStore = create<SubscriptionStoreState>()(
       loading: false,
       error: null,
       isPro: false,
+      isEnterprise: false,
     }),
   }))
 );
@@ -215,6 +221,7 @@ export const useSubscription = () => {
     loading,
     error,
     isPro,
+    isEnterprise,
     fetchSubscription,
     fetchCredits,
     isProUser,
@@ -238,6 +245,7 @@ export const useSubscription = () => {
     loading,
     error,
     isPro,
+    isEnterprise,
 
     // Actions
     fetchSubscription,
@@ -253,7 +261,7 @@ export const useSubscription = () => {
     isSubscribed: subscription.planType !== 'free' && subscription.status === 'active',
     isPremium: isPro,
     currentPlan: {
-      name: subscription.planType === 'pro' ? 'Pro' : 'Free',
+      name: subscription.planType === 'enterprise' ? 'Enterprise' : subscription.planType === 'pro' ? 'Pro' : 'Free',
       planType: subscription.planType,
       status: subscription.status,
     },

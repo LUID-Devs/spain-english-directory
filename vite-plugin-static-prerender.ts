@@ -123,8 +123,177 @@ export function staticPrerenderPlugin(): Plugin {
   // Default OG image
   const defaultOgImage = `${siteUrl}/og-image.png`;
 
-  const publicPages: Record<string, { meta: SEOMeta; content: string }> = {
+  const authLoginPage = {
+    meta: {
+      title: 'Sign In to TaskLuid',
+      description: 'Access your TaskLuid workspace. Sign in to manage projects, tasks, and team collaboration.',
+      ogTitle: 'Sign In to TaskLuid',
+      ogDescription: 'Access your TaskLuid workspace. Sign in to manage projects, tasks, and team collaboration.',
+      ogImage: defaultOgImage,
+      ogType: 'website',
+      twitterCard: 'summary_large_image',
+      twitterTitle: 'Sign In to TaskLuid',
+      twitterDescription: 'Access your TaskLuid workspace. Sign in to manage projects, tasks, and team collaboration.',
+      twitterImage: defaultOgImage,
+      canonicalUrl: `${siteUrl}/auth/login`,
+    },
+    content: `
+      <div class="min-h-screen bg-black text-white flex items-center justify-center px-4 py-12">
+        <div class="w-full max-w-md">
+          <div class="text-center mb-8">
+            <a href="/" class="inline-flex items-center justify-center gap-3 mb-4">
+              <img src="/logo.png" alt="TaskLuid" class="w-10 h-10 rounded-lg" />
+              <span class="text-3xl font-bold bg-gradient-to-r from-gray-300 via-gray-100 to-gray-300 bg-clip-text text-transparent">TaskLuid</span>
+            </a>
+            <h1 id="login-title" class="text-2xl font-semibold">Welcome Back</h1>
+            <p class="text-sm text-neutral-400 mt-2">Sign in to your TaskLuid account</p>
+          </div>
 
+          <noscript>
+            <div class="mb-6 rounded-lg border border-amber-400/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
+              JavaScript is required to submit this form. You can still read this page and use the links below.
+            </div>
+          </noscript>
+
+          <div class="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-6 shadow-2xl">
+            <form class="space-y-5" aria-labelledby="login-title">
+              <div>
+                <label for="login-email" class="block text-sm font-medium text-neutral-200">Email address</label>
+                <input
+                  id="login-email"
+                  name="email"
+                  type="email"
+                  autocomplete="email"
+                  required
+                  aria-required="true"
+                  class="mt-2 w-full rounded-lg border border-neutral-700 bg-black/40 px-4 py-3 text-sm text-white placeholder:text-neutral-500"
+                  placeholder="you@company.com"
+                />
+              </div>
+              <div>
+                <label for="login-password" class="block text-sm font-medium text-neutral-200">Password</label>
+                <input
+                  id="login-password"
+                  name="password"
+                  type="password"
+                  autocomplete="current-password"
+                  required
+                  aria-required="true"
+                  class="mt-2 w-full rounded-lg border border-neutral-700 bg-black/40 px-4 py-3 text-sm text-white placeholder:text-neutral-500"
+                  placeholder="Enter your password"
+                />
+              </div>
+              <div class="flex items-center justify-between text-sm">
+                <a href="/auth/forgot-password" class="text-indigo-300 hover:text-indigo-200">Forgot password?</a>
+                <span class="text-neutral-500">Need help? <a href="/help" class="text-neutral-300 hover:text-white">Support</a></span>
+              </div>
+              <button type="submit" class="w-full rounded-lg bg-gradient-to-r from-indigo-500 to-purple-500 px-4 py-3 text-sm font-medium text-white">
+                Sign In
+              </button>
+            </form>
+
+            <div class="mt-6 text-center text-sm text-neutral-400">
+              Don't have an account? <a href="/auth/register" class="text-indigo-300 hover:text-indigo-200">Create one</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    `
+  };
+
+  const authRegisterPage = {
+    meta: {
+      title: 'Create Your TaskLuid Account',
+      description: 'Start using TaskLuid for project management. Create your account to collaborate with your team and track progress.',
+      ogTitle: 'Create Your TaskLuid Account',
+      ogDescription: 'Start using TaskLuid for project management. Create your account to collaborate with your team and track progress.',
+      ogImage: defaultOgImage,
+      ogType: 'website',
+      twitterCard: 'summary_large_image',
+      twitterTitle: 'Create Your TaskLuid Account',
+      twitterDescription: 'Start using TaskLuid for project management. Create your account to collaborate with your team and track progress.',
+      twitterImage: defaultOgImage,
+      canonicalUrl: `${siteUrl}/auth/register`,
+    },
+    content: `
+      <div class="min-h-screen bg-black text-white flex items-center justify-center px-4 py-12">
+        <div class="w-full max-w-md">
+          <div class="text-center mb-8">
+            <a href="/" class="inline-flex items-center justify-center gap-3 mb-4">
+              <img src="/logo.png" alt="TaskLuid" class="w-10 h-10 rounded-lg" />
+              <span class="text-3xl font-bold bg-gradient-to-r from-gray-300 via-gray-100 to-gray-300 bg-clip-text text-transparent">TaskLuid</span>
+            </a>
+            <h1 id="register-title" class="text-2xl font-semibold">Create Account</h1>
+            <p class="text-sm text-neutral-400 mt-2">Start your journey with TaskLuid</p>
+          </div>
+
+          <noscript>
+            <div class="mb-6 rounded-lg border border-amber-400/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
+              JavaScript is required to submit this form. You can still review account requirements below.
+            </div>
+          </noscript>
+
+          <div class="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-6 shadow-2xl">
+            <form class="space-y-5" aria-labelledby="register-title">
+              <div>
+                <label for="register-name" class="block text-sm font-medium text-neutral-200">Full name</label>
+                <input
+                  id="register-name"
+                  name="name"
+                  type="text"
+                  autocomplete="name"
+                  required
+                  aria-required="true"
+                  class="mt-2 w-full rounded-lg border border-neutral-700 bg-black/40 px-4 py-3 text-sm text-white placeholder:text-neutral-500"
+                  placeholder="Your name"
+                />
+              </div>
+              <div>
+                <label for="register-email" class="block text-sm font-medium text-neutral-200">Email address</label>
+                <input
+                  id="register-email"
+                  name="email"
+                  type="email"
+                  autocomplete="email"
+                  required
+                  aria-required="true"
+                  class="mt-2 w-full rounded-lg border border-neutral-700 bg-black/40 px-4 py-3 text-sm text-white placeholder:text-neutral-500"
+                  placeholder="you@company.com"
+                />
+              </div>
+              <div>
+                <label for="register-password" class="block text-sm font-medium text-neutral-200">Password</label>
+                <input
+                  id="register-password"
+                  name="password"
+                  type="password"
+                  autocomplete="new-password"
+                  required
+                  aria-required="true"
+                  class="mt-2 w-full rounded-lg border border-neutral-700 bg-black/40 px-4 py-3 text-sm text-white placeholder:text-neutral-500"
+                  placeholder="Create a password"
+                />
+              </div>
+              <p class="text-xs text-neutral-500">By creating an account you agree to our <a href="/terms" class="text-neutral-300 hover:text-white">Terms</a> and <a href="/privacy" class="text-neutral-300 hover:text-white">Privacy Policy</a>.</p>
+              <button type="submit" class="w-full rounded-lg bg-gradient-to-r from-indigo-500 to-purple-500 px-4 py-3 text-sm font-medium text-white">
+                Create Account
+              </button>
+            </form>
+
+            <div class="mt-6 text-center text-sm text-neutral-400">
+              Already have an account? <a href="/auth/login" class="text-indigo-300 hover:text-indigo-200">Sign in</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    `
+  };
+
+  const publicPages: Record<string, { meta: SEOMeta; content: string }> = {
+    '/auth/login': authLoginPage,
+    '/login': authLoginPage,
+    '/auth/register': authRegisterPage,
+    '/register': authRegisterPage,
     '/landing': {
       meta: {
         title: 'TaskLuid - AI-Powered Project Management Platform',

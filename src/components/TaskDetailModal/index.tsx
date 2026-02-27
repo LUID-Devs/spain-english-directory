@@ -29,6 +29,7 @@ import GitActivity from "@/components/GitActivity";
 import GitReviewPanel from "@/components/gitReview/GitReviewPanel";
 import { apiService } from "@/services/apiService";
 import { useAgents, useAssignTaskToAgent, useTaskAgentAssignments, useUnassignTaskFromAgent } from "@/hooks/useMissionControl";
+import { UsageGate } from "@/components/subscription/UsageGate";
 import {
   Dialog,
   DialogContent,
@@ -168,6 +169,13 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
     points: 0,
     assignedUserId: undefined as number | undefined,
   });
+
+  const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
+  const [inviteEmails, setInviteEmails] = useState("");
+
+  const isPrivateTask = task?.project?.visibility
+    ? task.project.visibility === "private"
+    : true;
 
   // Track if form has been initialized from task data
   const isInitializedRef = useRef(false);
@@ -358,6 +366,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
   };
 
   const loadShareInfo = useCallback(async () => {
+    if (!taskId) return;
     setShareLoading(true);
     setShareError(null);
 
@@ -382,7 +391,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
     }
   }, [taskId]);
 
-  const handleCopyShare = async () => {
+  const handleCopyShare = useCallback(async () => {
     if (!shareData?.shareUrl) return;
     try {
       await navigator.clipboard.writeText(shareData.shareUrl);
@@ -391,9 +400,9 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
       console.error("Failed to copy share link:", error);
       toast.error("Failed to copy share link");
     }
-  };
+  }, [shareData?.shareUrl]);
 
-  const handleCreateOrUpdateShare = async () => {
+  const handleCreateOrUpdateShare = useCallback(async (): Promise<TaskShareInfo | null> => {
     setShareLoading(true);
     setShareError(null);
 
@@ -416,7 +425,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
           if (trimmed.length < 6) {
             setShareError("Password must be at least 6 characters");
             setShareLoading(false);
-            return;
+            return null;
           }
           payload.password = trimmed;
         }
@@ -426,15 +435,17 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
       setShareData(data);
       setSharePassword("");
       toast.success(shareData ? "Share link updated" : "Share link created");
+      return data;
     } catch (error) {
       const message = error instanceof Error ? error.message : "Failed to create share link";
       setShareError(message);
+      return null;
     } finally {
       setShareLoading(false);
     }
-  };
+  }, [shareAllowComments, shareData, sharePassword, shareRequirePassword, taskId]);
 
-  const handleRevokeShare = async () => {
+  const handleRevokeShare = useCallback(async () => {
     if (!shareData) return;
     setShareLoading(true);
     setShareError(null);
@@ -452,6 +463,36 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
     } finally {
       setShareLoading(false);
     }
+  }, [shareData, taskId]);
+
+  const handleInviteExternal = useCallback(async () => {
+    const recipients = inviteEmails
+      .split(/[;,]/)
+      .map((email) => email.trim())
+      .filter(Boolean);
+
+    if (recipients.length === 0) {
+      toast.error("Enter at least one email address");
+      return;
+    }
+
+    let share = shareData;
+    if (!share) {
+      share = await handleCreateOrUpdateShare();
+    }
+
+    if (!share?.shareUrl) return;
+
+    const subject = encodeURIComponent(`TaskLuid issue: ${task?.title || "Shared issue"}`);
+    const body = encodeURIComponent(
+      `You have been invited to view a private TaskLuid issue.\n\n${share.shareUrl}\n\nThis link grants access to a private team issue.`
+    );
+    window.location.href = `mailto:${recipients.join(",")}?subject=${subject}&body=${body}`;
+  }, [handleCreateOrUpdateShare, inviteEmails, shareData, task?.title]);
+
+  const handleShare = () => {
+    setIsShareDialogOpen(true);
+    loadShareInfo();
   };
 
   useEffect(() => {
@@ -598,7 +639,8 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
   }, []);
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
+    <>
+      <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="w-[95vw] max-w-5xl max-h-[90vh] overflow-hidden p-4 sm:p-6">
         <DialogHeader>
           <DialogTitle className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
@@ -613,97 +655,112 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                 </span>
               )}
             </div>
-            <Popover open={isShareOpen} onOpenChange={setIsShareOpen}>
-              <PopoverTrigger asChild>
+            {isPrivateTask ? (
+              <UsageGate feature="Private issue sharing" requiresEnterprise>
                 <Button
                   variant="outline"
                   size="sm"
+                  onClick={handleShare}
                   className="flex items-center gap-2 self-start sm:self-auto"
-                  aria-label="Share task"
+                  aria-label="Share issue"
                 >
                   <Share2 className="h-4 w-4" />
-                  <span className="hidden sm:inline">Share</span>
+                  <span className="hidden sm:inline">Share issue</span>
                 </Button>
-              </PopoverTrigger>
-              <PopoverContent align="end" className="w-80 space-y-4">
-                <div className="space-y-1">
-                  <h3 className="text-sm font-semibold">Share task externally</h3>
-                  <p className="text-xs text-muted-foreground">
-                    Create a secure link to share this task with people outside your team.
-                  </p>
-                </div>
-
-                {shareLoading && (
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <Loader2 className="h-3 w-3 animate-spin" />
-                    Loading share settings…
+              </UsageGate>
+            ) : (
+              <Popover open={isShareOpen} onOpenChange={setIsShareOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center gap-2 self-start sm:self-auto"
+                    aria-label="Share task"
+                  >
+                    <Share2 className="h-4 w-4" />
+                    <span className="hidden sm:inline">Share</span>
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent align="end" className="w-80 space-y-4">
+                  <div className="space-y-1">
+                    <h3 className="text-sm font-semibold">Share task externally</h3>
+                    <p className="text-xs text-muted-foreground">
+                      Create a secure link to share this task with people outside your team.
+                    </p>
                   </div>
-                )}
 
-                {shareError && (
-                  <p className="text-xs text-destructive">{shareError}</p>
-                )}
-
-                {shareData && (
-                  <div className="space-y-2">
-                    <Label className="text-xs font-medium">Share link</Label>
-                    <div className="flex items-center gap-2">
-                      <Input value={shareData.shareUrl} readOnly className="text-xs" />
-                      <Button variant="outline" size="icon" onClick={handleCopyShare} aria-label="Copy share link">
-                        <Copy className="h-3 w-3" />
-                      </Button>
+                  {shareLoading && (
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                      Loading share settings…
                     </div>
-                    {shareData.expiresAt && (
-                      <p className="text-[11px] text-muted-foreground">
-                        Expires {new Date(shareData.expiresAt).toLocaleDateString()}
-                      </p>
+                  )}
+
+                  {shareError && (
+                    <p className="text-xs text-destructive">{shareError}</p>
+                  )}
+
+                  {shareData && (
+                    <div className="space-y-2">
+                      <Label className="text-xs font-medium">Share link</Label>
+                      <div className="flex items-center gap-2">
+                        <Input value={shareData.shareUrl} readOnly className="text-xs" />
+                        <Button variant="outline" size="icon" onClick={handleCopyShare} aria-label="Copy share link">
+                          <Copy className="h-3 w-3" />
+                        </Button>
+                      </div>
+                      {shareData.expiresAt && (
+                        <p className="text-[11px] text-muted-foreground">
+                          Expires {new Date(shareData.expiresAt).toLocaleDateString()}
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-xs">Allow external comments</Label>
+                      <Switch
+                        checked={shareAllowComments}
+                        onCheckedChange={(value) => setShareAllowComments(Boolean(value))}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label className="text-xs">Require password</Label>
+                      <Switch
+                        checked={shareRequirePassword}
+                        onCheckedChange={(value) => setShareRequirePassword(Boolean(value))}
+                      />
+                    </div>
+                    {shareRequirePassword && (
+                      <Input
+                        type="password"
+                        value={sharePassword}
+                        onChange={(e) => setSharePassword(e.target.value)}
+                        placeholder="Enter password"
+                        className="text-xs"
+                      />
                     )}
                   </div>
-                )}
 
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-xs">Allow external comments</Label>
-                    <Switch
-                      checked={shareAllowComments}
-                      onCheckedChange={(value) => setShareAllowComments(Boolean(value))}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label className="text-xs">Require password</Label>
-                    <Switch
-                      checked={shareRequirePassword}
-                      onCheckedChange={(value) => setShareRequirePassword(Boolean(value))}
-                    />
-                  </div>
-                  {shareRequirePassword && (
-                    <Input
-                      type="password"
-                      value={sharePassword}
-                      onChange={(e) => setSharePassword(e.target.value)}
-                      placeholder="Enter password"
-                      className="text-xs"
-                    />
-                  )}
-                </div>
-
-                <div className="flex flex-col gap-2">
-                  <Button size="sm" onClick={handleCreateOrUpdateShare} disabled={shareLoading}>
-                    {shareData ? "Update share link" : "Create share link"}
-                  </Button>
-                  {shareData && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={handleRevokeShare}
-                      disabled={shareLoading}
-                    >
-                      Revoke share link
+                  <div className="flex flex-col gap-2">
+                    <Button size="sm" onClick={handleCreateOrUpdateShare} disabled={shareLoading}>
+                      {shareData ? "Update share link" : "Create share link"}
                     </Button>
-                  )}
-                </div>
-              </PopoverContent>
-            </Popover>
+                    {shareData && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={handleRevokeShare}
+                        disabled={shareLoading}
+                      >
+                        Revoke share link
+                      </Button>
+                    )}
+                  </div>
+                </PopoverContent>
+              </Popover>
+            )}
           </DialogTitle>
         </DialogHeader>
 
@@ -1147,6 +1204,111 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
         </div>
       </DialogContent>
     </Dialog>
+
+    <Dialog
+      open={isShareDialogOpen}
+      onOpenChange={(open) => {
+        setIsShareDialogOpen(open);
+        if (open) {
+          loadShareInfo();
+        }
+      }}
+    >
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Share issue</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            Invite external guests to view this private team issue.
+          </p>
+
+          <div className="space-y-3 rounded-md border px-3 py-3">
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label className="text-sm">Allow external comments</Label>
+                <p className="text-xs text-muted-foreground">
+                  Guests can comment on the shared issue.
+                </p>
+              </div>
+              <Switch
+                checked={shareAllowComments}
+                onCheckedChange={(checked) => setShareAllowComments(Boolean(checked))}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label className="text-sm">Require password</Label>
+                <p className="text-xs text-muted-foreground">
+                  Add a password before sharing externally.
+                </p>
+              </div>
+              <Switch
+                checked={shareRequirePassword}
+                onCheckedChange={(checked) => setShareRequirePassword(Boolean(checked))}
+              />
+            </div>
+            {shareRequirePassword && (
+              <Input
+                type="password"
+                value={sharePassword}
+                onChange={(event) => setSharePassword(event.target.value)}
+                placeholder="Enter password"
+              />
+            )}
+          </div>
+
+          {shareError && <p className="text-xs text-destructive">{shareError}</p>}
+
+          {shareData ? (
+            <div className="space-y-2">
+              <Label className="text-sm">Share link</Label>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <Input value={shareData.shareUrl} readOnly />
+                <Button type="button" variant="outline" onClick={handleCopyShare}>
+                  Copy
+                </Button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Button type="button" onClick={handleCreateOrUpdateShare} disabled={shareLoading}>
+                  Update link
+                </Button>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={handleRevokeShare}
+                  disabled={shareLoading}
+                >
+                  Revoke link
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <Button type="button" onClick={handleCreateOrUpdateShare} disabled={shareLoading}>
+              Create share link
+            </Button>
+          )}
+
+          <div className="space-y-2">
+            <Label className="text-sm">Invite by email</Label>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Input
+                placeholder="name@company.com, name2@company.com"
+                value={inviteEmails}
+                onChange={(event) => setInviteEmails(event.target.value)}
+              />
+              <Button type="button" onClick={handleInviteExternal} disabled={shareLoading}>
+                Send invite
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              We will open your email client with the share link.
+            </p>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+    </>
   );
 };
 

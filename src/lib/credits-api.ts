@@ -15,7 +15,7 @@ export interface CreditBalance {
 }
 
 export interface SubscriptionStatus {
-  planType: 'free' | 'pro';
+  planType: 'free' | 'pro' | 'enterprise';
   status: 'active' | 'inactive' | 'cancelled' | 'past_due';
   currentPeriodEnd?: string;
   cancelAtPeriodEnd?: boolean;
@@ -83,8 +83,9 @@ export async function getSubscriptionStatus(token: string): Promise<Subscription
     if (!data) return null;
 
     const plan = data.planType || data.plan || 'free';
+    const normalizedPlan = plan === 'enterprise' ? 'enterprise' : plan === 'pro' ? 'pro' : 'free';
     return {
-      planType: plan === 'pro' ? 'pro' : 'free',
+      planType: normalizedPlan,
       status: data.status || 'inactive',
       currentPeriodEnd: data.current_period_end || data.currentPeriodEnd,
       cancelAtPeriodEnd: data.cancel_at_period_end || data.cancelAtPeriodEnd,

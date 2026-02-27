@@ -24,7 +24,7 @@ export function SubscriptionStatus({
   } = useSubscription();
 
   const isFree = planType === 'free';
-  const planName = isPro ? 'Pro' : 'Free';
+  const planName = planType === 'enterprise' ? 'Enterprise' : isPro ? 'Pro' : 'Free';
 
   if (compact) {
     return (

@@ -42,7 +42,7 @@ const PricingPage = () => {
 
   const monthlyPrice = 10;
   const annualPrice = 8; // per month when billed annually
-  const annualSavingsAmount = ((monthlyPrice - annualPrice) * 12).toFixed(0);
+  const annualSavingsAmount = (monthlyPrice - annualPrice) * 12;
   const annualSavingsPercent = Math.round(((monthlyPrice - annualPrice) / monthlyPrice) * 100);
 
   const handlePlanSelect = (plan: 'free' | 'pro') => {
@@ -144,61 +144,45 @@ const PricingPage = () => {
           </p>
 
           {/* Billing Toggle */}
-          <div className="flex flex-col items-center gap-3 mb-12">
-            <div
-              className="relative inline-grid grid-cols-2 items-center rounded-full bg-neutral-900/80 border border-neutral-800 p-1 shadow-sm"
-              role="radiogroup"
-              aria-label="Billing interval"
-            >
+          <div className="flex flex-col items-center justify-center gap-4 mb-12">
+            <div className="relative inline-grid grid-cols-2 rounded-full border border-neutral-800 bg-neutral-900/70 p-1 shadow-sm">
               <span
                 aria-hidden="true"
-                className={`absolute top-1 bottom-1 left-1 w-[calc(50%-0.25rem)] rounded-full transition-transform duration-300 ease-out ${
-                  isAnnual
-                    ? 'translate-x-full bg-indigo-500 shadow-[0_0_0_1px_rgba(99,102,241,0.4)]'
-                    : 'translate-x-0 bg-white shadow-[0_0_0_1px_rgba(255,255,255,0.2)]'
+                className={`absolute inset-y-1 left-1 w-[calc(50%-0.25rem)] rounded-full bg-white/10 transition-transform duration-300 ease-out ${
+                  isAnnual ? 'translate-x-full' : 'translate-x-0'
                 }`}
               />
               <button
                 type="button"
-                role="radio"
-                aria-checked={!isAnnual}
-                onClick={() => setIsAnnual(false)}
-                className={`relative z-10 h-12 w-40 sm:w-44 px-5 rounded-full text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/60 ${
-                  !isAnnual
-                    ? 'text-black'
-                    : 'text-neutral-400 hover:text-white'
+                className={`relative z-10 flex items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-medium min-h-11 min-w-[120px] transition-colors ${
+                  !isAnnual ? 'text-white' : 'text-neutral-400'
                 }`}
+                aria-pressed={!isAnnual}
+                onClick={() => setIsAnnual(false)}
               >
                 Monthly
               </button>
               <button
                 type="button"
-                role="radio"
-                aria-checked={isAnnual}
-                onClick={() => setIsAnnual(true)}
-                className={`relative z-10 h-12 w-40 sm:w-44 px-5 rounded-full text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/60 ${
-                  isAnnual
-                    ? 'text-white'
-                    : 'text-neutral-400 hover:text-white'
+                className={`relative z-10 flex items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-medium min-h-11 min-w-[120px] transition-colors ${
+                  isAnnual ? 'text-white' : 'text-neutral-400'
                 }`}
+                aria-pressed={isAnnual}
+                onClick={() => setIsAnnual(true)}
               >
-                <span className="inline-flex items-center justify-center gap-2">
-                  Yearly
-                  <span
-                    className={`px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide ${
-                      isAnnual
-                        ? 'bg-emerald-400/20 text-emerald-200'
-                        : 'bg-neutral-800 text-neutral-400'
-                    }`}
-                  >
-                    Save {annualSavingsPercent}%
-                  </span>
+                <span>Yearly</span>
+                <span
+                  className={`rounded-full px-2 py-0.5 text-[11px] font-semibold tracking-wide ${
+                    isAnnual ? 'bg-emerald-400 text-emerald-950' : 'bg-emerald-500/20 text-emerald-300'
+                  }`}
+                >
+                  Save {annualSavingsPercent}%
                 </span>
               </button>
             </div>
-            <span className="text-xs text-neutral-500">
-              Save €{annualSavingsAmount}/year when billed annually
-            </span>
+            {isAnnual && (
+              <span className="text-xs text-neutral-500">Billed yearly, save €{annualSavingsAmount.toFixed(0)}/year</span>
+            )}
           </div>
         </div>
       </section>
@@ -268,7 +252,7 @@ const PricingPage = () => {
                 <div className="flex items-baseline gap-1">
                   <span
                     key={isAnnual ? 'annual' : 'monthly'}
-                    className="text-4xl font-bold animate-in fade-in-0 slide-in-from-bottom-1 duration-300"
+                    className="text-4xl font-bold tabular-nums transition-all duration-300 ease-out animate-fade-in"
                   >
                     €{isAnnual ? annualPrice : monthlyPrice}
                   </span>
@@ -276,7 +260,7 @@ const PricingPage = () => {
                 </div>
                 {isAnnual && (
                   <p className="text-sm text-emerald-400">
-                    €{annualPrice * 12} billed annually (save €{annualSavingsAmount})
+                    €{annualPrice * 12} billed annually (save {annualSavingsPercent}%)
                   </p>
                 )}
               </CardHeader>
