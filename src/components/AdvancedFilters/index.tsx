@@ -115,7 +115,7 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
   const [isExpanded, setIsExpanded] = useState(false);
 
   // Helper function to create unique IDs
-  const createId = React.useCallback(() => Math.random().toString(36).substr(2, 9), []);
+  const createId = React.useCallback(() => Math.random().toString(36).slice(2, 11), []);
 
   const normalizeSavedFilter = React.useCallback((saved: any): SavedFilter => {
     if (saved?.rootGroup) {
@@ -154,7 +154,7 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
         console.error("Failed to load saved filters", e);
       }
     }
-  }, []);
+  }, [normalizeSavedFilter]);
 
   // Save filters to localStorage
   const persistSavedFilters = (filters: SavedFilter[]) => {

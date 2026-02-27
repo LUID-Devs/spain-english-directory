@@ -1,8 +1,9 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { sanitizeHtmlContent } from "@/lib/utils";
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 
@@ -50,7 +51,7 @@ const TaskSharePage: React.FC = () => {
   const [commentError, setCommentError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const fetchTaskShare = async (sharePassword?: string) => {
+  const fetchTaskShare = useCallback(async (sharePassword?: string) => {
     if (!token) return;
 
     try {
@@ -105,11 +106,11 @@ const TaskSharePage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
 
   useEffect(() => {
     fetchTaskShare();
-  }, [token]);
+  }, [fetchTaskShare]);
 
   const handlePasswordSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -261,9 +262,14 @@ const TaskSharePage: React.FC = () => {
 
         <section className="space-y-3">
           <h2 className="text-lg font-semibold">Description</h2>
-          <p className="text-muted-foreground whitespace-pre-wrap">
-            {data.task.description || "No description provided."}
-          </p>
+          {data.task.description ? (
+            <div
+              className="prose prose-sm max-w-none text-muted-foreground dark:prose-invert"
+              dangerouslySetInnerHTML={{ __html: sanitizeHtmlContent(data.task.description) }}
+            />
+          ) : (
+            <p className="text-muted-foreground">No description provided.</p>
+          )}
         </section>
 
         <section className="space-y-4">
