@@ -64,7 +64,7 @@ export default defineConfig({
     'import.meta.env.VITE_LANDING_VARIANT': JSON.stringify(process.env.VITE_LANDING_VARIANT || 'taskluid'),
   },
   test: {
-    environment: 'node',
+    environment: 'happy-dom',
     include: ['src/**/*.test.{ts,tsx}'],
     exclude: ['e2e/**', 'dist/**', 'node_modules/**'],
   },

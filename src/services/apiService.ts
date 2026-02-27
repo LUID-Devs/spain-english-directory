@@ -110,7 +110,7 @@ export interface SavedView {
   projectId: number;
   userId: number;
   organizationId: number;
-  filters: {
+  filters: AdvancedTaskFilter | {
     priority?: string | null;
     status?: string | null;
     assigneeId?: number | null;
@@ -120,6 +120,144 @@ export interface SavedView {
   isShared: boolean;
   createdAt: string;
   updatedAt: string;
+}
+
+// ==================== ADVANCED FILTER TYPES ====================
+
+export type FilterOperator =
+  | "equals"
+  | "notEquals"
+  | "contains"
+  | "notContains"
+  | "startsWith"
+  | "endsWith"
+  | "greaterThan"
+  | "lessThan"
+  | "greaterThanOrEqual"
+  | "lessThanOrEqual"
+  | "in"
+  | "notIn"
+  | "between"
+  | "isEmpty"
+  | "isNotEmpty";
+
+export type TaskFilterField =
+  | "id"
+  | "title"
+  | "description"
+  | "status"
+  | "priority"
+  | "taskType"
+  | "tags"
+  | "startDate"
+  | "dueDate"
+  | "updatedAt"
+  | "points"
+  | "projectId"
+  | "authorUserId"
+  | "assignedUserId"
+  | "cycleId"
+  | "triaged"
+  | "archivedAt"
+  | "isShared";
+
+export interface FieldCondition {
+  field: TaskFilterField;
+  operator: FilterOperator;
+  value?: string | number | boolean | string[] | number[] | Date | { from: Date; to: Date };
+}
+
+export interface ConditionGroup {
+  operator: "AND" | "OR";
+  conditions: (FieldCondition | ConditionGroup)[];
+}
+
+export interface AdvancedTaskFilter {
+  operator?: "AND" | "OR";
+  conditions: (FieldCondition | ConditionGroup)[];
+}
+
+export interface FilterMetadataField {
+  name: TaskFilterField;
+  type: "string" | "number" | "date" | "boolean";
+  label: string;
+}
+
+export interface FilterMetadataOperator {
+  value: FilterOperator;
+  label: string;
+  types: ("string" | "number" | "boolean" | "date")[];
+}
+
+export interface FilterMetadata {
+  fields: FilterMetadataField[];
+  operators: FilterMetadataOperator[];
+  values: {
+    priority: string[];
+    taskType: string[];
+    projects: { id: number; name: string }[];
+    users: { userId: number; username: string; email: string }[];
+    statuses: { id: number; name: string; color?: string; projectId: number }[];
+    tags: string[];
+  };
+}
+
+export interface ApplyAdvancedFilterRequest {
+  filter: AdvancedTaskFilter;
+  options?: {
+    page?: number;
+    limit?: number;
+    sortBy?: string;
+    sortOrder?: "asc" | "desc";
+  };
+}
+
+export interface ApplyAdvancedFilterResponse {
+  success: boolean;
+  tasks: Task[];
+  pagination: {
+    page: number;
+    limit: number;
+    totalCount: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+  };
+  filter: {
+    applied: boolean;
+    operator: "AND" | "OR";
+    conditionCount: number;
+  };
+}
+
+export interface ValidateFilterResponse {
+  valid: boolean;
+  error?: string;
+}
+
+export interface ConvertFilterResponse {
+  success: boolean;
+  legacyFilter: Record<string, unknown>;
+  advancedFilter: AdvancedTaskFilter;
+}
+
+export interface ApplySavedViewResponse {
+  success: boolean;
+  view: {
+    id: number;
+    name: string;
+    isDefault: boolean;
+    isShared: boolean;
+  };
+  tasks: Task[];
+  pagination: {
+    page: number;
+    limit: number;
+    totalCount: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+  };
 }
 
 export interface TaskShareResponse {
@@ -2111,6 +2249,63 @@ class ApiService {
     return this.request<{ values: TaskCustomFieldValue[] }>(`/api/tasks/${taskId}/custom-fields`, {
       method: 'PATCH',
       body: JSON.stringify({ customFields }),
+    });
+  }
+
+  // ==================== ADVANCED FILTER METHODS ====================
+
+  /**
+   * Apply advanced filters with AND/OR logic to tasks
+   * POST /api/tasks/advanced-filter
+   */
+  async applyAdvancedFilter(request: ApplyAdvancedFilterRequest): Promise<ApplyAdvancedFilterResponse> {
+    return this.request<ApplyAdvancedFilterResponse>('/api/tasks/advanced-filter', {
+      method: 'POST',
+      body: JSON.stringify(request),
+    });
+  }
+
+  /**
+   * Validate an advanced filter structure without executing it
+   * POST /api/tasks/advanced-filter/validate
+   */
+  async validateAdvancedFilter(filter: AdvancedTaskFilter): Promise<ValidateFilterResponse> {
+    return this.request<ValidateFilterResponse>('/api/tasks/advanced-filter/validate', {
+      method: 'POST',
+      body: JSON.stringify({ filter }),
+    });
+  }
+
+  /**
+   * Convert a legacy simple filter to advanced filter format
+   * POST /api/tasks/advanced-filter/convert
+   */
+  async convertLegacyFilter(legacyFilter: Record<string, unknown>): Promise<ConvertFilterResponse> {
+    return this.request<ConvertFilterResponse>('/api/tasks/advanced-filter/convert', {
+      method: 'POST',
+      body: JSON.stringify({ legacyFilter }),
+    });
+  }
+
+  /**
+   * Get metadata for building filters (available fields, operators, etc.)
+   * GET /api/tasks/filter-metadata
+   */
+  async getFilterMetadata(): Promise<{ success: boolean; metadata: FilterMetadata }> {
+    return this.request<{ success: boolean; metadata: FilterMetadata }>('/api/tasks/filter-metadata');
+  }
+
+  /**
+   * Apply a saved view's filters to get matching tasks
+   * POST /api/saved-views/:viewId/apply
+   */
+  async applySavedView(
+    viewId: number,
+    options?: ApplyAdvancedFilterRequest['options']
+  ): Promise<ApplySavedViewResponse> {
+    return this.request<ApplySavedViewResponse>(`/api/saved-views/${viewId}/apply`, {
+      method: 'POST',
+      body: JSON.stringify({ options }),
     });
   }
 }
