@@ -43,6 +43,13 @@ export default function GoalsPage() {
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
   const [filter, setFilter] = useState<'all' | 'active' | 'completed' | 'company' | 'team' | 'individual'>('all');
 
+  const handleCreateGoalClick = () => {
+    if (typeof window !== 'undefined' && window.innerWidth < 640) {
+      navigate('/dashboard/goals/create');
+      return;
+    }
+    setIsCreateModalOpen(true);
+  };
   const { data: goals, isPending, isError, error, refetch } = useQuery({
     queryKey: ['goals', organizationId, filter],
     queryFn: async () => {

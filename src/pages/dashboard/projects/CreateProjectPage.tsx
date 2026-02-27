@@ -27,7 +27,6 @@ const CreateProjectPage = () => {
   const [createProject, { isLoading }] = useCreateProjectMutation();
   const { currentUser } = useCurrentUser();
   const timeoutRef = React.useRef<NodeJS.Timeout | null>(null);
-
   const [projectName, setProjectName] = useState("");
   const [description, setDescription] = useState("");
   const [startDate, setStartDate] = useState("");
@@ -66,10 +65,12 @@ const CreateProjectPage = () => {
 
     fetchTasks();
   }, [currentUser?.userId]);
+
   const filteredTasks = useMemo(() => {
-    if (!taskSearch.trim()) return availableTasks;
+    const activeTasks = availableTasks.filter((task) => !task.archivedAt);
+    if (!taskSearch.trim()) return activeTasks;
     const query = taskSearch.toLowerCase();
-    return availableTasks.filter((task) => task.title.toLowerCase().includes(query));
+    return activeTasks.filter((task) => task.title.toLowerCase().includes(query));
   }, [availableTasks, taskSearch]);
 
   const toggleTask = (taskId: number) => {
@@ -129,9 +130,8 @@ const CreateProjectPage = () => {
         endDate: formattedEndDate,
       }).unwrap();
 
-      const newProjectId = Number(newProject?.id);
-      if (Number.isFinite(newProjectId)) {
-        await attachTasksToProject(newProjectId);
+      if (selectedTaskIds.size > 0) {
+        await apiService.bulkMoveToProject(Array.from(selectedTaskIds), Number(newProject.id));
       }
 
       setSuccess(true);

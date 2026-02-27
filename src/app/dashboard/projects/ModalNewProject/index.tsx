@@ -52,9 +52,10 @@ const ModalNewProject = ({ isOpen, onClose }: Props) => {
   }, [isOpen, currentUser?.userId]);
 
   const filteredTasks = useMemo(() => {
-    if (!taskSearch.trim()) return availableTasks;
+    const activeTasks = availableTasks.filter((task) => !task.archivedAt);
+    if (!taskSearch.trim()) return activeTasks;
     const query = taskSearch.toLowerCase();
-    return availableTasks.filter((task) => task.title.toLowerCase().includes(query));
+    return activeTasks.filter((task) => task.title.toLowerCase().includes(query));
   }, [availableTasks, taskSearch]);
 
   const toggleTask = (taskId: number) => {
