@@ -68,11 +68,11 @@ const getPriorityIcon = (priority: Priority) => {
 
 const getPriorityColors = (priority: Priority) => {
   const colors = {
-    "Urgent": { bg: "bg-gray-900 dark:bg-gray-900", border: "border-gray-800 dark:border-gray-800", text: "text-gray-100 dark:text-gray-100" },
-    "High": { bg: "bg-gray-700 dark:bg-gray-700", border: "border-gray-600 dark:border-gray-600", text: "text-gray-100 dark:text-gray-100" },
-    "Medium": { bg: "bg-gray-500 dark:bg-gray-500", border: "border-gray-400 dark:border-gray-400", text: "text-white dark:text-white" },
-    "Low": { bg: "bg-gray-300 dark:bg-gray-300", border: "border-gray-200 dark:border-gray-200", text: "text-gray-800 dark:text-gray-800" },
-    "Backlog": { bg: "bg-gray-100 dark:bg-gray-100", border: "border-gray-100 dark:border-gray-100", text: "text-gray-600 dark:text-gray-600" },
+    "Urgent": { bg: "bg-red-50 dark:bg-red-950/40", border: "border-red-200 dark:border-red-900", text: "text-red-700 dark:text-red-200" },
+    "High": { bg: "bg-orange-50 dark:bg-orange-950/40", border: "border-orange-200 dark:border-orange-900", text: "text-orange-700 dark:text-orange-200" },
+    "Medium": { bg: "bg-blue-50 dark:bg-blue-950/40", border: "border-blue-200 dark:border-blue-900", text: "text-blue-700 dark:text-blue-200" },
+    "Low": { bg: "bg-green-50 dark:bg-green-950/40", border: "border-green-200 dark:border-green-900", text: "text-green-700 dark:text-green-200" },
+    "Backlog": { bg: "bg-slate-50 dark:bg-slate-950/40", border: "border-slate-200 dark:border-slate-900", text: "text-slate-700 dark:text-slate-200" },
   };
   return colors[priority] || colors["Medium"];
 };

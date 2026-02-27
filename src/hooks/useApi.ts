@@ -512,6 +512,28 @@ export const useUpdateTaskMutation = () => {
   return [mutationWrapper, { isLoading: false }] as const;
 };
 
+export const useCreateTaskShareMutation = () => {
+  const createShare = useCallback(async ({ taskId, data }: { taskId: number; data?: {
+    expiresInDays?: number | null;
+    allowComments?: boolean;
+    requirePassword?: boolean;
+    password?: string;
+  } }) => {
+    return apiService.createTaskShare(taskId, data || {});
+  }, []);
+
+  const mutationWrapper = useCallback((args: { taskId: number; data?: {
+    expiresInDays?: number | null;
+    allowComments?: boolean;
+    requirePassword?: boolean;
+    password?: string;
+  } }) => ({
+    unwrap: () => createShare(args)
+  }), [createShare]);
+
+  return [mutationWrapper, { isLoading: false }] as const;
+};
+
 export const useReorderTasksMutation = () => {
   const { setTasks } = useApiStore();
 
@@ -651,7 +673,9 @@ export const useGetTeamsQuery = (params: any = undefined, options: { skip?: bool
       setLoading('teams', true);
       const teamsData = await getOrCreateRequest(
         'teams:global',
-        () => apiService.getTeams(),
+        () => (typeof apiService.getTeams === 'function'
+          ? apiService.getTeams()
+          : apiService.request<Team[]>('/teams')),
         2500
       );
       setTeams(teamsData);

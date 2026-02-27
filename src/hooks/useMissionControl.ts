@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { limitedFetch } from "@/services/limitedFetch";
 
 const API_BASE = (
   import.meta.env.VITE_API_BASE_URL ||
@@ -60,6 +61,10 @@ const getUserFriendlyErrorMessage = (
     return "You don't have permission to perform this action.";
   }
 
+  if (status === 429) {
+    return "Too many requests. Please wait a moment and try again.";
+  }
+
   // Not found errors
   if (status === 404) {
     if (isAgentEndpoint) return "Agent not found. It may have been deleted.";
@@ -109,7 +114,7 @@ const missionFetch = async <T>(path: string, options: RequestInit = {}): Promise
     headers["Content-Type"] = "application/json";
   }
 
-  const response = await fetch(`${API_BASE}${path}`, {
+  const response = await limitedFetch(`${API_BASE}${path}`, {
     credentials: "include",
     ...options,
     headers,

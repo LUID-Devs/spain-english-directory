@@ -9,6 +9,7 @@ import { SubscriptionProvider } from '@/components/SubscriptionProvider';
 import { useQuickAddTask } from '@/hooks/useQuickAddTask';
 import { useCommandPalette } from '@/hooks/useCommandPalette';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import { UndoProvider } from '@/contexts/UndoContext';
 import QuickAddTaskModal from '@/components/QuickAddTaskModal';
 import CommandPalette from '@/components/CommandPalette';
 import KeyboardShortcutsHelp from '@/components/KeyboardShortcutsHelp';
@@ -43,8 +44,9 @@ const MissionControlPage = React.lazy(() => import('@/pages/dashboard/mission-co
 const WorkloadDashboardPage = React.lazy(() => import('@/pages/dashboard/workload/WorkloadDashboardPage'));
 const GoalsPage = React.lazy(() => import('@/pages/dashboard/goals/GoalsPage'));
 const GoalDetailPage = React.lazy(() => import('@/pages/dashboard/goals/GoalDetailPage'));
-const AnalyticsPage = React.lazy(() => import('@/pages/dashboard/analytics/AnalyticsPage'));
+const CreateGoalPage = React.lazy(() => import('@/pages/dashboard/goals/CreateGoalPage'));
 const AnalyticsDashboardPage = React.lazy(() => import('@/pages/dashboard/analytics/AnalyticsDashboardPage'));
+const MobileAppCreatePage = React.lazy(() => import('@/pages/dashboard/mobile/MobileAppCreatePage'));
 
 // Priority Pages (lazy loaded)
 const HighPriorityPage = React.lazy(() => import('@/pages/dashboard/priority/HighPriorityPage'));
@@ -56,9 +58,11 @@ const ArchivedTasksPage = React.lazy(() => import('@/app/dashboard/archived-task
 const AutomationPage = React.lazy(() => import('@/pages/dashboard/automation/AutomationPage'));
 
 // Other Pages (lazy loaded)
+const ConverterPage = React.lazy(() => import('@/pages/converter/ConverterPage'));
 // Pricing page - must be prerendered for SEO (see vite-plugin-static-prerender.ts)
 const PricingPage = React.lazy(() => import('@/pages/pricing/PricingPage'));
 const FeaturesPage = React.lazy(() => import('@/pages/features/FeaturesPage'));
+const ComparePage = React.lazy(() => import('@/pages/compare/ComparePage'));
 const InviteAcceptPage = React.lazy(() => import('@/pages/organizations/invite/InviteAcceptPage'));
 
 // Legal Pages (lazy loaded)
@@ -72,6 +76,7 @@ const DocsPage = React.lazy(() => import('@/pages/docs/DocsPage'));
 
 // Public Status Pages (lazy loaded)
 const ProjectStatusPage = React.lazy(() => import('@/pages/status/ProjectStatusPage'));
+const TaskSharePage = React.lazy(() => import('@/pages/share/TaskSharePage'));
 
 const resolveLandingVariant = () => {
   const configuredVariant = import.meta.env.VITE_LANDING_VARIANT;
@@ -128,7 +133,7 @@ function AppContent() {
   }, [isDarkMode]);
 
   return (
-    <>
+    <UndoProvider>
       <AuthErrorDisplay />
       <Suspense fallback={<div className="flex items-center justify-center h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
         <Routes>
@@ -136,8 +141,10 @@ function AppContent() {
           <Route path="/landing" element={<LandingPage />} />
           <Route path="/luidkit" element={<LuidKitLandingPage />} />
           <Route path="/resumeluid" element={<ResumeLuidLandingPage />} />
+          <Route path="/convert" element={<ConverterPage />} />
           <Route path="/pricing" element={<PricingPage />} />
           <Route path="/features" element={<FeaturesPage />} />
+          <Route path="/compare" element={<ComparePage />} />
 
           {/* Legal Routes */}
           <Route path="/privacy" element={<PrivacyPolicy />} />
@@ -150,6 +157,7 @@ function AppContent() {
 
           {/* Public Project Status Routes */}
           <Route path="/status/:token" element={<ProjectStatusPage />} />
+          <Route path="/share/:token" element={<TaskSharePage />} />
 
           {/* Auth Routes */}
           <Route path="/auth/login" element={<LoginPage />} />
@@ -248,17 +256,21 @@ function AppContent() {
                     <GoalsPage />
                   </RouteErrorBoundary>
                 } />
+                <Route path="goals/create" element={
+                  <RouteErrorBoundary componentName="Create Goal">
+                    <CreateGoalPage />
+                  </RouteErrorBoundary>
+                } />
                 <Route path="goals/:goalId" element={
                   <RouteErrorBoundary componentName="Goal Detail">
                     <GoalDetailPage />
                   </RouteErrorBoundary>
                 } />
-                <Route path="analytics" element={
-                  <RouteErrorBoundary componentName="Analytics">
-                    <AnalyticsPage />
+                <Route path="mobile/create" element={
+                  <RouteErrorBoundary componentName="Mobile App Create">
+                    <MobileAppCreatePage />
                   </RouteErrorBoundary>
                 } />
-
                 {/* Priority Routes */}
                 <Route path="priority/high" element={
                   <RouteErrorBoundary componentName="High Priority">
@@ -310,7 +322,7 @@ function AppContent() {
 
       {/* Toast Notifications */}
       <Toaster
-        position="top-right"
+        position="bottom-right"
         toastOptions={{
           style: {
             background: isDarkMode ? '#374151' : '#ffffff',
@@ -331,7 +343,7 @@ function AppContent() {
       
       {/* Keyboard Shortcuts Help Modal */}
       <KeyboardShortcutsHelp isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)} />
-    </>
+    </UndoProvider>
   );
 }
 

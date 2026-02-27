@@ -91,7 +91,7 @@ const LandingPage = () => {
     { value: 'Minutes', label: 'To Get Started', icon: Zap },
     { value: 'Self-hosted', label: 'Option', icon: Server },
     { value: 'MIT License', label: 'Open source', icon: CheckCircle },
-    { value: 'Active', label: 'Development', icon: Star },
+    { value: '40+', label: 'Core features', icon: Award },
   ];
 
   const testimonials = [
@@ -124,10 +124,10 @@ const LandingPage = () => {
 
   const usedBy = [
     { name: 'Freelancers', type: 'Solo Pros' },
+    { name: 'Small Agencies', type: 'Client Work' },
+    { name: 'Indie Teams', type: 'Product' },
     { name: 'Consultants', type: 'Advisory' },
     { name: 'Design Studios', type: 'Creative' },
-    { name: 'Dev Agencies', type: 'Service' },
-    { name: 'Content Creators', type: 'Media' },
   ];
 
   const socialProof = ['Solo freelancers', 'Consultants', 'Agencies', 'Creators', 'Indie builders'];
@@ -189,6 +189,9 @@ const LandingPage = () => {
             <Link to="/features" className="text-sm text-neutral-400 hover:text-white transition-colors">
               Features
             </Link>
+            <Link to="/compare" className="text-sm text-neutral-400 hover:text-white transition-colors">
+              Compare
+            </Link>
             <Link
               to="/pricing"
               className="text-sm text-neutral-400 hover:text-white transition-colors"
@@ -225,6 +228,13 @@ const LandingPage = () => {
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Features
+              </Link>
+              <Link
+                to="/compare"
+                className="text-sm text-neutral-300 hover:text-white transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Compare
               </Link>
               <Link
                 to="/pricing"
@@ -275,14 +285,24 @@ const LandingPage = () => {
             TaskLuid
           </h1>
           <p className="text-xl text-gray-200 mb-2 max-w-2xl mx-auto">
-            The Goldilocks project tool for freelancers.
+            Powerful simplicity for freelancers and small teams.
           </p>
           <p className="text-lg text-indigo-300 mb-4 max-w-2xl mx-auto font-medium">
-            Simple enough to start. Powerful enough to grow.
+            Powerful without the bloat. Simple enough to start, scalable enough to grow.
           </p>
           <p className="text-sm text-neutral-500 mb-8">
-            Not too basic like Trello. Not too complex like Asana. Just right.
+            The Goldilocks zone between basic boards and enterprise bloat.{' '}
+            <Link to="/compare" className="text-neutral-300 underline underline-offset-4 hover:text-white">
+              See the comparison
+            </Link>.
           </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 text-xs text-neutral-300 mb-8">
+            <span className="px-3 py-1 rounded-full border border-neutral-800 bg-neutral-900/60">Free plan included</span>
+            <span className="px-3 py-1 rounded-full border border-neutral-800 bg-neutral-900/60">Pro €10/mo (or €8/mo annually)</span>
+            <Link to="/pricing" className="text-indigo-300 hover:text-indigo-200 transition-colors">
+              See full pricing
+            </Link>
+          </div>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
             <Link
@@ -384,58 +404,80 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Goldilocks Comparison - Why TaskLuid */}
+      {/* Comparison - TaskLuid vs Jira vs ClickUp vs Trello */}
       <section className="px-4 py-16 border-t border-neutral-900 bg-gradient-to-b from-black to-neutral-950">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-10">
-            <p className="text-sm text-neutral-500 mb-2">The Goldilocks choice</p>
-            <h2 className="text-3xl font-semibold">Not too simple. Not too complex. Just right.</h2>
+            <p className="text-sm text-neutral-500 mb-2">TaskLuid vs Jira vs ClickUp vs Trello</p>
+            <h2 className="text-3xl font-semibold">Powerful without the bloat</h2>
             <p className="text-sm text-neutral-500 mt-2 max-w-xl mx-auto">
-              We built TaskLuid because existing tools force you to choose between too basic and too bloated.
+              Built for freelancers, small agencies, and indie teams who need real project power without enterprise overhead.
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Trello - Too Simple */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            {/* Trello - Too Light */}
             <div className="p-6 rounded-xl bg-neutral-900/30 border border-neutral-800 opacity-70">
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-8 h-8 rounded bg-blue-500/20 flex items-center justify-center text-xs font-bold text-blue-400">T</div>
                 <h3 className="font-semibold text-neutral-400">Trello</h3>
               </div>
-              <div className="text-xs uppercase tracking-wider text-red-400 mb-3">Too Simple</div>
+              <div className="text-xs uppercase tracking-wider text-red-400 mb-3">Too Light</div>
               <ul className="space-y-2 text-sm text-neutral-500">
                 <li className="flex items-start gap-2">
-                  <span className="text-red-500">✗</span> No real timelines or deadlines
+                  <span className="text-red-500">✗</span> Limited timelines and dependencies
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-red-500">✗</span> Hard to track multiple clients
+                  <span className="text-red-500">✗</span> Hard to manage multiple clients
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-red-500">✗</span> No invoicing or time tracking
+                  <span className="text-red-500">✗</span> Minimal reporting and analytics
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-red-500">✗</span> Limited reporting for client updates
+                  <span className="text-red-500">✗</span> Not built for growing teams
                 </li>
               </ul>
             </div>
-            {/* Asana/Notion - Too Complex */}
+            {/* ClickUp - Feature Bloat */}
             <div className="p-6 rounded-xl bg-neutral-900/30 border border-neutral-800 opacity-70">
               <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 rounded bg-pink-500/20 flex items-center justify-center text-xs font-bold text-pink-400">A</div>
-                <h3 className="font-semibold text-neutral-400">Asana / Notion</h3>
+                <div className="w-8 h-8 rounded bg-purple-500/20 flex items-center justify-center text-xs font-bold text-purple-400">C</div>
+                <h3 className="font-semibold text-neutral-400">ClickUp</h3>
               </div>
-              <div className="text-xs uppercase tracking-wider text-red-400 mb-3">Too Complex</div>
+              <div className="text-xs uppercase tracking-wider text-red-400 mb-3">Feature Bloat</div>
               <ul className="space-y-2 text-sm text-neutral-500">
                 <li className="flex items-start gap-2">
-                  <span className="text-red-500">✗</span> Steep learning curve
+                  <span className="text-red-500">✗</span> Too many views and settings
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-red-500">✗</span> Setup takes hours, not minutes
+                  <span className="text-red-500">✗</span> Slow onboarding for small teams
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-red-500">✗</span> Feature overload you never use
+                  <span className="text-red-500">✗</span> Overkill for client work
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-red-500">✗</span> More managing than doing
+                  <span className="text-red-500">✗</span> Feels heavy for day-to-day use
+                </li>
+              </ul>
+            </div>
+            {/* Jira - Enterprise Only */}
+            <div className="p-6 rounded-xl bg-neutral-900/30 border border-neutral-800 opacity-70">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-8 h-8 rounded bg-amber-500/20 flex items-center justify-center text-xs font-bold text-amber-400">J</div>
+                <h3 className="font-semibold text-neutral-400">Jira</h3>
+              </div>
+              <div className="text-xs uppercase tracking-wider text-red-400 mb-3">Enterprise Only</div>
+              <ul className="space-y-2 text-sm text-neutral-500">
+                <li className="flex items-start gap-2">
+                  <span className="text-red-500">✗</span> Complex workflows and admin overhead
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-red-500">✗</span> Built for large orgs
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-red-500">✗</span> Heavy process for small teams
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-red-500">✗</span> Expensive at scale
                 </li>
               </ul>
             </div>
@@ -450,16 +492,16 @@ const LandingPage = () => {
               <div className="text-xs uppercase tracking-wider text-emerald-400 mb-3">Just Right ✓</div>
               <ul className="space-y-2 text-sm text-neutral-300">
                 <li className="flex items-start gap-2">
-                  <span className="text-emerald-400">✓</span> Client projects with clear timelines
+                  <span className="text-emerald-400">✓</span> 40+ core features without clutter
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-emerald-400">✓</span> Multiple workspaces per client
+                  <span className="text-emerald-400">✓</span> Fast setup in minutes
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-emerald-400">✓</span> Start in minutes, no setup required
+                  <span className="text-emerald-400">✓</span> Built for client work and indie teams
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-emerald-400">✓</span> Only the features you actually need
+                  <span className="text-emerald-400">✓</span> Clean timelines, tasks, and collaboration
                 </li>
               </ul>
             </div>
@@ -558,7 +600,7 @@ const LandingPage = () => {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-10">
             <p className="text-sm text-neutral-500 mb-2">Built for how you work</p>
-            <h2 className="text-3xl font-semibold">Freelancer-first features</h2>
+            <h2 className="text-3xl font-semibold">Freelancer + small-team features</h2>
             <p className="text-sm text-neutral-500 mt-2 max-w-xl mx-auto">
               Everything you need to manage client work—nothing you don't.
             </p>

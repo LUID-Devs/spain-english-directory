@@ -1,5 +1,6 @@
 
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useGetProjectsQuery } from "@/hooks/useApi";
 import { useProjects } from "@/stores/apiStore";
 import { useCurrentUser } from "@/stores/userStore";
@@ -22,6 +23,7 @@ const FREE_PROJECT_LIMIT = 1;
 
 const ProjectsPage = () => {
   const [isNewProjectModalOpen, setIsNewProjectModalOpen] = useState(false);
+  const navigate = useNavigate();
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -49,8 +51,23 @@ const ProjectsPage = () => {
    */
   const handleNewProjectClick = () => {
     const totalProjects = allProjects?.length ?? 0;
+    if (!canCreateProject(totalProjects)) {
+      setIsUpgradeModalOpen(true);
+      return;
+    }
+
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      navigate("/dashboard/projects/create");
+      return;
+    }
+
+    setIsNewProjectModalOpen(true);
+  };
+
+  const handleNewProjectMobileClick = () => {
+    const totalProjects = allProjects?.length ?? 0;
     if (canCreateProject(totalProjects)) {
-      setIsNewProjectModalOpen(true);
+      navigate("/dashboard/projects/create");
     } else {
       setIsUpgradeModalOpen(true);
     }
@@ -185,13 +202,28 @@ const ProjectsPage = () => {
           </p>
         </div>
         {activeTab === "all" && (
-          <Button onClick={handleNewProjectClick} className="w-full sm:w-auto">
-            <Plus className="h-4 w-4 mr-2" />
-            New Project
-            {!isPro && (allProjects?.length ?? 0) >= FREE_PROJECT_LIMIT && (
-              <Crown className="h-4 w-4 ml-2 text-amber-400" />
-            )}
-          </Button>
+          <div className="w-full sm:w-auto">
+            <Button
+              onClick={handleNewProjectClick}
+              className="hidden sm:inline-flex w-full sm:w-auto"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              New Project
+              {!isPro && (allProjects?.length ?? 0) >= FREE_PROJECT_LIMIT && (
+                <Crown className="h-4 w-4 ml-2 text-amber-400" />
+              )}
+            </Button>
+            <Button
+              onClick={handleNewProjectMobileClick}
+              className="sm:hidden w-full"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              New Project
+              {!isPro && (allProjects?.length ?? 0) >= FREE_PROJECT_LIMIT && (
+                <Crown className="h-4 w-4 ml-2 text-amber-400" />
+              )}
+            </Button>
+          </div>
         )}
       </div>
 
@@ -308,10 +340,22 @@ const ProjectsPage = () => {
               }
             </p>
             {allProjects?.length === 0 && activeTab === "all" && (
-              <Button onClick={handleNewProjectClick}>
-                <Plus className="h-4 w-4 mr-2" />
-                Create Your First Project
-              </Button>
+              <div className="flex justify-center">
+                <Button
+                  onClick={handleNewProjectClick}
+                  className="hidden sm:inline-flex"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Your First Project
+                </Button>
+                <Button
+                  onClick={handleNewProjectMobileClick}
+                  className="sm:hidden"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Your First Project
+                </Button>
+              </div>
             )}
           </CardContent>
         </Card>

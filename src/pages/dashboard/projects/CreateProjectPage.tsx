@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCreateProjectMutation } from "@/hooks/useApi";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { useCurrentUser } from "@/stores/userStore";
+import { apiService, Task } from "@/services/apiService";
 import { 
   ArrowLeft, 
   FolderPlus, 
@@ -23,16 +25,23 @@ import { formatISO } from "date-fns";
 const CreateProjectPage = () => {
   const navigate = useNavigate();
   const [createProject, { isLoading }] = useCreateProjectMutation();
+  const { currentUser } = useCurrentUser();
   const timeoutRef = React.useRef<NodeJS.Timeout | null>(null);
-  
+
   const [projectName, setProjectName] = useState("");
   const [description, setDescription] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [taskSearch, setTaskSearch] = useState("");
+  const [selectedTaskIds, setSelectedTaskIds] = useState<Set<number>>(new Set());
   const [error, setError] = useState("");
+  const [attachmentError, setAttachmentError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [availableTasks, setAvailableTasks] = useState<Task[]>([]);
+  const [tasksLoading, setTasksLoading] = useState(false);
 
   // Cleanup timeout on unmount
+  
   React.useEffect(() => {
     return () => {
       if (timeoutRef.current) {
@@ -40,6 +49,55 @@ const CreateProjectPage = () => {
       }
     };
   }, []);
+
+  React.useEffect(() => {
+    const fetchTasks = async () => {
+      if (!currentUser?.userId) return;
+      setTasksLoading(true);
+      try {
+        const tasks = await apiService.getTasksByUser(currentUser.userId);
+        setAvailableTasks(tasks);
+      } catch (err: any) {
+        setError(err?.message || "Failed to load tasks. Please try again.");
+      } finally {
+        setTasksLoading(false);
+      }
+    };
+
+    fetchTasks();
+  }, [currentUser?.userId]);
+
+  const filteredTasks = useMemo(() => {
+    if (!taskSearch.trim()) return availableTasks;
+    const query = taskSearch.toLowerCase();
+    return availableTasks.filter((task) => task.title.toLowerCase().includes(query));
+  }, [availableTasks, taskSearch]);
+
+  const toggleTask = (taskId: number) => {
+    setSelectedTaskIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(taskId)) {
+        next.delete(taskId);
+      } else {
+        next.add(taskId);
+      }
+      return next;
+    });
+  };
+
+  const attachTasksToProject = async (projectId: number) => {
+    const taskIds = Array.from(selectedTaskIds);
+    if (taskIds.length === 0) return;
+
+    try {
+      const result = await apiService.bulkMoveToProject(taskIds, projectId);
+      if (!result?.success) {
+        setAttachmentError(result?.message || "Failed to attach tasks to the new project.");
+      }
+    } catch (err) {
+      setAttachmentError(err instanceof Error ? err.message : "Failed to attach tasks to the new project.");
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,6 +113,7 @@ const CreateProjectPage = () => {
     }
     
     setError("");
+    setAttachmentError("");
 
     try {
       const formattedStartDate = formatISO(start, {
@@ -64,19 +123,24 @@ const CreateProjectPage = () => {
         representation: "complete",
       });
 
-      await createProject({
+      const newProject = await createProject({
         name: projectName,
         description,
         startDate: formattedStartDate,
         endDate: formattedEndDate,
       }).unwrap();
 
+      const newProjectId = Number(newProject?.id);
+      if (Number.isFinite(newProjectId)) {
+        await attachTasksToProject(newProjectId);
+      }
+
       setSuccess(true);
       timeoutRef.current = setTimeout(() => {
         navigate("/dashboard/projects");
       }, 1500);
     } catch (err: any) {
-      setError(err?.data?.message || "Failed to create project. Please try again.");
+      setError(err?.data?.message || err?.message || "Failed to create project. Please try again.");
     }
   };
 
@@ -106,6 +170,11 @@ const CreateProjectPage = () => {
             <p className="text-muted-foreground">
               Redirecting to projects...
             </p>
+            {attachmentError && (
+              <p className="mt-2 text-xs text-amber-600">
+                {attachmentError}
+              </p>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -243,6 +312,47 @@ const CreateProjectPage = () => {
                 Project duration: <span className="font-medium text-foreground">{getDurationText()}</span>
               </p>
             )}
+          </div>
+
+          {/* Attach Existing Tasks */}
+          <div className="space-y-3">
+            <Label className="flex items-center gap-2 text-base">
+              <FolderPlus className="h-4 w-4 text-primary" />
+              Attach Existing Tasks
+            </Label>
+            <Input
+              placeholder="Search tasks..."
+              value={taskSearch}
+              onChange={(e) => setTaskSearch(e.target.value)}
+              className="h-12"
+            />
+            <div className="max-h-48 overflow-y-auto rounded-lg border border-border p-3 space-y-3">
+              {tasksLoading ? (
+                <p className="text-sm text-muted-foreground">Loading tasks...</p>
+              ) : filteredTasks.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No tasks found.</p>
+              ) : (
+                filteredTasks.map((task) => (
+                  <label key={task.id} className="flex items-start gap-3 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={selectedTaskIds.has(task.id)}
+                      onChange={() => toggleTask(task.id)}
+                      className="mt-1"
+                    />
+                    <div className="flex flex-col">
+                      <span className="text-foreground">{task.title}</span>
+                      {task.project?.name && (
+                        <span className="text-xs text-muted-foreground">Current: {task.project.name}</span>
+                      )}
+                    </div>
+                  </label>
+                ))
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Select tasks to move into this project after creation.
+            </p>
           </div>
 
           {/* Quick Tips Card */}

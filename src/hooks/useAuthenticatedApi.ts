@@ -5,14 +5,19 @@ export const useAuthenticatedApi = () => {
 
   const makeAuthenticatedRequest = async (url: string, options: RequestInit = {}) => {
     const token = auth.user?.access_token;
-    
+    const baseUrl = (
+      import.meta.env.VITE_API_BASE_URL ||
+      import.meta.env.VITE_API_URL ||
+      'https://api.taskluid.com'
+    ).trim().replace(/\/$/, '');
+
     const headers = {
       'Content-Type': 'application/json',
       ...(token && { 'Authorization': `Bearer ${token}` }),
       ...options.headers,
     };
 
-    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}${url}`, {
+    const response = await fetch(`${baseUrl}${url}`, {
       ...options,
       headers,
     });

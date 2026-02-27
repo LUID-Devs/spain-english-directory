@@ -1,6 +1,6 @@
 import Modal from "@/components/Modal";
 import { useCreateProjectMutation } from "@/hooks/useApi";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { formatISO } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { useCurrentUser } from "@/stores/userStore";
+import { apiService, Task } from "@/services/apiService";
 import { AlertTriangle, Loader2, FolderPlus, Calendar, FileText, HelpCircle, Lock, Globe } from "lucide-react";
 
 type Props = {
@@ -21,14 +23,62 @@ type Props = {
 
 const ModalNewProject = ({ isOpen, onClose }: Props) => {
   const [createProject, { isLoading }] = useCreateProjectMutation();
+  const { currentUser } = useCurrentUser();
   const [projectName, setProjectName] = useState("");
   const [description, setDescription] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [taskSearch, setTaskSearch] = useState("");
+  const [selectedTaskIds, setSelectedTaskIds] = useState<Set<number>>(new Set());
   const [error, setError] = useState<string>("");
+  const [availableTasks, setAvailableTasks] = useState<Task[]>([]);
+  const [tasksLoading, setTasksLoading] = useState(false);
+
+  React.useEffect(() => {
+    const fetchTasks = async () => {
+      if (!isOpen || !currentUser?.userId) return;
+      setTasksLoading(true);
+      try {
+        const tasks = await apiService.getTasksByUser(currentUser.userId);
+        setAvailableTasks(tasks);
+      } catch (err: any) {
+        setError(err?.message || "Failed to load tasks. Please try again.");
+      } finally {
+        setTasksLoading(false);
+      }
+    };
+
+    fetchTasks();
+  }, [isOpen, currentUser?.userId]);
+
+  const filteredTasks = useMemo(() => {
+    if (!taskSearch.trim()) return availableTasks;
+    const query = taskSearch.toLowerCase();
+    return availableTasks.filter((task) => task.title.toLowerCase().includes(query));
+  }, [availableTasks, taskSearch]);
+
+  const toggleTask = (taskId: number) => {
+    setSelectedTaskIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(taskId)) {
+        next.delete(taskId);
+      } else {
+        next.add(taskId);
+      }
+      return next;
+    });
+  };
 
   const handleSubmit = async () => {
     if (!projectName || !startDate || !endDate) return;
+
+    // Validate end date is not before start date
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    if (end < start) {
+      setError("End date cannot be before start date");
+      return;
+    }
 
     setError(""); // Clear any previous errors
 
@@ -40,23 +90,29 @@ const ModalNewProject = ({ isOpen, onClose }: Props) => {
         representation: "complete",
       });
 
-      await createProject({
+      const newProject = await createProject({
         name: projectName,
         description,
         startDate: formattedStartDate,
         endDate: formattedEndDate,
       }).unwrap();
 
+      if (selectedTaskIds.size > 0) {
+        await apiService.bulkMoveToProject(Array.from(selectedTaskIds), Number(newProject.id));
+      }
+
       // Success - clear form and close modal
       setProjectName("");
       setDescription("");
       setStartDate("");
       setEndDate("");
+      setTaskSearch("");
+      setSelectedTaskIds(new Set());
       setError("");
       onClose();
     } catch (err: any) {
       // Handle error
-      setError(err?.data?.message || "Failed to create project. Please try again.");
+      setError(err?.data?.message || err?.message || "Failed to create project. Please try again.");
     }
   };
 
@@ -65,6 +121,8 @@ const ModalNewProject = ({ isOpen, onClose }: Props) => {
     setDescription("");
     setStartDate("");
     setEndDate("");
+    setTaskSearch("");
+    setSelectedTaskIds(new Set());
     setError("");
     onClose();
   };
@@ -217,11 +275,53 @@ const ModalNewProject = ({ isOpen, onClose }: Props) => {
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
                 className="h-11"
+                min={startDate}
               />
             </div>
           </div>
           <p className="text-xs text-muted-foreground">
             Define the project duration. All tasks within this project should fall within these dates.
+          </p>
+        </div>
+
+        {/* Attach Existing Tasks */}
+        <div className="space-y-2">
+          <Label className="flex items-center gap-2">
+            <FolderPlus className="h-4 w-4 text-muted-foreground" />
+            Attach Existing Tasks
+          </Label>
+          <Input
+            placeholder="Search tasks..."
+            value={taskSearch}
+            onChange={(e) => setTaskSearch(e.target.value)}
+            className="h-10"
+          />
+          <div className="max-h-48 overflow-y-auto rounded-md border border-border p-2 space-y-2">
+            {tasksLoading ? (
+              <p className="text-xs text-muted-foreground">Loading tasks...</p>
+            ) : filteredTasks.length === 0 ? (
+              <p className="text-xs text-muted-foreground">No tasks found.</p>
+            ) : (
+              filteredTasks.map((task) => (
+                <label key={task.id} className="flex items-start gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={selectedTaskIds.has(task.id)}
+                    onChange={() => toggleTask(task.id)}
+                    className="mt-1"
+                  />
+                  <div className="flex flex-col">
+                    <span className="text-foreground">{task.title}</span>
+                    {task.project?.name && (
+                      <span className="text-xs text-muted-foreground">Current: {task.project.name}</span>
+                    )}
+                  </div>
+                </label>
+              ))
+            )}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Select tasks to move into this project after creation.
           </p>
         </div>
 

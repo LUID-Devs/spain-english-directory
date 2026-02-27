@@ -124,18 +124,19 @@ export function staticPrerenderPlugin(): Plugin {
   const defaultOgImage = `${siteUrl}/og-image.png`;
 
   const publicPages: Record<string, { meta: SEOMeta; content: string }> = {
+
     '/landing': {
       meta: {
         title: 'TaskLuid - AI-Powered Project Management Platform',
-        description: 'The lightweight project hub for teams who want to ship without the bloat. AI-assisted workflows, team collaboration, and clear progress tracking.',
-        keywords: 'project management, task management, team collaboration, AI workflows, productivity tool, task tracking, project planning',
+        description: 'Powerful simplicity for freelancers and small teams. AI-assisted workflows, team collaboration, and clear progress tracking without the bloat.',
+        keywords: 'project management, task management, team collaboration, AI workflows, productivity tool, task tracking, project planning, powerful simplicity',
         ogTitle: 'TaskLuid - AI-Powered Project Management Platform',
-        ogDescription: 'The lightweight project hub for teams who want to ship without the bloat.',
+        ogDescription: 'Powerful simplicity for teams who want to ship without the bloat.',
         ogImage: `${siteUrl}/og-taskluid.png`,
         ogType: 'website',
         twitterCard: 'summary_large_image',
         twitterTitle: 'TaskLuid - AI-Powered Project Management Platform',
-        twitterDescription: 'The lightweight project hub for teams who want to ship without the bloat.',
+        twitterDescription: 'Powerful simplicity for teams who want to ship without the bloat.',
         twitterImage: `${siteUrl}/og-taskluid.png`,
         canonicalUrl: `${siteUrl}/landing`,
         jsonLd: generateSoftwareApplicationJsonLd(
@@ -147,6 +148,22 @@ export function staticPrerenderPlugin(): Plugin {
       },
       content: `
         <div class="min-h-screen bg-black text-white flex flex-col">
+          <!-- Navigation -->
+          <nav class="border-b border-neutral-800 bg-black/80 backdrop-blur">
+            <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+              <a href="/" class="text-xl font-bold bg-gradient-to-r from-gray-400 to-gray-400 bg-clip-text text-transparent">
+                TaskLuid
+              </a>
+              <div class="flex items-center gap-6">
+                <a href="/features" class="text-neutral-400 hover:text-white transition-colors">Features</a>
+                <a href="/compare" class="text-neutral-400 hover:text-white transition-colors">Compare</a>
+                <a href="/pricing" class="text-neutral-400 hover:text-white transition-colors">Pricing</a>
+                <a href="/auth/login" class="text-neutral-400 hover:text-white transition-colors">Sign In</a>
+                <a href="/auth/register" class="text-sm px-4 py-2 rounded-full bg-white text-black font-medium hover:bg-neutral-200 transition-colors">Get Started</a>
+              </div>
+            </div>
+          </nav>
+
           <!-- Hero Section -->
           <div class="flex-1 flex items-center justify-center px-4 pt-14 pb-12">
             <div class="text-center max-w-3xl">
@@ -160,13 +177,22 @@ export function staticPrerenderPlugin(): Plugin {
               <h1 class="text-5xl md:text-6xl font-bold bg-gradient-to-r from-gray-300 via-gray-100 to-gray-300 bg-clip-text text-transparent mb-6">
                 TaskLuid
               </h1>
-              <p class="text-xl text-gray-200 mb-4 max-w-2xl mx-auto">
-                The lightweight project hub for teams who want to ship without the bloat.
+              <p class="text-xl text-gray-200 mb-2 max-w-2xl mx-auto">
+                Powerful simplicity for freelancers and small teams.
+              </p>
+              <p class="text-lg text-indigo-300 mb-4 max-w-2xl mx-auto font-medium">
+                Powerful without the bloat. Simple enough to start, scalable enough to grow.
               </p>
               <p class="text-sm text-neutral-500 mb-8">
-                Free to start. Upgrade when you need more power.
+                The Goldilocks zone between basic boards and enterprise bloat.
+                <a href="/compare" class="text-neutral-300 underline underline-offset-4 hover:text-white"> See the comparison</a>.
               </p>
-              <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10">
+              <div class="flex flex-col sm:flex-row items-center justify-center gap-3 text-xs text-neutral-300 mb-8">
+                <span class="px-3 py-1 rounded-full border border-neutral-800 bg-neutral-900/60">Free plan included</span>
+                <span class="px-3 py-1 rounded-full border border-neutral-800 bg-neutral-900/60">Pro €10/mo (or €8/mo annually)</span>
+                <a href="/pricing" class="text-indigo-300 hover:text-indigo-200 transition-colors">See full pricing</a>
+              </div>
+              <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
                 <a href="/auth/register" class="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-medium rounded-lg hover:from-indigo-600 hover:to-purple-600 transition-all duration-300 shadow-lg shadow-indigo-500/20">
                   Get Started Free
                 </a>
@@ -177,23 +203,10 @@ export function staticPrerenderPlugin(): Plugin {
                   Sign In
                 </a>
               </div>
-              <div class="flex flex-wrap items-center justify-center gap-3 text-xs uppercase tracking-wide text-neutral-500 mb-10">
-                <span class="px-3 py-1 rounded-full border border-neutral-800 bg-neutral-900/60">Indie teams</span>
-                <span class="px-3 py-1 rounded-full border border-neutral-800 bg-neutral-900/60">Solo builders</span>
-                <span class="px-3 py-1 rounded-full border border-neutral-800 bg-neutral-900/60">Remote-first crews</span>
-                <span class="px-3 py-1 rounded-full border border-neutral-800 bg-neutral-900/60">Product studios</span>
-              </div>
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div class="flex items-center justify-center gap-2 text-sm text-neutral-400">
-                  <span>Made with care by an indie developer</span>
-                </div>
-                <div class="flex items-center justify-center gap-2 text-sm text-neutral-400">
-                  <span>No VC funding, no feature bloat</span>
-                </div>
-                <div class="flex items-center justify-center gap-2 text-sm text-neutral-400">
-                  <span>Direct, responsive support</span>
-                </div>
-              </div>
+              <p class="text-xs text-neutral-500 mb-10">
+                Free plan available. Pro starts at <span class="text-neutral-300">€10/month</span> (or €8/month annually).
+                <a href="/pricing" class="text-neutral-200 underline underline-offset-4 hover:text-white"> See full pricing</a>.
+              </p>
             </div>
           </div>
 
@@ -335,21 +348,63 @@ export function staticPrerenderPlugin(): Plugin {
         jsonLd: generateSoftwareApplicationJsonLd('TaskLuid Login', 'Sign in to TaskLuid', `${siteUrl}/auth/login`),
       },
       content: `
-        <div class="min-h-screen bg-black text-white flex items-center justify-center px-4">
-          <div class="text-center max-w-md w-full">
-            <h1 class="text-3xl font-bold mb-2">Welcome Back</h1>
-            <p class="text-gray-400 mb-8">Sign in to your TaskLuid account</p>
-            <div class="space-y-4">
-              <input type="email" placeholder="Email" class="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500" />
-              <input type="password" placeholder="Password" class="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500" />
-              <button class="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium transition-colors">
-                Sign In
-              </button>
+        <div class="min-h-screen bg-black text-white flex items-center justify-center px-4 py-12">
+          <div class="w-full max-w-md">
+            <div class="text-center mb-8">
+              <a href="/" class="inline-flex items-center justify-center gap-3 mb-4">
+                <img src="/logo.png" alt="TaskLuid" class="w-10 h-10 rounded-lg" />
+                <span class="text-3xl font-bold bg-gradient-to-r from-gray-300 via-gray-100 to-gray-300 bg-clip-text text-transparent">TaskLuid</span>
+              </a>
+              <h1 id="login-title" class="text-2xl font-semibold">Welcome Back</h1>
+              <p class="text-sm text-neutral-400 mt-2">Sign in to your TaskLuid account</p>
             </div>
-            <div class="mt-6 text-sm text-gray-400">
-              <a href="/auth/forgot-password" class="hover:text-white transition-colors">Forgot password?</a>
-              <span class="mx-2">·</span>
-              <a href="/auth/register" class="hover:text-white transition-colors">Create account</a>
+
+            <noscript>
+              <div class="mb-6 rounded-lg border border-amber-400/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
+                JavaScript is required to submit this form. You can still read this page and use the links below.
+              </div>
+            </noscript>
+
+            <div class="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-6 shadow-2xl">
+              <form class="space-y-5" aria-labelledby="login-title">
+                <div>
+                  <label for="login-email" class="block text-sm font-medium text-neutral-200">Email address</label>
+                  <input
+                    id="login-email"
+                    name="email"
+                    type="email"
+                    autocomplete="email"
+                    required
+                    aria-required="true"
+                    class="mt-2 w-full rounded-lg border border-neutral-700 bg-black/40 px-4 py-3 text-sm text-white placeholder:text-neutral-500"
+                    placeholder="you@company.com"
+                  />
+                </div>
+                <div>
+                  <label for="login-password" class="block text-sm font-medium text-neutral-200">Password</label>
+                  <input
+                    id="login-password"
+                    name="password"
+                    type="password"
+                    autocomplete="current-password"
+                    required
+                    aria-required="true"
+                    class="mt-2 w-full rounded-lg border border-neutral-700 bg-black/40 px-4 py-3 text-sm text-white placeholder:text-neutral-500"
+                    placeholder="Enter your password"
+                  />
+                </div>
+                <div class="flex items-center justify-between text-sm">
+                  <a href="/auth/forgot-password" class="text-indigo-300 hover:text-indigo-200">Forgot password?</a>
+                  <span class="text-neutral-500">Need help? <a href="/help" class="text-neutral-300 hover:text-white">Support</a></span>
+                </div>
+                <button type="submit" class="w-full rounded-lg bg-gradient-to-r from-indigo-500 to-purple-500 px-4 py-3 text-sm font-medium text-white">
+                  Sign In
+                </button>
+              </form>
+
+              <div class="mt-6 text-center text-sm text-neutral-400">
+                Don't have an account? <a href="/auth/register" class="text-indigo-300 hover:text-indigo-200">Create one</a>
+              </div>
             </div>
           </div>
         </div>
@@ -368,21 +423,74 @@ export function staticPrerenderPlugin(): Plugin {
         jsonLd: generateSoftwareApplicationJsonLd('TaskLuid Registration', 'Create a TaskLuid account', `${siteUrl}/auth/register`),
       },
       content: `
-        <div class="min-h-screen bg-black text-white flex items-center justify-center px-4">
-          <div class="text-center max-w-md w-full">
-            <h1 class="text-3xl font-bold mb-2">Create Account</h1>
-            <p class="text-gray-400 mb-8">Start your journey with TaskLuid</p>
-            <div class="space-y-4">
-              <input type="text" placeholder="Full Name" class="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500" />
-              <input type="email" placeholder="Email" class="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500" />
-              <input type="password" placeholder="Password" class="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500" />
-              <button type="submit" class="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium transition-colors text-white" aria-label="Create Account">
-                <span>Create Account</span>
-              </button>
+        <div class="min-h-screen bg-black text-white flex items-center justify-center px-4 py-12">
+          <div class="w-full max-w-md">
+            <div class="text-center mb-8">
+              <a href="/" class="inline-flex items-center justify-center gap-3 mb-4">
+                <img src="/logo.png" alt="TaskLuid" class="w-10 h-10 rounded-lg" />
+                <span class="text-3xl font-bold bg-gradient-to-r from-gray-300 via-gray-100 to-gray-300 bg-clip-text text-transparent">TaskLuid</span>
+              </a>
+              <h1 id="register-title" class="text-2xl font-semibold">Create Account</h1>
+              <p class="text-sm text-neutral-400 mt-2">Start your journey with TaskLuid</p>
             </div>
-            <p class="mt-6 text-sm text-gray-400">
-              Already have an account? <a href="/auth/login" class="hover:text-white transition-colors">Sign in</a>
-            </p>
+
+            <noscript>
+              <div class="mb-6 rounded-lg border border-amber-400/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
+                JavaScript is required to submit this form. You can still review account requirements below.
+              </div>
+            </noscript>
+
+            <div class="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-6 shadow-2xl">
+              <form class="space-y-5" aria-labelledby="register-title">
+                <div>
+                  <label for="register-name" class="block text-sm font-medium text-neutral-200">Full name</label>
+                  <input
+                    id="register-name"
+                    name="name"
+                    type="text"
+                    autocomplete="name"
+                    required
+                    aria-required="true"
+                    class="mt-2 w-full rounded-lg border border-neutral-700 bg-black/40 px-4 py-3 text-sm text-white placeholder:text-neutral-500"
+                    placeholder="Your name"
+                  />
+                </div>
+                <div>
+                  <label for="register-email" class="block text-sm font-medium text-neutral-200">Email address</label>
+                  <input
+                    id="register-email"
+                    name="email"
+                    type="email"
+                    autocomplete="email"
+                    required
+                    aria-required="true"
+                    class="mt-2 w-full rounded-lg border border-neutral-700 bg-black/40 px-4 py-3 text-sm text-white placeholder:text-neutral-500"
+                    placeholder="you@company.com"
+                  />
+                </div>
+                <div>
+                  <label for="register-password" class="block text-sm font-medium text-neutral-200">Password</label>
+                  <input
+                    id="register-password"
+                    name="password"
+                    type="password"
+                    autocomplete="new-password"
+                    required
+                    aria-required="true"
+                    class="mt-2 w-full rounded-lg border border-neutral-700 bg-black/40 px-4 py-3 text-sm text-white placeholder:text-neutral-500"
+                    placeholder="Create a password"
+                  />
+                </div>
+                <p class="text-xs text-neutral-500">By creating an account you agree to our <a href="/terms" class="text-neutral-300 hover:text-white">Terms</a> and <a href="/privacy" class="text-neutral-300 hover:text-white">Privacy Policy</a>.</p>
+                <button type="submit" class="w-full rounded-lg bg-gradient-to-r from-indigo-500 to-purple-500 px-4 py-3 text-sm font-medium text-white">
+                  Create Account
+                </button>
+              </form>
+
+              <div class="mt-6 text-center text-sm text-neutral-400">
+                Already have an account? <a href="/auth/login" class="text-indigo-300 hover:text-indigo-200">Sign in</a>
+              </div>
+            </div>
           </div>
         </div>
       `
@@ -741,6 +849,127 @@ export function staticPrerenderPlugin(): Plugin {
         </div>
       `
     },
+    '/compare': {
+      meta: {
+        title: 'Compare - TaskLuid',
+        description: 'Compare TaskLuid to basic boards and enterprise suites. Powerful simplicity without the bloat.',
+        keywords: 'compare task management tools, powerful simplicity, project management comparison, TaskLuid',
+        ogTitle: 'Compare TaskLuid',
+        ogDescription: 'Powerful simplicity without the bloat. See how TaskLuid compares.',
+        ogType: 'website',
+        twitterCard: 'summary_large_image',
+        canonicalUrl: `${siteUrl}/compare`,
+      },
+      content: `
+        <div class="min-h-screen bg-black text-white">
+          <nav class="border-b border-neutral-800">
+            <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+              <a href="/" class="text-xl font-bold bg-gradient-to-r from-gray-400 to-gray-400 bg-clip-text text-transparent">TaskLuid</a>
+              <div class="flex items-center gap-6">
+                <a href="/features" class="text-neutral-400 hover:text-white transition-colors">Features</a>
+                <a href="/pricing" class="text-neutral-400 hover:text-white transition-colors">Pricing</a>
+                <a href="/auth/login" class="text-neutral-400 hover:text-white transition-colors">Sign In</a>
+                <a href="/auth/register" class="px-4 py-2 bg-white text-black rounded-full font-medium hover:bg-neutral-200 transition-colors">Get Started</a>
+              </div>
+            </div>
+          </nav>
+          <header class="px-4 py-16">
+            <div class="max-w-5xl mx-auto text-center">
+              <p class="text-sm text-neutral-500 mb-3">Powerful Simplicity</p>
+              <h1 class="text-4xl md:text-5xl font-semibold mb-4">The Goldilocks zone between basic boards and enterprise bloat.</h1>
+              <p class="text-lg text-neutral-300 max-w-3xl mx-auto">
+                TaskLuid is built for freelancers and small teams who need real project power without the overhead.
+                More capable than basic tools. Far simpler than enterprise monsters.
+              </p>
+            </div>
+          </header>
+          <section class="px-4 pb-16">
+            <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div class="p-6 rounded-xl bg-neutral-900/40 border border-neutral-800">
+                <div class="text-xs uppercase tracking-wider text-red-400 mb-3">Too Simple</div>
+                <h2 class="text-xl font-semibold text-neutral-200 mb-4">Basic Boards</h2>
+                <ul class="space-y-2 text-sm text-neutral-400">
+                  <li>Shallow workflows and limited views</li>
+                  <li>Hard to track multiple clients</li>
+                  <li>Little reporting or accountability</li>
+                  <li>No real automation support</li>
+                </ul>
+              </div>
+              <div class="p-6 rounded-xl bg-gradient-to-br from-indigo-500/15 to-purple-500/10 border border-indigo-500/30">
+                <div class="text-xs uppercase tracking-wider text-emerald-400 mb-3">Just Right</div>
+                <h2 class="text-xl font-semibold text-white mb-4">TaskLuid</h2>
+                <ul class="space-y-2 text-sm text-neutral-200">
+                  <li>Timelines, priorities, and client workspaces</li>
+                  <li>AI-assisted intake without complexity</li>
+                  <li>Automation and templates built in</li>
+                  <li>Clear reporting that doesn’t overwhelm</li>
+                </ul>
+              </div>
+              <div class="p-6 rounded-xl bg-neutral-900/40 border border-neutral-800">
+                <div class="text-xs uppercase tracking-wider text-red-400 mb-3">Too Complex</div>
+                <h2 class="text-xl font-semibold text-neutral-200 mb-4">Enterprise Suites</h2>
+                <ul class="space-y-2 text-sm text-neutral-400">
+                  <li>Steep learning curve and heavy setup</li>
+                  <li>Feature overload you never use</li>
+                  <li>Admin overhead for small teams</li>
+                  <li>Too much configuration before work begins</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+          <section class="px-4 py-16 border-t border-neutral-900">
+            <div class="max-w-5xl mx-auto">
+              <div class="flex items-center gap-3 mb-6">
+                <svg class="w-6 h-6 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3zm0 0h5m4 0a3 3 0 11-6 0 3 3 0 016 0zm0 0h-1m-3-7a3 3 0 00-3-3m0 0a3 3 0 00-3 3m3-3v2m0 0h4m-4 0H8m8 6a3 3 0 00-3 3m0 0a3 3 0 00-3-3m3 3v2m0 0h4m-4 0H8" />
+                </svg>
+                <h2 class="text-2xl font-semibold">Simplicity Score</h2>
+              </div>
+              <p class="text-neutral-400 mb-6 max-w-3xl">
+                Every new feature must earn its place. We score features by impact, clarity, and effort saved —
+                so TaskLuid stays powerful without the clutter.
+              </p>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="flex items-start gap-3 p-4 rounded-lg bg-neutral-900/50 border border-neutral-800">
+                  <svg class="w-5 h-5 text-emerald-400 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <p class="text-sm text-neutral-300">Does it reduce steps for a common workflow?</p>
+                </div>
+                <div class="flex items-start gap-3 p-4 rounded-lg bg-neutral-900/50 border border-neutral-800">
+                  <svg class="w-5 h-5 text-emerald-400 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <p class="text-sm text-neutral-300">Can a new user understand it in under 60 seconds?</p>
+                </div>
+                <div class="flex items-start gap-3 p-4 rounded-lg bg-neutral-900/50 border border-neutral-800">
+                  <svg class="w-5 h-5 text-emerald-400 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <p class="text-sm text-neutral-300">Is there a measurable outcome (ship faster, fewer handoffs)?</p>
+                </div>
+                <div class="flex items-start gap-3 p-4 rounded-lg bg-neutral-900/50 border border-neutral-800">
+                  <svg class="w-5 h-5 text-emerald-400 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <p class="text-sm text-neutral-300">Does it replace a tool instead of adding another?</p>
+                </div>
+              </div>
+            </div>
+          </section>
+          <section class="px-4 py-16 border-t border-neutral-900">
+            <div class="max-w-5xl mx-auto text-center">
+              <h2 class="text-3xl font-semibold mb-4">Focus on the work — not the tool.</h2>
+              <p class="text-neutral-400 mb-8">TaskLuid keeps your team in the sweet spot: fast to learn, powerful to use, and always intentional.</p>
+              <a href="/auth/register" class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-medium">Start Free</a>
+            </div>
+          </section>
+          <footer class="px-4 py-10 border-t border-neutral-900 text-center text-sm text-neutral-500">
+            &copy; ${currentYear} TaskLuid. Part of Luid Suite.
+          </footer>
+        </div>
+      `
+    },
     // Legacy redirect pages for SEO/backward compatibility
     '/login': {
       meta: {
@@ -845,6 +1074,21 @@ export function staticPrerenderPlugin(): Plugin {
       },
       content: `
         <div class="min-h-screen bg-black text-white flex flex-col">
+          <!-- Navigation -->
+          <nav class="border-b border-neutral-800 bg-black/80 backdrop-blur">
+            <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+              <a href="/" class="text-xl font-bold bg-gradient-to-r from-gray-400 to-gray-400 bg-clip-text text-transparent">
+                LuidKit
+              </a>
+              <div class="flex items-center gap-6">
+                <a href="/features" class="text-neutral-400 hover:text-white transition-colors">Features</a>
+                <a href="/pricing" class="text-neutral-400 hover:text-white transition-colors">Pricing</a>
+                <a href="/auth/login" class="text-neutral-400 hover:text-white transition-colors">Sign In</a>
+                <a href="/auth/register" class="px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-500 text-white rounded-lg hover:from-gray-500 hover:to-gray-400 transition-all">Get Started</a>
+              </div>
+            </div>
+          </nav>
+
           <!-- Hero Section -->
           <div class="flex-1 flex items-center justify-center px-4 pt-14 pb-12">
             <div class="text-center max-w-3xl">
