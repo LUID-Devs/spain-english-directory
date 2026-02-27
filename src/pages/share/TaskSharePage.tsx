@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Lock, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { sanitizeHtmlContent } from "@/lib/utils";
 
 interface SharedTask {
   id: number;
@@ -52,7 +53,7 @@ const TaskSharePage: React.FC = () => {
   const [commentText, setCommentText] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const fetchShare = async (sharePassword?: string) => {
+  const fetchShare = useCallback(async (sharePassword?: string) => {
     if (!token) return;
 
     try {
@@ -106,11 +107,11 @@ const TaskSharePage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
 
   useEffect(() => {
     fetchShare();
-  }, [token]);
+  }, [fetchShare]);
 
   const handlePasswordSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -237,7 +238,7 @@ const TaskSharePage: React.FC = () => {
                     {/* Render HTML rich text safely */}
                     <div
                       className="mt-2 text-sm prose prose-sm max-w-none dark:prose-invert"
-                      dangerouslySetInnerHTML={{ __html: data.task.description }}
+                      dangerouslySetInnerHTML={{ __html: sanitizeHtmlContent(data.task.description) }}
                     />
                   </div>
                 )}

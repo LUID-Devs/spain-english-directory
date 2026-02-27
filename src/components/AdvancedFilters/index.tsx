@@ -228,7 +228,7 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
   // Add a new filter
   const addFilter = () => {
     const newFilter: FilterCriteria = {
-      id: Math.random().toString(36).substr(2, 9),
+      id: Math.random().toString(36).slice(2, 11),
       type: "status",
       operator: "equals",
       value: availableStatuses[0] || "",
@@ -241,9 +241,9 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
 
   // Add a new filter group
   const addGroup = () => {
-    const newGroupId = Math.random().toString(36).substr(2, 9);
+    const newGroupId = Math.random().toString(36).slice(2, 11);
     const newFilter: FilterCriteria = {
-      id: Math.random().toString(36).substr(2, 9),
+      id: Math.random().toString(36).slice(2, 11),
       type: "status",
       operator: "equals",
       value: availableStatuses[0] || "",
@@ -276,7 +276,7 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
     if (!filterName.trim()) return;
     
     const newSavedFilter: SavedFilter = {
-      id: Math.random().toString(36).substr(2, 9),
+      id: Math.random().toString(36).slice(2, 11),
       name: filterName,
       criteria: [...filters],
       groupOperators,
