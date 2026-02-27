@@ -143,35 +143,6 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
     };
   }, [createId]);
 
-  // Helper function to create unique IDs
-  const createId = React.useCallback(() => Math.random().toString(36).substr(2, 9), []);
-
-  const normalizeSavedFilter = React.useCallback((saved: any): SavedFilter => {
-    if (saved?.rootGroup) {
-      // Deserialize dates in the new format
-      return {
-        id: saved.id || createId(),
-        name: saved.name || "Untitled",
-        rootGroup: deserializeNodeDates(saved.rootGroup) as FilterGroup,
-      };
-    }
-    // Backward compatibility for old format
-    const criteria: FilterCriteria[] = (saved?.criteria || []).map((rule: any) => {
-      const deserialized = deserializeNodeDates({ ...rule, kind: "rule" }) as FilterCriteria;
-      return deserialized;
-    });
-    return {
-      id: saved?.id || createId(),
-      name: saved?.name || "Untitled",
-      rootGroup: {
-        id: "root",
-        kind: "group",
-        logic: saved?.logic || "AND",
-        children: criteria,
-      },
-    };
-  }, [createId]);
-
   // Load saved filters from localStorage on mount
   React.useEffect(() => {
     const saved = localStorage.getItem("taskluid_saved_filters");
