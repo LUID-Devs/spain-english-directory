@@ -32,5 +32,6 @@ const appTree = (
 // Keep strict checks in production builds while avoiding noisy duplicate requests in local dev.
 const app = import.meta.env.DEV ? appTree : <React.StrictMode>{appTree}</React.StrictMode>;
 
-// Always mount with createRoot to avoid hydration mismatches from static prerender markup.
-ReactDOM.createRoot(rootElement).render(app);
+// Hydrate the server-rendered markup to preserve content and enable interactivity.
+// This prevents the flash of empty content that occurs with createRoot.
+ReactDOM.hydrateRoot(rootElement, app);
