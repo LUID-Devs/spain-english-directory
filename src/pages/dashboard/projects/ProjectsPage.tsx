@@ -70,15 +70,6 @@ const ProjectsPage = () => {
     }
   };
 
-  const handleNewProjectMobileClick = () => {
-    const totalProjects = allProjects?.length ?? 0;
-    if (canCreateProject(totalProjects)) {
-      navigate("/dashboard/projects/create");
-    } else {
-      setIsUpgradeModalOpen(true);
-    }
-  };
-
   const getTabTitle = () => {
     switch (activeTab) {
       case "favorites": return "Favorite Projects";
