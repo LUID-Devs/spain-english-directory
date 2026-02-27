@@ -1303,9 +1303,12 @@ export function staticPrerenderPlugin(): Plugin {
               <div class="text-center mb-10">
                 <p class="text-sm text-neutral-500 mb-2">Why ResumeLuid</p>
                 <h2 class="text-3xl font-semibold">Everything you need to stand out</h2>
+                <p class="text-sm text-neutral-500 mt-2 max-w-xl mx-auto">
+                  Professional tools and AI assistance to help you land your dream job.
+                </p>
               </div>
               <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div class="p-6 rounded-xl bg-neutral-900/50 border border-neutral-800">
+                <div class="p-6 rounded-xl bg-neutral-900/50 border border-neutral-800 hover:border-neutral-700 transition-colors">
                   <div class="w-10 h-10 mb-4 rounded-lg bg-gradient-to-br from-emerald-500/20 to-teal-500/20 flex items-center justify-center">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sparkles w-5 h-5 text-emerald-400">
                       <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"></path>
@@ -1318,7 +1321,7 @@ export function staticPrerenderPlugin(): Plugin {
                   <h3 class="font-semibold text-white mb-2">AI-Powered Writing</h3>
                   <p class="text-sm text-neutral-400">Get smart suggestions for bullet points, summaries, and skills based on your experience.</p>
                 </div>
-                <div class="p-6 rounded-xl bg-neutral-900/50 border border-neutral-800">
+                <div class="p-6 rounded-xl bg-neutral-900/50 border border-neutral-800 hover:border-neutral-700 transition-colors">
                   <div class="w-10 h-10 mb-4 rounded-lg bg-gradient-to-br from-emerald-500/20 to-teal-500/20 flex items-center justify-center">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-zap w-5 h-5 text-emerald-400">
                       <path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"></path>
@@ -1327,7 +1330,7 @@ export function staticPrerenderPlugin(): Plugin {
                   <h3 class="font-semibold text-white mb-2">ATS-Friendly Templates</h3>
                   <p class="text-sm text-neutral-400">Professional designs that pass Applicant Tracking Systems and impress recruiters.</p>
                 </div>
-                <div class="p-6 rounded-xl bg-neutral-900/50 border border-neutral-800">
+                <div class="p-6 rounded-xl bg-neutral-900/50 border border-neutral-800 hover:border-neutral-700 transition-colors">
                   <div class="w-10 h-10 mb-4 rounded-lg bg-gradient-to-br from-emerald-500/20 to-teal-500/20 flex items-center justify-center">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-award w-5 h-5 text-emerald-400">
                       <path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"></path>
@@ -1337,7 +1340,7 @@ export function staticPrerenderPlugin(): Plugin {
                   <h3 class="font-semibold text-white mb-2">ATS Score Feedback</h3>
                   <p class="text-sm text-neutral-400">See real-time compatibility scores against job descriptions and fix gaps instantly.</p>
                 </div>
-                <div class="p-6 rounded-xl bg-neutral-900/50 border border-neutral-800">
+                <div class="p-6 rounded-xl bg-neutral-900/50 border border-neutral-800 hover:border-neutral-700 transition-colors">
                   <div class="w-10 h-10 mb-4 rounded-lg bg-gradient-to-br from-emerald-500/20 to-teal-500/20 flex items-center justify-center">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield w-5 h-5 text-emerald-400">
                       <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path>
@@ -1346,7 +1349,7 @@ export function staticPrerenderPlugin(): Plugin {
                   <h3 class="font-semibold text-white mb-2">Privacy First</h3>
                   <p class="text-sm text-neutral-400">Your data is encrypted and never sold. Export and delete anytime with full control.</p>
                 </div>
-                <div class="p-6 rounded-xl bg-neutral-900/50 border border-neutral-800">
+                <div class="p-6 rounded-xl bg-neutral-900/50 border border-neutral-800 hover:border-neutral-700 transition-colors">
                   <div class="w-10 h-10 mb-4 rounded-lg bg-gradient-to-br from-emerald-500/20 to-teal-500/20 flex items-center justify-center">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-globe w-5 h-5 text-emerald-400">
                       <circle cx="12" cy="12" r="10"></circle>
@@ -1357,7 +1360,7 @@ export function staticPrerenderPlugin(): Plugin {
                   <h3 class="font-semibold text-white mb-2">Multi-Format Export</h3>
                   <p class="text-sm text-neutral-400">Download as PDF, DOCX, or plain text. Perfect for any application method.</p>
                 </div>
-                <div class="p-6 rounded-xl bg-neutral-900/50 border border-neutral-800">
+                <div class="p-6 rounded-xl bg-neutral-900/50 border border-neutral-800 hover:border-neutral-700 transition-colors">
                   <div class="w-10 h-10 mb-4 rounded-lg bg-gradient-to-br from-emerald-500/20 to-teal-500/20 flex items-center justify-center">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock w-5 h-5 text-emerald-400">
                       <circle cx="12" cy="12" r="10"></circle>
@@ -1367,7 +1370,7 @@ export function staticPrerenderPlugin(): Plugin {
                   <h3 class="font-semibold text-white mb-2">Build in Minutes</h3>
                   <p class="text-sm text-neutral-400">Intuitive interface with smart defaults. Create a professional resume in under 10 minutes.</p>
                 </div>
-                <div class="p-6 rounded-xl bg-neutral-900/50 border border-neutral-800">
+                <div class="p-6 rounded-xl bg-neutral-900/50 border border-neutral-800 hover:border-neutral-700 transition-colors">
                   <div class="w-10 h-10 mb-4 rounded-lg bg-gradient-to-br from-emerald-500/20 to-teal-500/20 flex items-center justify-center">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-share-2 w-5 h-5 text-emerald-400">
                       <circle cx="18" cy="5" r="3"></circle>
