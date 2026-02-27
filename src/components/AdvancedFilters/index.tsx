@@ -62,6 +62,27 @@ interface AdvancedFiltersProps {
   onActiveFiltersChange?: (count: number) => void;
 }
 
+// Helper function to recursively deserialize dates in filter nodes
+const deserializeNodeDates = (node: any): FilterNode => {
+  if (node.kind === "rule") {
+    const rule = { ...node };
+    // Handle dueDate type with DateRange value
+    if (rule.type === "dueDate" && rule.value && typeof rule.value === "object") {
+      const range = rule.value as { from?: string; to?: string };
+      rule.value = {
+        from: range.from ? new Date(range.from) : undefined,
+        to: range.to ? new Date(range.to) : undefined,
+      };
+    }
+    return rule as FilterCriteria;
+  }
+  // For groups, recursively process children
+  return {
+    ...node,
+    children: (node.children || []).map(deserializeNodeDates),
+  } as FilterGroup;
+};
+
 const filterTypeOptions: { value: FilterType; label: string }[] = [
   { value: "status", label: "Status" },
   { value: "priority", label: "Priority" },
@@ -93,6 +114,35 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
   const [filterName, setFilterName] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
 
+  // Helper function to create unique IDs
+  const createId = React.useCallback(() => Math.random().toString(36).substr(2, 9), []);
+
+  const normalizeSavedFilter = React.useCallback((saved: any): SavedFilter => {
+    if (saved?.rootGroup) {
+      // Deserialize dates in the new format
+      return {
+        id: saved.id || createId(),
+        name: saved.name || "Untitled",
+        rootGroup: deserializeNodeDates(saved.rootGroup) as FilterGroup,
+      };
+    }
+    // Backward compatibility for old format
+    const criteria: FilterCriteria[] = (saved?.criteria || []).map((rule: any) => {
+      const deserialized = deserializeNodeDates({ ...rule, kind: "rule" }) as FilterCriteria;
+      return deserialized;
+    });
+    return {
+      id: saved?.id || createId(),
+      name: saved?.name || "Untitled",
+      rootGroup: {
+        id: "root",
+        kind: "group",
+        logic: saved?.logic || "AND",
+        children: criteria,
+      },
+    };
+  }, [createId]);
+
   // Load saved filters from localStorage on mount
   React.useEffect(() => {
     const saved = localStorage.getItem("taskluid_saved_filters");
@@ -111,8 +161,6 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
     localStorage.setItem("taskluid_saved_filters", JSON.stringify(filters));
     setSavedFilters(filters);
   };
-
-  const createId = () => Math.random().toString(36).substr(2, 9);
 
   const countRules = (node: FilterNode): number => {
     if (node.kind === "rule") return 1;
@@ -187,24 +235,6 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
       children: [...group.children, newGroup],
     }));
     if (!isExpanded) setIsExpanded(true);
-  };
-
-  const normalizeSavedFilter = (saved: any): SavedFilter => {
-    if (saved?.rootGroup) return saved as SavedFilter;
-    const criteria: FilterCriteria[] = (saved?.criteria || []).map((rule: any) => ({
-      ...rule,
-      kind: "rule",
-    }));
-    return {
-      id: saved?.id || createId(),
-      name: saved?.name || "Untitled",
-      rootGroup: {
-        id: "root",
-        kind: "group",
-        logic: saved?.logic || "AND",
-        children: criteria,
-      },
-    };
   };
 
   // Get unique tags from tasks
