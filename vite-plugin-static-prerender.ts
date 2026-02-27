@@ -1070,6 +1070,10 @@ export function staticPrerenderPlugin(): Plugin {
                   <p class="text-sm text-neutral-400">Professional designs that pass Applicant Tracking Systems and impress recruiters.</p>
                 </div>
                 <div class="p-6 rounded-xl bg-neutral-900/50 border border-neutral-800">
+                  <h3 class="font-semibold text-white mb-2">ATS Score Feedback</h3>
+                  <p class="text-sm text-neutral-400">See real-time compatibility scores against job descriptions and fix gaps instantly.</p>
+                </div>
+                <div class="p-6 rounded-xl bg-neutral-900/50 border border-neutral-800">
                   <h3 class="font-semibold text-white mb-2">Privacy First</h3>
                   <p class="text-sm text-neutral-400">Your data is encrypted and never sold. Export and delete anytime with full control.</p>
                 </div>
