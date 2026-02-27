@@ -33,6 +33,21 @@ interface DuplicateDetectionPopoverProps {
   onOpenChange?: (open: boolean) => void;
 }
 
+type DuplicateFeedbackAction = 'accepted' | 'rejected';
+
+const FEEDBACK_STORAGE_KEY = 'taskluid_duplicate_feedback';
+
+const loadFeedback = (): Record<number, DuplicateFeedbackAction> => {
+  if (typeof window === 'undefined') return {};
+  try {
+    const stored = window.localStorage.getItem(FEEDBACK_STORAGE_KEY);
+    if (!stored) return {};
+    return JSON.parse(stored) as Record<number, DuplicateFeedbackAction>;
+  } catch {
+    return {};
+  }
+};
+
 export function DuplicateDetectionPopover({
   title,
   description,
@@ -49,9 +64,20 @@ export function DuplicateDetectionPopover({
   const [suggestions, setSuggestions] = useState<DuplicateSuggestion[]>([]);
   const [lastCheckedTitle, setLastCheckedTitle] = useState<string>('');
   const [dismissedSuggestions, setDismissedSuggestions] = useState<Set<number>>(new Set());
+  const [feedback, setFeedback] = useState<Record<number, DuplicateFeedbackAction>>(() => loadFeedback());
 
   const effectiveIsOpen = controlledIsOpen ?? isOpen;
   const effectiveSetIsOpen = onOpenChange ?? setIsOpen;
+
+  const recordFeedback = useCallback((taskId: number, action: DuplicateFeedbackAction) => {
+    setFeedback((prev) => {
+      const next = { ...prev, [taskId]: action };
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem(FEEDBACK_STORAGE_KEY, JSON.stringify(next));
+      }
+      return next;
+    });
+  }, []);
 
   const checkForDuplicates = useCallback(async () => {
     if (!title.trim() || title.length < 5) return;
@@ -101,6 +127,7 @@ export function DuplicateDetectionPopover({
   }, [title]);
 
   const handleDismiss = (taskId: number) => {
+    recordFeedback(taskId, 'rejected');
     setDismissedSuggestions(prev => new Set(prev).add(taskId));
     
     // If all suggestions dismissed, close popover
@@ -112,6 +139,7 @@ export function DuplicateDetectionPopover({
   };
 
   const handleDismissAll = () => {
+    suggestions.forEach((s) => recordFeedback(s.task.id, 'rejected'));
     setDismissedSuggestions(new Set(suggestions.map(s => s.task.id)));
     effectiveSetIsOpen(false);
     onDismiss?.();
@@ -130,7 +158,15 @@ export function DuplicateDetectionPopover({
     return Math.round(similarity * 100);
   };
 
-  const filteredSuggestions = suggestions.filter(s => !dismissedSuggestions.has(s.task.id));
+  const isCompletedStatus = (status?: string) => {
+    if (!status) return false;
+    const normalized = status.toLowerCase();
+    return ['done', 'completed', 'complete', 'closed', 'resolved'].includes(normalized);
+  };
+
+  const filteredSuggestions = suggestions.filter(
+    (s) => !dismissedSuggestions.has(s.task.id) && !feedback[s.task.id]
+  );
 
   if (filteredSuggestions.length === 0 && !isChecking) return null;
 
@@ -179,88 +215,108 @@ export function DuplicateDetectionPopover({
         </div>
         
         <div className="max-h-64 overflow-y-auto">
-          {filteredSuggestions.map((suggestion) => (
-            <div
-              key={suggestion.task.id}
-              className="p-3 border-b last:border-b-0 hover:bg-muted/30 transition-colors"
-            >
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-medium text-sm truncate">
-                      {suggestion.task.title}
-                    </span>
-                    {getConfidenceBadge(suggestion.similarity)}
-                  </div>
-                  
-                  <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
-                    <span className="font-medium text-primary">
-                      {getConfidenceScore(suggestion.similarity)}% match
-                    </span>
-                    <span>•</span>
-                    <span className="capitalize">{suggestion.matchType} match</span>
-                    {suggestion.task.createdAt && (
-                      <>
-                        <span>•</span>
-                        <span>{formatDistanceToNow(new Date(suggestion.task.createdAt), { addSuffix: true })}</span>
-                      </>
+          {filteredSuggestions.map((suggestion) => {
+            const createdAt = suggestion.task.createdAt ? new Date(suggestion.task.createdAt) : null;
+            const completedAt =
+              isCompletedStatus(suggestion.task.status) && suggestion.task.updatedAt
+                ? new Date(suggestion.task.updatedAt)
+                : null;
+
+            return (
+              <div
+                key={suggestion.task.id}
+                className="p-3 border-b last:border-b-0 hover:bg-muted/30 transition-colors"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-medium text-sm truncate">
+                        {suggestion.task.title}
+                      </span>
+                      {getConfidenceBadge(suggestion.similarity)}
+                    </div>
+                    
+                    <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground flex-wrap">
+                      <span className="font-medium text-primary">
+                        {getConfidenceScore(suggestion.similarity)}% match
+                      </span>
+                      <span>•</span>
+                      <span className="capitalize">{suggestion.matchType} match</span>
+                      {createdAt && (
+                        <>
+                          <span>•</span>
+                          <span>Created {formatDistanceToNow(createdAt, { addSuffix: true })}</span>
+                        </>
+                      )}
+                      {completedAt && (
+                        <>
+                          <span>•</span>
+                          <span>Completed {formatDistanceToNow(completedAt, { addSuffix: true })}</span>
+                        </>
+                      )}
+                    </div>
+                    
+                    {suggestion.task.status && (
+                      <div className="mt-2">
+                        <Badge variant="outline" className="text-xs">
+                          {suggestion.task.status}
+                        </Badge>
+                      </div>
                     )}
                   </div>
                   
-                  {suggestion.task.status && (
-                    <div className="mt-2">
-                      <Badge variant="outline" className="text-xs">
-                        {suggestion.task.status}
-                      </Badge>
-                    </div>
-                  )}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 w-6 p-0 shrink-0"
+                    onClick={() => handleDismiss(suggestion.task.id)}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
                 </div>
                 
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 w-6 p-0 shrink-0"
-                  onClick={() => handleDismiss(suggestion.task.id)}
-                >
-                  <X className="h-3 w-3" />
-                </Button>
-              </div>
-              
-              <div className="flex gap-2 mt-3">
-                {onMergeTask && (
+                <div className="flex gap-2 mt-3">
+                  {onMergeTask && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-7 text-xs flex-1"
+                      onClick={() => {
+                      recordFeedback(suggestion.task.id, 'accepted');
+                      onMergeTask(suggestion.task.id);
+                    }}
+                    >
+                      <GitMerge className="h-3 w-3 mr-1" />
+                      Merge
+                    </Button>
+                  )}
+                  {onLinkTask && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-7 text-xs flex-1"
+                      onClick={() => {
+                      recordFeedback(suggestion.task.id, 'accepted');
+                      onLinkTask(suggestion.task.id);
+                    }}
+                    >
+                      <Link2 className="h-3 w-3 mr-1" />
+                      Link
+                    </Button>
+                  )}
                   <Button
                     size="sm"
-                    variant="outline"
+                    variant="secondary"
                     className="h-7 text-xs flex-1"
-                    onClick={() => onMergeTask(suggestion.task.id)}
+                    onClick={() => window.open(`/dashboard/tasks/${suggestion.task.id}`, '_blank')}
                   >
-                    <GitMerge className="h-3 w-3 mr-1" />
-                    Merge
+                    <ArrowRight className="h-3 w-3 mr-1" />
+                    View
                   </Button>
-                )}
-                {onLinkTask && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="h-7 text-xs flex-1"
-                    onClick={() => onLinkTask(suggestion.task.id)}
-                  >
-                    <Link2 className="h-3 w-3 mr-1" />
-                    Link
-                  </Button>
-                )}
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  className="h-7 text-xs flex-1"
-                  onClick={() => window.open(`/dashboard/tasks/${suggestion.task.id}`, '_blank')}
-                >
-                  <ArrowRight className="h-3 w-3 mr-1" />
-                  View
-                </Button>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
         
         {filteredSuggestions.length > 0 && (

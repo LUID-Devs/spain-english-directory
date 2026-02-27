@@ -9,6 +9,7 @@ import { SubscriptionProvider } from '@/components/SubscriptionProvider';
 import { useQuickAddTask } from '@/hooks/useQuickAddTask';
 import { useCommandPalette } from '@/hooks/useCommandPalette';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import { UndoProvider } from '@/contexts/UndoContext';
 import QuickAddTaskModal from '@/components/QuickAddTaskModal';
 import CommandPalette from '@/components/CommandPalette';
 import KeyboardShortcutsHelp from '@/components/KeyboardShortcutsHelp';
@@ -55,9 +56,11 @@ const AutomationPage = React.lazy(() => import('@/pages/dashboard/automation/Aut
 const LandingPage = React.lazy(() => import('@/pages/landing/LandingPage'));
 const LuidKitLandingPage = React.lazy(() => import('@/pages/landing/LuidKitLandingPage'));
 const ResumeLuidLandingPage = React.lazy(() => import('@/pages/landing/ResumeLuidLandingPage'));
+const ConverterPage = React.lazy(() => import('@/pages/converter/ConverterPage'));
 // Pricing page - must be prerendered for SEO (see vite-plugin-static-prerender.ts)
 const PricingPage = React.lazy(() => import('@/pages/pricing/PricingPage'));
 const FeaturesPage = React.lazy(() => import('@/pages/features/FeaturesPage'));
+const ComparePage = React.lazy(() => import('@/pages/compare/ComparePage'));
 const InviteAcceptPage = React.lazy(() => import('@/pages/organizations/invite/InviteAcceptPage'));
 
 // Legal Pages (lazy loaded)
@@ -128,7 +131,7 @@ function AppContent() {
   }, [isDarkMode]);
 
   return (
-    <>
+    <UndoProvider>
       <AuthErrorDisplay />
       <Suspense fallback={<div className="flex items-center justify-center h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
         <Routes>
@@ -136,8 +139,10 @@ function AppContent() {
           <Route path="/landing" element={<LandingPage />} />
           <Route path="/luidkit" element={<LuidKitLandingPage />} />
           <Route path="/resumeluid" element={<ResumeLuidLandingPage />} />
+          <Route path="/convert" element={<ConverterPage />} />
           <Route path="/pricing" element={<PricingPage />} />
           <Route path="/features" element={<FeaturesPage />} />
+          <Route path="/compare" element={<ComparePage />} />
 
           {/* Legal Routes */}
           <Route path="/privacy" element={<PrivacyPolicy />} />
@@ -315,7 +320,7 @@ function AppContent() {
 
       {/* Toast Notifications */}
       <Toaster
-        position="top-right"
+        position="bottom-right"
         toastOptions={{
           style: {
             background: isDarkMode ? '#374151' : '#ffffff',
@@ -336,7 +341,7 @@ function AppContent() {
       
       {/* Keyboard Shortcuts Help Modal */}
       <KeyboardShortcutsHelp isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)} />
-    </>
+    </UndoProvider>
   );
 }
 

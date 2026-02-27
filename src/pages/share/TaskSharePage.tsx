@@ -1,27 +1,24 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Lock, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { toast } from "sonner";
 import { sanitizeHtmlContent } from "@/lib/utils";
+
+const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 
 interface SharedTask {
   id: number;
   title: string;
-  description: string | null;
-  status: string;
-  priority: string;
-  updatedAt: string;
+  description?: string | null;
+  status?: string | null;
+  priority?: string | null;
   project?: {
     id: number;
     name: string;
-  };
+  } | null;
   assignedTo?: string | null;
+  updatedAt?: string | null;
 }
 
 interface ExternalComment {
@@ -31,29 +28,30 @@ interface ExternalComment {
   createdAt: string;
 }
 
-interface TaskShareResponse {
+interface SharedTaskResponse {
   success: boolean;
   task: SharedTask;
   allowComments: boolean;
   externalComments: ExternalComment[];
-  expiresAt: string | null;
+  expiresAt?: string | null;
 }
-
-const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 
 const TaskSharePage: React.FC = () => {
   const { token } = useParams<{ token: string }>();
-  const [data, setData] = useState<TaskShareResponse | null>(null);
+  const [data, setData] = useState<SharedTaskResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [passwordRequired, setPasswordRequired] = useState(false);
   const [password, setPassword] = useState("");
-  const [commentName, setCommentName] = useState("");
-  const [commentEmail, setCommentEmail] = useState("");
+  const [activePassword, setActivePassword] = useState<string | null>(null);
+
+  const [authorName, setAuthorName] = useState("");
+  const [authorEmail, setAuthorEmail] = useState("");
   const [commentText, setCommentText] = useState("");
+  const [commentError, setCommentError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const fetchShare = useCallback(async (sharePassword?: string) => {
+  const fetchTaskShare = async (sharePassword?: string) => {
     if (!token) return;
 
     try {
@@ -99,231 +97,243 @@ const TaskSharePage: React.FC = () => {
         throw new Error("Failed to load shared task");
       }
 
-      const result = await response.json();
+      const result = (await response.json()) as SharedTaskResponse;
       setData(result);
       setPasswordRequired(false);
+      setActivePassword(sharePassword ?? null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setLoading(false);
     }
-  }, [token]);
+  };
 
   useEffect(() => {
-    fetchShare();
-  }, [fetchShare]);
+    fetchTaskShare();
+  }, [token]);
 
   const handlePasswordSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    fetchShare(password);
+    fetchTaskShare(password);
   };
 
-  const handleSubmitComment = async (e: React.FormEvent) => {
+  const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!token || !data?.allowComments) return;
+    setCommentError(null);
 
-    if (!commentName.trim() || !commentText.trim()) {
-      toast.error("Name and comment are required.");
+    if (!commentText.trim() || !authorName.trim()) {
+      setCommentError("Name and comment are required.");
       return;
     }
+
+    if (!token) return;
 
     try {
       setIsSubmitting(true);
       const headers: Record<string, string> = {
         "Content-Type": "application/json",
       };
-      if (password) {
-        headers["x-share-password"] = password;
+
+      if (activePassword) {
+        headers["x-share-password"] = activePassword;
       }
 
       const response = await fetch(`${API_URL}/share/${token}/comments`, {
         method: "POST",
         headers,
         body: JSON.stringify({
-          authorName: commentName.trim(),
-          authorEmail: commentEmail.trim() || undefined,
           text: commentText.trim(),
+          authorName: authorName.trim(),
+          authorEmail: authorEmail.trim() || undefined,
         }),
       });
 
       if (response.status === 401) {
+        setCommentError("Password required.");
         setPasswordRequired(true);
-        toast.error("Password required to comment.");
         return;
       }
 
       if (response.status === 403) {
-        toast.error("Invalid password. Please try again.");
+        const errorData = await response.json().catch(() => null);
+        setCommentError(errorData?.message || "Unable to post comment.");
         return;
       }
 
       if (!response.ok) {
-        throw new Error("Failed to submit comment");
+        throw new Error("Failed to post comment");
       }
 
-      const updated = await response.json();
-      if (updated?.comment) {
-        setData((prev) =>
-          prev
-            ? {
-                ...prev,
-                externalComments: [...prev.externalComments, updated.comment],
-              }
-            : prev
-        );
-      } else {
-        await fetchShare(password);
-      }
-
+      const result = await response.json();
+      const newComment = result.comment as ExternalComment;
+      setData((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          externalComments: [...(prev.externalComments || []), newComment],
+        };
+      });
       setCommentText("");
-      toast.success("Comment added");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to add comment");
+      setCommentError(err instanceof Error ? err.message : "Failed to post comment");
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const lastUpdated = useMemo(() => {
+    if (!data?.task?.updatedAt) return null;
+    const date = new Date(data.task.updatedAt);
+    if (Number.isNaN(date.getTime())) return null;
+    return date.toLocaleString();
+  }, [data?.task?.updatedAt]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4">
+        <div className="max-w-lg text-center space-y-2">
+          <h1 className="text-2xl font-semibold">Unable to load task</h1>
+          <p className="text-muted-foreground">{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (passwordRequired) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4">
+        <div className="max-w-md w-full bg-background border border-border rounded-lg p-6 space-y-4">
+          <h1 className="text-xl font-semibold">Password Required</h1>
+          <p className="text-muted-foreground">Enter the password to view this shared task.</p>
+          <form onSubmit={handlePasswordSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="share-password">Password</Label>
+              <Input
+                id="share-password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+            <Button type="submit" className="w-full">Unlock Task</Button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  if (!data) {
+    return null;
+  }
+
   return (
-    <div className="min-h-screen bg-background py-10 px-4">
-      <div className="max-w-3xl mx-auto space-y-6">
-        {loading ? (
-          <Card>
-            <CardContent className="p-6">Loading task…</CardContent>
-          </Card>
-        ) : error ? (
-          <Card>
-            <CardContent className="p-6 text-sm text-destructive">{error}</CardContent>
-          </Card>
-        ) : passwordRequired ? (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base">
-                <Lock className="h-4 w-4" />
-                Password required
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handlePasswordSubmit} className="space-y-3">
-                <Label htmlFor="share-password">Share password</Label>
-                <Input
-                  id="share-password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter password"
-                />
-                <Button type="submit">View task</Button>
-              </form>
-            </CardContent>
-          </Card>
-        ) : data ? (
-          <>
-            <Card>
-              <CardHeader className="space-y-2">
-                <div className="flex flex-wrap gap-2 items-center">
-                  <Badge variant="secondary">{data.task.status}</Badge>
-                  <Badge variant="outline">{data.task.priority}</Badge>
-                </div>
-                <CardTitle className="text-2xl">{data.task.title}</CardTitle>
-                <p className="text-sm text-muted-foreground">
-                  {data.task.project?.name ? `${data.task.project.name} · ` : ""}
-                  Last updated {new Date(data.task.updatedAt).toLocaleString()}
-                </p>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {data.task.description && (
-                  <div>
-                    <Label className="text-xs uppercase text-muted-foreground">Description</Label>
-                    {/* Render HTML rich text safely */}
-                    <div
-                      className="mt-2 text-sm prose prose-sm max-w-none dark:prose-invert"
-                      dangerouslySetInnerHTML={{ __html: sanitizeHtmlContent(data.task.description) }}
-                    />
+    <div className="min-h-screen bg-background text-foreground">
+      <div className="max-w-3xl mx-auto px-4 py-10 space-y-8">
+        <header className="space-y-2">
+          <p className="text-sm uppercase tracking-wide text-muted-foreground">Shared Task</p>
+          <h1 className="text-3xl font-semibold">{data.task.title}</h1>
+          <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
+            {data.task.project?.name && (
+              <span>Project: <span className="font-medium text-foreground">{data.task.project.name}</span></span>
+            )}
+            {data.task.status && (
+              <span>Status: <span className="font-medium text-foreground">{data.task.status}</span></span>
+            )}
+            {data.task.priority && (
+              <span>Priority: <span className="font-medium text-foreground">{data.task.priority}</span></span>
+            )}
+            {data.task.assignedTo && (
+              <span>Assignee: <span className="font-medium text-foreground">{data.task.assignedTo}</span></span>
+            )}
+          </div>
+          {lastUpdated && (
+            <p className="text-xs text-muted-foreground">Last updated: {lastUpdated}</p>
+          )}
+        </header>
+
+        <section className="space-y-3">
+          <h2 className="text-lg font-semibold">Description</h2>
+          {data.task.description ? (
+            <div
+              className="prose prose-sm max-w-none text-muted-foreground dark:prose-invert"
+              dangerouslySetInnerHTML={{ __html: sanitizeHtmlContent(data.task.description) }}
+            />
+          ) : (
+            <p className="text-muted-foreground">No description provided.</p>
+          )}
+        </section>
+
+        <section className="space-y-4">
+          <h2 className="text-lg font-semibold">Comments</h2>
+          {data.externalComments?.length ? (
+            <div className="space-y-4">
+              {data.externalComments.map((comment) => (
+                <div key={comment.id} className="border border-border rounded-lg p-4 space-y-1">
+                  <div className="flex justify-between text-sm">
+                    <span className="font-medium">{comment.authorName}</span>
+                    <span className="text-muted-foreground">
+                      {new Date(comment.createdAt).toLocaleString()}
+                    </span>
                   </div>
-                )}
-                <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                  {data.task.assignedTo && (
-                    <div>
-                      <span className="font-medium text-foreground">Assigned:</span> {data.task.assignedTo}
-                    </div>
-                  )}
-                  {data.expiresAt && (
-                    <div className="flex items-center gap-1">
-                      <Calendar className="h-4 w-4" />
-                      Expires {new Date(data.expiresAt).toLocaleDateString()}
-                    </div>
-                  )}
+                  <p className="text-muted-foreground whitespace-pre-wrap">{comment.text}</p>
                 </div>
-              </CardContent>
-            </Card>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">No external comments yet.</p>
+          )}
 
-            {data.allowComments && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Leave a comment</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <form onSubmit={handleSubmitComment} className="space-y-3">
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      <div className="space-y-1">
-                        <Label htmlFor="comment-name">Name</Label>
-                        <Input
-                          id="comment-name"
-                          value={commentName}
-                          onChange={(e) => setCommentName(e.target.value)}
-                          placeholder="Your name"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <Label htmlFor="comment-email">Email (optional)</Label>
-                        <Input
-                          id="comment-email"
-                          type="email"
-                          value={commentEmail}
-                          onChange={(e) => setCommentEmail(e.target.value)}
-                          placeholder="you@example.com"
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-1">
-                      <Label htmlFor="comment-text">Comment</Label>
-                      <Textarea
-                        id="comment-text"
-                        value={commentText}
-                        onChange={(e) => setCommentText(e.target.value)}
-                        placeholder="Write your comment"
-                        rows={4}
-                      />
-                    </div>
-                    <Button type="submit" disabled={isSubmitting}>
-                      {isSubmitting ? "Submitting…" : "Submit comment"}
-                    </Button>
-                  </form>
-                </CardContent>
-              </Card>
-            )}
-
-            {data.externalComments?.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Comments</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {data.externalComments.map((comment) => (
-                    <div key={comment.id} className="space-y-1">
-                      <p className="text-sm font-medium">{comment.authorName}</p>
-                      <p className="text-sm text-muted-foreground">{comment.text}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {new Date(comment.createdAt).toLocaleString()}
-                      </p>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-            )}
-          </>
-        ) : null}
+          {data.allowComments && (
+            <form onSubmit={handleCommentSubmit} className="space-y-4 border border-border rounded-lg p-4">
+              <h3 className="text-md font-semibold">Add a comment</h3>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="author-name">Your name</Label>
+                  <Input
+                    id="author-name"
+                    value={authorName}
+                    onChange={(e) => setAuthorName(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="author-email">Email (optional)</Label>
+                  <Input
+                    id="author-email"
+                    type="email"
+                    value={authorEmail}
+                    onChange={(e) => setAuthorEmail(e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="comment-text">Comment</Label>
+                <textarea
+                  id="comment-text"
+                  className="w-full min-h-[120px] rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  value={commentText}
+                  onChange={(e) => setCommentText(e.target.value)}
+                  required
+                />
+              </div>
+              {commentError && (
+                <p className="text-sm text-destructive">{commentError}</p>
+              )}
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "Posting..." : "Post comment"}
+              </Button>
+            </form>
+          )}
+        </section>
       </div>
     </div>
   );

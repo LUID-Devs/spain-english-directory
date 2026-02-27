@@ -27,12 +27,20 @@ export type FilterType = "status" | "priority" | "assignee" | "project" | "dueDa
 
 export interface FilterCriteria {
   id: string;
+  kind: "rule";
   type: FilterType;
   operator: "equals" | "notEquals" | "contains" | "before" | "after" | "between";
   value: string | string[] | Date | DateRange;
-  combineWith?: "AND" | "OR";
-  groupId?: string;
 }
+
+export interface FilterGroup {
+  id: string;
+  kind: "group";
+  logic: "AND" | "OR";
+  children: FilterNode[];
+}
+
+export type FilterNode = FilterCriteria | FilterGroup;
 
 export interface DateRange {
   from: Date | undefined;
@@ -42,9 +50,7 @@ export interface DateRange {
 export interface SavedFilter {
   id: string;
   name: string;
-  criteria: FilterCriteria[];
-  logic?: "AND" | "OR"; // legacy support
-  groupOperators?: Record<string, "AND" | "OR">;
+  rootGroup: FilterGroup;
 }
 
 interface AdvancedFiltersProps {
@@ -55,6 +61,27 @@ interface AdvancedFiltersProps {
   onFilterChange: (filteredTasks: Task[]) => void;
   onActiveFiltersChange?: (count: number) => void;
 }
+
+// Helper function to recursively deserialize dates in filter nodes
+const deserializeNodeDates = (node: any): FilterNode => {
+  if (node.kind === "rule") {
+    const rule = { ...node };
+    // Handle dueDate type with DateRange value
+    if (rule.type === "dueDate" && rule.value && typeof rule.value === "object") {
+      const range = rule.value as { from?: string; to?: string };
+      rule.value = {
+        from: range.from ? new Date(range.from) : undefined,
+        to: range.to ? new Date(range.to) : undefined,
+      };
+    }
+    return rule as FilterCriteria;
+  }
+  // For groups, recursively process children
+  return {
+    ...node,
+    children: (node.children || []).map(deserializeNodeDates),
+  } as FilterGroup;
+};
 
 const filterTypeOptions: { value: FilterType; label: string }[] = [
   { value: "status", label: "Status" },
@@ -76,19 +103,53 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
   onActiveFiltersChange,
 }) => {
   // State
-  const [filters, setFilters] = useState<FilterCriteria[]>([]);
+  const [rootGroup, setRootGroup] = useState<FilterGroup>({
+    id: "root",
+    kind: "group",
+    logic: "AND",
+    children: [],
+  });
   const [savedFilters, setSavedFilters] = useState<SavedFilter[]>([]);
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [filterName, setFilterName] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
-  const [groupOperators, setGroupOperators] = useState<Record<string, "AND" | "OR">>({});
+
+  // Helper function to create unique IDs
+  const createId = React.useCallback(() => Math.random().toString(36).slice(2, 11), []);
+
+  const normalizeSavedFilter = React.useCallback((saved: any): SavedFilter => {
+    if (saved?.rootGroup) {
+      // Deserialize dates in the new format
+      return {
+        id: saved.id || createId(),
+        name: saved.name || "Untitled",
+        rootGroup: deserializeNodeDates(saved.rootGroup) as FilterGroup,
+      };
+    }
+    // Backward compatibility for old format
+    const criteria: FilterCriteria[] = (saved?.criteria || []).map((rule: any) => {
+      const deserialized = deserializeNodeDates({ ...rule, kind: "rule" }) as FilterCriteria;
+      return deserialized;
+    });
+    return {
+      id: saved?.id || createId(),
+      name: saved?.name || "Untitled",
+      rootGroup: {
+        id: "root",
+        kind: "group",
+        logic: saved?.logic || "AND",
+        children: criteria,
+      },
+    };
+  }, [createId]);
 
   // Load saved filters from localStorage on mount
   React.useEffect(() => {
     const saved = localStorage.getItem("taskluid_saved_filters");
     if (saved) {
       try {
-        setSavedFilters(JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        setSavedFilters(Array.isArray(parsed) ? parsed.map(normalizeSavedFilter) : []);
       } catch (e) {
         console.error("Failed to load saved filters", e);
       }
@@ -99,6 +160,81 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
   const persistSavedFilters = (filters: SavedFilter[]) => {
     localStorage.setItem("taskluid_saved_filters", JSON.stringify(filters));
     setSavedFilters(filters);
+  };
+
+  const countRules = (node: FilterNode): number => {
+    if (node.kind === "rule") return 1;
+    return node.children.reduce((acc, child) => acc + countRules(child), 0);
+  };
+
+  const collectRules = (node: FilterNode): FilterCriteria[] => {
+    if (node.kind === "rule") return [node];
+    return node.children.flatMap((child) => collectRules(child));
+  };
+
+  const updateGroupById = (groupId: string, updater: (group: FilterGroup) => FilterGroup) => {
+    const apply = (node: FilterNode): FilterNode => {
+      if (node.kind === "group") {
+        if (node.id === groupId) return updater(node);
+        return { ...node, children: node.children.map(apply) };
+      }
+      return node;
+    };
+    setRootGroup((prev) => apply(prev) as FilterGroup);
+  };
+
+  const updateRuleById = (ruleId: string, updates: Partial<FilterCriteria>) => {
+    const apply = (node: FilterNode): FilterNode => {
+      if (node.kind === "rule") {
+        return node.id === ruleId ? { ...node, ...updates } : node;
+      }
+      return { ...node, children: node.children.map(apply) };
+    };
+    setRootGroup((prev) => apply(prev) as FilterGroup);
+  };
+
+  const removeNodeById = (nodeId: string) => {
+    const apply = (node: FilterNode): FilterNode => {
+      if (node.kind === "group") {
+        return {
+          ...node,
+          children: node.children
+            .filter((child) => child.id !== nodeId)
+            .map(apply),
+        };
+      }
+      return node;
+    };
+    setRootGroup((prev) => apply(prev) as FilterGroup);
+  };
+
+  const addRuleToGroup = (groupId: string) => {
+    const newRule: FilterCriteria = {
+      id: createId(),
+      kind: "rule",
+      type: "status",
+      operator: "equals",
+      value: availableStatuses[0] || "",
+    };
+    updateGroupById(groupId, (group) => ({
+      ...group,
+      children: [...group.children, newRule],
+    }));
+    if (!isExpanded) setIsExpanded(true);
+  };
+
+  const addGroupToGroup = (groupId: string) => {
+    const newGroup: FilterGroup = {
+      id: createId(),
+      kind: "group",
+      logic: "AND",
+      children: [],
+    };
+    updateGroupById(groupId, (group) => ({
+      ...group,
+      children: [...group.children, newGroup],
+    }));
+    if (!isExpanded) setIsExpanded(true);
   };
 
   // Get unique tags from tasks
@@ -112,38 +248,6 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
     return Array.from(tagsSet).sort();
   }, [tasks]);
 
-  const groupOrder = useMemo(() => {
-    const order: string[] = [];
-    const seen = new Set<string>();
-    filters.forEach((filter) => {
-      const groupId = filter.groupId || "default";
-      if (!seen.has(groupId)) {
-        seen.add(groupId);
-        order.push(groupId);
-      }
-    });
-    return order.length > 0 ? order : ["default"];
-  }, [filters]);
-
-  const groupLabels = useMemo(() => {
-    const labels: Record<string, string> = {};
-    groupOrder.forEach((groupId, index) => {
-      labels[groupId] = String.fromCharCode(65 + index);
-    });
-    return labels;
-  }, [groupOrder]);
-
-  React.useEffect(() => {
-    setGroupOperators((prev) => {
-      const next: Record<string, "AND" | "OR"> = {};
-      groupOrder.forEach((groupId, index) => {
-        if (index === 0) return;
-        next[groupId] = prev[groupId] || "AND";
-      });
-      return next;
-    });
-  }, [groupOrder]);
-
   // Apply a single filter criteria to a task
   function applyFilter(task: Task, filter: FilterCriteria): boolean {
     switch (filter.type) {
@@ -152,7 +256,7 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
       case "priority":
         return task.priority === filter.value;
       case "assignee":
-        return task.assignedUserId?.toString() === filter.value || 
+        return task.assignedUserId?.toString() === filter.value ||
                task.assignee?.userId?.toString() === filter.value;
       case "project":
         return task.projectId?.toString() === filter.value;
@@ -160,7 +264,7 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
         if (!task.dueDate) return false;
         const taskDate = new Date(task.dueDate);
         const range = filter.value as DateRange;
-        
+
         if (filter.operator === "before") {
           return taskDate < (range.to || new Date());
         } else if (filter.operator === "after") {
@@ -174,6 +278,9 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
         if (!task.tags) return false;
         const taskTags = task.tags.toLowerCase().split(",").map((t) => t.trim());
         const filterTag = (filter.value as string).toLowerCase();
+        if (filter.operator === "contains") {
+          return taskTags.some((tag) => tag.includes(filterTag));
+        }
         return taskTags.includes(filterTag);
       }
       default:
@@ -181,107 +288,41 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
     }
   }
 
+  const evaluateNode = (task: Task, node: FilterNode): boolean => {
+    if (node.kind === "rule") return applyFilter(task, node);
+    if (node.children.length === 0) return true;
+    const results = node.children.map((child) => evaluateNode(task, child));
+    return node.logic === "AND" ? results.every(Boolean) : results.some(Boolean);
+  };
+
   // Apply filters to tasks
   const filteredTasks = useMemo(() => {
-    if (!tasks || filters.length === 0) return tasks || [];
+    if (!tasks || rootGroup.children.length === 0) return tasks || [];
 
-    return tasks.filter((task) => {
-      if (filters.length === 0) return true;
-
-      const grouped: Record<string, FilterCriteria[]> = {};
-      filters.forEach((filter) => {
-        const groupId = filter.groupId || "default";
-        grouped[groupId] = grouped[groupId] || [];
-        grouped[groupId].push(filter);
-      });
-
-      let result = true;
-      groupOrder.forEach((groupId, groupIndex) => {
-        const groupFilters = grouped[groupId] || [];
-        if (groupFilters.length === 0) return;
-
-        let groupResult = applyFilter(task, groupFilters[0]);
-        for (let i = 1; i < groupFilters.length; i += 1) {
-          const current = applyFilter(task, groupFilters[i]);
-          const combineWith = groupFilters[i].combineWith || "AND";
-          groupResult = combineWith === "OR" ? groupResult || current : groupResult && current;
-        }
-
-        if (groupIndex === 0) {
-          result = groupResult;
-        } else {
-          const groupOperator = groupOperators[groupId] || "AND";
-          result = groupOperator === "OR" ? result || groupResult : result && groupResult;
-        }
-      });
-
-      return result;
-    });
-  }, [tasks, filters, groupOrder, groupOperators]);
+    return tasks.filter((task) => evaluateNode(task, rootGroup));
+  }, [tasks, rootGroup]);
 
   // Notify parent of filter changes
   React.useEffect(() => {
     onFilterChange(filteredTasks);
-    onActiveFiltersChange?.(filters.length);
-  }, [filteredTasks, filters.length, onFilterChange, onActiveFiltersChange]);
-
-  // Add a new filter
-  const addFilter = () => {
-    const newFilter: FilterCriteria = {
-      id: Math.random().toString(36).slice(2, 11),
-      type: "status",
-      operator: "equals",
-      value: availableStatuses[0] || "",
-      combineWith: "AND",
-      groupId: groupOrder[0] || "default",
-    };
-    setFilters([...filters, newFilter]);
-    if (!isExpanded) setIsExpanded(true);
-  };
-
-  // Add a new filter group
-  const addGroup = () => {
-    const newGroupId = Math.random().toString(36).slice(2, 11);
-    const newFilter: FilterCriteria = {
-      id: Math.random().toString(36).slice(2, 11),
-      type: "status",
-      operator: "equals",
-      value: availableStatuses[0] || "",
-      combineWith: "AND",
-      groupId: newGroupId,
-    };
-    setGroupOperators((prev) => ({ ...prev, [newGroupId]: "AND" }));
-    setFilters([...filters, newFilter]);
-    if (!isExpanded) setIsExpanded(true);
-  };
-
-  // Update a filter
-  const updateFilter = (id: string, updates: Partial<FilterCriteria>) => {
-    setFilters(filters.map((f) => (f.id === id ? { ...f, ...updates } : f)));
-  };
-
-  // Remove a filter
-  const removeFilter = (id: string) => {
-    setFilters(filters.filter((f) => f.id !== id));
-  };
+    onActiveFiltersChange?.(countRules(rootGroup));
+  }, [filteredTasks, rootGroup, onFilterChange, onActiveFiltersChange]);
 
   // Clear all filters
   const clearAllFilters = () => {
-    setFilters([]);
-    setGroupOperators({});
+    setRootGroup((prev) => ({ ...prev, children: [] }));
   };
 
   // Save current filter combination
   const saveFilter = () => {
     if (!filterName.trim()) return;
-    
+
     const newSavedFilter: SavedFilter = {
-      id: Math.random().toString(36).slice(2, 11),
+      id: createId(),
       name: filterName,
-      criteria: [...filters],
-      groupOperators,
+      rootGroup: rootGroup,
     };
-    
+
     persistSavedFilters([...savedFilters, newSavedFilter]);
     setFilterName("");
     setSaveDialogOpen(false);
@@ -289,13 +330,7 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
 
   // Load a saved filter
   const loadSavedFilter = (savedFilter: SavedFilter) => {
-    const legacyLogic = savedFilter.logic || "AND";
-    const criteria = savedFilter.criteria.map((criterion, index) => ({
-      ...criterion,
-      combineWith: index === 0 ? undefined : criterion.combineWith || legacyLogic,
-    }));
-    setFilters(criteria);
-    setGroupOperators(savedFilter.groupOperators || {});
+    setRootGroup(savedFilter.rootGroup);
     setIsExpanded(true);
   };
 
@@ -306,20 +341,8 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
   };
 
   // Get active filter count display
-  const activeFilterCount = filters.length;
-
-  const groupedFilters = useMemo(() => {
-    const grouped: Record<string, FilterCriteria[]> = {};
-    groupOrder.forEach((groupId) => {
-      grouped[groupId] = [];
-    });
-    filters.forEach((filter) => {
-      const groupId = filter.groupId || "default";
-      if (!grouped[groupId]) grouped[groupId] = [];
-      grouped[groupId].push(filter);
-    });
-    return grouped;
-  }, [filters, groupOrder]);
+  const activeFilterCount = countRules(rootGroup);
+  const flatRules = collectRules(rootGroup);
 
   // Render filter value input based on type
   const renderFilterValueInput = (filter: FilterCriteria) => {
@@ -328,7 +351,7 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
         return (
           <Select
             value={filter.value as string}
-            onValueChange={(value) => updateFilter(filter.id, { value })}
+            onValueChange={(value) => updateRuleById(filter.id, { value })}
           >
             <SelectTrigger className="w-[180px]">
               <SelectValue />
@@ -347,7 +370,7 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
         return (
           <Select
             value={filter.value as string}
-            onValueChange={(value) => updateFilter(filter.id, { value })}
+            onValueChange={(value) => updateRuleById(filter.id, { value })}
           >
             <SelectTrigger className="w-[180px]">
               <SelectValue />
@@ -366,7 +389,7 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
         return (
           <Select
             value={filter.value as string}
-            onValueChange={(value) => updateFilter(filter.id, { value })}
+            onValueChange={(value) => updateRuleById(filter.id, { value })}
           >
             <SelectTrigger className="w-[180px]">
               <SelectValue />
@@ -385,7 +408,7 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
         return (
           <Select
             value={filter.value as string}
-            onValueChange={(value) => updateFilter(filter.id, { value })}
+            onValueChange={(value) => updateRuleById(filter.id, { value })}
           >
             <SelectTrigger className="w-[180px]">
               <SelectValue />
@@ -404,7 +427,7 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
         return (
           <Select
             value={filter.value as string}
-            onValueChange={(value) => updateFilter(filter.id, { value })}
+            onValueChange={(value) => updateRuleById(filter.id, { value })}
           >
             <SelectTrigger className="w-[180px]">
               <SelectValue />
@@ -456,7 +479,7 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
                     to: range.to,
                   }}
                   onSelect={(selectedRange) => {
-                    updateFilter(filter.id, {
+                    updateRuleById(filter.id, {
                       value: {
                         from: selectedRange?.from,
                         to: selectedRange?.to,
@@ -476,6 +499,150 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
         return null;
     }
   };
+
+  const renderRuleRow = (filter: FilterCriteria) => (
+    <div key={filter.id} className="flex items-center gap-2 flex-wrap">
+      {/* Filter Type */}
+      <Select
+        value={filter.type}
+        onValueChange={(value: FilterType) => {
+          // Reset value when type changes
+          const defaultValues: Record<FilterType, string | DateRange> = {
+            status: availableStatuses[0] || "",
+            priority: priorityOptions[0],
+            assignee: users?.[0]?.userId?.toString() || "",
+            project: projects?.[0]?.id?.toString() || "",
+            dueDate: { from: undefined, to: undefined },
+            tags: availableTags[0] || "",
+          };
+          updateRuleById(filter.id, {
+            type: value,
+            value: defaultValues[value],
+            operator: value === "dueDate" ? "between" : "equals",
+          });
+        }}
+      >
+        <SelectTrigger className="w-[140px]">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {filterTypeOptions.map((option) => (
+            <SelectItem key={option.value} value={option.value}>
+              {option.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      {/* Operator (only for some types) */}
+      {filter.type === "tags" && (
+        <Select
+          value={filter.operator}
+          onValueChange={(value: any) => updateRuleById(filter.id, { operator: value })}
+        >
+          <SelectTrigger className="w-[120px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="contains">contains</SelectItem>
+            <SelectItem value="equals">equals</SelectItem>
+          </SelectContent>
+        </Select>
+      )}
+
+      {/* Filter Value */}
+      {renderFilterValueInput(filter)}
+
+      {/* Remove Button */}
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => removeNodeById(filter.id)}
+        className="h-8 w-8 text-muted-foreground hover:text-destructive"
+        aria-label="Remove filter"
+      >
+        <X className="h-4 w-4" />
+      </Button>
+    </div>
+  );
+
+  const renderGroup = (group: FilterGroup, depth = 0) => (
+    <div
+      key={group.id}
+      className={cn(
+        "space-y-3 rounded-lg border p-3",
+        depth > 0 ? "bg-muted/10" : "bg-card"
+      )}
+    >
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-xs uppercase text-muted-foreground">
+          {depth === 0 ? "Filters" : "Group"}
+        </span>
+        {group.children.length > 1 && (
+          <Select
+            value={group.logic}
+            onValueChange={(value) =>
+              updateGroupById(group.id, (existing) => ({
+                ...existing,
+                logic: value as "AND" | "OR",
+              }))
+            }
+          >
+            <SelectTrigger className="w-[110px] h-8">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="AND">Match ALL</SelectItem>
+              <SelectItem value="OR">Match ANY</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
+
+        <div className="ml-auto flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => addRuleToGroup(group.id)}
+            className="gap-1"
+          >
+            <Plus className="h-3 w-3" />
+            Add Filter
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => addGroupToGroup(group.id)}
+            className="gap-1"
+          >
+            <Plus className="h-3 w-3" />
+            Add Group
+          </Button>
+          {group.id !== "root" && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => removeNodeById(group.id)}
+              className="h-8 w-8 text-muted-foreground hover:text-destructive"
+              aria-label="Remove group"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        {group.children.length === 0 && (
+          <p className="text-sm text-muted-foreground text-center py-4">
+            No filters in this group yet.
+          </p>
+        )}
+        {group.children.map((child) =>
+          child.kind === "group" ? renderGroup(child, depth + 1) : renderRuleRow(child)
+        )}
+      </div>
+    </div>
+  );
 
   return (
     <div className="space-y-4">
@@ -497,7 +664,23 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
           )}
         </Button>
 
-        {/* Logic handled per condition */}
+        {/* Logic Toggle */}
+        {rootGroup.children.length > 1 && (
+          <Select
+            value={rootGroup.logic}
+            onValueChange={(v) =>
+              updateGroupById("root", (group) => ({ ...group, logic: v as "AND" | "OR" }))
+            }
+          >
+            <SelectTrigger className="w-[100px] h-8">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="AND">Match ALL</SelectItem>
+              <SelectItem value="OR">Match ANY</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
 
         {/* Saved Filters Dropdown */}
         {savedFilters.length > 0 && (
@@ -548,12 +731,12 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
 
         {/* Active Filter Badges */}
         <div className="flex flex-wrap gap-1 ml-auto">
-          {filters.map((filter) => (
+          {flatRules.map((filter) => (
             <Badge
               key={filter.id}
               variant="secondary"
               className="gap-1 pr-1 cursor-pointer hover:bg-accent"
-              onClick={() => removeFilter(filter.id)}
+              onClick={() => removeNodeById(filter.id)}
             >
               {filterTypeOptions.find((o) => o.value === filter.type)?.label}: {" "}
               {filter.type === "dueDate"
@@ -571,158 +754,25 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
 
       {/* Expanded Filter Panel */}
       {isExpanded && (
-        <div className="border rounded-lg p-4 space-y-4 bg-card">
-          {/* Filter Rows */}
-          <div className="space-y-3">
-            {filters.length === 0 && (
-              <p className="text-sm text-muted-foreground text-center py-4">
-                No active filters. Click "Add Filter" to start filtering tasks.
-              </p>
-            )}
-            
-            {groupOrder.map((groupId, groupIndex) => (
-              <div key={groupId} className="space-y-2">
-                <div className="flex items-center gap-2">
-                  {groupIndex > 0 && (
-                    <Select
-                      value={groupOperators[groupId] || "AND"}
-                      onValueChange={(value) =>
-                        setGroupOperators((prev) => ({
-                          ...prev,
-                          [groupId]: value as "AND" | "OR",
-                        }))
-                      }
-                    >
-                      <SelectTrigger className="w-[90px]">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="AND">AND</SelectItem>
-                        <SelectItem value="OR">OR</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  )}
-                  <Badge variant="outline">Group {groupLabels[groupId]}</Badge>
-                </div>
-
-                {(groupedFilters[groupId] || []).map((filter, index) => (
-                  <div key={filter.id} className="flex items-center gap-2 flex-wrap">
-                    {index > 0 && (
-                      <Select
-                        value={filter.combineWith || "AND"}
-                        onValueChange={(value) => updateFilter(filter.id, { combineWith: value as "AND" | "OR" })}
-                      >
-                        <SelectTrigger className="w-[90px]">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="AND">AND</SelectItem>
-                          <SelectItem value="OR">OR</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    )}
-
-                    {groupOrder.length > 1 && (
-                      <Select
-                        value={filter.groupId || groupId}
-                        onValueChange={(value) => updateFilter(filter.id, { groupId: value })}
-                      >
-                        <SelectTrigger className="w-[110px]">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {groupOrder.map((id) => (
-                            <SelectItem key={id} value={id}>
-                              Group {groupLabels[id]}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-
-                    {/* Filter Type */}
-                    <Select
-                      value={filter.type}
-                      onValueChange={(value: FilterType) => {
-                        // Reset value when type changes
-                        const defaultValues: Record<FilterType, string | DateRange> = {
-                          status: availableStatuses[0] || "",
-                          priority: priorityOptions[0],
-                          assignee: users?.[0]?.userId?.toString() || "",
-                          project: projects?.[0]?.id?.toString() || "",
-                          dueDate: { from: undefined, to: undefined },
-                          tags: availableTags[0] || "",
-                        };
-                        updateFilter(filter.id, {
-                          type: value,
-                          value: defaultValues[value],
-                          operator: value === "dueDate" ? "between" : "equals",
-                        });
-                      }}
-                    >
-                      <SelectTrigger className="w-[140px]">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {filterTypeOptions.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-
-                    {/* Operator (only for some types) */}
-                    {filter.type === "tags" && (
-                      <Select
-                        value={filter.operator}
-                        onValueChange={(value: any) => updateFilter(filter.id, { operator: value })}
-                      >
-                        <SelectTrigger className="w-[120px]">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="contains">contains</SelectItem>
-                          <SelectItem value="equals">equals</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    )}
-
-                    {/* Filter Value */}
-                    {renderFilterValueInput(filter)}
-
-                    {/* Remove Button */}
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeFilter(filter.id)}
-                      className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                      aria-label="Remove filter"
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
+        <div className="space-y-4">
+          {renderGroup(rootGroup)}
 
           <Separator />
 
           {/* Actions */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={addFilter} className="gap-1">
+              <Button variant="outline" size="sm" onClick={() => addRuleToGroup("root")} className="gap-1">
                 <Plus className="h-4 w-4" />
                 Add Filter
               </Button>
-              <Button variant="outline" size="sm" onClick={addGroup} className="gap-1">
+              <Button variant="outline" size="sm" onClick={() => addGroupToGroup("root")} className="gap-1">
                 <Plus className="h-4 w-4" />
                 Add Group
               </Button>
             </div>
 
-            {filters.length > 0 && (
+            {activeFilterCount > 0 && (
               <Dialog open={saveDialogOpen} onOpenChange={setSaveDialogOpen}>
                 <DialogTrigger asChild>
                   <Button variant="outline" size="sm" className="gap-1">
@@ -745,7 +795,8 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
                       />
                     </div>
                     <div className="text-sm text-muted-foreground">
-                      This will save {filters.length} filter{filters.length !== 1 ? "s" : ""} with per-condition AND/OR logic.
+                      This will save {activeFilterCount} filter{activeFilterCount !== 1 ? "s" : ""} with{" "}
+                      {rootGroup.logic === "AND" ? "ALL" : "ANY"} matching logic.
                     </div>
                     <div className="flex justify-end gap-2">
                       <Button variant="outline" onClick={() => setSaveDialogOpen(false)}>
