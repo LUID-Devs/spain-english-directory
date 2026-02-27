@@ -85,6 +85,20 @@ const CreateProjectPage = () => {
     });
   };
 
+  const attachTasksToProject = async (projectId: number) => {
+    const taskIds = Array.from(selectedTaskIds);
+    if (taskIds.length === 0) return;
+
+    try {
+      const result = await apiService.bulkMoveToProject(taskIds, projectId);
+      if (!result?.success) {
+        setAttachmentError(result?.message || "Failed to attach tasks to the new project.");
+      }
+    } catch (err) {
+      setAttachmentError(err instanceof Error ? err.message : "Failed to attach tasks to the new project.");
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     

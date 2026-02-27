@@ -154,7 +154,7 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
         console.error("Failed to load saved filters", e);
       }
     }
-  }, []);
+  }, [normalizeSavedFilter]);
 
   // Save filters to localStorage
   const persistSavedFilters = (filters: SavedFilter[]) => {
