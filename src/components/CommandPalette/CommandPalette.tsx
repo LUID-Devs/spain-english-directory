@@ -18,7 +18,8 @@ import {
   Moon,
   Sun,
   Keyboard,
-  Inbox
+  Inbox,
+  Plug
 } from 'lucide-react';
 import { useGlobalStore } from '@/stores/globalStore';
 import { useQuickAddTask } from '@/hooks/useQuickAddTask';
@@ -164,6 +165,15 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
       action: () => navigateTo('/dashboard/settings'),
       category: 'Navigation',
       keywords: ['config', 'preferences']
+    },
+    {
+      id: 'integrations',
+      title: 'Go to Integrations',
+      shortcut: 'G N',
+      icon: <Plug className="w-4 h-4" />,
+      action: () => navigateTo('/dashboard/integrations'),
+      category: 'Navigation',
+      keywords: ['integrations', 'asana', 'jira', 'linear']
     },
     // Priorities
     {

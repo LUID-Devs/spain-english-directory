@@ -66,7 +66,6 @@ const CreateProjectPage = () => {
 
     fetchTasks();
   }, [currentUser?.userId]);
-
   const filteredTasks = useMemo(() => {
     if (!taskSearch.trim()) return availableTasks;
     const query = taskSearch.toLowerCase();

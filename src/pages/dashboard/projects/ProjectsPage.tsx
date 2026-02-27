@@ -51,17 +51,15 @@ const ProjectsPage = () => {
    */
   const handleNewProjectClick = () => {
     const totalProjects = allProjects?.length ?? 0;
-    if (!canCreateProject(totalProjects)) {
+    if (canCreateProject(totalProjects)) {
+      if (window.innerWidth < 768) {
+        navigate("/dashboard/projects/create");
+      } else {
+        setIsNewProjectModalOpen(true);
+      }
+    } else {
       setIsUpgradeModalOpen(true);
-      return;
     }
-
-    if (typeof window !== 'undefined' && window.innerWidth < 768) {
-      navigate("/dashboard/projects/create");
-      return;
-    }
-
-    setIsNewProjectModalOpen(true);
   };
 
   const handleNewProjectMobileClick = () => {

@@ -31,7 +31,8 @@ import {
   UserPlus,
   Bot,
   Flag,
-  TrendingUp
+  TrendingUp,
+  Plug
 } from "lucide-react";
 import InviteToWorkspaceModal from "@/components/InviteToWorkspaceModal";
 import { useLocation, Link } from "react-router-dom";
@@ -152,6 +153,7 @@ const Sidebar = () => {
             <SidebarLink href="/dashboard/timeline" icon={Activity} label="Timeline" />
             <SidebarLink href="/dashboard/mission-control" icon={Bot} label="Mission Control" />
             <SidebarLink href="/dashboard/automation" icon={Zap} label="Automation" />
+            <SidebarLink href="/dashboard/integrations" icon={Plug} label="Integrations" />
             <SidebarLink href="/dashboard/archived-tasks" icon={Archive} label="Archived Tasks" />
           </nav>
         </div>

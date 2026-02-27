@@ -72,7 +72,6 @@ const ModalNewProject = ({ isOpen, onClose }: Props) => {
   const handleSubmit = async () => {
     if (!projectName || !startDate || !endDate) return;
 
-    // Validate end date is not before start date
     const start = new Date(startDate);
     const end = new Date(endDate);
     if (end < start) {
@@ -106,9 +105,9 @@ const ModalNewProject = ({ isOpen, onClose }: Props) => {
       setDescription("");
       setStartDate("");
       setEndDate("");
+      setError("");
       setTaskSearch("");
       setSelectedTaskIds(new Set());
-      setError("");
       onClose();
     } catch (err: any) {
       // Handle error
@@ -121,9 +120,9 @@ const ModalNewProject = ({ isOpen, onClose }: Props) => {
     setDescription("");
     setStartDate("");
     setEndDate("");
+    setError("");
     setTaskSearch("");
     setSelectedTaskIds(new Set());
-    setError("");
     onClose();
   };
 
@@ -275,7 +274,6 @@ const ModalNewProject = ({ isOpen, onClose }: Props) => {
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
                 className="h-11"
-                min={startDate}
               />
             </div>
           </div>
