@@ -28,7 +28,7 @@ import AttachmentsSection from "@/components/AttachmentsSection";
 import RichTextEditor from "@/components/RichTextEditor";
 import GitActivity from "@/components/GitActivity";
 import GitReviewPanel from "@/components/gitReview/GitReviewPanel";
-import apiService, { type TaskShareInfo } from "@/services/apiService";
+import { apiService, type TaskShareInfo } from "@/services/apiService";
 import { useAgents, useAssignTaskToAgent, useTaskAgentAssignments, useUnassignTaskFromAgent } from "@/hooks/useMissionControl";
 import { UsageGate } from "@/components/subscription/UsageGate";
 import {
