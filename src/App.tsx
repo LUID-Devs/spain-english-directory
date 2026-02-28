@@ -59,7 +59,6 @@ const BacklogPriorityPage = React.lazy(() => import('@/pages/dashboard/priority/
 const ArchivedTasksPage = React.lazy(() => import('@/app/dashboard/archived-tasks/page'));
 const AutomationPage = React.lazy(() => import('@/pages/dashboard/automation/AutomationPage'));
 const LibraryPage = React.lazy(() => import('@/pages/dashboard/library/LibraryPage'));
-const WorkspaceLibraryPage = React.lazy(() => import('@/pages/dashboard/workspace-library/WorkspaceLibraryPage'));
 
 // Other Pages (lazy loaded)
 const ConverterPage = React.lazy(() => import('@/pages/converter/ConverterPage'));
@@ -328,18 +327,8 @@ function AppContent() {
                   </RouteErrorBoundary>
                 } />
                 <Route path="library" element={
-                  <RouteErrorBoundary componentName="Workspace Library">
-                    <WorkspaceLibraryPage />
-                  </RouteErrorBoundary>
-                } />
-                <Route path="workspaces" element={
-                  <RouteErrorBoundary componentName="Workspace Library">
-                    <WorkspaceLibraryPage />
-                  </RouteErrorBoundary>
-                } />
-                <Route path="workspace-library" element={
-                  <RouteErrorBoundary componentName="Workspace Content Library">
-                    <WorkspaceLibraryPage />
+                  <RouteErrorBoundary componentName="Library">
+                    <LibraryPage />
                   </RouteErrorBoundary>
                 } />
                 </Routes>
