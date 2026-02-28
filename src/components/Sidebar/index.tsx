@@ -32,7 +32,8 @@ import {
   Bot,
   Flag,
   TrendingUp,
-  Plug
+  Plug,
+  LayoutGrid
 } from "lucide-react";
 import InviteToWorkspaceModal from "@/components/InviteToWorkspaceModal";
 import { useLocation, Link } from "react-router-dom";
@@ -147,6 +148,7 @@ const Sidebar = () => {
             <SidebarLink href="/dashboard" icon={Home} label="Dashboard" />
             <SidebarLink href="/dashboard/tasks" icon={CheckSquare} label="My Tasks" />
             <SidebarLink href="/dashboard/triage" icon={ClipboardList} label="Triage" />
+            <SidebarLink href="/dashboard/workspaces" icon={LayoutGrid} label="Workspaces" />
             <SidebarLink href="/dashboard/projects" icon={Briefcase} label="Projects" />
             <SidebarLink href="/dashboard/goals" icon={Flag} label="Goals" />
             <SidebarLink href="/dashboard/analytics" icon={TrendingUp} label="Analytics" />
