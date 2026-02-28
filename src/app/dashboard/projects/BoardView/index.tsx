@@ -10,6 +10,7 @@ import {
   useDeleteStatusMutation,
   useReorderStatusesMutation,
   useCreateTaskShareMutation,
+  useGetTaskShareMutation,
   TaskStatus as TaskStatusType
 } from "@/hooks/useApi";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
@@ -623,6 +624,7 @@ const Task = React.memo(({ task, onTaskSelect }: TaskProps) => {
   const [deleteTask, { isLoading: isDeleting }] = useDeleteTaskMutation();
   const [createTask, { isLoading: isDuplicating }] = useCreateTaskMutation();
   const [createTaskShare] = useCreateTaskShareMutation();
+  const [getTaskShare] = useGetTaskShareMutation();
   const [{ isDragging }, drag] = useDrag(() => ({
     type: "task",
     item: { id: task.id, status: task.status || "To Do" },
@@ -675,12 +677,40 @@ const Task = React.memo(({ task, onTaskSelect }: TaskProps) => {
   };
 
   const handleShareTask = async () => {
-    const loadingToast = toast.loading("Creating share link...");
+    const loadingToast = toast.loading("Preparing share link...");
 
     try {
-      const share = await createTaskShare({ taskId: task.id }).unwrap();
-      await navigator.clipboard.writeText(share.shareUrl);
-      toast.success("Share link copied to clipboard", { id: loadingToast });
+      let share = null;
+      try {
+        const existingShare = await getTaskShare({ taskId: task.id }).unwrap();
+        if (existingShare?.shareUrl) {
+          share = existingShare;
+        }
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "";
+        if (!message.toLowerCase().includes("share link not found")) {
+          throw error;
+        }
+      }
+
+      if (!share) {
+        share = await createTaskShare({ taskId: task.id }).unwrap();
+      }
+
+      if (!share?.shareUrl) {
+        throw new Error("Share link unavailable");
+      }
+
+      try {
+        await navigator.clipboard.writeText(share.shareUrl);
+        toast.success("Share link copied to clipboard", { id: loadingToast });
+      } catch (copyError) {
+        console.error("Failed to copy share link:", copyError);
+        toast.error("Share link created but could not be copied. Please copy it manually.", { id: loadingToast });
+        if (typeof window !== "undefined") {
+          window.prompt("Copy share link", share.shareUrl);
+        }
+      }
     } catch (error) {
       console.error("Failed to create share link:", error);
       toast.error(error instanceof Error ? error.message : "Failed to create share link", { id: loadingToast });

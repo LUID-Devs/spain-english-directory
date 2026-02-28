@@ -513,13 +513,19 @@ export const useUpdateTaskMutation = () => {
 };
 
 export const useCreateTaskShareMutation = () => {
+  const [isLoading, setIsLoading] = useState(false);
   const createShare = useCallback(async ({ taskId, data }: { taskId: number; data?: {
     expiresInDays?: number | null;
     allowComments?: boolean;
     requirePassword?: boolean;
     password?: string;
   } }) => {
-    return apiService.createTaskShare(taskId, data || {});
+    setIsLoading(true);
+    try {
+      return await apiService.createTaskShare(taskId, data || {});
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
   const mutationWrapper = useCallback((args: { taskId: number; data?: {
@@ -531,9 +537,26 @@ export const useCreateTaskShareMutation = () => {
     unwrap: () => createShare(args)
   }), [createShare]);
 
-  return [mutationWrapper, { isLoading: false }] as const;
+  return [mutationWrapper, { isLoading }] as const;
 };
 
+export const useGetTaskShareMutation = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const getShare = useCallback(async ({ taskId }: { taskId: number }) => {
+    setIsLoading(true);
+    try {
+      return await apiService.getTaskShare(taskId);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const mutationWrapper = useCallback((args: { taskId: number }) => ({
+    unwrap: () => getShare(args)
+  }), [getShare]);
+
+  return [mutationWrapper, { isLoading }] as const;
+};
 export const useReorderTasksMutation = () => {
   const { setTasks } = useApiStore();
 
