@@ -141,7 +141,9 @@ function extractCriteriaFromParsed(parsed: ParsedSearchQuery): SmartFilterCriter
   
   if (parsed.due?.values.length) {
     criteria.due = parsed.due.values.map(d => 
-      d.type === 'relative' ? d.value : d.date.toISOString()
+      d.type === 'relative' ? d.value : 
+      d.type === 'absolute' ? d.date.toISOString() :
+      `${d.start.toISOString()}..${d.end.toISOString()}`
     );
   }
   
@@ -202,9 +204,10 @@ function interpretNaturalLanguage(query: string): SmartFilterResult {
     const regex = new RegExp(`\\b${keyword}\\b`, 'i');
     if (regex.test(remainingQuery)) {
       if (!criteria.status) criteria.status = [];
+      const statusList = criteria.status;
       statuses.forEach(s => {
-        if (!criteria.status!.includes(s)) {
-          criteria.status.push(s);
+        if (!statusList.includes(s)) {
+          statusList.push(s);
         }
       });
       normalizedParts.push(`is:${keyword.replace(/\s+/g, '-')}`);

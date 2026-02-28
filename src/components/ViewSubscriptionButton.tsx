@@ -38,11 +38,11 @@ export const ViewSubscriptionButton: React.FC<ViewSubscriptionButtonProps> = ({
   const { subscribe, unsubscribe, updateSettings, getStatus } = useViewSubscriptions();
 
   const [localSettings, setLocalSettings] = useState({
-    notifyOnNewTasks: true,
+    notifyOnCreate: true,
     notifyOnStatusChange: true,
-    notifyOnAssignment: false,
+    notifyOnAssign: false,
     emailNotifications: true,
-    pushNotifications: true,
+    inAppNotifications: true,
   });
 
   // Check subscription status on mount
@@ -53,11 +53,11 @@ export const ViewSubscriptionButton: React.FC<ViewSubscriptionButtonProps> = ({
       setCurrentSubscription(status.subscription);
       if (status.subscription) {
         setLocalSettings({
-          notifyOnNewTasks: status.subscription.notifyOnNewTasks ?? true,
+          notifyOnCreate: status.subscription.notifyOnCreate ?? true,
           notifyOnStatusChange: status.subscription.notifyOnStatusChange ?? true,
-          notifyOnAssignment: status.subscription.notifyOnAssignment ?? false,
+          notifyOnAssign: status.subscription.notifyOnAssign ?? false,
           emailNotifications: status.subscription.emailNotifications ?? true,
-          pushNotifications: status.subscription.pushNotifications ?? true,
+          inAppNotifications: status.subscription.inAppNotifications ?? true,
         });
       }
     };
@@ -125,9 +125,9 @@ export const ViewSubscriptionButton: React.FC<ViewSubscriptionButtonProps> = ({
               </div>
               <Switch
                 id="new-tasks"
-                checked={localSettings.notifyOnNewTasks}
+                checked={localSettings.notifyOnCreate}
                 onCheckedChange={(checked) =>
-                  setLocalSettings((prev) => ({ ...prev, notifyOnNewTasks: checked }))
+                  setLocalSettings((prev) => ({ ...prev, notifyOnCreate: checked }))
                 }
               />
             </div>
@@ -155,9 +155,9 @@ export const ViewSubscriptionButton: React.FC<ViewSubscriptionButtonProps> = ({
               </div>
               <Switch
                 id="assignment"
-                checked={localSettings.notifyOnAssignment}
+                checked={localSettings.notifyOnAssign}
                 onCheckedChange={(checked) =>
-                  setLocalSettings((prev) => ({ ...prev, notifyOnAssignment: checked }))
+                  setLocalSettings((prev) => ({ ...prev, notifyOnAssign: checked }))
                 }
               />
             </div>
@@ -186,9 +186,9 @@ export const ViewSubscriptionButton: React.FC<ViewSubscriptionButtonProps> = ({
                 </div>
                 <Switch
                   id="push"
-                  checked={localSettings.pushNotifications}
+                  checked={localSettings.inAppNotifications}
                   onCheckedChange={(checked) =>
-                    setLocalSettings((prev) => ({ ...prev, pushNotifications: checked }))
+                    setLocalSettings((prev) => ({ ...prev, inAppNotifications: checked }))
                   }
                 />
               </div>
@@ -250,9 +250,9 @@ export const ViewSubscriptionButton: React.FC<ViewSubscriptionButtonProps> = ({
             </div>
             <Switch
               id="sub-new-tasks"
-              checked={localSettings.notifyOnNewTasks}
+              checked={localSettings.notifyOnCreate}
               onCheckedChange={(checked) =>
-                setLocalSettings((prev) => ({ ...prev, notifyOnNewTasks: checked }))
+                setLocalSettings((prev) => ({ ...prev, notifyOnCreate: checked }))
               }
             />
           </div>
@@ -280,9 +280,9 @@ export const ViewSubscriptionButton: React.FC<ViewSubscriptionButtonProps> = ({
             </div>
             <Switch
               id="sub-assignment"
-              checked={localSettings.notifyOnAssignment}
+              checked={localSettings.notifyOnAssign}
               onCheckedChange={(checked) =>
-                setLocalSettings((prev) => ({ ...prev, notifyOnAssignment: checked }))
+                setLocalSettings((prev) => ({ ...prev, notifyOnAssign: checked }))
               }
             />
           </div>

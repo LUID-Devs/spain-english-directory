@@ -706,7 +706,7 @@ export const useGetTeamsQuery = (params: any = undefined, options: { skip?: bool
           : apiService.request('/teams')),
         2500
       );
-      setTeams(teamsData);
+      setTeams(teamsData as any[]);
     } catch (error) {
       console.error('Failed to fetch teams:', error);
       setError('teams', error instanceof Error ? error.message : 'Failed to fetch teams');
@@ -2663,7 +2663,7 @@ export const useApplyAdvancedFilter = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const result = await apiService.applyAdvancedFilter(filter, options);
+      const result = await apiService.applyAdvancedFilter({ filter, options });
       setData(result);
       return result;
     } catch (err: any) {

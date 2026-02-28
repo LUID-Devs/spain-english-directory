@@ -74,7 +74,7 @@ const LoginPage = () => {
           break;
         case 'signInWithRedirect_failure':
           console.error('[LOGIN PAGE] OAuth sign-in failed:', payload.data);
-          setError(`OAuth sign-in failed: ${payload.data?.message || 'Unknown error'}`);
+          setError(`OAuth sign-in failed: ${(payload.data?.error as any)?.message || 'Unknown error'}`);
           setLoading(false);
           break;
       }

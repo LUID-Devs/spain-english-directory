@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Check, X } from "lucide-react";
 import GoogleSignInButton from "@/components/GoogleSignInButton";
 import { PasswordInput } from "@/components/ui/password-input";
+import { useAuth } from "@/app/authProvider";
 
 // Password requirement type
 interface PasswordRequirement {
@@ -13,6 +14,8 @@ interface PasswordRequirement {
 }
 
 const RegisterPage = () => {
+  const navigate = useNavigate();
+  const { isLoading: authLoading } = useAuth();
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -26,7 +29,6 @@ const RegisterPage = () => {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [resendCountdown, setResendCountdown] = useState(0);
   const [resendAttempts, setResendAttempts] = useState(0);
-  const navigate = useNavigate();
 
   // Countdown timer for resend functionality
   useEffect(() => {

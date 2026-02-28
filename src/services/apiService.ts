@@ -1890,7 +1890,7 @@ class ApiService {
     });
   }
 
-  async updateAutomationRule(ruleId: number, updates: Partial<CreateAutomationRuleRequest>): Promise<{ success: boolean; data: AutomationRule }> {
+  async updateAutomationRule(ruleId: number, updates: Partial<AutomationRule>): Promise<{ success: boolean; data: AutomationRule }> {
     return this.request<{ success: boolean; data: AutomationRule }>(`/api/automation/rules/${ruleId}`, {
       method: 'PUT',
       body: JSON.stringify(updates),

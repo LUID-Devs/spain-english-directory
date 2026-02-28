@@ -54,7 +54,7 @@ const AutomationPage: React.FC = () => {
   const [ruleToDelete, setRuleToDelete] = useState<AutomationRule | null>(null);
   const [testingRuleId, setTestingRuleId] = useState<number | null>(null);
 
-  const organizationId = activeOrganization?.id || currentUser?.organizationId;
+  const organizationId = activeOrganization?.id;
 
   useEffect(() => {
     if (organizationId) {

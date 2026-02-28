@@ -21,7 +21,7 @@ import {
   Highlighter, FileCode, Eye, EyeOff, Mic, Volume2, StopCircle, Workflow
 } from 'lucide-react';
 import MermaidExtension from './MermaidExtension';
-import SlashCommand from './SlashCommand.tsx';
+import SlashCommand from './SlashCommand';
 import 'tippy.js/animations/scale.css';
 
 // Create lowlight instance with common languages
@@ -184,7 +184,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     recognition: false,
     synthesis: false,
   });
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const recognitionRef = useRef<any | null>(null);
   const synthRef = useRef<SpeechSynthesis | null>(null);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
@@ -340,7 +340,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
       recognition.interimResults = true;
       recognition.lang = 'en-US';
       
-      recognition.onresult = (event: SpeechRecognitionEvent) => {
+      recognition.onresult = (event: any) => {
         const results = event.results;
         let finalTranscript = '';
         let interimTranscript = '';
@@ -360,7 +360,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         }
       };
       
-      recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+      recognition.onerror = (event: any) => {
         console.error('Speech recognition error:', event.error);
         setIsListening(false);
       };

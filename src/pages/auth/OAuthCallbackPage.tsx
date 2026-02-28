@@ -25,7 +25,7 @@ const OAuthCallbackPage: React.FC = () => {
         case 'signInWithRedirect_failure':
           console.error('[OAUTH CALLBACK] Sign in with redirect failed:', payload.data);
           setStatus('error');
-          setError(`OAuth sign-in failed: ${payload.data?.message || 'Unknown error'}`);
+          setError(`OAuth sign-in failed: ${(payload.data?.error as any)?.message || 'Unknown error'}`);
           setTimeout(() => navigate('/auth/login'), 3000);
           break;
       }

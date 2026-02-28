@@ -830,7 +830,7 @@ const DashboardPage = () => {
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={handleBulkDelete}
         taskCount={selectedTaskIds.size}
-        isDeleting={isDeletePending}
+        isDeleting={isDeletePending()}
       />
 
       {/* Create Task Modal */}
