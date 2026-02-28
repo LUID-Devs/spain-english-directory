@@ -228,30 +228,28 @@ export function useAdvancedFilters(options: UseAdvancedFiltersOptions = {}): Use
    * Update a condition in the filter
    */
   const updateCondition = useCallback((index: number, updates: Partial<FieldCondition>, groupIndex?: number) => {
-    setFilter((prev) => {
+    setFilter((prev): AdvancedTaskFilter => {
       if (groupIndex !== undefined && groupIndex >= 0) {
         // Update in a specific group - immutable update
-        const conditions = prev.conditions.map((c, i): FieldCondition | ConditionGroup => {
-          if (i === groupIndex && "conditions" in c) {
-            const group = c as ConditionGroup;
-            const updatedGroup: ConditionGroup = {
-              operator: group.operator,
-              conditions: group.conditions.map((cc, ci) =>
+        const conditions: (FieldCondition | ConditionGroup)[] = prev.conditions.map((c) => {
+          if ("conditions" in c) {
+            return {
+              ...c,
+              conditions: c.conditions.map((cc, ci) =>
                 ci === index ? { ...cc, ...updates } : cc
               ),
-            };
-            return updatedGroup;
+            } as ConditionGroup;
           }
           return c;
-        }) as (FieldCondition | ConditionGroup)[];
-        return { ...prev, conditions };
+        });
+        return { operator: prev.operator, conditions };
       }
       
       // Update in root conditions
-      const conditions = prev.conditions.map((c, i) =>
-        i === index ? { ...c, ...updates } : c
-      ) as (FieldCondition | ConditionGroup)[];
-      return { ...prev, conditions };
+      const conditions: (FieldCondition | ConditionGroup)[] = prev.conditions.map((c, i) =>
+        i === index ? ({ ...c, ...updates } as FieldCondition | ConditionGroup) : c
+      );
+      return { operator: prev.operator, conditions };
     });
   }, []);
 
