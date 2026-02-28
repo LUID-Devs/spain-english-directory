@@ -81,6 +81,9 @@ const DocsPage = React.lazy(() => import('@/pages/docs/DocsPage'));
 const ProjectStatusPage = React.lazy(() => import('@/pages/status/ProjectStatusPage'));
 const TaskSharePage = React.lazy(() => import('@/pages/share/TaskSharePage'));
 
+// Career Tools (lazy loaded)
+const JobApplicationTracker = React.lazy(() => import('@/career-tools/job-tracker'));
+
 const resolveLandingVariant = () => {
   const configuredVariant = import.meta.env.VITE_LANDING_VARIANT;
   if (configuredVariant) {
@@ -156,6 +159,10 @@ function AppContent() {
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="/cookies" element={<CookiePolicy />} />
+
+          {/* Career Tools Routes */}
+          <Route path="/career-tools/job-tracker" element={<JobApplicationTracker />} />
+          <Route path="/jobs" element={<JobApplicationTracker />} />
 
           {/* Help & Docs Routes */}
           <Route path="/help" element={<HelpPage />} />
