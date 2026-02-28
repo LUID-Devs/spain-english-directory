@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Home, Book, MessageCircle, Mail, ArrowLeft, HelpCircle, Search, FileText } from 'lucide-react';
+import { Home, Book, MessageCircle, Mail, ArrowLeft, HelpCircle, Search, FileText, Menu, X } from 'lucide-react';
 
 const HelpPage: React.FC = () => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
   const faqs = [
     {
       question: 'How do I create a new task?',
@@ -57,23 +59,116 @@ const HelpPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Header */}
-      <header className="border-b border-gray-800">
-        <div className="max-w-4xl mx-auto px-4 py-6 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link 
-              to="/" 
-              className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+      <nav className="border-b border-neutral-900 bg-black/80 backdrop-blur">
+        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
+              <HelpCircle className="w-5 h-5 text-white" />
+            </div>
+            <span className="font-semibold text-lg">TaskLuid</span>
+          </Link>
+          <div className="hidden md:flex items-center gap-6">
+            <Link to="/features" className="text-sm text-neutral-400 hover:text-white transition-colors">
+              Features
+            </Link>
+            <Link to="/pricing" className="text-sm text-neutral-400 hover:text-white transition-colors">
+              Pricing
+            </Link>
+            <Link to="/suite" className="text-sm text-neutral-400 hover:text-white transition-colors">
+              Luid Suite
+            </Link>
+            <Link to="/resumeluid" className="text-sm text-neutral-400 hover:text-white transition-colors">
+              ResumeLuid
+            </Link>
+            <Link to="/luidkit" className="text-sm text-neutral-400 hover:text-white transition-colors">
+              LuidKit
+            </Link>
+            <Link to="/docs" className="text-sm text-neutral-400 hover:text-white transition-colors">
+              Docs
+            </Link>
+            <Link to="/auth/login" className="text-sm text-neutral-400 hover:text-white transition-colors">
+              Sign In
+            </Link>
+            <Link
+              to="/auth/register"
+              className="text-sm px-4 py-2 rounded-full bg-white text-black font-medium hover:bg-neutral-200 transition-colors"
             >
-              <ArrowLeft className="w-4 h-4" />
-              Back
+              Get Started
             </Link>
           </div>
-          <Link to="/" className="text-lg font-semibold">
-            TaskLuid
-          </Link>
-          <div className="w-16" /> {/* Spacer for centering */}
+          <button
+            type="button"
+            className="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-lg border border-neutral-800 text-neutral-300 hover:text-white hover:border-neutral-700 transition-colors"
+            onClick={() => setIsMobileMenuOpen((open) => !open)}
+            aria-label="Toggle navigation"
+            aria-expanded={isMobileMenuOpen}
+          >
+            {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
         </div>
-      </header>
+        {isMobileMenuOpen && (
+          <div className="md:hidden border-t border-neutral-900 bg-black/95">
+            <div className="px-4 py-4 flex flex-col gap-3">
+              <Link
+                to="/features"
+                className="text-sm text-neutral-300 hover:text-white transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Features
+              </Link>
+              <Link
+                to="/pricing"
+                className="text-sm text-neutral-300 hover:text-white transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Pricing
+              </Link>
+              <Link
+                to="/suite"
+                className="text-sm text-neutral-300 hover:text-white transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Luid Suite
+              </Link>
+              <Link
+                to="/resumeluid"
+                className="text-sm text-neutral-300 hover:text-white transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                ResumeLuid
+              </Link>
+              <Link
+                to="/luidkit"
+                className="text-sm text-neutral-300 hover:text-white transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                LuidKit
+              </Link>
+              <Link
+                to="/docs"
+                className="text-sm text-neutral-300 hover:text-white transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Docs
+              </Link>
+              <Link
+                to="/auth/login"
+                className="text-sm text-neutral-300 hover:text-white transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Sign In
+              </Link>
+              <Link
+                to="/auth/register"
+                className="text-sm inline-flex items-center justify-center px-4 py-2 rounded-full bg-white text-black font-medium hover:bg-neutral-200 transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Get Started
+              </Link>
+            </div>
+          </div>
+        )}
+      </nav>
 
       {/* Hero Section */}
       <section className="px-4 py-16 text-center">
