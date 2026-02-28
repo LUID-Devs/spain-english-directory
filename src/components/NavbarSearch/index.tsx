@@ -11,7 +11,7 @@ import React, {
 import { Search, Settings2, X, Users, Briefcase, CheckSquare, User, Clock, HelpCircle, Terminal } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import debounce from "lodash/debounce";
-import { List } from "react-window";
+import { List as VirtualList } from "react-window";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import AdvancedSearchModal, { SearchFilters } from "@/components/AdvancedSearchModal";
@@ -684,17 +684,17 @@ const NavbarSearch = forwardRef<NavbarSearchRef, NavbarSearchProps>(({
                         ))
                       ) : (
                         <div style={{ height: Math.min(tasksCount, 10) * 64 }}>
-                          <List
-                            height={Math.min(tasksCount, 10) * 64}
-                            itemCount={Math.min(tasksCount, 10)}
-                            itemSize={64}
-                            itemData={{
+                          {(VirtualList as any)({
+                            height: Math.min(tasksCount, 10) * 64,
+                            width: "100%",
+                            itemCount: Math.min(tasksCount, 10),
+                            itemSize: 64,
+                            itemData: {
                               tasks: displayResults.tasks.slice(0, 10),
                               onTaskClick: handleTaskClick,
-                            }}
-                          >
-                            {TaskListRow as any}
-                          </List>
+                            },
+                            children: TaskListRow as any,
+                          })}
                         </div>
                       )}
                       {tasksCount > 10 && (

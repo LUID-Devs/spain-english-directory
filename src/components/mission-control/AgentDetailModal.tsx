@@ -162,7 +162,7 @@ export const AgentDetailModal: React.FC<AgentDetailModalProps> = ({
   // Calculate stats
   const stats = {
     totalTasks: tasks?.length || 0,
-    completedTasks: tasks?.filter((t) => t.task.status.toLowerCase() === "done" || t.task.status.toLowerCase() === "completed").length || 0,
+    completedTasks: tasks?.filter((t) => t.task?.status?.toLowerCase() === "done" || t.task?.status?.toLowerCase() === "completed").length || 0,
     inProgressTasks: tasks?.filter((t) => t.status === "in_progress").length || 0,
     unreadNotifications: notifications?.filter((n) => !n.read).length || 0,
   };
@@ -414,24 +414,24 @@ export const AgentDetailModal: React.FC<AgentDetailModalProps> = ({
                       <Card
                         key={assignment.id}
                         className="cursor-pointer hover:shadow-md transition-shadow"
-                        onClick={() => setSelectedTaskId(assignment.task.id)}
+                        onClick={() => assignment.task?.id && setSelectedTaskId(assignment.task.id)}
                       >
                         <CardContent className="p-3 sm:p-4">
                           <div className="flex items-start justify-between gap-2 sm:gap-3">
                             <div className="flex-1 min-w-0">
-                              <p className="font-medium text-sm truncate">{assignment.task.title}</p>
+                              <p className="font-medium text-sm truncate">{assignment.task?.title}</p>
                               <div className="flex flex-wrap items-center gap-2 mt-1.5">
                                 <Badge variant="secondary" className="text-xs">
                                   {assignment.status.replace("_", " ")}
                                 </Badge>
-                                {assignment.task.priority && (
+                                {assignment.task?.priority && (
                                   <Badge
                                     className={`text-xs ${priorityColors[assignment.task.priority.toLowerCase()] || priorityColors.medium}`}
                                   >
                                     {assignment.task.priority}
                                   </Badge>
                                 )}
-                                {assignment.task.project && (
+                                {assignment.task?.project && (
                                   <span className="text-xs text-muted-foreground">
                                     {assignment.task.project.name}
                                   </span>

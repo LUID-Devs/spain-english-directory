@@ -65,7 +65,7 @@ const AttachmentsSection: React.FC<AttachmentsSectionProps> = ({ taskId }) => {
 
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('uploadedById', currentUserId);
+      formData.append('uploadedById', String(currentUserId));
 
       // Set upload progress - define progressKey outside try/catch
       const progressKey = `${file.name}-${Date.now()}`;

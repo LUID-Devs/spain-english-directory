@@ -58,7 +58,7 @@ interface AdvancedFiltersProps {
   projects: Project[];
   users: User[];
   availableStatuses: string[];
-  onFilterChange: (filteredTasks: Task[]) => void;
+  onFilterChange: (filteredTasks: Task[], pagination?: { totalCount: number; totalPages: number; hasNextPage: boolean }) => void;
   onActiveFiltersChange?: (count: number) => void;
 }
 
@@ -304,7 +304,12 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
 
   // Notify parent of filter changes
   React.useEffect(() => {
-    onFilterChange(filteredTasks);
+    const totalCount = filteredTasks.length;
+    onFilterChange(filteredTasks, {
+      totalCount,
+      totalPages: 1,
+      hasNextPage: false,
+    });
     onActiveFiltersChange?.(countRules(rootGroup));
   }, [filteredTasks, rootGroup, onFilterChange, onActiveFiltersChange]);
 

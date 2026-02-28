@@ -310,6 +310,7 @@ export interface TaskAssignment {
     id: number;
     name: string;
     displayName: string;
+    role?: string;
   };
 }
 

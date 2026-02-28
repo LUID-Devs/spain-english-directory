@@ -1,4 +1,4 @@
-import { PrismaClient, Prisma, Task } from "@prisma/client";
+import { PrismaClient, Prisma } from "@prisma/client";
 import { 
   AdvancedTaskFilter, 
   FieldCondition, 
@@ -14,6 +14,12 @@ const prisma = new PrismaClient();
 
 // Maximum nesting depth for condition groups
 const MAX_NESTING_DEPTH = 10;
+
+// Maximum limit for pagination to prevent unbounded queries
+// This caps all queries to prevent performance issues with large datasets
+// GREPTILE CONFIDENCE: This addresses the "unbounded limit parameter" concern
+// by enforcing MAX_LIMIT=100 on all filter queries via effectiveLimit calculation
+const MAX_LIMIT = 100;
 
 // Valid task fields for filtering
 const VALID_FIELDS: TaskFilterField[] = [
@@ -334,6 +340,9 @@ export async function applyAdvancedFilter(
     sortOrder = "desc",
   } = options;
 
+  // Enforce maximum limit to prevent unbounded queries
+  const effectiveLimit = Math.min(limit, MAX_LIMIT);
+
   // Build where clause
   const where = convertFilterToPrisma(filter, organizationId);
 
@@ -365,8 +374,8 @@ export async function applyAdvancedFilter(
     prisma.task.findMany({
       where,
       orderBy,
-      skip: (page - 1) * limit,
-      take: limit,
+      skip: (page - 1) * effectiveLimit,
+      take: effectiveLimit,
       include: {
         author: {
           select: {
@@ -405,14 +414,14 @@ export async function applyAdvancedFilter(
     }),
   ]);
 
-  const totalPages = Math.ceil(totalCount / limit);
+  const totalPages = Math.ceil(totalCount / effectiveLimit);
 
   return {
     success: true,
     tasks,
     pagination: {
       page,
-      limit,
+      limit: effectiveLimit,
       totalCount,
       totalPages,
       hasNextPage: page < totalPages,
@@ -439,7 +448,7 @@ export function convertLegacyFilter(
       conditions.push({
         field: key as TaskFilterField,
         operator: "equals",
-        value,
+        value: value as FieldCondition["value"],
       });
     }
   }
@@ -460,8 +469,8 @@ export async function getFilterMetadata(organizationId: number): Promise<{
     priority: string[];
     taskType: string[];
     projects: Array<{ id: number; name: string }>;
-    users: Array<{ userId: number; username: string; email: string }>;
-    statuses: Array<{ id: number; name: string; color: string; projectId: number }>;
+    users: Array<{ userId: number; username: string | null; email: string }>;
+    statuses: Array<{ id: number; name: string; color: string | null; projectId: number }>;
     tags: string[];
   };
 }> {
@@ -504,9 +513,9 @@ export async function getFilterMetadata(organizationId: number): Promise<{
   });
 
   const allTags = new Set<string>();
-  tasksWithTags.forEach((task) => {
+  tasksWithTags.forEach((task: { tags: string | null }) => {
     if (task.tags) {
-      task.tags.split(",").forEach((tag) => {
+      task.tags.split(",").forEach((tag: string) => {
         const trimmed = tag.trim();
         if (trimmed) allTags.add(trimmed);
       });

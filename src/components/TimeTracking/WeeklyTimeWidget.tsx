@@ -17,8 +17,8 @@ export const WeeklyTimeWidget: React.FC<WeeklyTimeWidgetProps> = ({ className })
     count: number;
     logs: Array<{
       id: number;
-      task: { title: string; project?: { name: string } };
-      durationMinutes: number;
+      task?: { title: string; project?: { name: string } };
+      durationMinutes?: number;
       durationFormatted?: string;
     }>;
   } | null>(null);
@@ -96,8 +96,8 @@ export const WeeklyTimeWidget: React.FC<WeeklyTimeWidgetProps> = ({ className })
                 {weeklyData!.logs.map((log) => (
                   <div key={log.id} className="flex items-center justify-between text-sm">
                     <div className="flex-1 min-w-0 mr-2">
-                      <p className="truncate font-medium">{log.task.title}</p>
-                      {log.task.project && (
+                      <p className="truncate font-medium">{log.task?.title || "Unknown Task"}</p>
+                      {log.task?.project && (
                         <p className="text-xs text-muted-foreground truncate">{log.task.project.name}</p>
                       )}
                     </div>

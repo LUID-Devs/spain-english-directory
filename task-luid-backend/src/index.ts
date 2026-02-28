@@ -29,7 +29,7 @@ app.get("/health", (req: Request, res: Response) => {
 app.use("/api", advancedFilterRoutes);
 
 // Error handling middleware
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+app.use((err: Error, req: Request, res: Response, _next: NextFunction) => {
   console.error(err.stack);
   res.status(500).json({
     success: false,

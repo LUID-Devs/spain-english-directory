@@ -10,6 +10,7 @@ export interface AuthenticatedUser {
 }
 
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
     interface Request {
       user?: AuthenticatedUser;
@@ -46,7 +47,7 @@ export function authenticateToken(req: Request, res: Response, next: NextFunctio
     
     req.user = decoded;
     next();
-  } catch (error) {
+  } catch {
     res.status(403).json({
       success: false,
       error: "Invalid or expired token",

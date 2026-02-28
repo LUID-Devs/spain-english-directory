@@ -62,7 +62,6 @@ const LibraryPage = React.lazy(() => import('@/pages/dashboard/library/LibraryPa
 
 // Other Pages (lazy loaded)
 const ConverterPage = React.lazy(() => import('@/pages/converter/ConverterPage'));
-const LuidSuiteLandingPage = React.lazy(() => import('@/pages/landing/LuidSuiteLandingPage'));
 // Pricing page - must be prerendered for SEO (see vite-plugin-static-prerender.ts)
 const PricingPage = React.lazy(() => import('@/pages/pricing/PricingPage'));
 const FeaturesPage = React.lazy(() => import('@/pages/features/FeaturesPage'));

@@ -1,0 +1,161 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  userId            Int       @id @default(autoincrement())
+  email             String    @unique
+  username          String?
+  profilePictureUrl String?
+  organizationId    Int
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  // Relations
+  authoredTasks     Task[]    @relation("TaskAuthor")
+  assignedTasks     Task[]    @relation("TaskAssignee")
+  savedViews        SavedView[]
+
+  @@index([organizationId])
+  @@map("users")
+}
+
+model Project {
+  id             Int       @id @default(autoincrement())
+  name           String
+  description    String?
+  organizationId Int
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  // Relations
+  tasks          Task[]
+  workflowStates WorkflowState[]
+
+  @@index([organizationId])
+  @@map("projects")
+}
+
+model WorkflowState {
+  id        Int     @id @default(autoincrement())
+  name      String
+  color     String?
+  position  Int     @default(0)
+  projectId Int
+
+  // Relations
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@map("workflow_states")
+}
+
+model Task {
+  id             Int       @id @default(autoincrement())
+  title          String
+  description    String?
+  status         String    @default("To Do")
+  priority       String?   // P0, P1, P2, P3, P4
+  taskType       String?   @map("task_type") // Feature, Bug, Chore
+  tags           String?
+  startDate      DateTime? @map("start_date")
+  dueDate        DateTime? @map("due_date")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+  points         Int?
+  triaged        Boolean   @default(false)
+  isShared       Boolean   @default(false) @map("is_shared")
+  archivedAt     DateTime? @map("archived_at")
+  organizationId Int       @map("organization_id")
+
+  // Foreign Keys
+  projectId      Int       @map("project_id")
+  authorUserId   Int       @map("author_user_id")
+  assignedUserId Int?      @map("assigned_user_id")
+  cycleId        Int?      @map("cycle_id")
+
+  // Relations
+  project        Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  author         User      @relation("TaskAuthor", fields: [authorUserId], references: [userId])
+  assignee       User?     @relation("TaskAssignee", fields: [assignedUserId], references: [userId])
+  cycle          Cycle?    @relation(fields: [cycleId], references: [id])
+  comments       Comment[]
+  attachments    Attachment[]
+
+  @@index([organizationId])
+  @@index([projectId])
+  @@index([authorUserId])
+  @@index([assignedUserId])
+  @@index([status])
+  @@index([priority])
+  @@map("tasks")
+}
+
+model Cycle {
+  id        Int      @id @default(autoincrement())
+  name      String
+  startDate DateTime @map("start_date")
+  endDate   DateTime @map("end_date")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  tasks     Task[]
+
+  @@map("cycles")
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  taskId    Int      @map("task_id")
+  authorId  Int      @map("author_id")
+
+  // Relations
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@index([taskId])
+  @@map("comments")
+}
+
+model Attachment {
+  id        Int      @id @default(autoincrement())
+  filename  String
+  url       String
+  mimeType  String?  @map("mime_type")
+  size      Int?
+  createdAt DateTime @default(now()) @map("created_at")
+  taskId    Int      @map("task_id")
+
+  // Relations
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@index([taskId])
+  @@map("attachments")
+}
+
+model SavedView {
+  id             Int       @id @default(autoincrement())
+  name           String
+  filters        Json      // Stores AdvancedTaskFilter JSON
+  isDefault      Boolean   @default(false) @map("is_default")
+  isShared       Boolean   @default(false) @map("is_shared")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+  organizationId Int       @map("organization_id")
+  ownerId        Int       @map("owner_id")
+
+  // Relations
+  owner          User      @relation(fields: [ownerId], references: [userId], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([ownerId])
+  @@map("saved_views")
+}

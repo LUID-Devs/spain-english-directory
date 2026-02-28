@@ -406,19 +406,14 @@ export const useCreateTaskMutation = () => {
   const { tasks, setTasks } = useApiStore();
   
   const createTask = useCallback(async (taskData: any) => {
-    try {
-      const newTask = await apiService.createTask(taskData);
-      
-      // Optimistically add new task to the list
-      if (tasks.data) {
-        setTasks([...tasks.data, newTask]);
-      }
-      
-      return newTask;
-    } catch (error) {
-      // No rollback needed since we didn't do optimistic update on error
-      throw error;
+    const newTask = await apiService.createTask(taskData);
+    
+    // Optimistically add new task to the list
+    if (tasks.data) {
+      setTasks([...tasks.data, newTask]);
     }
+    
+    return newTask;
   }, [tasks.data, setTasks]);
 
   // Return the function that returns a mutation object with unwrap method
@@ -1859,7 +1854,7 @@ export const useUploadAttachmentMutation = () => {
     }
   }, [taskAttachments, setTaskAttachments, currentUser]);
 
-  const mutationWrapper = useCallback((args: { taskId: number; formData: FormData }, onProgress?: (progress: number) => void) => ({
+  const mutationWrapper = useCallback((args: { taskId: number; formData: FormData }, onProgress?: (progress: number) => void): { unwrap: () => Promise<Attachment>; abort?: () => void } => ({
     unwrap: () => uploadAttachment(args, onProgress)
   }), [uploadAttachment]);
 
@@ -1887,11 +1882,11 @@ export const useDeleteAttachmentMutation = () => {
     }
   }, [taskAttachments, setTaskAttachments]);
 
-  const mutationWrapper = useCallback((args: { attachmentId: number; userId: number; taskId: number }) => ({
+  const mutationWrapper = useCallback((args: { attachmentId: number; userId: number; taskId: number }): { unwrap: () => Promise<{ message: string }> } => ({
     unwrap: () => deleteAttachment(args)
   }), [deleteAttachment]);
 
-  return [deleteAttachment, { isLoading: false }] as const;
+  return [mutationWrapper, { isLoading: false }] as const;
 };
 
 // Comment mutations

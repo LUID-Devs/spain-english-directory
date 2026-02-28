@@ -108,7 +108,7 @@ const Project = ({ params }: Props) => {
         filters={filters}
         onFiltersChange={setFilters}
         availableStatuses={availableStatuses}
-        availableAssignees={users}
+        availableAssignees={(users || []) as { userId: number; username: string }[]}
       />
       {activeTab === "Board" && (
         <Board

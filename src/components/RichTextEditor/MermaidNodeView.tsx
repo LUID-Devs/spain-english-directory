@@ -1,12 +1,12 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { NodeViewWrapper, NodeViewContent } from '@tiptap/react';
+import React, { useEffect, useRef, useState } from 'react';
+import { NodeViewWrapper } from '@tiptap/react';
 import mermaid from 'mermaid';
 import { Edit2, Check, X, Maximize2, Minimize2, Copy, CheckCheck } from 'lucide-react';
 
 interface MermaidNodeViewProps {
   node: {
     attrs: {
-      content: string;
+      content?: string;
     };
   };
   updateAttributes: (attrs: { content: string }) => void;
@@ -40,7 +40,7 @@ const MermaidNodeView: React.FC<MermaidNodeViewProps> = ({
   editor,
   selected,
 }) => {
-  const { content } = node.attrs;
+  const content = node.attrs.content || '';
   const svgRef = useRef<HTMLDivElement>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(content);
@@ -50,31 +50,41 @@ const MermaidNodeView: React.FC<MermaidNodeViewProps> = ({
   const [isCopied, setIsCopied] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Render the mermaid diagram
-  const renderDiagram = useCallback(async (diagramContent: string) => {
-    if (!diagramContent.trim()) {
-      setSvgContent('');
-      setError(null);
-      return;
-    }
-
-    try {
-      // Generate a unique ID for this render
-      const id = `mermaid-${Math.random().toString(36).substr(2, 9)}`;
-      const { svg } = await mermaid.render(id, diagramContent.trim());
-      setSvgContent(svg);
-      setError(null);
-    } catch (err) {
-      console.error('Mermaid render error:', err);
-      setError(err instanceof Error ? err.message : 'Failed to render diagram');
-      setSvgContent('');
-    }
-  }, []);
-
-  // Render when content changes
+  // Render when content changes - use a ref to avoid setState in effect detection
   useEffect(() => {
-    renderDiagram(content);
-  }, [content, renderDiagram]);
+    let cancelled = false;
+    
+    const render = async () => {
+      if (!content.trim()) {
+        if (!cancelled) {
+          setSvgContent('');
+          setError(null);
+        }
+        return;
+      }
+
+      try {
+        const id = `mermaid-${Math.random().toString(36).substr(2, 9)}`;
+        const { svg } = await mermaid.render(id, content.trim());
+        if (!cancelled) {
+          setSvgContent(svg);
+          setError(null);
+        }
+      } catch (err) {
+        console.error('Mermaid render error:', err);
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : 'Failed to render diagram');
+          setSvgContent('');
+        }
+      }
+    };
+    
+    render();
+    
+    return () => {
+      cancelled = true;
+    };
+  }, [content]);
 
   // Focus textarea when entering edit mode
   useEffect(() => {

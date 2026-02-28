@@ -75,34 +75,34 @@ export interface FilterValidationResult {
 export interface TaskWithRelations {
   id: number;
   title: string;
-  description?: string;
+  description?: string | null;
   status: string;
-  priority?: string;
-  taskType?: string;
-  tags?: string;
-  startDate?: Date;
-  dueDate?: Date;
+  priority?: string | null;
+  taskType?: string | null;
+  tags?: string | null;
+  startDate?: Date | null;
+  dueDate?: Date | null;
   createdAt: Date;
   updatedAt: Date;
-  points?: number;
+  points?: number | null;
   projectId: number;
   authorUserId: number;
-  assignedUserId?: number;
-  cycleId?: number;
+  assignedUserId?: number | null;
+  cycleId?: number | null;
   triaged: boolean;
   isShared: boolean;
-  archivedAt?: Date;
+  archivedAt?: Date | null;
   organizationId: number;
   author?: {
     userId: number;
-    username: string;
-    profilePictureUrl?: string;
+    username: string | null;
+    profilePictureUrl?: string | null;
   };
   assignee?: {
     userId: number;
-    username: string;
-    profilePictureUrl?: string;
-  };
+    username: string | null;
+    profilePictureUrl?: string | null;
+  } | null;
   project?: {
     id: number;
     name: string;
@@ -111,7 +111,7 @@ export interface TaskWithRelations {
   cycle?: {
     id: number;
     name: string;
-  };
+  } | null;
   _count?: {
     comments: number;
     attachments: number;

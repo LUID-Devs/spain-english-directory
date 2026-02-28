@@ -3,35 +3,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Loader2, AlertCircle, AlertTriangle } from "lucide-react";
-import { useAgentTasks, useUpdateTaskAssignmentStatus } from "@/hooks/useMissionControl";
+import { useAgentTasks, useUpdateTaskAssignmentStatus, type TaskAssignment } from "@/hooks/useMissionControl";
 import { toast } from "sonner";
 
 // Lazy load TaskDetailModal to reduce bundle size
 const TaskDetailModal = React.lazy(() => import("@/components/TaskDetailModal"));
-
-interface TaskAssignment {
-  id: number;
-  agentId: number;
-  taskId: number;
-  status: string;
-  assignedAt: string;
-  task: {
-    id: number;
-    title: string;
-    status: string;
-    priority: string;
-    dueDate?: string;
-    project?: {
-      id: number;
-      name: string;
-    };
-  };
-  agent?: {
-    id: number;
-    name: string;
-    displayName: string;
-  };
-}
 
 // Column definitions with WIP limits
 interface ColumnConfig {
@@ -87,7 +63,7 @@ const wouldExceedWipLimit = (
   }
   
   // If we're moving a task already in this column, don't count it as +1
-  const isTaskAlreadyInColumn = movingTaskId && tasksInColumn.some(t => t.task.id === movingTaskId);
+  const isTaskAlreadyInColumn = movingTaskId && tasksInColumn.some(t => t.task?.id === movingTaskId);
   const effectiveCount = isTaskAlreadyInColumn ? current : current + 1;
   
   return { exceeded: effectiveCount > limit, limit, current };
@@ -175,7 +151,7 @@ export const TaskBoard: React.FC = () => {
 
     try {
       // Find the assignment to update
-      const assignment = (assignments || []).find((a: TaskAssignment) => a.task.id === taskId);
+      const assignment = (assignments || []).find((a: TaskAssignment) => a.task?.id === taskId);
       if (!assignment) {
         toast.error("Task assignment not found");
         return;
@@ -274,10 +250,14 @@ export const TaskBoard: React.FC = () => {
                 {taskCount}{wipLimit !== null && `/${wipLimit}`}
               </Badge>
               {isWipExceeded && (
-                <AlertCircle className="h-4 w-4 text-destructive flex-shrink-0" title="WIP limit exceeded!" />
+                <span title="WIP limit exceeded!">
+                  <AlertCircle className="h-4 w-4 text-destructive flex-shrink-0" />
+                </span>
               )}
               {isWipWarning && !isWipExceeded && (
-                <AlertTriangle className="h-4 w-4 text-amber-500 flex-shrink-0" title="Approaching WIP limit" />
+                <span title="Approaching WIP limit">
+                  <AlertTriangle className="h-4 w-4 text-amber-500 flex-shrink-0" />
+                </span>
               )}
             </div>
 
@@ -287,26 +267,28 @@ export const TaskBoard: React.FC = () => {
                   <Card
                     key={assignment.id}
                     draggable
-                    onDragStart={(e) => handleDragStart(e, assignment.task.id, column.id)}
+                    onDragStart={(e) => assignment.task?.id && handleDragStart(e, assignment.task.id, column.id)}
                     onDragEnd={handleDragEnd}
                     className={`
                       cursor-grab hover:shadow-md transition-shadow
-                      ${draggingTaskId === assignment.task.id ? 'opacity-50 rotate-2' : ''}
+                      ${draggingTaskId === assignment.task?.id ? 'opacity-50 rotate-2' : ''}
                       active:cursor-grabbing
                     `}
                     onClick={() => {
-                      setSelectedTaskId(assignment.task.id);
-                      setSelectedProjectId(assignment.task.project?.id);
+                      if (assignment.task?.id) {
+                        setSelectedTaskId(assignment.task.id);
+                        setSelectedProjectId(assignment.task.project?.id);
+                      }
                     }}
                   >
                     <CardContent className="p-3">
                       {/* Task Title */}
                       <p className="font-medium text-sm mb-2 line-clamp-2">
-                        {assignment.task.title}
+                        {assignment.task?.title || "Untitled Task"}
                       </p>
 
                       {/* Project */}
-                      {assignment.task.project && (
+                      {assignment.task?.project && (
                         <p className="text-xs text-muted-foreground mb-2">
                           {assignment.task.project.name}
                         </p>
@@ -314,7 +296,7 @@ export const TaskBoard: React.FC = () => {
 
                       {/* Priority & Assignee */}
                       <div className="flex items-center justify-between">
-                        {assignment.task.priority && (
+                        {assignment.task?.priority && (
                           <Badge
                             className={`text-xs ${priorityColors[assignment.task.priority.toLowerCase()] || priorityColors.medium}`}
                           >

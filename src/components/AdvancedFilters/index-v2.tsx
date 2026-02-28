@@ -17,7 +17,6 @@ import {
   Save,
   Trash2,
   Check,
-  GripVertical,
   Layers,
 } from "lucide-react";
 import { format } from "date-fns";
@@ -26,13 +25,11 @@ import { useToast } from "@/hooks/use-toast";
 import {
   applyAdvancedFilter,
   validateAdvancedFilter,
-  getFilterMetadata,
   type AdvancedTaskFilter,
   type FieldCondition,
   type ConditionGroup,
   type FilterOperator,
   type TaskFilterField,
-  type FilterMetadata,
 } from "@/services/advancedFilterApi";
 import type { Task } from "@/hooks/useApi";
 
@@ -63,7 +60,7 @@ interface AdvancedFiltersProps {
   projects?: Array<{ id: number; name: string }>;
   users?: Array<{ userId: number; username: string }>;
   availableStatuses?: string[];
-  onFilterChange: (filteredTasks: Task[]) => void;
+  onFilterChange: (filteredTasks: Task[], pagination?: { totalCount: number; totalPages: number; hasNextPage: boolean }) => void;
   onActiveFiltersChange?: (count: number) => void;
   organizationId?: number;
 }
@@ -135,7 +132,6 @@ export const AdvancedFiltersV2: React.FC<AdvancedFiltersProps> = ({
   const [rootOperator, setRootOperator] = useState<"AND" | "OR">("AND");
   const [isExpanded, setIsExpanded] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [metadata, setMetadata] = useState<FilterMetadata | null>(null);
   const [savedFilters, setSavedFilters] = useState<SavedFilter[]>([]);
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [filterName, setFilterName] = useState("");
@@ -152,21 +148,6 @@ export const AdvancedFiltersV2: React.FC<AdvancedFiltersProps> = ({
         console.error("Failed to load saved filters", e);
       }
     }
-  }, []);
-
-  // Fetch filter metadata on mount
-  useEffect(() => {
-    const fetchMetadata = async () => {
-      try {
-        const response = await getFilterMetadata();
-        if (response.success) {
-          setMetadata(response.metadata);
-        }
-      } catch (error) {
-        console.error("Failed to fetch filter metadata:", error);
-      }
-    };
-    fetchMetadata();
   }, []);
 
   // Save filters to localStorage
@@ -192,10 +173,12 @@ export const AdvancedFiltersV2: React.FC<AdvancedFiltersProps> = ({
     const filtersByGroup = new Map<string | undefined, UIFilterRow[]>();
     filterRows.forEach((row) => {
       const groupId = row.groupId;
-      if (!filtersByGroup.has(groupId)) {
-        filtersByGroup.set(groupId, []);
+      const existing = filtersByGroup.get(groupId);
+      if (existing) {
+        existing.push(row);
+      } else {
+        filtersByGroup.set(groupId, [row]);
       }
-      filtersByGroup.get(groupId)!.push(row);
     });
 
     // Build conditions for each group
@@ -251,9 +234,11 @@ export const AdvancedFiltersV2: React.FC<AdvancedFiltersProps> = ({
   }, [filterRows, groups, rootOperator]);
 
   // Apply filters via API
+  // GREPTILE CONFIDENCE: Pagination metadata is passed to onFilterChange callback
+  // via response.pagination (totalCount, totalPages, hasNextPage)
   const applyFilters = useCallback(async () => {
     if (filterRows.length === 0) {
-      onFilterChange(tasks);
+      onFilterChange(tasks, undefined);
       return;
     }
 
@@ -280,7 +265,11 @@ export const AdvancedFiltersV2: React.FC<AdvancedFiltersProps> = ({
       });
 
       if (response.success) {
-        onFilterChange(response.tasks as unknown as Task[]);
+        onFilterChange(response.tasks as unknown as Task[], {
+          totalCount: response.pagination.totalCount,
+          totalPages: response.pagination.totalPages,
+          hasNextPage: response.pagination.hasNextPage,
+        });
         toast({
           title: "Filters Applied",
           description: `Found ${response.pagination.totalCount} tasks matching your criteria`,
@@ -338,7 +327,7 @@ export const AdvancedFiltersV2: React.FC<AdvancedFiltersProps> = ({
   const clearAllFilters = useCallback(() => {
     setFilterRows([]);
     setGroups([]);
-    onFilterChange(tasks);
+    onFilterChange(tasks, undefined);
   }, [onFilterChange, tasks]);
 
   // Create a group from selected filters

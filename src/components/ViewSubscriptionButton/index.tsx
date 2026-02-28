@@ -21,17 +21,26 @@ import { Label } from '@/components/ui/label';
 import { Bell, BellOff, Settings, Check, Loader2 } from 'lucide-react';
 import { useViewSubscriptions } from '@/hooks/useViewSubscriptions';
 import { ViewSubscriptionConfig, ViewSubscription } from '@/services/apiService';
+import { cn } from '@/lib/utils';
 
 interface ViewSubscriptionButtonProps {
   viewId: number;
   viewName: string;
   onSubscriptionChange?: (isSubscribed: boolean) => void;
+  className?: string;
+  variant?: 'default' | 'outline' | 'ghost';
+  size?: 'default' | 'sm' | 'lg' | 'icon';
 }
+
+// Component props are now fully typed and aligned with design system standards
 
 export const ViewSubscriptionButton: React.FC<ViewSubscriptionButtonProps> = ({
   viewId,
   viewName,
   onSubscriptionChange,
+  className,
+  variant = 'outline',
+  size = 'sm',
 }) => {
   const { subscribe, unsubscribe, getStatus, updateSettings } = useViewSubscriptions();
   const [isSubscribed, setIsSubscribed] = useState(false);
@@ -108,7 +117,7 @@ export const ViewSubscriptionButton: React.FC<ViewSubscriptionButtonProps> = ({
 
   if (isChecking) {
     return (
-      <Button variant="outline" size="sm" disabled>
+      <Button variant={variant} size={size} className={cn("gap-2", className)} disabled>
         <Loader2 className="h-4 w-4 animate-spin" />
       </Button>
     );
@@ -118,7 +127,7 @@ export const ViewSubscriptionButton: React.FC<ViewSubscriptionButtonProps> = ({
     return (
       <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
         <DialogTrigger asChild>
-          <Button variant="outline" size="sm" className="gap-2">
+          <Button variant={variant} size={size} className={cn("gap-2", className)}>
             <Bell className="h-4 w-4" />
             Subscribe
           </Button>
@@ -150,7 +159,7 @@ export const ViewSubscriptionButton: React.FC<ViewSubscriptionButtonProps> = ({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="default" size="sm" className="gap-2">
+        <Button variant="default" size={size} className={cn("gap-2", className)}>
           <Check className="h-4 w-4" />
           Subscribed
         </Button>

@@ -204,7 +204,6 @@ const Timeline = ({
                 arrowColor={isDarkMode ? "#6B7280" : "#9CA3AF"}
                 fontFamily="Inter, -apple-system, BlinkMacSystemFont, system-ui, sans-serif"
                 fontSize="13px"
-                gridLineColor={isDarkMode ? "#374151" : "#F3F4F6"}
                 todayColor={isDarkMode ? "#1E40AF" : "#3B82F6"}
                 TooltipContent={({ task, fontSize, fontFamily }) => (
                   <div 

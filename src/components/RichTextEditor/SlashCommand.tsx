@@ -358,6 +358,8 @@ const SlashCommandList: React.FC<SlashCommandListProps> = ({ items, command }) =
   const listRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // Reset selection when items change
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSelectedIndex(0);
   }, [items]);
 

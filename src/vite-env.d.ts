@@ -1,5 +1,11 @@
 /// <reference types="vite/client" />
 
+declare module '@/career-tools/job-tracker' {
+  import { FC } from 'react';
+  const JobApplicationTracker: FC;
+  export default JobApplicationTracker;
+}
+
 interface ImportMetaEnv {
   readonly VITE_API_BASE_URL: string
   readonly VITE_BILLING_URL: string

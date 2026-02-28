@@ -110,7 +110,7 @@ const DraggableTaskItem = React.memo(({
     >
       {isManualSort && !selectionMode && (
         <div
-          ref={(node) => drag(node)}
+          ref={(node) => { drag(node); }}
           className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-6 cursor-grab active:cursor-grabbing p-1 rounded hover:bg-accent opacity-0 group-hover:opacity-100 transition-opacity"
           title="Drag to reorder"
         >
@@ -451,7 +451,7 @@ const ListView = ({
     try {
       await bulkUpdateTasks({
         taskIds: Array.from(selectedTaskIds),
-        updates: { status: "Completed" }
+        updates: { status: Status.Completed }
       }).unwrap();
       
       toast.success(`${selectedTaskIds.size} tasks marked as completed`);
@@ -471,7 +471,7 @@ const ListView = ({
     try {
       await bulkUpdateTasks({
         taskIds: Array.from(selectedTaskIds),
-        updates: { status }
+        updates: { status: status as Status }
       }).unwrap();
       
       toast.success(`${selectedTaskIds.size} tasks updated to ${status}`);
