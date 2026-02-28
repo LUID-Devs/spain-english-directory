@@ -122,11 +122,11 @@ export function staticPrerenderPlugin(): Plugin {
   
   // Default OG image
   const defaultOgImage = `${siteUrl}/og-image.png`;
-
   const authLoginPage = {
     meta: {
       title: 'Sign In to TaskLuid',
       description: 'Access your TaskLuid workspace. Sign in to manage projects, tasks, and team collaboration.',
+      keywords: 'login, sign in, task management, project management',
       ogTitle: 'Sign In to TaskLuid',
       ogDescription: 'Access your TaskLuid workspace. Sign in to manage projects, tasks, and team collaboration.',
       ogImage: defaultOgImage,
@@ -200,11 +200,11 @@ export function staticPrerenderPlugin(): Plugin {
       </div>
     `
   };
-
   const authRegisterPage = {
     meta: {
       title: 'Create Your TaskLuid Account',
       description: 'Start using TaskLuid for project management. Create your account to collaborate with your team and track progress.',
+      keywords: 'sign up, register, free account, task management, project management',
       ogTitle: 'Create Your TaskLuid Account',
       ogDescription: 'Start using TaskLuid for project management. Create your account to collaborate with your team and track progress.',
       ogImage: defaultOgImage,
@@ -289,11 +289,36 @@ export function staticPrerenderPlugin(): Plugin {
     `
   };
 
+
+  const authForgotPasswordPage = {
+    meta: {
+      title: 'Forgot Password - TaskLuid',
+      description: 'Reset your TaskLuid account password.',
+      canonicalUrl: `${siteUrl}/auth/forgot-password`,
+    },
+    content: `
+        <div class="min-h-screen bg-black text-white flex items-center justify-center px-4">
+          <div class="text-center max-w-md w-full">
+            <h1 class="text-3xl font-bold mb-2">Forgot Password</h1>
+            <p class="text-gray-400 mb-8">Enter your email to reset your password</p>
+            <div class="space-y-4">
+              <input type="email" placeholder="Email" class="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500" />
+              <button class="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium transition-colors">
+                Send Reset Link
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `
+  };
+
   const publicPages: Record<string, { meta: SEOMeta; content: string }> = {
     '/auth/login': authLoginPage,
     '/login': authLoginPage,
     '/auth/register': authRegisterPage,
     '/register': authRegisterPage,
+
     '/landing': {
       meta: {
         title: 'TaskLuid - AI-Powered Project Management Platform',
