@@ -250,8 +250,8 @@ export default function ConverterPage() {
             <Link to="/suite" className="text-sm text-neutral-400 hover:text-white transition-colors">
               Luid Suite
             </Link>
-            <Link to="/landing" className="text-sm text-neutral-400 hover:text-white transition-colors">
-              TaskLuid
+            <Link to="/luidkit" className="text-sm text-neutral-400 hover:text-white transition-colors">
+              LuidKit
             </Link>
             <Link to="/resumeluid" className="text-sm text-neutral-400 hover:text-white transition-colors">
               ResumeLuid
@@ -301,11 +301,11 @@ export default function ConverterPage() {
                 Luid Suite
               </Link>
               <Link
-                to="/landing"
+                to="/luidkit"
                 className="text-sm text-neutral-300 hover:text-white transition-colors"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                TaskLuid
+                LuidKit
               </Link>
               <Link
                 to="/resumeluid"
