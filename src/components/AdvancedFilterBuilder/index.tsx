@@ -5,21 +5,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Calendar } from '@/components/ui/calendar';
-import { Separator } from '@/components/ui/separator';
 import { 
   Filter, 
   X, 
   Plus, 
   Calendar as CalendarIcon, 
-  ChevronDown,
-  Save,
-  Trash2,
-  Check,
-  Loader2,
-  Braces,
-  GripVertical
+  Braces
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -107,12 +99,6 @@ export const AdvancedFilterBuilder: React.FC<AdvancedFilterBuilderProps> = ({
   const [filter, setFilter] = useState<AdvancedTaskFilter>(initialFilter || { operator: 'AND', conditions: [] });
   const [isExpanded, setIsExpanded] = useState(false);
   const [activeTab, setActiveTab] = useState<'builder' | 'json'>('builder');
-
-  // Update parent when filter changes
-  const updateFilter = useCallback((newFilter: AdvancedTaskFilter) => {
-    setFilter(newFilter);
-    onFilterChange(newFilter);
-  }, [onFilterChange]);
 
   // Get operators for a field type
   const getOperatorsForField = (fieldType: string) => {
@@ -255,7 +241,7 @@ export const AdvancedFilterBuilder: React.FC<AdvancedFilterBuilderProps> = ({
               <CalendarIcon className="mr-2 h-4 w-4" />
               {condition.value ? (
                 typeof condition.value === 'object' && 'from' in condition.value
-                  ? `${format(new Date(condition.value.from as string), 'LLL dd')} - ${format(new Date(condition.value.to as string), 'LLL dd')}`
+                  ? `${format(new Date(String(condition.value.from)), 'LLL dd')} - ${format(new Date(String(condition.value.to)), 'LLL dd')}`
                   : 'Select range'
               ) : (
                 'Select range'
@@ -267,7 +253,7 @@ export const AdvancedFilterBuilder: React.FC<AdvancedFilterBuilderProps> = ({
               mode="range"
               selected={
                 condition.value && typeof condition.value === 'object' && 'from' in condition.value
-                  ? { from: new Date(condition.value.from as string), to: new Date(condition.value.to as string) }
+                  ? { from: new Date(String(condition.value.from)), to: new Date(String(condition.value.to)) }
                   : undefined
               }
               onSelect={(range) => {
@@ -395,9 +381,10 @@ export const AdvancedFilterBuilder: React.FC<AdvancedFilterBuilderProps> = ({
   const renderConditionGroup = (
     conditions: (FieldCondition | ConditionGroup)[],
     path: number[] = [],
-    isRoot = false
+    isRoot = false,
+    groupOperator?: 'AND' | 'OR'
   ) => {
-    const operator = isRoot ? filter.operator : (conditions as any).operator || 'AND';
+    const operator = isRoot ? filter.operator : (groupOperator || 'AND');
 
     return (
       <div className={cn(
@@ -500,7 +487,7 @@ export const AdvancedFilterBuilder: React.FC<AdvancedFilterBuilderProps> = ({
                       <X className="h-3 w-3" />
                     </Button>
                   </div>
-                  {renderConditionGroup(condition.conditions, currentPath)}
+                  {renderConditionGroup(condition.conditions, currentPath, false, condition.operator)}
                 </div>
               );
             }
@@ -635,7 +622,7 @@ export const AdvancedFilterBuilder: React.FC<AdvancedFilterBuilderProps> = ({
                     const parsed = JSON.parse(e.target.value);
                     setFilter(parsed);
                     onFilterChange(parsed);
-                  } catch (err) {
+                  } catch {
                     // Invalid JSON, ignore
                   }
                 }}

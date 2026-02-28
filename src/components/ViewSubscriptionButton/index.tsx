@@ -18,9 +18,9 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Bell, BellOff, Settings, Check, Loader2, Users } from 'lucide-react';
+import { Bell, BellOff, Settings, Check, Loader2 } from 'lucide-react';
 import { useViewSubscriptions } from '@/hooks/useViewSubscriptions';
-import { ViewSubscriptionConfig } from '@/services/apiService';
+import { ViewSubscriptionConfig, ViewSubscription } from '@/services/apiService';
 
 interface ViewSubscriptionButtonProps {
   viewId: number;
@@ -35,7 +35,7 @@ export const ViewSubscriptionButton: React.FC<ViewSubscriptionButtonProps> = ({
 }) => {
   const { subscribe, unsubscribe, getStatus, updateSettings } = useViewSubscriptions();
   const [isSubscribed, setIsSubscribed] = useState(false);
-  const [subscription, setSubscription] = useState<any>(null);
+  const [subscription, setSubscription] = useState<ViewSubscription | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -57,6 +57,9 @@ export const ViewSubscriptionButton: React.FC<ViewSubscriptionButtonProps> = ({
       setIsSubscribed(status.isSubscribed);
       setSubscription(status.subscription);
       if (status.subscription) {
+        const validFrequency = ['immediate', 'hourly', 'daily'].includes(status.subscription.digestFrequency)
+          ? status.subscription.digestFrequency as 'immediate' | 'hourly' | 'daily'
+          : 'immediate';
         setLocalConfig({
           notifyOnCreate: status.subscription.notifyOnCreate,
           notifyOnUpdate: status.subscription.notifyOnUpdate,
@@ -64,7 +67,7 @@ export const ViewSubscriptionButton: React.FC<ViewSubscriptionButtonProps> = ({
           notifyOnStatusChange: status.subscription.notifyOnStatusChange,
           emailNotifications: status.subscription.emailNotifications,
           inAppNotifications: status.subscription.inAppNotifications,
-          digestFrequency: status.subscription.digestFrequency as any,
+          digestFrequency: validFrequency,
         });
       }
       setIsChecking(false);
@@ -198,7 +201,7 @@ interface SubscriptionSettingsFormProps {
 }
 
 const SubscriptionSettingsForm: React.FC<SubscriptionSettingsFormProps> = ({ config, onChange }) => {
-  const updateConfig = (key: keyof ViewSubscriptionConfig, value: any) => {
+  const updateConfig = (key: keyof ViewSubscriptionConfig, value: unknown) => {
     onChange({ ...config, [key]: value });
   };
 
