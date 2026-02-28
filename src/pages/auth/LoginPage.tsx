@@ -15,11 +15,11 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState({
-    email: "",
+    username: "",
     password: "",
   });
   const [touchedFields, setTouchedFields] = useState({
-    email: false,
+    username: false,
     password: false,
   });
   const [challenge, setChallenge] = useState<{
@@ -38,10 +38,9 @@ const LoginPage = () => {
     return redirect;
   }, [location.search]);
 
-  const validateEmail = (value: string) => {
-    if (!value.trim()) return "Email required";
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(value) ? "" : "Invalid email format";
+  const validateUsername = (value: string) => {
+    if (!value.trim()) return "Username required";
+    return "";
   };
 
   const validatePassword = (value: string) => {
@@ -49,10 +48,10 @@ const LoginPage = () => {
     return "";
   };
 
-  const emailValidation = validateEmail(formData.username);
+  const usernameValidation = validateUsername(formData.username);
   const passwordValidation = validatePassword(formData.password);
-  const isFormValid = !emailValidation && !passwordValidation;
-  const emailError = touchedFields.email ? fieldErrors.email : "";
+  const isFormValid = !usernameValidation && !passwordValidation;
+  const usernameError = touchedFields.username ? fieldErrors.username : "";
   const passwordError = touchedFields.password ? fieldErrors.password : "";
 
   // Redirect if already authenticated (only once)
@@ -91,10 +90,10 @@ const LoginPage = () => {
       [name]: value
     }));
 
-    if (name === "username" && touchedFields.email) {
+    if (name === "username" && touchedFields.username) {
       setFieldErrors(prev => ({
         ...prev,
-        email: validateEmail(value),
+        username: validateUsername(value),
       }));
     }
 
@@ -112,10 +111,10 @@ const LoginPage = () => {
     const { name, value } = e.target;
 
     if (name === "username") {
-      setTouchedFields(prev => ({ ...prev, email: true }));
+      setTouchedFields(prev => ({ ...prev, username: true }));
       setFieldErrors(prev => ({
         ...prev,
-        email: validateEmail(value),
+        username: validateUsername(value),
       }));
     }
 
@@ -131,13 +130,13 @@ const LoginPage = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const emailError = validateEmail(formData.username);
+    const usernameError = validateUsername(formData.username);
     const passwordError = validatePassword(formData.password);
 
-    if (emailError || passwordError) {
-      setTouchedFields({ email: true, password: true });
+    if (usernameError || passwordError) {
+      setTouchedFields({ username: true, password: true });
       setFieldErrors({
-        email: emailError,
+        username: usernameError,
         password: passwordError,
       });
       return;
@@ -319,7 +318,7 @@ const LoginPage = () => {
 
               <motion.button
                 type="submit"
-                disabled={loading}
+                disabled={loading || !isFormValid}
                 className="w-full px-4 py-3 bg-gradient-to-r from-gray-500 to-gray-500 hover:from-gray-600 hover:to-gray-600 text-white font-semibold rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-gray-500/25"
                 whileHover={{ scale: 1.02, y: -2 }}
                 whileTap={{ scale: 0.98 }}
@@ -377,6 +376,7 @@ const LoginPage = () => {
         transition={{ duration: 0.6 }}
         className="w-full max-w-5xl relative z-10"
       >
+
         <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] items-start">
           <div className="space-y-8 text-left">
             <div className="inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-4 py-1 text-xs font-semibold text-blue-200">
@@ -467,30 +467,28 @@ const LoginPage = () => {
               <form onSubmit={handleLogin} className="space-y-6">
                 <div>
                   <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-2">
-                    Email
+                    Username
                   </label>
                   <motion.input
                     id="username"
                     name="username"
-                    type="email"
-                    inputMode="email"
-                    autoCapitalize="none"
-                    autoComplete="email"
+                    type="text"
+                    autoComplete="username"
                     value={formData.username}
                     onChange={handleInputChange}
                     onBlur={handleInputBlur}
                     required
                     className={`w-full px-4 py-3 bg-gray-900/50 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 transition-all duration-300 ${
-                      emailError
+                      usernameError
                         ? "border-red-500/60 focus:ring-red-500/50 focus:border-red-500/70"
                         : "border-blue-500/20 focus:ring-blue-500/50 focus:border-blue-500/50"
                     }`}
-                    placeholder="you@example.com"
+                    placeholder="Enter your username"
                     whileFocus={{ scale: 1.02 }}
                     transition={{ type: "spring", stiffness: 300, damping: 20 }}
                   />
-                  {emailError && (
-                    <p className="mt-2 text-sm text-red-400">{emailError}</p>
+                  {usernameError && (
+                    <p className="mt-2 text-sm text-red-400">{usernameError}</p>
                   )}
                 </div>
 
@@ -571,6 +569,7 @@ const LoginPage = () => {
                   Sign up
                 </Link>
               </div>
+
             </motion.div>
 
           </div>
