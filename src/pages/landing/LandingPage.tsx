@@ -45,6 +45,7 @@ const LandingPage = () => {
     { icon: TrendingUp, title: 'Progress analytics', desc: 'Track velocity, blockers, and project health at a glance.' },
     { icon: Zap, title: 'Automations & templates', desc: 'Build repeatable workflows for recurring work.' },
     { icon: Code, title: 'API + webhooks', desc: 'Sync TaskLuid with the rest of your stack.' },
+    { icon: Star, title: 'Access all Luid apps', desc: 'One subscription unlocks every product in the Luid Suite.' },
   ];
 
   const howItWorks = [
@@ -314,11 +315,23 @@ const LandingPage = () => {
           <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-gray-300 via-gray-100 to-gray-300 bg-clip-text text-transparent mb-6">
             Project management that&apos;s just right for freelancers
           </h1>
-          <p className="text-xl text-gray-200 mb-4 max-w-2xl mx-auto">
-            Skip the toy apps and the enterprise bloat. TaskLuid gives you the essentials to plan, track, and deliver client work without the 100-feature mess.
+          <p className="text-xl text-gray-200 mb-2 max-w-2xl mx-auto">
+            Powerful simplicity for freelancers and small teams.
+          </p>
+          <p className="text-lg text-indigo-300 mb-2 max-w-2xl mx-auto font-medium">
+            Powerful without the bloat.
+          </p>
+          <p className="text-lg text-indigo-300 mb-4 max-w-2xl mx-auto font-medium">
+            Powerful without the bloat. Simple enough to start, scalable enough to grow.
+          </p>
+          <p className="text-sm text-neutral-400 mb-2">
+            Built for freelancers, small agencies, and indie teams.
           </p>
           <p className="text-sm text-neutral-500 mb-8">
-            Start free in minutes. Upgrade only when you need more power.
+            Not too basic like Trello. Not too complex like Jira or ClickUp. Just right.{' '}
+            <Link to="/compare" className="text-neutral-300 underline underline-offset-4 hover:text-white">
+              See the comparison
+            </Link>.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
@@ -867,6 +880,48 @@ const LandingPage = () => {
           <div className="mt-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20">
             <Award className="w-4 h-4 text-emerald-400" />
             <span className="text-sm text-emerald-300">30-day money-back guarantee — no questions asked</span>
+          </div>
+        </div>
+      </section>
+
+      {/* Luid Suite Section */}
+      <section className="px-4 py-16 border-t border-neutral-900">
+        <div className="max-w-5xl mx-auto text-center">
+          <p className="text-sm text-neutral-500 mb-2">Luid Suite</p>
+          <h2 className="text-3xl font-semibold">One subscription. Every Luid app.</h2>
+          <p className="text-sm text-neutral-500 mt-2 max-w-2xl mx-auto">
+            Move from planning to delivery with TaskLuid, ResumeLuid, and LuidKit—all included when you join the suite.
+          </p>
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
+            <Link
+              to="/landing"
+              className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-5 text-left hover:border-neutral-700 transition-colors"
+            >
+              <p className="text-sm text-neutral-500">Project management</p>
+              <h3 className="text-lg font-semibold">TaskLuid</h3>
+            </Link>
+            <Link
+              to="/resumeluid"
+              className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-5 text-left hover:border-neutral-700 transition-colors"
+            >
+              <p className="text-sm text-neutral-500">AI resume builder</p>
+              <h3 className="text-lg font-semibold">ResumeLuid</h3>
+            </Link>
+            <Link
+              to="/luidkit"
+              className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-5 text-left hover:border-neutral-700 transition-colors"
+            >
+              <p className="text-sm text-neutral-500">File conversion</p>
+              <h3 className="text-lg font-semibold">LuidKit</h3>
+            </Link>
+          </div>
+          <div className="mt-6">
+            <Link
+              to="/suite"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg border border-neutral-700 text-neutral-300 hover:bg-neutral-900 transition-all"
+            >
+              Explore the Luid Suite
+            </Link>
           </div>
         </div>
       </section>

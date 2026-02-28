@@ -61,6 +61,7 @@ const AutomationPage = React.lazy(() => import('@/pages/dashboard/automation/Aut
 
 // Other Pages (lazy loaded)
 const ConverterPage = React.lazy(() => import('@/pages/converter/ConverterPage'));
+const LuidSuiteLandingPage = React.lazy(() => import('@/pages/landing/LuidSuiteLandingPage'));
 // Pricing page - must be prerendered for SEO (see vite-plugin-static-prerender.ts)
 const PricingPage = React.lazy(() => import('@/pages/pricing/PricingPage'));
 const FeaturesPage = React.lazy(() => import('@/pages/features/FeaturesPage'));
@@ -146,6 +147,7 @@ function AppContent() {
           <Route path="/resumeluid" element={<ResumeLuidLandingPage />} />
           <Route path="/suite" element={<LuidSuiteLandingPage />} />
           <Route path="/convert" element={<ConverterPage />} />
+          <Route path="/suite" element={<LuidSuiteLandingPage />} />
           <Route path="/pricing" element={<PricingPage />} />
           <Route path="/features" element={<FeaturesPage />} />
           <Route path="/compare" element={<ComparePage />} />

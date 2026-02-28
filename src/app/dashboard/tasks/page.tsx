@@ -500,9 +500,10 @@ const TasksPage = () => {
     toast.info("All filters cleared");
   }, [setSearchParams]);
 
-  // Handle filter changes from AdvancedFilters
-  const handleFilterChange = useCallback((newFilteredTasks: Task[]) => {
+  // Handle filter changes from AdvancedFilters (now with server-side pagination)
+  const handleFilterChange = useCallback((newFilteredTasks: Task[], pagination: { totalCount: number; totalPages: number; hasNextPage: boolean }) => {
     setFilteredTasks(newFilteredTasks);
+    // Optionally store pagination info if needed
   }, []);
 
   const handleActiveFiltersChange = useCallback((count: number) => {

@@ -289,7 +289,6 @@ export function staticPrerenderPlugin(): Plugin {
     `
   };
 
-
   const authForgotPasswordPage = {
     meta: {
       title: 'Forgot Password - TaskLuid',
@@ -307,10 +306,12 @@ export function staticPrerenderPlugin(): Plugin {
                 Send Reset Link
               </button>
             </div>
+            <p class="mt-6 text-sm text-gray-400">
+              Remember your password? <a href="/auth/login" class="hover:text-white transition-colors">Sign in</a>
+            </p>
           </div>
         </div>
-      </div>
-    `
+      `
   };
 
   const publicPages: Record<string, { meta: SEOMeta; content: string }> = {
@@ -318,7 +319,8 @@ export function staticPrerenderPlugin(): Plugin {
     '/login': authLoginPage,
     '/auth/register': authRegisterPage,
     '/register': authRegisterPage,
-
+    '/auth/forgot-password': authForgotPasswordPage,
+    '/forgot-password': authForgotPasswordPage,
     '/landing': {
       meta: {
         title: 'TaskLuid - AI-Powered Project Management Platform',

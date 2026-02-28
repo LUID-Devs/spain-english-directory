@@ -2649,6 +2649,91 @@ export const useCheckDuplicatesMutation = () => {
   return [mutationWrapper, { isLoading: false }] as const;
 };
 
+// ==================== ADVANCED FILTER HOOKS ====================
+
+import type { AdvancedTaskFilter, AdvancedFilterOptions, AdvancedFilterResponse, FilterMetadataResponse } from '@/services/apiService';
+
+export const useApplyAdvancedFilter = () => {
+  const [data, setData] = useState<AdvancedFilterResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const applyFilter = useCallback(async (filter: AdvancedTaskFilter, options?: AdvancedFilterOptions) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const result = await apiService.applyAdvancedFilter(filter, options);
+      setData(result);
+      return result;
+    } catch (err: any) {
+      const errorObj = err instanceof Error ? err : new Error(err?.message || 'Failed to apply filter');
+      setError(errorObj);
+      throw errorObj;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  return { applyFilter, data, isLoading, error };
+};
+
+export const useValidateAdvancedFilter = () => {
+  const [data, setData] = useState<{ valid: boolean; error?: string } | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const validateFilter = useCallback(async (filter: AdvancedTaskFilter) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const result = await apiService.validateAdvancedFilter(filter);
+      setData(result);
+      return result;
+    } catch (err: any) {
+      const errorObj = err instanceof Error ? err : new Error(err?.message || 'Failed to validate filter');
+      setError(errorObj);
+      throw errorObj;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  return { validateFilter, data, isLoading, error };
+};
+
+export const useGetFilterMetadata = (options: { skip?: boolean } = {}) => {
+  const [data, setData] = useState<FilterMetadataResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+  const hasFetchedRef = useRef(false);
+
+  const fetchMetadata = useCallback(async () => {
+    if (options.skip) return;
+    setIsLoading(true);
+    setError(null);
+    try {
+      const result = await apiService.getFilterMetadata();
+      setData(result);
+      return result;
+    } catch (err: any) {
+      const errorObj = err instanceof Error ? err : new Error(err?.message || 'Failed to fetch metadata');
+      setError(errorObj);
+      throw errorObj;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [options.skip]);
+
+  useEffect(() => {
+    if (!hasFetchedRef.current && !options.skip) {
+      hasFetchedRef.current = true;
+      fetchMetadata();
+    }
+  }, [fetchMetadata, options.skip]);
+
+  return { data, isLoading, error, refetch: fetchMetadata };
+};
+
 // Export types and enums
 export { Status, Priority, TaskType } from '@/services/apiService';
-export type { Task, Project, User, Comment, Attachment, UserWithStats, TaskStatus, SavedView, Goal, GoalTemplate, SearchSuggestion, GitLink, AsanaLink, TimeLog, TimeEstimate, ActiveTimer, TimeLogsResponse, ProjectTimeReport } from '@/services/apiService';
+export type { Task, Project, User, Comment, Attachment, UserWithStats, TaskStatus, SavedView, Goal, GoalTemplate, SearchSuggestion, GitLink, AsanaLink, TimeLog, TimeEstimate, ActiveTimer, TimeLogsResponse, ProjectTimeReport, AdvancedTaskFilter, AdvancedFilterOptions, AdvancedFilterResponse, FilterMetadataResponse } from '@/services/apiService';
