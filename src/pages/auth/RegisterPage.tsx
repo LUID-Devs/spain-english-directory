@@ -3,7 +3,6 @@ import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Check, X } from "lucide-react";
 import GoogleSignInButton from "@/components/GoogleSignInButton";
-import { useAuth } from "@/app/authProvider";
 import { PasswordInput } from "@/components/ui/password-input";
 
 // Password requirement type
@@ -28,17 +27,6 @@ const RegisterPage = () => {
   const [resendCountdown, setResendCountdown] = useState(0);
   const [resendAttempts, setResendAttempts] = useState(0);
   const navigate = useNavigate();
-  const { isAuthenticated, isLoading: authLoading, user } = useAuth();
-  const [hasRedirected, setHasRedirected] = React.useState(false);
-
-  // Redirect if already authenticated (only once)
-  useEffect(() => {
-    // Only auto-redirect when backend auth is fully established (userId present)
-    if (!authLoading && isAuthenticated && user?.userId && !hasRedirected) {
-      setHasRedirected(true);
-      navigate('/dashboard', { replace: true });
-    }
-  }, [isAuthenticated, authLoading, user?.userId, navigate, hasRedirected]);
 
   // Countdown timer for resend functionality
   useEffect(() => {
