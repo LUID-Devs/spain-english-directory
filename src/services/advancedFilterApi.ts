@@ -374,7 +374,7 @@ export function createOrFilter(field: TaskFilterField, values: unknown[]): Advan
     conditions: values.map((value) => ({
       field,
       operator: "equals" as FilterOperator,
-      value,
+      value: value as FieldCondition["value"],
     })),
   };
 }

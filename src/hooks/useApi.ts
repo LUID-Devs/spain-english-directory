@@ -2651,14 +2651,15 @@ export const useCheckDuplicatesMutation = () => {
 
 // ==================== ADVANCED FILTER HOOKS ====================
 
-import type { AdvancedTaskFilter, AdvancedFilterOptions, AdvancedFilterResponse, FilterMetadataResponse } from '@/services/apiService';
+import type { AdvancedTaskFilter, ApplyAdvancedFilterResponse, FilterMetadata } from '@/services/apiService';
+import type { FilterPaginationOptions } from '@/services/advancedFilterApi';
 
 export const useApplyAdvancedFilter = () => {
-  const [data, setData] = useState<AdvancedFilterResponse | null>(null);
+  const [data, setData] = useState<ApplyAdvancedFilterResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const applyFilter = useCallback(async (filter: AdvancedTaskFilter, options?: AdvancedFilterOptions) => {
+  const applyFilter = useCallback(async (filter: AdvancedTaskFilter, options?: FilterPaginationOptions) => {
     setIsLoading(true);
     setError(null);
     try {
@@ -2702,7 +2703,7 @@ export const useValidateAdvancedFilter = () => {
 };
 
 export const useGetFilterMetadata = (options: { skip?: boolean } = {}) => {
-  const [data, setData] = useState<FilterMetadataResponse | null>(null);
+  const [data, setData] = useState<{ success: boolean; metadata: FilterMetadata } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const hasFetchedRef = useRef(false);
@@ -2842,4 +2843,6 @@ export const useGetSubscriptionStatus = (viewId: number, options: { skip?: boole
 
 // Export types and enums
 export { Status, Priority, TaskType } from '@/services/apiService';
-export type { Task, Project, User, Comment, Attachment, UserWithStats, TaskStatus, SavedView, Goal, GoalTemplate, SearchSuggestion, GitLink, AsanaLink, TimeLog, TimeEstimate, ActiveTimer, TimeLogsResponse, ProjectTimeReport, AdvancedTaskFilter, AdvancedFilterOptions, AdvancedFilterResponse, FilterMetadataResponse } from '@/services/apiService';
+export type { Task, Project, User, Comment, Attachment, UserWithStats, TaskStatus, SavedView, Goal, GoalTemplate, SearchSuggestion, GitLink, AsanaLink, TimeLog, TimeEstimate, ActiveTimer, TimeLogsResponse, ProjectTimeReport, AdvancedTaskFilter } from '@/services/apiService';
+export type { FilterPaginationOptions } from '@/services/advancedFilterApi';
+export type { FilterMetadata as FilterMetadataResponse } from '@/services/apiService';

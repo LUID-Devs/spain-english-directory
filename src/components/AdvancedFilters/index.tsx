@@ -7,3 +7,6 @@ export { AdvancedFilterBuilder } from '../AdvancedFilterBuilder';
 
 // Default export is the new builder with nested group support
 export { AdvancedFilterBuilder as default } from '../AdvancedFilterBuilder';
+
+// Re-export AdvancedFiltersV2 for advanced AND/OR filtering
+export { AdvancedFiltersV2 } from './index-v2';

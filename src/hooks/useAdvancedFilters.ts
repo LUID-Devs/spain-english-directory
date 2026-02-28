@@ -231,14 +231,16 @@ export function useAdvancedFilters(options: UseAdvancedFiltersOptions = {}): Use
     setFilter((prev) => {
       if (groupIndex !== undefined && groupIndex >= 0) {
         // Update in a specific group - immutable update
-        const conditions = prev.conditions.map((c, i) => {
+        const conditions = prev.conditions.map((c, i): FieldCondition | ConditionGroup => {
           if (i === groupIndex && "conditions" in c) {
-            return {
-              ...c,
-              conditions: c.conditions.map((cc, ci) =>
+            const group = c as ConditionGroup;
+            const updatedGroup: ConditionGroup = {
+              operator: group.operator,
+              conditions: group.conditions.map((cc, ci) =>
                 ci === index ? { ...cc, ...updates } : cc
               ),
             };
+            return updatedGroup;
           }
           return c;
         });
