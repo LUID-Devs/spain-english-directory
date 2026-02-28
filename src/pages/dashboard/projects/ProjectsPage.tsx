@@ -1,5 +1,6 @@
 
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useGetProjectsQuery } from "@/hooks/useApi";
 import { useProjects } from "@/stores/apiStore";
 import { useCurrentUser } from "@/stores/userStore";
@@ -21,8 +22,8 @@ import { cn } from "@/lib/utils";
 const FREE_PROJECT_LIMIT = 1;
 
 const ProjectsPage = () => {
-  const [isNewProjectModalOpen, setIsNewProjectModalOpen] = useState(false);
   const navigate = useNavigate();
+  const [isNewProjectModalOpen, setIsNewProjectModalOpen] = useState(false);
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
