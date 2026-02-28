@@ -20,6 +20,7 @@ import AuthErrorDisplay from '@/components/AuthErrorDisplay';
 import LandingPage from '@/pages/landing/LandingPage';
 import LuidKitLandingPage from '@/pages/landing/LuidKitLandingPage';
 import ResumeLuidLandingPage from '@/pages/landing/ResumeLuidLandingPage';
+import LuidSuiteLandingPage from '@/pages/landing/LuidSuiteLandingPage';
 
 // Auth Components (eager imports for immediate auth flow)
 import LoginPage from '@/pages/auth/LoginPage';
@@ -140,8 +141,10 @@ function AppContent() {
         <Routes>
           {/* Public Routes */}
           <Route path="/landing" element={<LandingPage />} />
+          <Route path="/suite" element={<LandingPage />} />
           <Route path="/luidkit" element={<LuidKitLandingPage />} />
           <Route path="/resumeluid" element={<ResumeLuidLandingPage />} />
+          <Route path="/suite" element={<LuidSuiteLandingPage />} />
           <Route path="/convert" element={<ConverterPage />} />
           <Route path="/pricing" element={<PricingPage />} />
           <Route path="/features" element={<FeaturesPage />} />

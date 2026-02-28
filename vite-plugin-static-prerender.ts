@@ -1422,6 +1422,22 @@ export function staticPrerenderPlugin(): Plugin {
     },
   };
 
+  if (publicPages['/landing']) {
+    publicPages['/suite'] = {
+      ...publicPages['/landing'],
+      meta: {
+        ...publicPages['/landing'].meta,
+        canonicalUrl: `${siteUrl}/suite`,
+        jsonLd: generateSoftwareApplicationJsonLd(
+          'TaskLuid',
+          'AI-powered project management platform for teams',
+          `${siteUrl}/suite`,
+          { price: '0', priceCurrency: 'USD' }
+        ),
+      },
+    };
+  }
+
   const normalizedSiteUrl = siteUrl.toLowerCase();
   const landingVariant = process.env.VITE_LANDING_VARIANT
     || (normalizedSiteUrl.includes('luidkit') || normalizedSiteUrl.includes('fileconvertpro') ? 'luidkit' : undefined)
