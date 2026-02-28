@@ -2,7 +2,11 @@ import express, { Application, Request, Response, NextFunction } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
+import dotenv from "dotenv";
 import advancedFilterRoutes from "./routes/advancedFilterRoutes";
+
+// Load environment variables from .env file
+dotenv.config();
 
 const app: Application = express();
 const PORT = process.env.PORT || 3001;

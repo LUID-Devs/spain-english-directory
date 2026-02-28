@@ -234,9 +234,27 @@ function convertFieldCondition(condition: FieldCondition): Prisma.TaskWhereInput
       return {};
 
     case "isEmpty":
+      // Check for both null and empty string on string fields
+      if (field === "title" || field === "description" || field === "tags" || field === "status") {
+        return {
+          OR: [
+            { [field]: { equals: null } },
+            { [field]: { equals: "" } },
+          ],
+        };
+      }
       return { [field]: { equals: null } };
 
     case "isNotEmpty":
+      // Check for both non-null and non-empty string on string fields
+      if (field === "title" || field === "description" || field === "tags" || field === "status") {
+        return {
+          AND: [
+            { [field]: { not: null } },
+            { [field]: { not: "" } },
+          ],
+        };
+      }
       return { [field]: { not: null } };
 
     default:
@@ -475,13 +493,14 @@ export async function getFilterMetadata(organizationId: number): Promise<{
     orderBy: { position: "asc" },
   });
 
-  // Fetch all unique tags from tasks in this organization
+  // Fetch all unique tags from tasks in this organization (limit to prevent OOM)
   const tasksWithTags = await prisma.task.findMany({
     where: {
       organizationId,
       tags: { not: null },
     },
     select: { tags: true },
+    take: 10000, // Limit to prevent memory issues with large datasets
   });
 
   const allTags = new Set<string>();
