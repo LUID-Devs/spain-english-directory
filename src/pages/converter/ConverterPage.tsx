@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
-import { Upload, File, X, Download, RefreshCw, CheckCircle, AlertCircle, FileText, Image, FileSpreadsheet, FileCode, Zap } from 'lucide-react';
+import { Upload, File, X, Download, RefreshCw, CheckCircle, AlertCircle, FileText, Image, FileSpreadsheet, FileCode, Zap, Menu } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
@@ -72,6 +73,7 @@ export default function ConverterPage() {
   const [files, setFiles] = useState<ConversionFile[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [targetFormat, setTargetFormat] = useState<string>('');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
