@@ -51,7 +51,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Link, useSearchParams } from "react-router-dom";
 import { useTaskModal } from "@/contexts/TaskModalContext";
-import AdvancedFilters from "@/components/AdvancedFilters";
+import { AdvancedFilters } from "@/components/AdvancedFilters";
 import { SmartFilterBar } from "@/components/smartFilter";
 import { SmartFilterCriteria, applySmartFilter } from "@/lib/smartFilter";
 import { apiService } from "@/services/apiService";
@@ -500,10 +500,9 @@ const TasksPage = () => {
     toast.info("All filters cleared");
   }, [setSearchParams]);
 
-  // Handle filter changes from AdvancedFilters (now with server-side pagination)
-  const handleFilterChange = useCallback((newFilteredTasks: Task[], pagination: { totalCount: number; totalPages: number; hasNextPage: boolean }) => {
+  // Handle filter changes from AdvancedFilters
+  const handleFilterChange = useCallback((newFilteredTasks: Task[]) => {
     setFilteredTasks(newFilteredTasks);
-    // Optionally store pagination info if needed
   }, []);
 
   const handleActiveFiltersChange = useCallback((count: number) => {

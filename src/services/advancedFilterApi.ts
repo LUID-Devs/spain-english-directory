@@ -43,7 +43,7 @@ export type TaskFilterField =
 export interface FieldCondition {
   field: TaskFilterField;
   operator: FilterOperator;
-  value?: string | number | boolean | string[] | number[] | Date | { from: Date; to: Date };
+  value?: string | number | boolean | string[] | number[] | Date | { from: Date; to: Date } | { from: string; to: string };
 }
 
 // Condition group for nested AND/OR logic
