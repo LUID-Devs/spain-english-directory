@@ -91,8 +91,8 @@ const LandingPage = () => {
   const stats = [
     { value: 'Minutes', label: 'To Get Started', icon: Zap },
     { value: '40+', label: 'Core features', icon: ListChecks },
-    { value: 'Self-hosted', label: 'Option', icon: Server },
-    { value: 'MIT License', label: 'Open source', icon: CheckCircle },
+    { value: 'Free Forever', label: 'Starter plan', icon: CheckCircle },
+    { value: 'Pro', label: '€8/month', icon: Sparkles },
   ];
 
   const testimonials = [
@@ -302,7 +302,7 @@ const LandingPage = () => {
           {/* What's New */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neutral-900/80 border border-neutral-800 mb-6">
             <BadgeCheck className="w-4 h-4 text-emerald-400" />
-            <span className="text-sm text-neutral-300">What&apos;s new: Simple pricing — Free + Pro (€10/mo or €8/mo annually)</span>
+            <span className="text-sm text-neutral-300">Simple pricing: Start free, Pro at €8/month (billed annually)</span>
           </div>
 
           {/* Trust Badge */}
@@ -355,7 +355,7 @@ const LandingPage = () => {
             </Link>
           </div>
           <p className="text-xs text-neutral-500 mb-10">
-            Free plan available. Pro starts at <span className="text-neutral-300">€10/month</span> (or €8/month annually).{' '}
+            <span className="text-emerald-400 font-medium">Free forever</span> plan available. Pro: <span className="text-neutral-300">€8/month</span> (billed annually) or €10/month.{' '}
             <Link to="/pricing" className="text-neutral-200 underline underline-offset-4 hover:text-white">See full pricing</Link>.
           </p>
 
@@ -831,41 +831,133 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* Credit System Visual Explanation */}
+      <section className="px-4 py-12 border-t border-neutral-900 bg-gradient-to-b from-neutral-950 to-black">
+        <div className="max-w-5xl mx-auto text-center">
+          <div className="mb-8">
+            <p className="text-sm text-neutral-500 mb-2">How credits work</p>
+            <h2 className="text-3xl font-semibold">AI credits included every month</h2>
+            <p className="text-sm text-neutral-500 mt-2 max-w-xl mx-auto">
+              Use credits for AI task parsing, resume building, and file conversion. 
+              Unused credits roll over for up to 3 months.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+            <div className="p-6 rounded-xl border border-neutral-800 bg-neutral-900/50">
+              <div className="flex items-center justify-center gap-3 mb-4">
+                <div className="w-12 h-12 rounded-full bg-neutral-800 flex items-center justify-center">
+                  <Sparkles className="w-6 h-6 text-neutral-400" />
+                </div>
+                <div className="text-left">
+                  <h3 className="text-lg font-semibold">Free Plan</h3>
+                  <p className="text-sm text-neutral-500">€0/month</p>
+                </div>
+              </div>
+              <div className="relative pt-6 pb-2">
+                <div className="flex items-end justify-center gap-1">
+                  <span className="text-5xl font-bold text-neutral-300">10</span>
+                  <span className="text-sm text-neutral-500 mb-2">credits/mo</span>
+                </div>
+                <div className="mt-4 w-full bg-neutral-800 rounded-full h-2">
+                  <div className="bg-neutral-600 h-2 rounded-full" style={{ width: '10%' }} />
+                </div>
+                <p className="text-xs text-neutral-500 mt-2">Perfect for trying out AI features</p>
+              </div>
+            </div>
+            <div className="p-6 rounded-xl border border-indigo-500/40 bg-gradient-to-br from-indigo-500/10 to-purple-500/10">
+              <div className="flex items-center justify-center gap-3 mb-4">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
+                  <Zap className="w-6 h-4 text-white" />
+                </div>
+                <div className="text-left">
+                  <h3 className="text-lg font-semibold">Pro Plan</h3>
+                  <p className="text-sm text-emerald-400">€8/month (annual)</p>
+                </div>
+              </div>
+              <div className="relative pt-6 pb-2">
+                <div className="flex items-end justify-center gap-1">
+                  <span className="text-5xl font-bold text-white">500</span>
+                  <span className="text-sm text-indigo-300 mb-2">credits/mo</span>
+                </div>
+                <div className="mt-4 w-full bg-neutral-800 rounded-full h-2">
+                  <div className="bg-gradient-to-r from-indigo-500 to-purple-500 h-2 rounded-full" style={{ width: '100%' }} />
+                </div>
+                <p className="text-xs text-indigo-300 mt-2">50x more credits for power users</p>
+              </div>
+            </div>
+          </div>
+          <div className="mt-6 text-xs text-neutral-500">
+            1 credit = 1 AI task parse, resume optimization, or file conversion
+          </div>
+        </div>
+      </section>
+
       {/* Pricing Teaser */}
       <section className="px-4 py-16 border-t border-neutral-900">
         <div className="max-w-5xl mx-auto text-center">
           <div className="mb-10">
-            <p className="text-sm text-neutral-500 mb-2">Simple pricing</p>
-            <h2 className="text-3xl font-semibold">Start free, upgrade when you grow</h2>
-            <p className="text-sm text-neutral-500 mt-2">No hidden fees. Cancel anytime.</p>
+            <p className="text-sm text-neutral-500 mb-2">Simple, transparent pricing</p>
+            <h2 className="text-3xl font-semibold">Start free, upgrade when you need more</h2>
+            <p className="text-sm text-neutral-500 mt-2">No hidden fees. Cancel anytime. All plans include core features.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="p-6 rounded-xl border border-neutral-800 bg-neutral-900/50 text-left">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">Free</h3>
-                <span className="text-sm text-neutral-400">€0 / month</span>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-neutral-800 flex items-center justify-center">
+                    <Sparkles className="w-5 h-5 text-neutral-400" />
+                  </div>
+                  <h3 className="text-lg font-semibold">Free</h3>
+                </div>
+                <span className="text-2xl font-bold text-neutral-300">€0</span>
               </div>
-              <p className="text-sm text-neutral-400 mt-2">Perfect for personal task management.</p>
-              <ul className="mt-4 space-y-2 text-sm text-neutral-300">
-                <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-emerald-400" />Basic tasks and projects</li>
-                <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-emerald-400" />Workspace collaboration</li>
-                <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-emerald-400" />Community support</li>
+              <p className="text-sm text-neutral-400 mt-3">For individuals getting started with task management.</p>
+              <ul className="mt-4 space-y-3 text-sm text-neutral-300">
+                <li className="flex items-start gap-2"><CheckCircle className="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0" /><span>Unlimited projects & tasks</span></li>
+                <li className="flex items-start gap-2"><CheckCircle className="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0" /><span>Up to 3 team members</span></li>
+                <li className="flex items-start gap-2"><CheckCircle className="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0" /><span>100 MB storage</span></li>
+                <li className="flex items-start gap-2"><CheckCircle className="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0" /><span>10 AI credits/month</span></li>
+                <li className="flex items-start gap-2"><CheckCircle className="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0" /><span>Community support</span></li>
               </ul>
+              <Link
+                to="/auth/register"
+                className="mt-6 block w-full text-center px-6 py-3 border border-neutral-700 text-neutral-300 rounded-lg hover:bg-neutral-800 transition-all duration-300"
+              >
+                Get Started Free
+              </Link>
             </div>
-            <div className="p-6 rounded-xl border border-indigo-500/40 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 text-left">
+            <div className="p-6 rounded-xl border border-indigo-500/40 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 text-left relative overflow-hidden">
+              <div className="absolute top-0 right-0 px-3 py-1 bg-indigo-500 text-white text-xs font-medium rounded-bl-lg">
+                Most Popular
+              </div>
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">TaskLuid Pro</h3>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
+                    <Zap className="w-5 h-5 text-white" />
+                  </div>
+                  <h3 className="text-lg font-semibold">Pro</h3>
+                </div>
                 <div className="text-right">
-                  <span className="text-sm text-neutral-300">€10 / month</span>
-                  <p className="text-xs text-emerald-400">or €8 / month annually</p>
+                  <span className="text-2xl font-bold text-white">€8</span>
+                  <span className="text-sm text-neutral-400">/mo</span>
                 </div>
               </div>
-              <p className="text-sm text-neutral-400 mt-2">Monthly credits and premium workflows.</p>
-              <ul className="mt-4 space-y-2 text-sm text-neutral-200">
-                <li className="flex items-center gap-2"><Zap className="w-4 h-4 text-indigo-300" />Higher credit allowance</li>
-                <li className="flex items-center gap-2"><Zap className="w-4 h-4 text-indigo-300" />AI task parsing</li>
-                <li className="flex items-center gap-2"><Zap className="w-4 h-4 text-indigo-300" />Priority support</li>
+              <p className="text-xs text-emerald-400 mt-1">Billed annually (€96/year) — or €10 month-to-month</p>
+              <p className="text-sm text-neutral-400 mt-3">For growing teams who need more power and AI features.</p>
+              <ul className="mt-4 space-y-3 text-sm text-neutral-200">
+                <li className="flex items-start gap-2"><Zap className="w-4 h-4 text-indigo-400 mt-0.5 flex-shrink-0" /><span>Everything in Free, plus:</span></li>
+                <li className="flex items-start gap-2"><CheckCircle className="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0" /><span>Unlimited team members</span></li>
+                <li className="flex items-start gap-2"><CheckCircle className="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0" /><span>10 GB storage</span></li>
+                <li className="flex items-start gap-2"><CheckCircle className="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0" /><span>500 AI credits/month</span></li>
+                <li className="flex items-start gap-2"><CheckCircle className="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0" /><span>Priority support</span></li>
+                <li className="flex items-start gap-2"><CheckCircle className="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0" /><span>API access & webhooks</span></li>
               </ul>
+              <Link
+                to="/auth/register"
+                className="mt-6 block w-full text-center px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-medium rounded-lg hover:from-indigo-600 hover:to-purple-600 transition-all duration-300"
+              >
+                Upgrade to Pro
+              </Link>
             </div>
           </div>
           <div className="mt-8">
@@ -873,7 +965,7 @@ const LandingPage = () => {
               to="/pricing"
               className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-neutral-700 text-neutral-300 rounded-lg hover:bg-neutral-900 transition-all duration-300"
             >
-              Compare plans
+              View full comparison
             </Link>
           </div>
           {/* Satisfaction Guarantee */}
