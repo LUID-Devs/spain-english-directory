@@ -33,7 +33,11 @@ import {
   Flag,
   TrendingUp,
   Plug,
+<<<<<<< HEAD
   LayoutGrid
+=======
+  Library
+>>>>>>> a26c717607dc8683acab4df6ccbd0e195737fad4
 } from "lucide-react";
 import InviteToWorkspaceModal from "@/components/InviteToWorkspaceModal";
 import { useLocation, Link } from "react-router-dom";
@@ -146,6 +150,7 @@ const Sidebar = () => {
           </h4>
           <nav className="space-y-1">
             <SidebarLink href="/dashboard" icon={Home} label="Dashboard" />
+            <SidebarLink href="/dashboard/library" icon={Library} label="Library" />
             <SidebarLink href="/dashboard/tasks" icon={CheckSquare} label="My Tasks" />
             <SidebarLink href="/dashboard/triage" icon={ClipboardList} label="Triage" />
             <SidebarLink href="/dashboard/workspaces" icon={LayoutGrid} label="Workspaces" />
