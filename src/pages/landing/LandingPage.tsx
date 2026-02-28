@@ -199,6 +199,15 @@ const LandingPage = () => {
             >
               Pricing
             </Link>
+            <Link to="/suite" className="text-sm text-neutral-400 hover:text-white transition-colors">
+              Luid Suite
+            </Link>
+            <Link to="/resumeluid" className="text-sm text-neutral-400 hover:text-white transition-colors">
+              ResumeLuid
+            </Link>
+            <Link to="/luidkit" className="text-sm text-neutral-400 hover:text-white transition-colors">
+              LuidKit
+            </Link>
             <Link to="/auth/login" className="text-sm text-neutral-400 hover:text-white transition-colors">
               Sign In
             </Link>
@@ -245,6 +254,27 @@ const LandingPage = () => {
                 }}
               >
                 Pricing
+              </Link>
+              <Link
+                to="/suite"
+                className="text-sm text-neutral-300 hover:text-white transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Luid Suite
+              </Link>
+              <Link
+                to="/resumeluid"
+                className="text-sm text-neutral-300 hover:text-white transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                ResumeLuid
+              </Link>
+              <Link
+                to="/luidkit"
+                className="text-sm text-neutral-300 hover:text-white transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                LuidKit
               </Link>
               <Link
                 to="/auth/login"

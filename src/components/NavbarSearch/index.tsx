@@ -18,11 +18,11 @@ import AdvancedSearchModal, { SearchFilters } from "@/components/AdvancedSearchM
 import SearchSuggestions from "@/components/SearchSuggestions";
 import SearchSyntaxHelp from "@/components/SearchSyntaxHelp";
 import { 
-  parseSearchQuery, 
-  applySearchQuery, 
+  parseSearchExpression,
+  applySearchExpression,
   applySort,
   getSearchSuggestions as getSyntaxSuggestions,
-  ParsedSearchQuery
+  ParsedSearchExpression
 } from "@/lib/searchParser";
 import { 
   useSearchQuery, 
@@ -203,7 +203,7 @@ const NavbarSearch = forwardRef<NavbarSearchRef, NavbarSearchProps>(({
   onResultClick,
 }, ref) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [parsedQuery, setParsedQuery] = useState<ParsedSearchQuery | null>(null);
+  const [parsedExpression, setParsedExpression] = useState<ParsedSearchExpression | null>(null);
   const [currentFilters, setCurrentFilters] = useState<SearchFilters>({});
   const [isAdvancedModalOpen, setIsAdvancedModalOpen] = useState(false);
   const [isSyntaxHelpOpen, setIsSyntaxHelpOpen] = useState(false);
@@ -261,9 +261,9 @@ const NavbarSearch = forwardRef<NavbarSearchRef, NavbarSearchProps>(({
   // Parse query when search term changes to detect operators
   useEffect(() => {
     if (searchTerm.length >= 2) {
-      const parsed = parseSearchQuery(searchTerm);
+      const parsed = parseSearchExpression(searchTerm);
       queueMicrotask(() => {
-        setParsedQuery(parsed);
+        setParsedExpression(parsed);
 
         // Switch to syntax mode if operators detected, otherwise basic
         if (parsed.hasOperators) {
@@ -274,7 +274,7 @@ const NavbarSearch = forwardRef<NavbarSearchRef, NavbarSearchProps>(({
       });
     } else {
       queueMicrotask(() => {
-        setParsedQuery(null);
+        setParsedExpression(null);
         if (searchMode === 'syntax') {
           setSearchMode('basic');
         }
@@ -284,14 +284,14 @@ const NavbarSearch = forwardRef<NavbarSearchRef, NavbarSearchProps>(({
 
   // Compute filtered results when in syntax mode
   const syntaxFilteredResults = useMemo(() => {
-    if (searchMode !== 'syntax' || !parsedQuery || !allTasks) {
+    if (searchMode !== 'syntax' || !parsedExpression || !allTasks) {
       return null;
     }
 
-    // Filter tasks using parsed query
-    let filteredTasks = applySearchQuery(
+    // Filter tasks using parsed query expression
+    let filteredTasks = applySearchExpression(
       allTasks,
-      parsedQuery,
+      parsedExpression.expression,
       currentUser?.userId,
       {
         getAssigneeId: (task) => task.assignedUserId,
@@ -306,8 +306,8 @@ const NavbarSearch = forwardRef<NavbarSearchRef, NavbarSearchProps>(({
     );
 
     // Apply sorting if specified
-    if (parsedQuery.sort) {
-      filteredTasks = applySort(filteredTasks, parsedQuery.sort, {
+    if (parsedExpression.sort) {
+      filteredTasks = applySort(filteredTasks, parsedExpression.sort, {
         getPriority: (task) => task.priority,
         getDueDate: (task) => task.dueDate,
         getCreatedAt: (task) => task.createdAt,
@@ -318,16 +318,22 @@ const NavbarSearch = forwardRef<NavbarSearchRef, NavbarSearchProps>(({
 
     // Filter projects by text query only (operators don't apply to projects)
     const filteredProjects = allProjects?.filter(project => {
-      if (!parsedQuery.textQuery) return true;
-      const textLower = parsedQuery.textQuery.toLowerCase();
+      if (parsedExpression.expression.type !== 'clause') {
+        return true;
+      }
+      if (!parsedExpression.expression.query.textQuery) return true;
+      const textLower = parsedExpression.expression.query.textQuery.toLowerCase();
       return project.name?.toLowerCase().includes(textLower) ||
              project.description?.toLowerCase().includes(textLower);
     }) || [];
 
     // Filter users by text query only
     const filteredUsers = allUsers?.filter(user => {
-      if (!parsedQuery.textQuery) return true;
-      const textLower = parsedQuery.textQuery.toLowerCase();
+      if (parsedExpression.expression.type !== 'clause') {
+        return true;
+      }
+      if (!parsedExpression.expression.query.textQuery) return true;
+      const textLower = parsedExpression.expression.query.textQuery.toLowerCase();
       return user.username?.toLowerCase().includes(textLower);
     }) || [];
 
@@ -336,7 +342,7 @@ const NavbarSearch = forwardRef<NavbarSearchRef, NavbarSearchProps>(({
       projects: filteredProjects,
       users: filteredUsers,
     };
-  }, [searchMode, parsedQuery, allTasks, allProjects, allUsers, currentUser?.userId]);
+  }, [searchMode, parsedExpression, allTasks, allProjects, allUsers, currentUser?.userId]);
 
   // Use syntax filtered results when in syntax mode
   const displayResults = searchMode === 'syntax' ? syntaxFilteredResults : searchResults;
@@ -440,8 +446,8 @@ const NavbarSearch = forwardRef<NavbarSearchRef, NavbarSearchProps>(({
   );
 
   const hasSyntaxOperators = useMemo(() =>
-    parsedQuery?.hasOperators || false,
-    [parsedQuery]
+    parsedExpression?.hasOperators || false,
+    [parsedExpression]
   );
 
   const hasResults = useMemo(() =>
@@ -649,9 +655,9 @@ const NavbarSearch = forwardRef<NavbarSearchRef, NavbarSearchProps>(({
                       </Button>
                     </div>
                   </div>
-                  {hasSyntaxOperators && parsedQuery?.invalidOperators && parsedQuery.invalidOperators.length > 0 && (
+                  {hasSyntaxOperators && parsedExpression?.invalidOperators && parsedExpression.invalidOperators.length > 0 && (
                     <div className="mt-1 text-xs text-destructive">
-                      Warning: Unknown operators - {parsedQuery.invalidOperators.map(op => `${op.operator}:${op.value}`).join(', ')}
+                      Warning: Unknown operators - {parsedExpression.invalidOperators.map(op => `${op.operator}:${op.value}`).join(', ')}
                     </div>
                   )}
                 </div>

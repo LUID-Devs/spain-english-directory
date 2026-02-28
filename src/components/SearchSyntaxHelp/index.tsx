@@ -97,6 +97,10 @@ const complexExamples = [
     description: 'High priority open tasks assigned to me',
   },
   {
+    query: '(status:"Work In Progress" OR status:"To Do") AND priority:high',
+    description: 'High priority tasks that are open or in progress',
+  },
+  {
     query: 'project:frontend due:this-week',
     description: 'Frontend tasks due this week',
   },

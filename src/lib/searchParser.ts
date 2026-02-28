@@ -76,6 +76,18 @@ export interface ParsedSearchQuery {
   invalidOperators: Array<{ operator: string; value: string }>;
 }
 
+export type SearchExpression =
+  | { type: 'clause'; query: ParsedSearchQuery }
+  | { type: 'and'; left: SearchExpression; right: SearchExpression }
+  | { type: 'or'; left: SearchExpression; right: SearchExpression };
+
+export interface ParsedSearchExpression {
+  expression: SearchExpression;
+  sort?: ParsedSearchQuery['sort'];
+  hasOperators: boolean;
+  invalidOperators: Array<{ operator: string; value: string }>;
+}
+
 export type DateFilter = 
   | { type: 'relative'; value: 'today' | 'yesterday' | 'this-week' | 'next-week' | 'last-week' | 'this-month' | 'last-month' | 'overdue' }
   | { type: 'absolute'; date: Date; operator: 'before' | 'after' | 'on' }
@@ -185,6 +197,155 @@ export function parseSearchQuery(query: string): ParsedSearchQuery {
   result.textQuery = textQuery.trim();
 
   return result;
+}
+
+type ExpressionToken =
+  | { type: 'LPAREN' }
+  | { type: 'RPAREN' }
+  | { type: 'AND' }
+  | { type: 'OR' }
+  | { type: 'TERM'; value: string };
+
+function tokenizeExpression(query: string): {
+  tokens: ExpressionToken[];
+  hasBooleanOperators: boolean;
+  hasGrouping: boolean;
+} {
+  const tokens: ExpressionToken[] = [];
+  let current = '';
+  let inQuotes = false;
+  let hasBooleanOperators = false;
+  let hasGrouping = false;
+
+  const flushCurrent = () => {
+    const trimmed = current.trim();
+    if (!trimmed) {
+      current = '';
+      return;
+    }
+    const upper = trimmed.toUpperCase();
+    if (upper === 'AND') {
+      tokens.push({ type: 'AND' });
+      hasBooleanOperators = true;
+    } else if (upper === 'OR') {
+      tokens.push({ type: 'OR' });
+      hasBooleanOperators = true;
+    } else {
+      tokens.push({ type: 'TERM', value: trimmed });
+    }
+    current = '';
+  };
+
+  for (let i = 0; i < query.length; i += 1) {
+    const char = query[i];
+    if (char === '"') {
+      inQuotes = !inQuotes;
+      current += char;
+      continue;
+    }
+
+    if (!inQuotes && (char === '(' || char === ')')) {
+      flushCurrent();
+      tokens.push({ type: char === '(' ? 'LPAREN' : 'RPAREN' });
+      hasGrouping = true;
+      continue;
+    }
+
+    if (!inQuotes && /\s/.test(char)) {
+      flushCurrent();
+      continue;
+    }
+
+    current += char;
+  }
+
+  flushCurrent();
+
+  return { tokens, hasBooleanOperators, hasGrouping };
+}
+
+export function parseSearchExpression(query: string): ParsedSearchExpression {
+  const { tokens, hasBooleanOperators, hasGrouping } = tokenizeExpression(query);
+  let index = 0;
+  let sort: ParsedSearchQuery['sort'];
+  const invalidOperators: Array<{ operator: string; value: string }> = [];
+  let hasOperators = hasBooleanOperators || hasGrouping;
+
+  const buildClause = (term: string): SearchExpression => {
+    const parsed = parseSearchQuery(term);
+    if (parsed.sort) {
+      sort = parsed.sort;
+      parsed.sort = undefined;
+    }
+    if (parsed.invalidOperators.length > 0) {
+      invalidOperators.push(...parsed.invalidOperators);
+    }
+    if (parsed.hasOperators) {
+      hasOperators = true;
+    }
+    return { type: 'clause', query: parsed };
+  };
+
+  const peek = () => tokens[index];
+  const match = (type: ExpressionToken['type']) => {
+    if (tokens[index]?.type === type) {
+      index += 1;
+      return true;
+    }
+    return false;
+  };
+
+  const parsePrimary = (): SearchExpression => {
+    if (match('LPAREN')) {
+      const expr = parseOr();
+      match('RPAREN');
+      return expr;
+    }
+
+    const token = peek();
+    if (token?.type === 'TERM') {
+      index += 1;
+      return buildClause(token.value);
+    }
+
+    return buildClause('');
+  };
+
+  const parseAnd = (): SearchExpression => {
+    let left = parsePrimary();
+    while (index < tokens.length) {
+      if (match('AND')) {
+        left = { type: 'and', left, right: parsePrimary() };
+        continue;
+      }
+
+      const next = peek();
+      if (next?.type === 'TERM' || next?.type === 'LPAREN') {
+        left = { type: 'and', left, right: parsePrimary() };
+        continue;
+      }
+
+      break;
+    }
+    return left;
+  };
+
+  const parseOr = (): SearchExpression => {
+    let left = parseAnd();
+    while (match('OR')) {
+      left = { type: 'or', left, right: parseAnd() };
+    }
+    return left;
+  };
+
+  const expression = tokens.length > 0 ? parseOr() : buildClause('');
+
+  return {
+    expression,
+    sort,
+    hasOperators,
+    invalidOperators,
+  };
 }
 
 /**
@@ -433,6 +594,158 @@ export function resolveDateFilter(filter: DateFilter): { start?: Date; end?: Dat
   }
 }
 
+function matchesSearchQuery<T extends Record<string, any>>(
+  item: T,
+  query: ParsedSearchQuery,
+  currentUserId?: number,
+  options: {
+    getAssigneeId?: (item: T) => number | undefined;
+    getAuthorId?: (item: T) => number | undefined;
+    getProjectId?: (item: T) => number | undefined;
+    getDueDate?: (item: T) => Date | string | undefined;
+    getCreatedAt?: (item: T) => Date | string | undefined;
+    getUpdatedAt?: (item: T) => Date | string | undefined;
+    getLabels?: (item: T) => string[] | undefined;
+    getStatus?: (item: T) => string | undefined;
+    getPriority?: (item: T) => string | undefined;
+  } = {}
+): boolean {
+  // Text search
+  if (query.textQuery) {
+    const textLower = query.textQuery.toLowerCase();
+    const textFields = [
+      item.title,
+      item.description,
+      item.name,
+      item.username,
+      item.tags,
+    ].filter(Boolean).join(' ').toLowerCase();
+    
+    if (!textFields.includes(textLower)) {
+      return false;
+    }
+  }
+
+  // Status filter
+  if (query.status) {
+    const itemStatus = options.getStatus?.(item) || item.status;
+    const matches = query.status.values.some(s => 
+      itemStatus?.toLowerCase() === s.toLowerCase()
+    );
+    if (matches === query.status.negate) return false;
+  }
+
+  // Priority filter
+  if (query.priority) {
+    const itemPriority = options.getPriority?.(item) || item.priority;
+    const matches = query.priority.values.some(p => 
+      itemPriority?.toLowerCase() === p.toLowerCase()
+    );
+    if (matches === query.priority.negate) return false;
+  }
+
+  // Assignee filter
+  if (query.assignee) {
+    const assigneeId = options.getAssigneeId?.(item) || item.assignedUserId || item.assigneeId;
+    const matches = query.assignee.values.some(a => {
+      if (a.toLowerCase() === 'me') {
+        return assigneeId === currentUserId;
+      }
+      // Try to match by ID or username
+      return assigneeId?.toString() === a || 
+             item.assignee?.username?.toLowerCase() === a.toLowerCase();
+    });
+    if (matches === query.assignee.negate) return false;
+  }
+
+  // Author filter
+  if (query.author) {
+    const authorId = options.getAuthorId?.(item) || item.authorUserId;
+    const matches = query.author.values.some(a => {
+      if (a.toLowerCase() === 'me') {
+        return authorId === currentUserId;
+      }
+      return authorId?.toString() === a ||
+             item.author?.username?.toLowerCase() === a.toLowerCase();
+    });
+    if (matches === query.author.negate) return false;
+  }
+
+  // Project filter
+  if (query.project) {
+    const projectId = options.getProjectId?.(item) || item.projectId;
+    const matches = query.project.values.some(p => {
+      return projectId?.toString() === p ||
+             item.project?.name?.toLowerCase().includes(p.toLowerCase());
+    });
+    if (matches === query.project.negate) return false;
+  }
+
+  // Label filter
+  if (query.label) {
+    const labels = options.getLabels?.(item) || 
+                  (item.tags ? item.tags.split(',').map((t: string) => t.trim()) : []);
+    const matches = query.label.values.some(l => 
+      labels.some((tag: string) => tag.toLowerCase() === l.toLowerCase())
+    );
+    if (matches === query.label.negate) return false;
+  }
+
+  // Due date filter
+  if (query.due) {
+    const dueDate = options.getDueDate?.(item) || item.dueDate;
+    if (!dueDate && !query.due.negate) return false;
+    
+    const itemDate = dueDate ? new Date(dueDate) : null;
+    const matches = query.due.values.some(filter => {
+      const resolved = resolveDateFilter(filter);
+      if (resolved.isOverdue) {
+        return itemDate ? itemDate < new Date() && item.status !== 'Completed' : false;
+      }
+      if (!itemDate) return false;
+      const itemTime = itemDate.getTime();
+      const afterStart = !resolved.start || itemTime >= resolved.start.getTime();
+      const beforeEnd = !resolved.end || itemTime <= resolved.end.getTime();
+      return afterStart && beforeEnd;
+    });
+    if (matches === query.due.negate) return false;
+  }
+
+  // Created date filter
+  if (query.created) {
+    const createdAt = options.getCreatedAt?.(item) || item.createdAt;
+    if (!createdAt) return query.created.negate;
+    
+    const itemDate = new Date(createdAt);
+    const matches = query.created.values.some(filter => {
+      const resolved = resolveDateFilter(filter);
+      const itemTime = itemDate.getTime();
+      const afterStart = !resolved.start || itemTime >= resolved.start.getTime();
+      const beforeEnd = !resolved.end || itemTime <= resolved.end.getTime();
+      return afterStart && beforeEnd;
+    });
+    if (matches === query.created.negate) return false;
+  }
+
+  // Updated date filter
+  if (query.updated) {
+    const updatedAt = options.getUpdatedAt?.(item) || item.updatedAt;
+    if (!updatedAt) return query.updated.negate;
+    
+    const itemDate = new Date(updatedAt);
+    const matches = query.updated.values.some(filter => {
+      const resolved = resolveDateFilter(filter);
+      const itemTime = itemDate.getTime();
+      const afterStart = !resolved.start || itemTime >= resolved.start.getTime();
+      const beforeEnd = !resolved.end || itemTime <= resolved.end.getTime();
+      return afterStart && beforeEnd;
+    });
+    if (matches === query.updated.negate) return false;
+  }
+
+  return true;
+}
+
 /**
  * Apply parsed query to filter a list of tasks
  */
@@ -452,142 +765,39 @@ export function applySearchQuery<T extends Record<string, any>>(
     getPriority?: (item: T) => string | undefined;
   } = {}
 ): T[] {
-  return items.filter(item => {
-    // Text search
-    if (query.textQuery) {
-      const textLower = query.textQuery.toLowerCase();
-      const textFields = [
-        item.title,
-        item.description,
-        item.name,
-        item.username,
-        item.tags,
-      ].filter(Boolean).join(' ').toLowerCase();
-      
-      if (!textFields.includes(textLower)) {
-        return false;
-      }
-    }
+  return items.filter(item => matchesSearchQuery(item, query, currentUserId, options));
+}
 
-    // Status filter
-    if (query.status) {
-      const itemStatus = options.getStatus?.(item) || item.status;
-      const matches = query.status.values.some(s => 
-        itemStatus?.toLowerCase() === s.toLowerCase()
-      );
-      if (matches === query.status.negate) return false;
+export function applySearchExpression<T extends Record<string, any>>(
+  items: T[],
+  expression: SearchExpression,
+  currentUserId?: number,
+  options: {
+    getAssigneeId?: (item: T) => number | undefined;
+    getAuthorId?: (item: T) => number | undefined;
+    getProjectId?: (item: T) => number | undefined;
+    getDueDate?: (item: T) => Date | string | undefined;
+    getCreatedAt?: (item: T) => Date | string | undefined;
+    getUpdatedAt?: (item: T) => Date | string | undefined;
+    getLabels?: (item: T) => string[] | undefined;
+    getStatus?: (item: T) => string | undefined;
+    getPriority?: (item: T) => string | undefined;
+  } = {}
+): T[] {
+  const matchesExpression = (item: T, expr: SearchExpression): boolean => {
+    switch (expr.type) {
+      case 'clause':
+        return matchesSearchQuery(item, expr.query, currentUserId, options);
+      case 'and':
+        return matchesExpression(item, expr.left) && matchesExpression(item, expr.right);
+      case 'or':
+        return matchesExpression(item, expr.left) || matchesExpression(item, expr.right);
+      default:
+        return true;
     }
+  };
 
-    // Priority filter
-    if (query.priority) {
-      const itemPriority = options.getPriority?.(item) || item.priority;
-      const matches = query.priority.values.some(p => 
-        itemPriority?.toLowerCase() === p.toLowerCase()
-      );
-      if (matches === query.priority.negate) return false;
-    }
-
-    // Assignee filter
-    if (query.assignee) {
-      const assigneeId = options.getAssigneeId?.(item) || item.assignedUserId || item.assigneeId;
-      const matches = query.assignee.values.some(a => {
-        if (a.toLowerCase() === 'me') {
-          return assigneeId === currentUserId;
-        }
-        // Try to match by ID or username
-        return assigneeId?.toString() === a || 
-               item.assignee?.username?.toLowerCase() === a.toLowerCase();
-      });
-      if (matches === query.assignee.negate) return false;
-    }
-
-    // Author filter
-    if (query.author) {
-      const authorId = options.getAuthorId?.(item) || item.authorUserId;
-      const matches = query.author.values.some(a => {
-        if (a.toLowerCase() === 'me') {
-          return authorId === currentUserId;
-        }
-        return authorId?.toString() === a ||
-               item.author?.username?.toLowerCase() === a.toLowerCase();
-      });
-      if (matches === query.author.negate) return false;
-    }
-
-    // Project filter
-    if (query.project) {
-      const projectId = options.getProjectId?.(item) || item.projectId;
-      const matches = query.project.values.some(p => {
-        return projectId?.toString() === p ||
-               item.project?.name?.toLowerCase().includes(p.toLowerCase());
-      });
-      if (matches === query.project.negate) return false;
-    }
-
-    // Label filter
-    if (query.label) {
-      const labels = options.getLabels?.(item) || 
-                    (item.tags ? item.tags.split(',').map((t: string) => t.trim()) : []);
-      const matches = query.label.values.some(l => 
-        labels.some((tag: string) => tag.toLowerCase() === l.toLowerCase())
-      );
-      if (matches === query.label.negate) return false;
-    }
-
-    // Due date filter
-    if (query.due) {
-      const dueDate = options.getDueDate?.(item) || item.dueDate;
-      if (!dueDate && !query.due.negate) return false;
-      
-      const itemDate = dueDate ? new Date(dueDate) : null;
-      const matches = query.due.values.some(filter => {
-        const resolved = resolveDateFilter(filter);
-        if (resolved.isOverdue) {
-          return itemDate ? itemDate < new Date() && item.status !== 'Completed' : false;
-        }
-        if (!itemDate) return false;
-        const itemTime = itemDate.getTime();
-        const afterStart = !resolved.start || itemTime >= resolved.start.getTime();
-        const beforeEnd = !resolved.end || itemTime <= resolved.end.getTime();
-        return afterStart && beforeEnd;
-      });
-      if (matches === query.due.negate) return false;
-    }
-
-    // Created date filter
-    if (query.created) {
-      const createdAt = options.getCreatedAt?.(item) || item.createdAt;
-      if (!createdAt) return query.created.negate;
-      
-      const itemDate = new Date(createdAt);
-      const matches = query.created.values.some(filter => {
-        const resolved = resolveDateFilter(filter);
-        const itemTime = itemDate.getTime();
-        const afterStart = !resolved.start || itemTime >= resolved.start.getTime();
-        const beforeEnd = !resolved.end || itemTime <= resolved.end.getTime();
-        return afterStart && beforeEnd;
-      });
-      if (matches === query.created.negate) return false;
-    }
-
-    // Updated date filter
-    if (query.updated) {
-      const updatedAt = options.getUpdatedAt?.(item) || item.updatedAt;
-      if (!updatedAt) return query.updated.negate;
-      
-      const itemDate = new Date(updatedAt);
-      const matches = query.updated.values.some(filter => {
-        const resolved = resolveDateFilter(filter);
-        const itemTime = itemDate.getTime();
-        const afterStart = !resolved.start || itemTime >= resolved.start.getTime();
-        const beforeEnd = !resolved.end || itemTime <= resolved.end.getTime();
-        return afterStart && beforeEnd;
-      });
-      if (matches === query.updated.negate) return false;
-    }
-
-    return true;
-  });
+  return items.filter(item => matchesExpression(item, expression));
 }
 
 /**
@@ -789,7 +999,9 @@ export function getSearchSuggestions(
 
 export default {
   parseSearchQuery,
+  parseSearchExpression,
   applySearchQuery,
+  applySearchExpression,
   applySort,
   formatSearchQuery,
   getSearchSuggestions,
