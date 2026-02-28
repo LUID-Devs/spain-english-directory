@@ -243,14 +243,14 @@ export function useAdvancedFilters(options: UseAdvancedFiltersOptions = {}): Use
             return updatedGroup;
           }
           return c;
-        });
+        }) as (FieldCondition | ConditionGroup)[];
         return { ...prev, conditions };
       }
       
       // Update in root conditions
       const conditions = prev.conditions.map((c, i) =>
         i === index ? { ...c, ...updates } : c
-      );
+      ) as (FieldCondition | ConditionGroup)[];
       return { ...prev, conditions };
     });
   }, []);
