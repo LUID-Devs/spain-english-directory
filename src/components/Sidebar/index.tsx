@@ -154,6 +154,7 @@ const Sidebar = () => {
             <SidebarLink href="/dashboard/mission-control" icon={Bot} label="Mission Control" />
             <SidebarLink href="/dashboard/automation" icon={Zap} label="Automation" />
             <SidebarLink href="/dashboard/integrations" icon={Plug} label="Integrations" />
+            <SidebarLink href="/dashboard/library" icon={BookOpen} label="Library" />
             <SidebarLink href="/dashboard/archived-tasks" icon={Archive} label="Archived Tasks" />
           </nav>
         </div>
