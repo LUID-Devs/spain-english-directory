@@ -24,6 +24,7 @@ const planFeatures: PlanFeature[] = [
   { name: 'Tasks', free: 'Unlimited', pro: 'Unlimited' },
   { name: 'Team members', free: 'Up to 3', pro: 'Unlimited' },
   { name: 'Storage', free: '100 MB', pro: '10 GB' },
+  { name: 'Access all Luid Suite apps', free: false, pro: true },
   { name: 'API access', free: false, pro: true },
   { name: 'Webhooks', free: false, pro: true },
   { name: 'Time tracking', free: 'Basic', pro: 'Advanced' },
@@ -73,6 +74,15 @@ const PricingPage = () => {
             <Link to="/pricing" className="text-sm text-white transition-colors">
               Pricing
             </Link>
+            <Link to="/suite" className="text-sm text-neutral-400 hover:text-white transition-colors">
+              Luid Suite
+            </Link>
+            <Link to="/resumeluid" className="text-sm text-neutral-400 hover:text-white transition-colors">
+              ResumeLuid
+            </Link>
+            <Link to="/luidkit" className="text-sm text-neutral-400 hover:text-white transition-colors">
+              LuidKit
+            </Link>
             <Link to="/auth/login" className="text-sm text-neutral-400 hover:text-white transition-colors">
               Sign In
             </Link>
@@ -109,6 +119,27 @@ const PricingPage = () => {
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Pricing
+              </Link>
+              <Link
+                to="/suite"
+                className="text-sm text-neutral-300 hover:text-white transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Luid Suite
+              </Link>
+              <Link
+                to="/resumeluid"
+                className="text-sm text-neutral-300 hover:text-white transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                ResumeLuid
+              </Link>
+              <Link
+                to="/luidkit"
+                className="text-sm text-neutral-300 hover:text-white transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                LuidKit
               </Link>
               <Link
                 to="/auth/login"
@@ -183,6 +214,39 @@ const PricingPage = () => {
             {isAnnual && (
               <span className="text-xs text-neutral-500">Billed yearly, save €{annualSavingsAmount.toFixed(0)}/year</span>
             )}
+          </div>
+        </div>
+      </section>
+
+      {/* Luid Suite Highlight */}
+      <section className="px-4 pb-10">
+        <div className="max-w-4xl mx-auto">
+          <div className="rounded-2xl border border-neutral-800 bg-neutral-900/40 p-6 text-center">
+            <p className="text-sm text-neutral-500 mb-2">Luid Suite</p>
+            <h2 className="text-2xl font-semibold mb-2">One subscription, all Luid apps</h2>
+            <p className="text-sm text-neutral-400 max-w-2xl mx-auto">
+              Upgrade to Pro to unlock TaskLuid plus ResumeLuid and LuidKit—no separate accounts or add-ons.
+            </p>
+            <div className="mt-5 flex flex-col sm:flex-row items-center justify-center gap-3">
+              <Link
+                to="/suite"
+                className="inline-flex items-center justify-center gap-2 px-5 py-2 rounded-lg border border-neutral-700 text-neutral-300 hover:bg-neutral-900 transition-all"
+              >
+                Explore the Luid Suite
+              </Link>
+              <Link
+                to="/resumeluid"
+                className="inline-flex items-center justify-center gap-2 px-5 py-2 rounded-lg border border-neutral-800 text-neutral-400 hover:text-white hover:border-neutral-700 transition-all"
+              >
+                Visit ResumeLuid
+              </Link>
+              <Link
+                to="/luidkit"
+                className="inline-flex items-center justify-center gap-2 px-5 py-2 rounded-lg border border-neutral-800 text-neutral-400 hover:text-white hover:border-neutral-700 transition-all"
+              >
+                Visit LuidKit
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -268,6 +332,7 @@ const PricingPage = () => {
                 <ul className="space-y-3">
                   {[
                     'Everything in Free, plus:',
+                    'Access all Luid Suite apps',
                     'Unlimited team members',
                     '10 GB storage',
                     'Advanced analytics & reports',

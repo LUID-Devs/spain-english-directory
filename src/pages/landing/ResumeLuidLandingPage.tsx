@@ -63,6 +63,11 @@ const ResumeLuidLandingPage = () => {
       title: 'Easy Sharing',
       desc: 'Generate a shareable link or download directly. Send to employers however you prefer.',
     },
+    {
+      icon: Star,
+      title: 'Access all Luid apps',
+      desc: 'One subscription unlocks every product in the Luid Suite.',
+    },
   ];
 
   // How it works steps
@@ -139,6 +144,15 @@ const ResumeLuidLandingPage = () => {
             <Link to="/pricing" className="text-sm text-neutral-400 hover:text-white transition-colors">
               Pricing
             </Link>
+            <Link to="/suite" className="text-sm text-neutral-400 hover:text-white transition-colors">
+              Luid Suite
+            </Link>
+            <Link to="/landing" className="text-sm text-neutral-400 hover:text-white transition-colors">
+              TaskLuid
+            </Link>
+            <Link to="/luidkit" className="text-sm text-neutral-400 hover:text-white transition-colors">
+              LuidKit
+            </Link>
             <Link to="/auth/login" className="text-sm text-neutral-400 hover:text-white transition-colors">
               Sign In
             </Link>
@@ -175,6 +189,27 @@ const ResumeLuidLandingPage = () => {
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Pricing
+              </Link>
+              <Link
+                to="/suite"
+                className="text-sm text-neutral-300 hover:text-white transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Luid Suite
+              </Link>
+              <Link
+                to="/landing"
+                className="text-sm text-neutral-300 hover:text-white transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                TaskLuid
+              </Link>
+              <Link
+                to="/luidkit"
+                className="text-sm text-neutral-300 hover:text-white transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                LuidKit
               </Link>
               <Link
                 to="/auth/login"
@@ -511,6 +546,48 @@ const ResumeLuidLandingPage = () => {
               className="w-full sm:w-auto px-8 py-4 border border-neutral-700 text-neutral-300 rounded-lg hover:bg-neutral-900 transition-all duration-300"
             >
               Explore TaskLuid
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Luid Suite Section */}
+      <section className="px-4 py-16 border-t border-neutral-900">
+        <div className="max-w-5xl mx-auto text-center">
+          <p className="text-sm text-neutral-500 mb-2">Luid Suite</p>
+          <h2 className="text-3xl font-semibold">All your work tools, finally together.</h2>
+          <p className="text-sm text-neutral-500 mt-2 max-w-2xl mx-auto">
+            ResumeLuid is part of the Luid Suite, giving you access to TaskLuid and LuidKit in one subscription.
+          </p>
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
+            <Link
+              to="/landing"
+              className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-5 text-left hover:border-neutral-700 transition-colors"
+            >
+              <p className="text-sm text-neutral-500">Project management</p>
+              <h3 className="text-lg font-semibold">TaskLuid</h3>
+            </Link>
+            <Link
+              to="/resumeluid"
+              className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-5 text-left hover:border-neutral-700 transition-colors"
+            >
+              <p className="text-sm text-neutral-500">AI resume builder</p>
+              <h3 className="text-lg font-semibold">ResumeLuid</h3>
+            </Link>
+            <Link
+              to="/luidkit"
+              className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-5 text-left hover:border-neutral-700 transition-colors"
+            >
+              <p className="text-sm text-neutral-500">File conversion</p>
+              <h3 className="text-lg font-semibold">LuidKit</h3>
+            </Link>
+          </div>
+          <div className="mt-6">
+            <Link
+              to="/suite"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg border border-neutral-700 text-neutral-300 hover:bg-neutral-900 transition-all"
+            >
+              Explore the Luid Suite
             </Link>
           </div>
         </div>

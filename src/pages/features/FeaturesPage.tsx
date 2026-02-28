@@ -58,6 +58,11 @@ const features = [
     icon: CheckCircle2,
     title: 'Goal Tracking',
     description: 'Set and track OKRs. Connect daily tasks to big-picture objectives and measure success.'
+  },
+  {
+    icon: MessageSquare,
+    title: 'Access all Luid apps',
+    description: 'Unlock the full Luid Suite with one subscription across every product.'
   }
 ];
 
@@ -73,6 +78,15 @@ const FeaturesPage: React.FC = () => {
           <div className="flex items-center gap-6">
             <Link to="/pricing" className="text-neutral-400 hover:text-white transition-colors">
               Pricing
+            </Link>
+            <Link to="/suite" className="text-neutral-400 hover:text-white transition-colors">
+              Luid Suite
+            </Link>
+            <Link to="/resumeluid" className="text-neutral-400 hover:text-white transition-colors">
+              ResumeLuid
+            </Link>
+            <Link to="/luidkit" className="text-neutral-400 hover:text-white transition-colors">
+              LuidKit
             </Link>
             <Link to="/auth/login" className="text-neutral-400 hover:text-white transition-colors">
               Sign In
