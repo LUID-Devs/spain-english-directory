@@ -59,6 +59,12 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Priority, SavedView, useGetProjectViewsQuery, useCreateViewMutation, useUpdateViewMutation, useDeleteViewMutation, useSetDefaultViewMutation } from "@/hooks/useApi";
+import { AdvancedTaskFilter } from "@/services/apiService";
+
+// Type guard to check if filter is the legacy format
+function isLegacyFilter(filters: AdvancedTaskFilter | { priority?: string | null; status?: string | null; assigneeId?: number | null; searchQuery?: string | null }): filters is { priority?: string | null; status?: string | null; assigneeId?: number | null; searchQuery?: string | null } {
+  return filters && typeof filters === 'object' && ('priority' in filters || 'status' in filters || 'assigneeId' in filters || 'searchQuery' in filters);
+}
 
 export type FilterState = {
   priority: string | null;
@@ -115,13 +121,15 @@ const ProjectHeader = ({
 
   const applyView = useCallback((view: SavedView) => {
     setSelectedViewId(view.id);
-    onFiltersChange({
-      priority: view.filters.priority ?? null,
-      status: view.filters.status ?? null,
-      assigneeId: view.filters.assigneeId ?? null,
-    });
-    if (view.filters.searchQuery) {
-      onSearchChange(view.filters.searchQuery);
+    if (isLegacyFilter(view.filters)) {
+      onFiltersChange({
+        priority: view.filters.priority ?? null,
+        status: view.filters.status ?? null,
+        assigneeId: view.filters.assigneeId ?? null,
+      });
+      if (view.filters.searchQuery) {
+        onSearchChange(view.filters.searchQuery);
+      }
     }
   }, [onFiltersChange, onSearchChange]);
 
@@ -129,7 +137,7 @@ const ProjectHeader = ({
   useEffect(() => {
     if (savedViews && savedViews.length > 0 && selectedViewId === null) {
       const defaultView = savedViews.find(v => v.isDefault);
-      if (defaultView) {
+      if (defaultView && isLegacyFilter(defaultView.filters)) {
         // Inline applyView logic to avoid cascading renders
         setSelectedViewId(defaultView.id);
         onFiltersChange({

@@ -141,6 +141,7 @@ const ResumeLuidLandingPage = () => {
             <Link to="/features" className="text-sm text-neutral-400 hover:text-white transition-colors">
               Features
             </Link>
+            {/* TASK-711: Pricing link added to header navigation for better UX and conversion */}
             <Link to="/pricing" className="text-sm text-neutral-400 hover:text-white transition-colors">
               Pricing
             </Link>
@@ -183,6 +184,7 @@ const ResumeLuidLandingPage = () => {
               >
                 Features
               </Link>
+              {/* TASK-711: Pricing link in mobile menu for responsive UX */}
               <Link
                 to="/pricing"
                 className="text-sm text-neutral-300 hover:text-white transition-colors"

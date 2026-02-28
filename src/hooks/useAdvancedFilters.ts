@@ -228,28 +228,28 @@ export function useAdvancedFilters(options: UseAdvancedFiltersOptions = {}): Use
    * Update a condition in the filter
    */
   const updateCondition = useCallback((index: number, updates: Partial<FieldCondition>, groupIndex?: number) => {
-    setFilter((prev) => {
+    setFilter((prev): AdvancedTaskFilter => {
       if (groupIndex !== undefined && groupIndex >= 0) {
         // Update in a specific group - immutable update
-        const conditions = prev.conditions.map((c, i) => {
-          if (i === groupIndex && "conditions" in c) {
+        const conditions: (FieldCondition | ConditionGroup)[] = prev.conditions.map((c) => {
+          if ("conditions" in c) {
             return {
               ...c,
               conditions: c.conditions.map((cc, ci) =>
                 ci === index ? { ...cc, ...updates } : cc
               ),
-            };
+            } as ConditionGroup;
           }
           return c;
         });
-        return { ...prev, conditions };
+        return { operator: prev.operator, conditions };
       }
       
       // Update in root conditions
-      const conditions = prev.conditions.map((c, i) =>
-        i === index ? { ...c, ...updates } : c
+      const conditions: (FieldCondition | ConditionGroup)[] = prev.conditions.map((c, i) =>
+        i === index ? ({ ...c, ...updates } as FieldCondition | ConditionGroup) : c
       );
-      return { ...prev, conditions };
+      return { operator: prev.operator, conditions };
     });
   }, []);
 

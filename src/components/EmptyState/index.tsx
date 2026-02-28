@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-interface EmptyStateProps {
+export interface EmptyStateProps {
   /** Icon to display */
   icon: LucideIcon;
   /** Main title */

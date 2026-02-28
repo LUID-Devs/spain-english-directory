@@ -411,6 +411,22 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
     }
   };
 
+  const loadShareInfo = useCallback(async () => {
+    setShareLoading(true);
+    setShareError(null);
+    try {
+      const data = await apiService.getTaskShare(taskId);
+      setShareData(data);
+      setShareAllowComments(data.allowComments);
+      setShareRequirePassword(data.requirePassword);
+    } catch (error) {
+      // Task may not be shared yet, which is fine
+      setShareData(null);
+    } finally {
+      setShareLoading(false);
+    }
+  }, [taskId]);
+
   useEffect(() => {
     if (isShareOpen) {
       loadShareInfo();
@@ -1016,11 +1032,11 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
       </Dialog>
 
     <Dialog
-      open={isShareDialogOpen}
+      open={isShareOpen}
       onOpenChange={(open) => {
-        setIsShareDialogOpen(open);
+        setIsShareOpen(open);
         if (open) {
-          fetchShareInfo();
+          loadShareInfo();
         }
       }}
     >
@@ -1041,24 +1057,29 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
               </p>
             </div>
             <Switch
-              checked={allowExternalComments}
-              onCheckedChange={(checked) => setAllowExternalComments(Boolean(checked))}
+              checked={shareAllowComments}
+              onCheckedChange={(checked) => setShareAllowComments(Boolean(checked))}
             />
           </div>
 
           {shareError && <p className="text-xs text-destructive">{shareError}</p>}
 
-          {shareInfo ? (
+          {shareData ? (
             <div className="space-y-2">
               <Label className="text-sm">Share link</Label>
               <div className="flex flex-col sm:flex-row gap-2">
-                <Input value={shareInfo.shareUrl} readOnly />
-                <Button type="button" variant="outline" onClick={handleCopyShareLink}>
+                <Input value={shareData.shareUrl} readOnly />
+                <Button type="button" variant="outline" onClick={() => {
+                  if (shareData?.shareUrl) {
+                    navigator.clipboard.writeText(shareData.shareUrl);
+                    toast.success("Share link copied to clipboard");
+                  }
+                }}>
                   Copy
                 </Button>
               </div>
               <div className="flex flex-wrap gap-2">
-                <Button type="button" onClick={handleCreateShare} disabled={shareLoading}>
+                <Button type="button" onClick={handleCreateOrUpdateShare} disabled={shareLoading}>
                   Update link
                 </Button>
                 <Button
@@ -1072,7 +1093,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
               </div>
             </div>
           ) : (
-            <Button type="button" onClick={handleCreateShare} disabled={shareLoading}>
+            <Button type="button" onClick={handleCreateOrUpdateShare} disabled={shareLoading}>
               Create share link
             </Button>
           )}
@@ -1085,7 +1106,13 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                 value={inviteEmails}
                 onChange={(event) => setInviteEmails(event.target.value)}
               />
-              <Button type="button" onClick={handleInviteExternal} disabled={shareLoading}>
+              <Button type="button" onClick={() => {
+                if (shareData?.shareUrl && inviteEmails) {
+                  const subject = encodeURIComponent(`Shared task: ${task?.title || 'Task'}`);
+                  const body = encodeURIComponent(`View the shared task here: ${shareData.shareUrl}`);
+                  window.open(`mailto:${inviteEmails}?subject=${subject}&body=${body}`);
+                }
+              }} disabled={shareLoading || !shareData}>
                 Send invite
               </Button>
             </div>

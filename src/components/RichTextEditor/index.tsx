@@ -18,8 +18,11 @@ import {
   Bold, Italic, Underline as UnderlineIcon, Strikethrough, List, ListOrdered, 
   Heading1, Heading2, Heading3, Quote, Code, Code2, Undo, Redo, 
   Link as LinkIcon, AlignLeft, AlignCenter, AlignRight, SeparatorHorizontal, 
-  Highlighter, FileCode, Eye, EyeOff, Mic, Volume2, StopCircle
+  Highlighter, FileCode, Eye, EyeOff, Mic, Volume2, StopCircle, Workflow
 } from 'lucide-react';
+import MermaidExtension from './MermaidExtension';
+import SlashCommand from './SlashCommand';
+import 'tippy.js/animations/scale.css';
 
 // Create lowlight instance with common languages
 const lowlight = createLowlight(common);
@@ -40,6 +43,43 @@ turndownService.addRule('images', {
     return `![${alt}](${src})`;
   }
 });
+
+// Configure turndown to handle mermaid diagrams
+turndownService.addRule('mermaid', {
+  filter: (node) => {
+    return node.nodeName === 'DIV' && node.getAttribute('data-type') === 'mermaid';
+  },
+  replacement: (content, node) => {
+    const diagramContent = (node as HTMLElement).getAttribute('data-content') || '';
+    return `\n\n\`\`\`mermaid\n${diagramContent}\n\`\`\`\n\n`;
+  }
+});
+
+// Helper function to convert mermaid code blocks to mermaid nodes in HTML
+const convertMermaidCodeBlocks = (html: string): string => {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+  
+  // Find all pre > code.language-mermaid elements
+  const codeBlocks = doc.querySelectorAll('pre code.language-mermaid');
+  
+  codeBlocks.forEach((codeBlock) => {
+    const pre = codeBlock.parentElement;
+    if (!pre) return;
+    
+    const content = codeBlock.textContent || '';
+    
+    // Create a mermaid div
+    const mermaidDiv = doc.createElement('div');
+    mermaidDiv.setAttribute('data-type', 'mermaid');
+    mermaidDiv.setAttribute('data-content', content);
+    
+    // Replace the pre element with the mermaid div
+    pre.parentElement?.replaceChild(mermaidDiv, pre);
+  });
+  
+  return doc.body.innerHTML;
+};
 
 // Custom keyboard shortcuts extension
 const KeyboardShortcuts = Extension.create({
@@ -144,7 +184,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     recognition: false,
     synthesis: false,
   });
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const recognitionRef = useRef<any | null>(null);
   const synthRef = useRef<SpeechSynthesis | null>(null);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
@@ -185,9 +225,13 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         lowlight,
         defaultLanguage: 'plaintext',
       }),
+      MermaidExtension,
+      SlashCommand,
       KeyboardShortcuts,
     ],
-    content: format === 'markdown' ? marked.parse(content, { async: false }) as string : content,
+    content: format === 'markdown'
+      ? convertMermaidCodeBlocks(marked.parse(content, { async: false }) as string)
+      : convertMermaidCodeBlocks(content),
     editable: !disabled && !isMarkdownMode,
     onUpdate: ({ editor }) => {
       if (isUpdatingRef.current || isMarkdownMode) return;
@@ -248,14 +292,14 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   // Update content when it changes externally
   useEffect(() => {
     if (!editor) return;
-    
+
     if (content !== lastContentRef.current) {
-      const htmlContent = format === 'markdown' 
-        ? marked.parse(content, { async: false }) as string 
-        : content;
-      
+      const htmlContent = format === 'markdown'
+        ? convertMermaidCodeBlocks(marked.parse(content, { async: false }) as string)
+        : convertMermaidCodeBlocks(content);
+
       const editorContent = editor.getHTML();
-      
+
       if (htmlContent !== editorContent) {
         isUpdatingRef.current = true;
         lastContentRef.current = content;
@@ -296,7 +340,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
       recognition.interimResults = true;
       recognition.lang = 'en-US';
       
-      recognition.onresult = (event: SpeechRecognitionEvent) => {
+      recognition.onresult = (event: any) => {
         const results = event.results;
         let finalTranscript = '';
         let interimTranscript = '';
@@ -316,7 +360,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         }
       };
       
-      recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+      recognition.onerror = (event: any) => {
         console.error('Speech recognition error:', event.error);
         setIsListening(false);
       };
@@ -371,7 +415,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   // Toggle markdown mode
   const toggleMarkdownMode = useCallback(() => {
     if (!editor) return;
-    
+
     if (!isMarkdownMode) {
       // Switching to markdown mode - convert HTML to markdown
       const html = editor.getHTML();
@@ -379,9 +423,9 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
       setMarkdownContent(md);
     } else {
       // Switching to WYSIWYG mode - convert markdown to HTML
-      const html = marked.parse(markdownContent, { async: false }) as string;
+      const html = convertMermaidCodeBlocks(marked.parse(markdownContent, { async: false }) as string);
       editor.commands.setContent(html);
-      
+
       // Trigger onChange with updated content
       let newContent: string;
       if (format === 'markdown') {
@@ -389,13 +433,13 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
       } else {
         newContent = html;
       }
-      
+
       if (newContent !== lastContentRef.current) {
         lastContentRef.current = newContent;
         onChange(newContent);
       }
     }
-    
+
     setIsMarkdownMode(!isMarkdownMode);
   }, [isMarkdownMode, editor, markdownContent, format, onChange]);
 
@@ -728,6 +772,16 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
             title="Horizontal Rule"
           >
             <SeparatorHorizontal className="w-4 h-4" />
+          </ToolbarButton>
+
+          <ToolbarDivider />
+
+          {/* Diagram */}
+          <ToolbarButton
+            onClick={() => editor.chain().focus().insertMermaid().run()}
+            title="Insert Diagram (/diagram)"
+          >
+            <Workflow className="w-4 h-4" />
           </ToolbarButton>
 
           <ToolbarDivider />

@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useGlobalStore } from "@/stores/globalStore";
 import { useCurrentUser } from "@/stores/userStore";
 import { useAuth } from "@/app/authProvider";
-import NavbarSearchComponent from "@/components/NavbarSearch";
+import NavbarSearchComponent, { NavbarSearchRef } from "@/components/NavbarSearch";
 import WorkspaceSwitcher from "@/components/WorkspaceSwitcher";
 import { NotificationBell } from "@/components/NotificationBell";
 import { Button } from "@/components/ui/button";
@@ -62,7 +62,7 @@ const Navbar = () => {
 
   if (!currentUser) return null;
 
-  const currentUserDetails = currentUser?.userDetails;
+  const currentUserDetails = currentUser;
   return (
     <>
     <motion.div

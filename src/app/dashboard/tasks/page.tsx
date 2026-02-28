@@ -51,8 +51,10 @@ import {
 import { cn } from "@/lib/utils";
 import { Link, useSearchParams } from "react-router-dom";
 import { useTaskModal } from "@/contexts/TaskModalContext";
-import AdvancedFilters from "@/components/AdvancedFilters";
+import AdvancedFilters, { AdvancedFiltersV2 } from "@/components/AdvancedFilters";
 import { SmartFilterBar } from "@/components/smartFilter";
+import { ViewSubscriptionButton } from "@/components/ViewSubscriptionButton";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SmartFilterCriteria, applySmartFilter } from "@/lib/smartFilter";
 import { apiService } from "@/services/apiService";
 import { toast } from "sonner";
@@ -126,7 +128,15 @@ const TasksPage = () => {
   const smartFilterQueryRef = useRef(smartFilterQuery);
   const [smartFilterCriteria, setSmartFilterCriteria] = useState<SmartFilterCriteria | null>(null);
   const [smartFilterCount, setSmartFilterCount] = useState(0);
-  
+
+  // Advanced filter mode toggle
+  const [filterMode, setFilterMode] = useState<'simple' | 'advanced'>(
+    (searchParams.get('filterMode') as 'simple' | 'advanced') || 'simple'
+  );
+
+  // Saved view state for subscription
+  const [currentViewId, setCurrentViewId] = useState<number | null>(null);
+
   // Track if we need to update URL (debounce search)
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -501,9 +511,12 @@ const TasksPage = () => {
   }, [setSearchParams]);
 
   // Handle filter changes from AdvancedFilters (now with server-side pagination)
-  const handleFilterChange = useCallback((newFilteredTasks: Task[], pagination: { totalCount: number; totalPages: number; hasNextPage: boolean }) => {
+  const handleFilterChange = useCallback((newFilteredTasks: Task[], pagination?: { totalCount: number; totalPages: number; hasNextPage: boolean }) => {
     setFilteredTasks(newFilteredTasks);
     // Optionally store pagination info if needed
+    if (pagination) {
+      console.log('Filter pagination:', pagination);
+    }
   }, []);
 
   const handleActiveFiltersChange = useCallback((count: number) => {
@@ -732,15 +745,56 @@ const TasksPage = () => {
             currentUserId={userId || undefined}
           />
 
-          {/* Advanced Filters */}
-          <AdvancedFilters
-            tasks={tasks}
-            projects={projects || []}
-            users={users || []}
-            availableStatuses={availableStatuses}
-            onFilterChange={handleFilterChange}
-            onActiveFiltersChange={handleActiveFiltersChange}
-          />
+          {/* Filter Mode Toggle */}
+          <div className="flex items-center justify-between py-2 border-t">
+            <Tabs
+              value={filterMode}
+              onValueChange={(v) => {
+                setFilterMode(v as 'simple' | 'advanced');
+                const newParams = new URLSearchParams(searchParams);
+                if (v === 'advanced') {
+                  newParams.set('filterMode', 'advanced');
+                } else {
+                  newParams.delete('filterMode');
+                }
+                setSearchParams(newParams, { replace: true });
+              }}
+            >
+              <TabsList>
+                <TabsTrigger value="simple">Simple Filters</TabsTrigger>
+                <TabsTrigger value="advanced">Advanced (AND/OR)</TabsTrigger>
+              </TabsList>
+            </Tabs>
+            {currentViewId && (
+              <ViewSubscriptionButton
+                viewId={currentViewId}
+                viewName="Current View"
+                variant="outline"
+                size="sm"
+              />
+            )}
+          </div>
+
+          {/* Filters - Simple or Advanced */}
+          {filterMode === 'simple' ? (
+            <AdvancedFilters
+              tasks={tasks}
+              projects={projects || []}
+              users={users || []}
+              availableStatuses={availableStatuses}
+              onFilterChange={handleFilterChange}
+              onActiveFiltersChange={handleActiveFiltersChange}
+            />
+          ) : (
+            <AdvancedFiltersV2
+              tasks={tasks}
+              projects={projects || []}
+              users={users || []}
+              availableStatuses={availableStatuses}
+              onFilterChange={handleFilterChange}
+              onActiveFiltersChange={handleActiveFiltersChange}
+            />
+          )}
 
           {/* Sort Controls */}
           <div className="flex items-center gap-3 pt-3 border-t flex-wrap">
