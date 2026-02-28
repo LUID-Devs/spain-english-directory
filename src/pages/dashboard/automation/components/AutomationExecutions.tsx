@@ -80,7 +80,7 @@ const AutomationExecutions: React.FC<AutomationExecutionsProps> = ({ organizatio
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'completed':
-        return <Badge variant="success" className="bg-green-100 text-green-800">Completed</Badge>;
+        return <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Completed</Badge>;
       case 'failed':
         return <Badge variant="destructive">Failed</Badge>;
       case 'running':

@@ -32,7 +32,9 @@ import {
   Bot,
   Flag,
   TrendingUp,
-  Plug
+  Plug,
+  LayoutGrid,
+  Library
 } from "lucide-react";
 import InviteToWorkspaceModal from "@/components/InviteToWorkspaceModal";
 import { useLocation, Link } from "react-router-dom";
@@ -145,8 +147,11 @@ const Sidebar = () => {
           </h4>
           <nav className="space-y-1">
             <SidebarLink href="/dashboard" icon={Home} label="Dashboard" />
+            <SidebarLink href="/dashboard/library" icon={Library} label="Library" />
             <SidebarLink href="/dashboard/tasks" icon={CheckSquare} label="My Tasks" />
+            <SidebarLink href="/dashboard/library" icon={Library} label="Library" />
             <SidebarLink href="/dashboard/triage" icon={ClipboardList} label="Triage" />
+            <SidebarLink href="/dashboard/workspaces" icon={LayoutGrid} label="Workspaces" />
             <SidebarLink href="/dashboard/projects" icon={Briefcase} label="Projects" />
             <SidebarLink href="/dashboard/goals" icon={Flag} label="Goals" />
             <SidebarLink href="/dashboard/analytics" icon={TrendingUp} label="Analytics" />
@@ -154,6 +159,8 @@ const Sidebar = () => {
             <SidebarLink href="/dashboard/mission-control" icon={Bot} label="Mission Control" />
             <SidebarLink href="/dashboard/automation" icon={Zap} label="Automation" />
             <SidebarLink href="/dashboard/integrations" icon={Plug} label="Integrations" />
+            <SidebarLink href="/dashboard/library" icon={BookOpen} label="Library" />
+            <SidebarLink href="/dashboard/workspace-library" icon={LayoutGrid} label="Workspace Library" />
             <SidebarLink href="/dashboard/archived-tasks" icon={Archive} label="Archived Tasks" />
           </nav>
         </div>

@@ -166,7 +166,7 @@ const TaskCard = React.memo(({ task, isSelected = false, onSelect, selectionMode
     return null;
   };
 
-  const priorityConfig = getPriorityConfig(task.priority);
+  const priorityConfig = getPriorityConfig(task.priority || "");
   const statusConfig = getStatusConfig(task.status || "To Do");
   const dueDateStatus = getDueDateStatus();
   const PriorityIcon = priorityConfig.icon;

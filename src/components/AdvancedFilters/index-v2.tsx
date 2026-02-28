@@ -19,7 +19,6 @@ import {
   Check,
   GripVertical,
   Layers,
-  AndOr,
 } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -222,7 +221,7 @@ export const AdvancedFiltersV2: React.FC<AdvancedFiltersProps> = ({
         return {
           field: row.field,
           operator: row.operator,
-          value,
+          value: value as FieldCondition["value"],
         };
       });
     };
@@ -263,7 +262,7 @@ export const AdvancedFiltersV2: React.FC<AdvancedFiltersProps> = ({
       const filter = buildAdvancedFilter();
       
       // Validate first
-      const validation = validateAdvancedFilter(filter);
+      const validation = await validateAdvancedFilter(filter);
       if (!validation.valid) {
         toast({
           title: "Invalid Filter",
