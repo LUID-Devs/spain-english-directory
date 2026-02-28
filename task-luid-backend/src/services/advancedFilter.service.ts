@@ -543,10 +543,4 @@ export async function getFilterMetadata(organizationId: number): Promise<{
   };
 }
 
-export default {
-  validateFilterStructure,
-  applyAdvancedFilter,
-  convertFilterToPrisma,
-  convertLegacyFilter,
-  getFilterMetadata,
-};
+export { prisma };

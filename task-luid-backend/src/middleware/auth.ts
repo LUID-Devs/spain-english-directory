@@ -33,7 +33,15 @@ export function authenticateToken(req: Request, res: Response, next: NextFunctio
   }
 
   try {
-    const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
+    const JWT_SECRET = process.env.JWT_SECRET;
+    if (!JWT_SECRET) {
+      console.error("JWT_SECRET environment variable is not set");
+      res.status(500).json({
+        success: false,
+        error: "Server configuration error",
+      });
+      return;
+    }
     const decoded = jwt.verify(token, JWT_SECRET) as AuthenticatedUser;
     
     req.user = decoded;

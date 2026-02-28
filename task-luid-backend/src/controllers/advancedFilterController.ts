@@ -3,7 +3,8 @@ import {
   validateFilterStructure,
   applyAdvancedFilter,
   convertLegacyFilter,
-  getFilterMetadata,
+  getFilterMetadata as getFilterMetadataService,
+  prisma,
 } from "../services/advancedFilter.service";
 import { AdvancedTaskFilter, FilterPaginationOptions } from "../types/filter.types";
 
@@ -125,7 +126,7 @@ export async function convertFilter(req: Request, res: Response): Promise<void> 
  * Get filter metadata including available fields, operators, and values
  * GET /api/tasks/filter-metadata
  */
-export async function getFilterMetadataHandler(req: Request, res: Response): Promise<void> {
+export async function getFilterMetadata(req: Request, res: Response): Promise<void> {
   try {
     const user = req.user;
     
@@ -137,7 +138,7 @@ export async function getFilterMetadataHandler(req: Request, res: Response): Pro
       return;
     }
 
-    const metadata = await getFilterMetadata(user.organizationId);
+    const metadata = await getFilterMetadataService(user.organizationId);
 
     res.json({
       success: true,
@@ -172,9 +173,6 @@ export async function applySavedView(req: Request, res: Response): Promise<void>
     const { options } = req.body as { options?: FilterPaginationOptions };
 
     // Fetch the saved view from database
-    const { PrismaClient } = require("@prisma/client");
-    const prisma = new PrismaClient();
-
     const savedView = await prisma.savedView.findFirst({
       where: {
         id: parseInt(viewId, 10),
@@ -245,6 +243,6 @@ export default {
   filterTasks,
   validateFilter,
   convertFilter,
-  getFilterMetadata: getFilterMetadataHandler,
+  getFilterMetadata,
   applySavedView,
 };
