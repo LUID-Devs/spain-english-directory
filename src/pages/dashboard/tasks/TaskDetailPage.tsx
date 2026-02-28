@@ -27,7 +27,6 @@ const TaskDetailPage = () => {
     }, 350);
 
     return () => {
-      setShowFallback(false);
       clearTimeout(timeout);
     };
   }, [id, isTaskModalOpen]);

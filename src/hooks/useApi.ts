@@ -406,14 +406,19 @@ export const useCreateTaskMutation = () => {
   const { tasks, setTasks } = useApiStore();
   
   const createTask = useCallback(async (taskData: any) => {
-    const newTask = await apiService.createTask(taskData);
-    
-    // Optimistically add new task to the list
-    if (tasks.data) {
-      setTasks([...tasks.data, newTask]);
+    try {
+      const newTask = await apiService.createTask(taskData);
+      
+      // Optimistically add new task to the list
+      if (tasks.data) {
+        setTasks([...tasks.data, newTask]);
+      }
+      
+      return newTask;
+    } catch (error) {
+      // No rollback needed since we didn't do optimistic update on error
+      throw error;
     }
-    
-    return newTask;
   }, [tasks.data, setTasks]);
 
   // Return the function that returns a mutation object with unwrap method

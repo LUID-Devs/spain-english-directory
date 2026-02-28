@@ -83,6 +83,15 @@ html {
     @apply bg-background text-foreground;
     /* Improve touch scrolling */
     -webkit-overflow-scrolling: touch;
+    /* Ensure body is always visible */
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  /* Ensure all sections are visible by default */
+  section {
+    visibility: visible !important;
+    opacity: 1 !important;
   }
 
   /* Prevent pull-to-refresh on mobile when scrolling within elements */
