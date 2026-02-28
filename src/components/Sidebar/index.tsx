@@ -33,11 +33,8 @@ import {
   Flag,
   TrendingUp,
   Plug,
-<<<<<<< HEAD
-  LayoutGrid
-=======
+  LayoutGrid,
   Library
->>>>>>> a26c717607dc8683acab4df6ccbd0e195737fad4
 } from "lucide-react";
 import InviteToWorkspaceModal from "@/components/InviteToWorkspaceModal";
 import { useLocation, Link } from "react-router-dom";
