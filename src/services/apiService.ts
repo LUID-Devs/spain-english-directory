@@ -1890,7 +1890,7 @@ class ApiService {
     });
   }
 
-  async updateAutomationRule(ruleId: number, updates: Partial<CreateAutomationRuleRequest>): Promise<{ success: boolean; data: AutomationRule }> {
+  async updateAutomationRule(ruleId: number, updates: Partial<AutomationRule>): Promise<{ success: boolean; data: AutomationRule }> {
     return this.request<{ success: boolean; data: AutomationRule }>(`/api/automation/rules/${ruleId}`, {
       method: 'PUT',
       body: JSON.stringify(updates),
@@ -2307,6 +2307,70 @@ class ApiService {
       method: 'POST',
       body: JSON.stringify({ options }),
     });
+  }
+
+  // ==================== VIEW SUBSCRIPTION METHODS ====================
+
+  /**
+   * Subscribe to a saved view
+   * POST /api/views/:viewId/subscribe
+   */
+  async subscribeToView(
+    viewId: number,
+    config?: Partial<ViewSubscriptionConfig>
+  ): Promise<SubscribeToViewResponse> {
+    return this.request<SubscribeToViewResponse>(`/api/views/${viewId}/subscribe`, {
+      method: 'POST',
+      body: JSON.stringify(config || {}),
+    });
+  }
+
+  /**
+   * Unsubscribe from a saved view
+   * DELETE /api/views/:viewId/unsubscribe
+   */
+  async unsubscribeFromView(viewId: number): Promise<{ success: boolean; message: string }> {
+    return this.request<{ success: boolean; message: string }>(`/api/views/${viewId}/unsubscribe`, {
+      method: 'DELETE',
+    });
+  }
+
+  /**
+   * Get current user's view subscriptions
+   * GET /api/views/subscriptions
+   */
+  async getMySubscriptions(): Promise<GetSubscriptionsResponse> {
+    return this.request<GetSubscriptionsResponse>('/api/views/subscriptions');
+  }
+
+  /**
+   * Update subscription settings
+   * PUT /api/subscriptions/:subscriptionId
+   */
+  async updateSubscriptionSettings(
+    subscriptionId: number,
+    updates: Partial<ViewSubscriptionConfig> & { isActive?: boolean }
+  ): Promise<UpdateSubscriptionResponse> {
+    return this.request<UpdateSubscriptionResponse>(`/api/subscriptions/${subscriptionId}`, {
+      method: 'PUT',
+      body: JSON.stringify(updates),
+    });
+  }
+
+  /**
+   * Check if user is subscribed to a view
+   * GET /api/views/:viewId/subscription-status
+   */
+  async getSubscriptionStatus(viewId: number): Promise<SubscriptionStatusResponse> {
+    return this.request<SubscriptionStatusResponse>(`/api/views/${viewId}/subscription-status`);
+  }
+
+  /**
+   * Get view subscribers (view owner only)
+   * GET /api/views/:viewId/subscribers
+   */
+  async getViewSubscribers(viewId: number): Promise<GetViewSubscribersResponse> {
+    return this.request<GetViewSubscribersResponse>(`/api/views/${viewId}/subscribers`);
   }
 }
 
@@ -3150,4 +3214,83 @@ export interface ApplyTemplateRequest {
   dueDate?: string;
   tags?: string[];
   customFields?: Record<string, any>;
+}
+
+// ==================== VIEW SUBSCRIPTION TYPES ====================
+
+export interface ViewSubscriptionConfig {
+  notifyOnCreate: boolean;
+  notifyOnUpdate: boolean;
+  notifyOnAssign: boolean;
+  notifyOnStatusChange: boolean;
+  emailNotifications: boolean;
+  inAppNotifications: boolean;
+  digestFrequency: 'immediate' | 'hourly' | 'daily';
+}
+
+export interface ViewSubscription {
+  id: number;
+  viewId: number;
+  userId: number;
+  organizationId: number;
+  notifyOnCreate: boolean;
+  notifyOnUpdate: boolean;
+  notifyOnAssign: boolean;
+  notifyOnStatusChange: boolean;
+  emailNotifications: boolean;
+  inAppNotifications: boolean;
+  digestFrequency: string;
+  lastDigestSentAt?: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  view?: {
+    id: number;
+    name: string;
+    projectId?: number;
+    isShared: boolean;
+  };
+}
+
+export interface SubscribeToViewResponse {
+  success: boolean;
+  subscription: ViewSubscription;
+  message: string;
+}
+
+export interface GetSubscriptionsResponse {
+  success: boolean;
+  subscriptions: ViewSubscription[];
+  count: number;
+}
+
+export interface UpdateSubscriptionResponse {
+  success: boolean;
+  subscription: ViewSubscription;
+  message: string;
+}
+
+export interface SubscriptionStatusResponse {
+  success: boolean;
+  isSubscribed: boolean;
+  subscription: ViewSubscription | null;
+}
+
+export interface ViewSubscriber {
+  subscriptionId: number;
+  userId: number;
+  username: string;
+  email: string;
+  notifyOnCreate: boolean;
+  notifyOnUpdate: boolean;
+  emailNotifications: boolean;
+  inAppNotifications: boolean;
+  isActive: boolean;
+  subscribedAt: string;
+}
+
+export interface GetViewSubscribersResponse {
+  success: boolean;
+  subscriptions: ViewSubscriber[];
+  count: number;
 }

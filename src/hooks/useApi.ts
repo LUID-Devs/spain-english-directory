@@ -706,7 +706,7 @@ export const useGetTeamsQuery = (params: any = undefined, options: { skip?: bool
           : apiService.request('/teams')),
         2500
       );
-      setTeams(teamsData);
+      setTeams(teamsData as any[]);
     } catch (error) {
       console.error('Failed to fetch teams:', error);
       setError('teams', error instanceof Error ? error.message : 'Failed to fetch teams');
@@ -2651,18 +2651,19 @@ export const useCheckDuplicatesMutation = () => {
 
 // ==================== ADVANCED FILTER HOOKS ====================
 
-import type { AdvancedTaskFilter, AdvancedFilterOptions, AdvancedFilterResponse, FilterMetadataResponse } from '@/services/apiService';
+import type { AdvancedTaskFilter, ApplyAdvancedFilterResponse, FilterMetadata } from '@/services/apiService';
+import type { FilterPaginationOptions } from '@/services/advancedFilterApi';
 
 export const useApplyAdvancedFilter = () => {
-  const [data, setData] = useState<AdvancedFilterResponse | null>(null);
+  const [data, setData] = useState<ApplyAdvancedFilterResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const applyFilter = useCallback(async (filter: AdvancedTaskFilter, options?: AdvancedFilterOptions) => {
+  const applyFilter = useCallback(async (filter: AdvancedTaskFilter, options?: FilterPaginationOptions) => {
     setIsLoading(true);
     setError(null);
     try {
-      const result = await apiService.applyAdvancedFilter(filter, options);
+      const result = await apiService.applyAdvancedFilter({ filter, options });
       setData(result);
       return result;
     } catch (err: any) {
@@ -2702,7 +2703,7 @@ export const useValidateAdvancedFilter = () => {
 };
 
 export const useGetFilterMetadata = (options: { skip?: boolean } = {}) => {
-  const [data, setData] = useState<FilterMetadataResponse | null>(null);
+  const [data, setData] = useState<{ success: boolean; metadata: FilterMetadata } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const hasFetchedRef = useRef(false);
@@ -2734,6 +2735,114 @@ export const useGetFilterMetadata = (options: { skip?: boolean } = {}) => {
   return { data, isLoading, error, refetch: fetchMetadata };
 };
 
+// ==================== VIEW SUBSCRIPTION HOOKS ====================
+
+export const useSubscribeToView = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const subscribe = useCallback(async (viewId: number, config?: any) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const result = await apiService.subscribeToView(viewId, config);
+      toast.success('Subscribed to view successfully');
+      return result;
+    } catch (err: any) {
+      const errorObj = err instanceof Error ? err : new Error(err?.message || 'Failed to subscribe');
+      setError(errorObj);
+      toast.error('Failed to subscribe to view');
+      throw errorObj;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  return { subscribe, isLoading, error };
+};
+
+export const useUnsubscribeFromView = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const unsubscribe = useCallback(async (viewId: number) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const result = await apiService.unsubscribeFromView(viewId);
+      toast.success('Unsubscribed from view successfully');
+      return result;
+    } catch (err: any) {
+      const errorObj = err instanceof Error ? err : new Error(err?.message || 'Failed to unsubscribe');
+      setError(errorObj);
+      toast.error('Failed to unsubscribe from view');
+      throw errorObj;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  return { unsubscribe, isLoading, error };
+};
+
+export const useGetMySubscriptions = (options: { skip?: boolean } = {}) => {
+  const [data, setData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const fetchSubscriptions = useCallback(async () => {
+    if (options.skip) return;
+    setIsLoading(true);
+    setError(null);
+    try {
+      const result = await apiService.getMySubscriptions();
+      setData(result);
+      return result;
+    } catch (err: any) {
+      const errorObj = err instanceof Error ? err : new Error(err?.message || 'Failed to fetch subscriptions');
+      setError(errorObj);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [options.skip]);
+
+  useEffect(() => {
+    fetchSubscriptions();
+  }, [fetchSubscriptions]);
+
+  return { data, isLoading, error, refetch: fetchSubscriptions };
+};
+
+export const useGetSubscriptionStatus = (viewId: number, options: { skip?: boolean } = {}) => {
+  const [data, setData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const fetchStatus = useCallback(async () => {
+    if (options.skip || !viewId) return;
+    setIsLoading(true);
+    setError(null);
+    try {
+      const result = await apiService.getSubscriptionStatus(viewId);
+      setData(result);
+      return result;
+    } catch (err: any) {
+      const errorObj = err instanceof Error ? err : new Error(err?.message || 'Failed to fetch subscription status');
+      setError(errorObj);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [viewId, options.skip]);
+
+  useEffect(() => {
+    fetchStatus();
+  }, [fetchStatus]);
+
+  return { data, isLoading, error, refetch: fetchStatus };
+};
+
 // Export types and enums
 export { Status, Priority, TaskType } from '@/services/apiService';
-export type { Task, Project, User, Comment, Attachment, UserWithStats, TaskStatus, SavedView, Goal, GoalTemplate, SearchSuggestion, GitLink, AsanaLink, TimeLog, TimeEstimate, ActiveTimer, TimeLogsResponse, ProjectTimeReport, AdvancedTaskFilter, AdvancedFilterOptions, AdvancedFilterResponse, FilterMetadataResponse } from '@/services/apiService';
+export type { Task, Project, User, Comment, Attachment, UserWithStats, TaskStatus, SavedView, Goal, GoalTemplate, SearchSuggestion, GitLink, AsanaLink, TimeLog, TimeEstimate, ActiveTimer, TimeLogsResponse, ProjectTimeReport, AdvancedTaskFilter } from '@/services/apiService';
+export type { FilterPaginationOptions } from '@/services/advancedFilterApi';
+export type { FilterMetadata as FilterMetadataResponse } from '@/services/apiService';

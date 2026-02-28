@@ -693,7 +693,7 @@ const NavbarSearch = forwardRef<NavbarSearchRef, NavbarSearchProps>(({
                               onTaskClick: handleTaskClick,
                             }}
                           >
-                            {TaskListRow}
+                            {TaskListRow as any}
                           </List>
                         </div>
                       )}

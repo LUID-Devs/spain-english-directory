@@ -44,6 +44,7 @@ interface AuthContextType {
   refreshAuth: () => Promise<void>;
   switchWorkspace: (organizationId: number) => Promise<void>;
   clearError: () => void;
+  getToken: () => Promise<string | null>;
 }
 
 const AuthContext = React.createContext<AuthContextType | null>(null);
@@ -370,6 +371,16 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const getToken = async (): Promise<string | null> => {
+    try {
+      const session = await fetchAuthSession();
+      return session?.tokens?.accessToken?.toString() || null;
+    } catch (error) {
+      console.error('[AUTH] Failed to get token:', error);
+      return null;
+    }
+  };
+
   const value: AuthContextType = {
     user,
     isAuthenticated: !!user,
@@ -382,6 +393,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     refreshAuth: checkAuthStatus,
     switchWorkspace,
     clearError,
+    getToken,
   };
 
   // Always render children - let individual pages handle auth requirements
