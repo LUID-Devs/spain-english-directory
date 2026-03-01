@@ -13,56 +13,73 @@ import {
   MessageSquare
 } from 'lucide-react';
 
-const features = [
+interface Feature {
+  icon: React.ElementType;
+  title: string;
+  description: string;
+  image: string;
+}
+
+const features: Feature[] = [
   {
     icon: Layout,
     title: 'Intuitive Task Management',
-    description: 'Organize tasks with drag-and-drop simplicity. Create projects, set priorities, and track progress in real-time.'
+    description: 'Organize tasks with drag-and-drop simplicity. Create projects, set priorities, and track progress in real-time.',
+    image: '/images/features/task-management.jpg'
   },
   {
     icon: Users,
     title: 'Team Collaboration',
-    description: 'Work together seamlessly. Assign tasks, share updates, and keep everyone aligned with built-in team features.'
+    description: 'Work together seamlessly. Assign tasks, share updates, and keep everyone aligned with built-in team features.',
+    image: '/images/features/collaboration.jpg'
   },
   {
     icon: Zap,
     title: 'AI-Powered Automation',
-    description: 'Let AI handle the routine. Auto-assign tasks, generate summaries, and get smart recommendations.'
+    description: 'Let AI handle the routine. Auto-assign tasks, generate summaries, and get smart recommendations.',
+    image: '/images/features/task-detail.jpg'
   },
   {
     icon: MessageSquare,
     title: 'Customer Conversation Intake',
-    description: 'Feed in calls, chats, and tickets. The AI agent extracts insights and creates actionable tasks.'
+    description: 'Feed in calls, chats, and tickets. The AI agent extracts insights and creates actionable tasks.',
+    image: '/images/features/dashboard.jpg'
   },
   {
     icon: Shield,
     title: 'Enterprise Security',
-    description: 'Your data is protected with bank-level encryption, SSO support, and compliance with SOC 2 standards.'
+    description: 'Your data is protected with bank-level encryption, SSO support, and compliance with SOC 2 standards.',
+    image: '/images/features/security.jpg'
   },
   {
     icon: BarChart3,
     title: 'Advanced Analytics',
-    description: 'Gain insights with detailed reports. Track productivity, identify bottlenecks, and optimize workflows.'
+    description: 'Gain insights with detailed reports. Track productivity, identify bottlenecks, and optimize workflows.',
+    image: '/images/features/analytics.jpg'
   },
   {
     icon: Calendar,
     title: 'Timeline & Scheduling',
-    description: 'Visualize project timelines with Gantt charts. Plan sprints, set milestones, and never miss a deadline.'
+    description: 'Visualize project timelines with Gantt charts. Plan sprints, set milestones, and never miss a deadline.',
+    image: '/images/features/timeline.jpg'
   },
   {
     icon: Bell,
     title: 'Smart Notifications',
-    description: 'Stay informed without the noise. Customizable alerts keep you updated on what matters most.'
+    description: 'Stay informed without the noise. Customizable alerts keep you updated on what matters most.',
+    image: '/images/features/notifications.jpg'
   },
   {
     icon: CheckCircle2,
     title: 'Goal Tracking',
-    description: 'Set and track OKRs. Connect daily tasks to big-picture objectives and measure success.'
+    description: 'Set and track OKRs. Connect daily tasks to big-picture objectives and measure success.',
+    image: '/images/features/dashboard.jpg'
   },
   {
     icon: MessageSquare,
     title: 'Access all Luid apps',
-    description: 'Unlock the full Luid Suite with one subscription across every product.'
+    description: 'Unlock the full Luid Suite with one subscription across every product.',
+    image: '/images/features/task-management.jpg'
   }
 ];
 
@@ -141,19 +158,35 @@ const FeaturesPage: React.FC = () => {
             </p>
           </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, index) => (
               <div 
                 key={index}
-                className="p-6 rounded-xl border border-neutral-800 bg-neutral-900/50 hover:bg-neutral-800/50 transition-all group"
+                className="group rounded-xl border border-neutral-800 bg-neutral-900/50 hover:bg-neutral-800/50 transition-all overflow-hidden"
               >
-                <div className="w-12 h-12 rounded-lg bg-neutral-800 flex items-center justify-center mb-4 group-hover:bg-neutral-700 transition-colors">
-                  <feature.icon className="w-6 h-6 text-gray-400" />
+                {/* Feature Image */}
+                <div className="relative h-48 overflow-hidden">
+                  <img 
+                    src={feature.image} 
+                    alt={feature.title}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-neutral-900/80 via-neutral-900/20 to-transparent" />
+                  <div className="absolute bottom-4 left-4">
+                    <div className="w-10 h-10 rounded-lg bg-neutral-800/90 backdrop-blur-sm flex items-center justify-center border border-neutral-700">
+                      <feature.icon className="w-5 h-5 text-gray-400" />
+                    </div>
+                  </div>
                 </div>
-                <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
-                <p className="text-sm text-neutral-400 leading-relaxed">
-                  {feature.description}
-                </p>
+                
+                {/* Feature Content */}
+                <div className="p-6">
+                  <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
+                  <p className="text-sm text-neutral-400 leading-relaxed">
+                    {feature.description}
+                  </p>
+                </div>
               </div>
             ))}
           </div>
