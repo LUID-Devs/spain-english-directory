@@ -1822,6 +1822,7 @@ class ApiService {
     threshold: number;
   }> {
     return this.request<{
+
       hasDuplicates: boolean;
       count: number;
       duplicates: Array<{
@@ -2725,7 +2726,7 @@ class ApiService {
    * Revoke external access to a task
    * DELETE /api/tasks/:taskId/share/:externalUserId
    */
-  async revokeTaskShare(taskId: number, externalUserId: number): Promise<{ success: boolean; error?: string }> {
+  async revokeTaskExternalShare(taskId: number, externalUserId: number): Promise<{ success: boolean; error?: string }> {
     return this.request<{ success: boolean; error?: string }>(`/api/tasks/${taskId}/share/${externalUserId}`, {
       method: 'DELETE',
     });
@@ -3220,6 +3221,7 @@ export interface TimeLog {
   startedAt: string;
   endedAt?: string;
   durationMinutes?: number;
+
   durationFormatted?: string;
   description?: string;
   isRunning: boolean;
@@ -3837,7 +3839,6 @@ export interface TaskVisibilityInfo {
     isActive: boolean;
   }[];
 }
-
 // ==================== TIME IN STATUS TYPES ====================
 
 export interface TaskStatusHistory {

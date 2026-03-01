@@ -20,6 +20,7 @@ import {
 import { useSearchParams } from 'react-router-dom';
 import { useSharedTask } from '../hooks/useTaskShare';
 import { formatDate } from '../utils/dateUtils';
+import { sanitizeHtmlContent } from '@/lib/utils';
 
 export const SharedTaskView: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -157,7 +158,7 @@ export const SharedTaskView: React.FC = () => {
                 whiteSpace: 'pre-wrap',
                 '& p': { margin: 0 },
               }}
-              dangerouslySetInnerHTML={{ __html: task.description }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtmlContent(task.description) }}
             />
           </>
         )}
