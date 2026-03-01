@@ -23,10 +23,29 @@ import {
   Award,
   Menu,
   X,
+  ChevronUp,
+  ChevronDown,
+  ArrowRight,
+  Mail,
 } from 'lucide-react';
 
 const LandingPage = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
+  const [email, setEmail] = useState('');
+  const [newsletterStatus, setNewsletterStatus] = useState<'idle' | 'success'>('idle');
+
+  const toggleFaq = (index: number) => {
+    setOpenFaqIndex(openFaqIndex === index ? null : index);
+  };
+
+  const handleNewsletterSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (email) {
+      setNewsletterStatus('success');
+      setEmail('');
+    }
+  };
 
   const trackPricingClick = () => {
     if (typeof window === 'undefined') return;
@@ -132,6 +151,29 @@ const LandingPage = () => {
   ];
 
   const socialProof = ['Solo freelancers', 'Consultants', 'Agencies', 'Creators', 'Indie builders'];
+
+  const faqItems = [
+    {
+      question: 'Is TaskLuid free to use?',
+      answer: 'Yes! TaskLuid offers a free forever plan with unlimited projects, tasks, and up to 3 team members. You only pay when you need more features like unlimited team members, more storage, or AI credits.'
+    },
+    {
+      question: 'Can I self-host TaskLuid?',
+      answer: 'Yes, TaskLuid is open-source and MIT licensed. You can run it on your own infrastructure with full control over your data.'
+    },
+    {
+      question: 'How does the AI task parsing work?',
+      answer: 'Simply paste messy notes, emails, or meeting transcripts into TaskLuid. Our AI will automatically convert them into structured, actionable tasks with titles, descriptions, and priorities.'
+    },
+    {
+      question: 'What are AI credits?',
+      answer: 'AI credits are used for AI-powered features like task parsing, resume optimization, and file conversion. The free plan includes 10 credits/month, while Pro includes 500 credits/month.'
+    },
+    {
+      question: 'Can I export my data?',
+      answer: 'Absolutely. Your data belongs to you. You can export your projects and tasks at any time in standard formats.'
+    },
+  ];
 
   const productScreenshots = [
     {
@@ -1015,6 +1057,91 @@ const LandingPage = () => {
               Explore the Luid Suite
             </Link>
           </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="px-4 py-16 border-t border-neutral-900 bg-gradient-to-b from-black via-neutral-950/30 to-black">
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neutral-900/80 border border-neutral-800 mb-4">
+              <MessageCircle className="w-4 h-4 text-indigo-400" />
+              <span className="text-sm text-neutral-300">Got questions?</span>
+            </div>
+            <h2 className="text-3xl font-semibold mb-2">Frequently Asked Questions</h2>
+            <p className="text-sm text-neutral-500">Everything you need to know about TaskLuid</p>
+          </div>
+          <div className="space-y-3">
+            {faqItems.map((item, idx) => (
+              <div
+                key={idx}
+                className="rounded-xl border border-neutral-800 bg-neutral-900/50 overflow-hidden"
+              >
+                <button
+                  onClick={() => toggleFaq(idx)}
+                  className="w-full flex items-center justify-between p-5 text-left hover:bg-neutral-900/70 transition-colors"
+                >
+                  <span className="font-medium text-white">{item.question}</span>
+                  {openFaqIndex === idx ? (
+                    <ChevronUp className="w-5 h-5 text-neutral-400 flex-shrink-0" />
+                  ) : (
+                    <ChevronDown className="w-5 h-5 text-neutral-400 flex-shrink-0" />
+                  )}
+                </button>
+                {openFaqIndex === idx && (
+                  <div className="px-5 pb-5">
+                    <p className="text-sm text-neutral-400 leading-relaxed">{item.answer}</p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+          <div className="mt-8 text-center">
+            <p className="text-sm text-neutral-500 mb-3">Still have questions?</p>
+            <Link
+              to="/help"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border border-neutral-700 text-neutral-300 hover:bg-neutral-900 transition-all"
+            >
+              Visit Help Center
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Newsletter Section */}
+      <section className="px-4 py-16 border-t border-neutral-900">
+        <div className="max-w-2xl mx-auto text-center">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 mb-4">
+            <Mail className="w-4 h-4 text-indigo-400" />
+            <span className="text-sm text-indigo-300">Stay in the loop</span>
+          </div>
+          <h2 className="text-2xl md:text-3xl font-semibold mb-3">Get productivity tips & updates</h2>
+          <p className="text-sm text-neutral-500 mb-6 max-w-lg mx-auto">
+            Join our newsletter for weekly tips on freelancing, productivity hacks, and new feature announcements. No spam, unsubscribe anytime.
+          </p>
+          <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email"
+              className="flex-1 px-4 py-3 rounded-lg bg-neutral-900 border border-neutral-800 text-white placeholder:text-neutral-500 focus:outline-none focus:border-indigo-500/50 transition-colors"
+              required
+            />
+            <button
+              type="submit"
+              className="px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-medium rounded-lg hover:from-indigo-600 hover:to-purple-600 transition-all duration-300 whitespace-nowrap"
+            >
+              {newsletterStatus === 'success' ? 'Subscribed!' : 'Subscribe'}
+            </button>
+          </form>
+          {newsletterStatus === 'success' && (
+            <p className="mt-3 text-sm text-emerald-400">Thanks for subscribing! Check your inbox soon.</p>
+          )}
+          <p className="mt-4 text-xs text-neutral-600">
+            By subscribing, you agree to our Privacy Policy. We respect your inbox.
+          </p>
         </div>
       </section>
 

@@ -363,13 +363,15 @@ export interface Task {
   triaged?: boolean;
   createdAt?: string;
   updatedAt?: string;
-  
-  // Nested sub-issues hierarchy (Task #656)
+
+  // Nested sub-issues hierarchy (Task #656 + TASK-781)
   parentTaskId?: number | null;
+  parentId?: number | null; // Alias for compatibility
   subTasks?: Task[];
   subTaskCount?: number;
   depth?: number;
   isExpanded?: boolean;
+  displayOrder?: number;
 
   author?: User;
   assignee?: User;
@@ -380,6 +382,55 @@ export interface Task {
   };
   comments?: Comment[];
   attachments?: Attachment[];
+  // Nested sub-issues relations
+  parent?: {
+    id: number;
+    title: string;
+    status?: string;
+  } | null;
+  children?: SubIssue[];
+  _count?: {
+    children?: number;
+  };
+}
+
+// Sub-issue (child task) interface
+export interface SubIssue {
+  id: number;
+  title: string;
+  status?: string;
+  priority?: string;
+  assignedUserId?: number;
+  depth?: number;
+  displayOrder?: number;
+  assignee?: {
+    userId: number;
+    username: string;
+    profilePictureUrl?: string;
+  };
+  _count?: {
+    children?: number;
+  };
+  children?: SubIssue[];
+}
+
+// Sub-issues API response
+export interface SubIssuesResponse {
+  taskId: number;
+  count: number;
+  subIssues: SubIssue[];
+}
+
+// Breadcrumb item
+export interface BreadcrumbItem {
+  id: number;
+  title: string;
+}
+
+// Task breadcrumb response
+export interface TaskBreadcrumbResponse {
+  taskId: number;
+  breadcrumb: BreadcrumbItem[];
 }
 
 export interface TaskShareInfo {
@@ -1434,6 +1485,61 @@ class ApiService {
     });
     if (type) params.append('type', type);
     return this.request<{ suggestions: SearchSuggestion[] }>(`/search/suggestions?${params.toString()}`, {
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    });
+  }
+
+  // TASK-781: Hybrid Semantic Search - combines AI vector similarity with keyword matching
+  async hybridSemanticSearch(params: {
+    query: string;
+    projectId?: number;
+    status?: string;
+    priority?: string;
+    assigneeId?: number;
+    authorId?: number;
+    limit?: number;
+    semanticThreshold?: number;
+    semanticWeight?: number;
+    includeArchived?: boolean;
+  }): Promise<{
+    query: string;
+    results: Array<{
+      task: Task;
+      semanticScore: number;
+      keywordScore: number;
+      hybridScore: number;
+      matches: {
+        title?: { score: number; matched: boolean };
+        description?: { score: number; matched: boolean };
+        tags?: { score: number; matched: boolean };
+      };
+      matchReason: 'semantic' | 'keyword' | 'hybrid';
+    }>;
+    totalCount: number;
+    usedSemanticSearch: boolean;
+    embeddingTimeMs: number;
+    searchTimeMs: number;
+    fromCache: boolean;
+  }> {
+    const queryParams = new URLSearchParams();
+    queryParams.append('query', params.query);
+    queryParams.append('_t', Date.now().toString()); // Cache busting
+    
+    if (params.projectId) queryParams.append('projectId', params.projectId.toString());
+    if (params.status) queryParams.append('status', params.status);
+    if (params.priority) queryParams.append('priority', params.priority);
+    if (params.assigneeId) queryParams.append('assigneeId', params.assigneeId.toString());
+    if (params.authorId) queryParams.append('authorId', params.authorId.toString());
+    if (params.limit) queryParams.append('limit', params.limit.toString());
+    if (params.semanticThreshold) queryParams.append('semanticThreshold', params.semanticThreshold.toString());
+    if (params.semanticWeight) queryParams.append('semanticWeight', params.semanticWeight.toString());
+    if (params.includeArchived) queryParams.append('includeArchived', 'true');
+    
+    return this.request(`/search/hybrid?${queryParams.toString()}`, {
       headers: {
         'Cache-Control': 'no-cache, no-store, must-revalidate',
         'Pragma': 'no-cache',
@@ -2569,6 +2675,67 @@ class ApiService {
    */
   async getViewSubscribers(viewId: number): Promise<GetViewSubscribersResponse> {
     return this.request<GetViewSubscribersResponse>(`/api/views/${viewId}/subscribers`);
+  }
+
+  // ==================== NESTED SUB-ISSUES API ====================
+
+  /**
+   * Get all sub-issues for a task
+   * GET /api/tasks/:taskId/sub-issues
+   */
+  async getSubIssues(taskId: number): Promise<SubIssuesResponse> {
+    return this.request<SubIssuesResponse>(`/api/tasks/${taskId}/sub-issues`);
+  }
+
+  /**
+   * Create a new sub-issue for a task
+   * POST /api/tasks/:taskId/sub-issues
+   */
+  async createSubIssue(taskId: number, data: Partial<Task>): Promise<{ message: string; subIssue: Task }> {
+    return this.request<{ message: string; subIssue: Task }>(`/api/tasks/${taskId}/sub-issues`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  /**
+   * Move a task to a new parent (or make it top-level)
+   * PUT /api/tasks/:taskId/move
+   */
+  async moveTask(taskId: number, parentId: number | null, displayOrder?: number): Promise<{ message: string; task: Task }> {
+    return this.request<{ message: string; task: Task }>(`/api/tasks/${taskId}/move`, {
+      method: 'PUT',
+      body: JSON.stringify({ parentId, displayOrder }),
+    });
+  }
+
+  /**
+   * Reorder sub-issues (drag and drop)
+   * POST /api/tasks/reorder
+   */
+  async reorderSubIssues(reorderings: { taskId: number; displayOrder: number }[]): Promise<{ message: string; count: number }> {
+    return this.request<{ message: string; count: number }>('/api/tasks/reorder', {
+      method: 'POST',
+      body: JSON.stringify({ reorderings }),
+    });
+  }
+
+  /**
+   * Get breadcrumb path from root to task
+   * GET /api/tasks/:taskId/breadcrumb
+   */
+  async getTaskBreadcrumb(taskId: number): Promise<TaskBreadcrumbResponse> {
+    return this.request<TaskBreadcrumbResponse>(`/api/tasks/${taskId}/breadcrumb`);
+  }
+
+  /**
+   * Convert a sub-issue to a top-level task
+   * POST /api/tasks/:taskId/convert-to-top-level
+   */
+  async convertToTopLevel(taskId: number): Promise<{ message: string; taskId: number }> {
+    return this.request<{ message: string; taskId: number }>(`/api/tasks/${taskId}/convert-to-top-level`, {
+      method: 'POST',
+    });
   }
 }
 
