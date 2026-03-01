@@ -14,6 +14,11 @@ interface AIModelPreferences {
   // Auto mode settings
   autoModeEnabled: boolean;
   preferredFallbackModel: AIModel;
+  // Show cost estimates
+  showCostEstimates: boolean;
+  // Usage tracking (session-based)
+  sessionTokensUsed: number;
+  sessionCostEstimate: number;
 }
 
 interface AIModelState extends AIModelPreferences {
@@ -23,10 +28,15 @@ interface AIModelState extends AIModelPreferences {
   setChatModel: (chatId: string, model: AIModel) => void;
   getEffectiveModel: (workspaceId?: number, chatId?: string) => AIModel;
   toggleModelIndicator: () => void;
+  toggleCostEstimates: () => void;
   setPreferredFallbackModel: (model: AIModel) => void;
   resetWorkspaceModel: (workspaceId: number) => void;
   resetChatModel: (chatId: string) => void;
   resetAllPreferences: () => void;
+  // Usage tracking
+  addUsage: (tokens: number, model?: AIModel) => void;
+  resetUsage: () => void;
+  getModelForTask: (taskType: string) => AIModel;
 }
 
 const initialPreferences: AIModelPreferences = {
@@ -35,7 +45,10 @@ const initialPreferences: AIModelPreferences = {
   chatModels: {},
   showModelIndicator: true,
   autoModeEnabled: true,
-  preferredFallbackModel: 'gpt-4o',
+  preferredFallbackModel: 'claude-3.5-sonnet',
+  showCostEstimates: true,
+  sessionTokensUsed: 0,
+  sessionCostEstimate: 0,
 };
 
 export const useAIModelStore = create<AIModelState>()(
@@ -80,9 +93,35 @@ export const useAIModelStore = create<AIModelState>()(
         return state.defaultModel;
       },
 
+      getModelForTask: (taskType) => {
+        const { defaultModel, autoModeEnabled } = get();
+        
+        if (autoModeEnabled && (defaultModel === 'auto' || !defaultModel)) {
+          const taskModelMap: Record<string, AIModel> = {
+            'code': 'gpt-4.1',
+            'coding': 'gpt-4.1',
+            'technical': 'gpt-4.1',
+            'writing': 'claude-3.5-sonnet',
+            'analysis': 'claude-3-opus',
+            'research': 'gemini-1.5-pro',
+            'reasoning': 'gemini-1.5-pro',
+            'general': 'claude-3.5-sonnet',
+          };
+          return taskModelMap[taskType.toLowerCase()] || 'claude-3.5-sonnet';
+        }
+        
+        return defaultModel;
+      },
+
       toggleModelIndicator: () => {
         set((state) => ({
           showModelIndicator: !state.showModelIndicator,
+        }));
+      },
+
+      toggleCostEstimates: () => {
+        set((state) => ({
+          showCostEstimates: !state.showCostEstimates,
         }));
       },
 
@@ -107,6 +146,30 @@ export const useAIModelStore = create<AIModelState>()(
       resetAllPreferences: () => {
         set(initialPreferences);
       },
+
+      addUsage: (tokens, model) => {
+        const { defaultModel, sessionTokensUsed, sessionCostEstimate } = get();
+        const modelUsed = model || defaultModel;
+        
+        let costPer1K = 0;
+        if (modelUsed !== 'auto') {
+          const config = getModelConfig(modelUsed);
+          costPer1K = config.costPer1KTokens || 0;
+        }
+        const cost = (tokens / 1000) * costPer1K;
+
+        set({
+          sessionTokensUsed: sessionTokensUsed + tokens,
+          sessionCostEstimate: sessionCostEstimate + cost,
+        });
+      },
+
+      resetUsage: () => {
+        set({
+          sessionTokensUsed: 0,
+          sessionCostEstimate: 0,
+        });
+      },
     }),
     {
       name: 'ai-model-preferences',
@@ -117,6 +180,8 @@ export const useAIModelStore = create<AIModelState>()(
         showModelIndicator: state.showModelIndicator,
         autoModeEnabled: state.autoModeEnabled,
         preferredFallbackModel: state.preferredFallbackModel,
+        showCostEstimates: state.showCostEstimates,
+        // Don't persist usage stats - they reset on session
       }),
     }
   )

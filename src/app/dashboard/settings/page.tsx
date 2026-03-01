@@ -700,6 +700,9 @@ const SettingsPage = () => {
         </CardContent>
       </Card>
 
+      {/* AI Settings Section */}
+      <AIModelSelector />
+
       {/* Workspace Settings */}
       <Card>
         <CardHeader className="p-4 sm:p-6">

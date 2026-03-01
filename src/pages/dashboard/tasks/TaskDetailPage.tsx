@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Calendar, Clock, Flag, Tag, User, Timer, Play, History } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, Flag, Tag, User, Timer, Play, History, Share2, Copy, ExternalLink, ShieldCheck, Loader2 } from 'lucide-react';
 import {
   useGetTaskQuery,
   useGetTimeLogsQuery,
@@ -13,9 +13,19 @@ import {
   TimeLog,
 } from '@/hooks/useApi';
 import { useTaskModal } from '@/contexts/TaskModalContext';
+import { apiService, type TaskShareInfo } from '@/services/apiService';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import AttachmentsSection from '@/components/AttachmentsSection';
 import CommentsSection from '@/components/CommentsSection';
 import { TimeTrackingSection } from '@/components/TimeTracking';
@@ -29,49 +39,19 @@ const TaskDetailPage = () => {
   const navigate = useNavigate();
   const { isTaskModalOpen } = useTaskModal();
   const [showFallback, setShowFallback] = useState(false);
-  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+
+  // Share dialog state
+  const [isShareOpen, setIsShareOpen] = useState(false);
+  const [shareData, setShareData] = useState<TaskShareInfo | null>(null);
+  const [shareLoading, setShareLoading] = useState(false);
+  const [shareError, setShareError] = useState<string | null>(null);
+  const [shareAllowComments, setShareAllowComments] = useState(false);
+  const [shareRequirePassword, setShareRequirePassword] = useState(false);
+  const [sharePassword, setSharePassword] = useState('');
+  const [inviteEmails, setInviteEmails] = useState('');
 
   const taskId = Number(id);
   const isValidTaskId = Boolean(id) && !Number.isNaN(taskId);
-
-  // Time tracking hooks
-  const { data: timeLogsData, refetch: refetchTimeLogs } = useGetTimeLogsQuery(
-    isValidTaskId ? taskId : undefined,
-    { skip: !isValidTaskId }
-  );
-  const { data: timeEstimateData, refetch: refetchTimeEstimate } = useGetTimeEstimateQuery(
-    isValidTaskId ? taskId : undefined,
-    { skip: !isValidTaskId }
-  );
-  const { data: activeTimerData, refetch: refetchActiveTimer } = useGetActiveTimerQuery({
-    skip: !isValidTaskId,
-  });
-  const [startTimer] = useStartTimerMutation();
-  const [stopTimer] = useStopTimerMutation();
-  const [setTimeEstimate] = useSetTimeEstimateMutation();
-  const [updateTimeLog] = useUpdateTimeLogMutation();
-
-  // Check if timer is running for this task
-  const isTimerRunningForThisTask = activeTimerData?.timer?.taskId === taskId;
-  const activeTimeLogId = activeTimerData?.timer?.id;
-
-  // Calculate elapsed time for running timer
-  useEffect(() => {
-    if (!isTimerRunningForThisTask || !activeTimerData?.timer?.startedAt) {
-      setElapsedSeconds(0);
-      return;
-    }
-
-    const startedAt = new Date(activeTimerData.timer.startedAt).getTime();
-    const updateElapsed = () => {
-      const now = Date.now();
-      setElapsedSeconds(Math.floor((now - startedAt) / 1000));
-    };
-
-    updateElapsed();
-    const interval = setInterval(updateElapsed, 1000);
-    return () => clearInterval(interval);
-  }, [isTimerRunningForThisTask, activeTimerData?.timer?.startedAt]);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -83,121 +63,112 @@ const TaskDetailPage = () => {
     };
   }, [id, isTaskModalOpen]);
 
-  const { data: task, isLoading, error } = useGetTaskQuery(taskId, {
+  const { data: task, isLoading, error, refetch } = useGetTaskQuery(taskId, {
     skip: !isValidTaskId || !showFallback,
   });
 
-  // Helper to format minutes as "HH:MM" string for API
-  const formatMinutesToEstimate = (minutes: number): string => {
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
-  };
+  const isPrivateTask = task?.project?.visibility
+    ? task.project.visibility === 'private'
+    : true;
 
-  const getTimeLogDurationSeconds = (log: TimeLog): number => {
-    const startMs = new Date(log.startedAt).getTime();
-    const endMs = log.endedAt ? new Date(log.endedAt).getTime() : null;
-
-    if (!Number.isNaN(startMs) && endMs && !Number.isNaN(endMs) && endMs >= startMs) {
-      return Math.floor((endMs - startMs) / 1000);
-    }
-
-    if (typeof log.durationMinutes === 'number') {
-      return Math.round(log.durationMinutes * 60);
-    }
-
-    return 0;
-  };
-
-  const getTimeLogUserName = (log: TimeLog): string => {
-    const username = log.user?.username?.trim() || '';
-    const looksLikeToken = /^[0-9a-f-]{16,}$/i.test(username);
-    if (username && !looksLikeToken) {
-      return username;
-    }
-
-    const email = log.user?.email?.trim();
-    if (email) {
-      return email;
-    }
-
-    const fallbackId = log.user?.userId ?? log.userId;
-    if (typeof fallbackId === 'number') {
-      return `User ${fallbackId}`;
-    }
-
-    return username || 'Unknown';
-  };
-
-  // Time tracking handlers
-  const handleStartTimer = useCallback(async () => {
+  // Load share info
+  const loadShareInfo = useCallback(async () => {
+    if (!taskId) return;
+    setShareLoading(true);
+    setShareError(null);
     try {
-      await startTimer({ taskId }).unwrap();
-      await refetchTimeLogs();
-      await refetchActiveTimer();
-      toast.success('Timer started!');
+      const data = await apiService.getTaskShare(taskId);
+      setShareData(data);
+      setShareAllowComments(data.allowComments);
+      setShareRequirePassword(data.requirePassword);
     } catch (error) {
-      console.error('Failed to start timer:', error);
-    }
-  }, [startTimer, taskId, refetchTimeLogs, refetchActiveTimer]);
-
-  const handleStopTimer = useCallback(async (description: string) => {
-    if (!activeTimeLogId) return;
-    try {
-      await stopTimer(activeTimeLogId).unwrap();
-      if (description.trim()) {
-        try {
-          await updateTimeLog({ logId: activeTimeLogId, description: description.trim() }).unwrap();
-        } catch (updateError) {
-          console.warn('Failed to update time log description:', updateError);
-        }
-      }
-      toast.success('Timer stopped!');
-    } catch (error) {
-      console.error('Failed to stop timer:', error);
+      // No existing share - that's ok
+      setShareData(null);
     } finally {
-      await Promise.allSettled([refetchTimeLogs(), refetchTimeEstimate(), refetchActiveTimer()]);
+      setShareLoading(false);
     }
-  }, [stopTimer, activeTimeLogId, updateTimeLog, refetchTimeLogs, refetchTimeEstimate, refetchActiveTimer]);
+  }, [taskId]);
 
-  const handleUpdateEstimate = useCallback(async (minutes: number) => {
-    try {
-      await setTimeEstimate({ taskId, estimate: formatMinutesToEstimate(minutes) }).unwrap();
-      await refetchTimeEstimate();
-      toast.success('Time estimate updated!');
-    } catch (error) {
-      console.error('Failed to set time estimate:', error);
-    }
-  }, [setTimeEstimate, taskId, refetchTimeEstimate]);
-
-  const handleDeleteTimeLog = useCallback(async () => {
-    toast.info('Delete time log - not yet implemented');
-  }, []);
-
-  // Keyboard shortcut for timer (Space key)
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key !== ' ') return;
+    if (isShareOpen) {
+      loadShareInfo();
+    }
+  }, [isShareOpen, loadShareInfo]);
 
-      const target = e.target as HTMLElement;
-      const isTyping =
-        target.tagName === 'INPUT' ||
-        target.tagName === 'TEXTAREA' ||
-        target.isContentEditable;
+  const handleCreateOrUpdateShare = async () => {
+    setShareLoading(true);
+    setShareError(null);
 
-      if (isTyping) return;
+    try {
+      const payload: {
+        allowComments?: boolean;
+        requirePassword?: boolean;
+        password?: string;
+      } = {
+        allowComments: shareAllowComments,
+        requirePassword: shareRequirePassword,
+      };
 
-      e.preventDefault();
-      if (isTimerRunningForThisTask) {
-        handleStopTimer('');
-      } else {
-        handleStartTimer();
+      if (shareRequirePassword) {
+        const trimmed = sharePassword.trim();
+        if (trimmed.length < 6) {
+          setShareError('Password must be at least 6 characters');
+          setShareLoading(false);
+          return;
+        }
+        payload.password = trimmed;
       }
-    };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isTimerRunningForThisTask, handleStartTimer, handleStopTimer]);
+      const data = await apiService.createTaskShare(taskId, payload);
+      setShareData(data);
+      setSharePassword('');
+      toast.success(shareData ? 'Share link updated' : 'Share link created');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to create share link';
+      setShareError(message);
+    } finally {
+      setShareLoading(false);
+    }
+  };
+
+  const handleRevokeShare = async () => {
+    if (!shareData) return;
+    setShareLoading(true);
+    setShareError(null);
+
+    try {
+      await apiService.revokeTaskShare(taskId);
+      setShareData(null);
+      setShareAllowComments(false);
+      setShareRequirePassword(false);
+      setSharePassword('');
+      toast.success('Share link revoked');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to revoke share link';
+      setShareError(message);
+    } finally {
+      setShareLoading(false);
+    }
+  };
+
+  const handleCopyShareLink = useCallback(() => {
+    if (!shareData?.shareUrl) return;
+    navigator.clipboard.writeText(shareData.shareUrl);
+    toast.success('Share link copied to clipboard');
+  }, [shareData?.shareUrl]);
+
+  const handleInviteExternal = useCallback(() => {
+    if (!shareData?.shareUrl || !inviteEmails.trim()) {
+      toast.error('Please create a share link and enter email addresses');
+      return;
+    }
+    const subject = encodeURIComponent(`Shared Task: ${task?.title || 'Task'}`);
+    const body = encodeURIComponent(
+      `Hi,\n\nI've shared a task with you:\n\n${shareData.shareUrl}\n\nBest regards`
+    );
+    window.open(`mailto:${inviteEmails.trim()}?subject=${subject}&body=${body}`);
+    toast.success('Email client opened');
+  }, [shareData?.shareUrl, inviteEmails, task?.title]);
 
   const formattedDates = useMemo(() => {
     const formatDate = (value?: string | null) => {
@@ -277,80 +248,59 @@ const TaskDetailPage = () => {
 
   return (
     <div className="space-y-6">
+      {/* Shared banner - shows when task is shared externally */}
+      {shareData && (
+        <div className="rounded-lg border border-amber-300/60 bg-amber-50 dark:bg-amber-950/30 px-4 py-3 text-sm text-amber-800 dark:text-amber-200 flex items-start gap-3">
+          <ShieldCheck className="h-5 w-5 mt-0.5 shrink-0" />
+          <div className="flex-1">
+            <p className="font-medium">This issue is shared externally</p>
+            <p className="text-xs mt-0.5">
+              External guests can view this {isPrivateTask ? 'private team ' : ''}issue via the share link.
+              {shareData.requirePassword && ' Password protection is enabled.'}
+              {shareData.allowComments && ' External comments are allowed.'}
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="shrink-0"
+            onClick={() => setIsShareOpen(true)}
+          >
+            Manage
+          </Button>
+        </div>
+      )}
+
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
           <p className="text-xs text-muted-foreground">Task #{taskId}</p>
           <h1 className="text-2xl font-semibold">{task.title || 'Untitled task'}</h1>
           <p className="text-sm text-muted-foreground">{projectName}</p>
         </div>
-        <Button variant="outline" size="sm" onClick={() => navigate('/dashboard/tasks')}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to tasks
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsShareOpen(true)}
+            className="gap-1"
+          >
+            <Share2 className="h-4 w-4" />
+            Share
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => navigate('/dashboard/tasks')}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to tasks
+          </Button>
+        </div>
       </div>
 
       <div className="flex flex-wrap gap-2">
         {task.status && <Badge>{task.status}</Badge>}
         {task.priority && <Badge variant="secondary">{task.priority}</Badge>}
         {task.taskType && <Badge variant="outline">{task.taskType}</Badge>}
-        {isTimerRunningForThisTask && (
-          <Badge variant="default" className="bg-amber-500 hover:bg-amber-600 gap-1">
-            <Timer className="h-3 w-3 animate-pulse" />
-            Tracking Time
-          </Badge>
-        )}
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        {/* Time Tracking Card */}
-        <Card className="md:col-span-2">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm flex items-center gap-2">
-              <Timer className="h-4 w-4" /> Time Tracking
-              {isTimerRunningForThisTask && (
-                <Badge variant="default" className="bg-amber-500 text-[10px] ml-2">
-                  <Play className="h-2 w-2 mr-1" />
-                  Running
-                </Badge>
-              )}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <TimeTrackingSection
-              taskId={taskId}
-              timeEstimate={timeEstimateData?.estimatedMinutes}
-              timeLogs={timeLogsData?.logs.map((log) => ({
-                id: log.id,
-                taskId: log.taskId,
-                userId: log.userId,
-                userName: getTimeLogUserName(log),
-                userAvatar: log.user?.profilePictureUrl,
-                duration: getTimeLogDurationSeconds(log),
-                description: log.description,
-                startedAt: log.startedAt,
-                endedAt: log.endedAt || log.startedAt,
-                createdAt: log.createdAt,
-              })) || []}
-              isTimerRunning={isTimerRunningForThisTask}
-              currentElapsedTime={elapsedSeconds}
-              onStartTimer={handleStartTimer}
-              onStopTimer={handleStopTimer}
-              onUpdateEstimate={handleUpdateEstimate}
-              onDeleteTimeLog={handleDeleteTimeLog}
-            />
-            <div className="mt-4 pt-4 border-t border-border">
-              <ManualTimeEntryForm
-                taskId={taskId}
-                taskTitle={task.title || 'Task'}
-                onSubmit={async (data) => {
-                  toast.info('Manual time entry: ' + data.duration);
-                  await refetchTimeLogs();
-                }}
-              />
-            </div>
-          </CardContent>
-        </Card>
-
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm flex items-center gap-2">
@@ -456,6 +406,137 @@ const TaskDetailPage = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Share Dialog */}
+      <Dialog
+        open={isShareOpen}
+        onOpenChange={(open) => {
+          setIsShareOpen(open);
+          if (open) {
+            loadShareInfo();
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Share2 className="h-5 w-5" />
+              Share issue
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Invite external guests to view this {isPrivateTask ? 'private team ' : ''}issue.
+            </p>
+
+            {/* External access notice */}
+            <div className="rounded-lg border border-amber-300/60 bg-amber-50 dark:bg-amber-950/30 px-4 py-3 text-sm text-amber-800 dark:text-amber-200 flex items-start gap-2">
+              <ShieldCheck className="h-4 w-4 mt-0.5 shrink-0" />
+              <div>
+                <p className="font-medium">External access</p>
+                <p className="text-xs">Anyone with the link can view this issue. The link can be revoked at any time.</p>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between rounded-md border px-3 py-2">
+              <div className="space-y-0.5">
+                <Label className="text-sm">Allow external comments</Label>
+                <p className="text-xs text-muted-foreground">
+                  Guests can comment on the shared issue.
+                </p>
+              </div>
+              <Switch
+                checked={shareAllowComments}
+                onCheckedChange={(checked) => setShareAllowComments(Boolean(checked))}
+              />
+            </div>
+
+            <div className="flex items-center justify-between rounded-md border px-3 py-2">
+              <div className="space-y-0.5">
+                <Label className="text-sm">Require password</Label>
+                <p className="text-xs text-muted-foreground">
+                  Guests must enter a password to view.
+                </p>
+              </div>
+              <Switch
+                checked={shareRequirePassword}
+                onCheckedChange={(checked) => setShareRequirePassword(Boolean(checked))}
+              />
+            </div>
+
+            {shareRequirePassword && (
+              <div className="space-y-2">
+                <Label className="text-sm">Password</Label>
+                <Input
+                  type="password"
+                  placeholder="Enter password (min 6 characters)"
+                  value={sharePassword}
+                  onChange={(e) => setSharePassword(e.target.value)}
+                />
+              </div>
+            )}
+
+            {shareError && <p className="text-xs text-destructive">{shareError}</p>}
+
+            {shareLoading && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Loading...
+              </div>
+            )}
+
+            {shareData ? (
+              <div className="space-y-3">
+                <div className="rounded-md bg-muted p-3 space-y-2">
+                  <Label className="text-sm">Share link</Label>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <Input value={shareData.shareUrl} readOnly className="flex-1" />
+                    <Button type="button" variant="outline" onClick={handleCopyShareLink} className="shrink-0">
+                      <Copy className="h-4 w-4 mr-2" />
+                      Copy
+                    </Button>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <Button type="button" onClick={handleCreateOrUpdateShare} disabled={shareLoading}>
+                    Update link
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    onClick={handleRevokeShare}
+                    disabled={shareLoading}
+                  >
+                    Revoke link
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <Button type="button" onClick={handleCreateOrUpdateShare} disabled={shareLoading} className="w-full">
+                Create share link
+              </Button>
+            )}
+
+            <div className="space-y-2 pt-2 border-t">
+              <Label className="text-sm">Invite by email</Label>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <Input
+                  placeholder="name@company.com, name2@company.com"
+                  value={inviteEmails}
+                  onChange={(event) => setInviteEmails(event.target.value)}
+                />
+                <Button type="button" onClick={handleInviteExternal} disabled={shareLoading || !shareData}>
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  Send
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                This will open your email client with the share link.
+              </p>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
