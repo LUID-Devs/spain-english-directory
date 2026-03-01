@@ -2708,7 +2708,6 @@ class ApiService {
     return this.request<GetViewSubscribersResponse>(`/api/views/${viewId}/subscribers`);
   }
 
-<<<<<<< HEAD
   // ==================== TASK SHARING API ====================
 
   /**
