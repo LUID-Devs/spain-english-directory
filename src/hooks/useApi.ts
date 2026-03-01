@@ -4,6 +4,7 @@ import { useApiStore } from '@/stores/apiStore';
 import { useUserStore } from '@/stores/userStore';
 import { useRequestManager } from '@/stores/requestManager';
 import { apiService, Status, Priority, Task, Project, User, Comment, Attachment, UserWithStats, SavedView } from '@/services/apiService';
+import { SearchCache } from '@/lib/hybridSearch';
 
 // Utility function to create RTK Query-like mutation results
 const createMutationResult = <T>(promise: Promise<T>) => {
