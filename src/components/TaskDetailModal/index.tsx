@@ -23,6 +23,7 @@ import {
 import { TimeTrackingSection } from "@/components/TimeTracking";
 import { toast } from "sonner";
 import { Calendar, User, Flag, Clock, Paperclip, Tag, CircleDot, Loader2, Image, Share2, Bot, X, HelpCircle, Copy } from "lucide-react";
+import { isCompletedStatus } from "@/lib/utils";
 import CommentsSection from "@/components/CommentsSection";
 import AttachmentsSection from "@/components/AttachmentsSection";
 import RichTextEditor from "@/components/RichTextEditor";
@@ -299,7 +300,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
         target.isContentEditable ||
         target.closest('[contenteditable="true"]');
       
-      if (!isTyping && editForm.status !== Status.Completed) {
+      if (!isTyping && !isCompletedStatus(editForm.status)) {
         e.preventDefault();
         handleFieldChange('status', Status.Completed);
         toast.success("Task marked as complete!", { duration: 2000 });

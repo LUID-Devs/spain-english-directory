@@ -116,6 +116,7 @@ const TaskDetailPage = ({ params }: Props) => {
       case Status.UnderReview:
         return "bg-gray-200 text-gray-800 border-gray-400 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600";
       case Status.Completed:
+      case "Done":
         return "bg-gray-300 text-gray-800 border-gray-500 dark:bg-gray-700 dark:text-gray-100 dark:border-gray-500";
       case Status.Archived:
         return "bg-gray-400 text-gray-900 border-gray-600 dark:bg-gray-600 dark:text-gray-200 dark:border-gray-400";

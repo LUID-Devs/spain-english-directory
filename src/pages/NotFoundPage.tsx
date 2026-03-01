@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Home, ArrowLeft, Search, Loader2, X } from 'lucide-react';
 import { apiService, SearchResults, Status } from '../services/apiService';
+import { isCompletedStatus } from '@/lib/utils';
 
 const NotFoundPage: React.FC = () => {
   const navigate = useNavigate();
@@ -108,7 +109,7 @@ const NotFoundPage: React.FC = () => {
                             className="w-full px-4 py-3 text-left hover:bg-gray-800/50 transition-colors flex items-center gap-3"
                           >
                             <span className={`w-2 h-2 rounded-full ${
-                              task.status === Status.Completed ? 'bg-green-500' :
+                              isCompletedStatus(task.status) ? 'bg-green-500' :
                               task.status === Status.WorkInProgress ? 'bg-blue-500' :
                               'bg-gray-500'
                             }`} />

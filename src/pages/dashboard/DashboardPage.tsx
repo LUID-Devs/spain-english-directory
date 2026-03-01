@@ -17,7 +17,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CheckSquare, Square } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, isCompletedStatus } from "@/lib/utils";
 import { useTaskModal } from "@/contexts/TaskModalContext";
 import { useKeyboardNavigation } from "@/hooks/useKeyboardNavigation";
 import { useGlobalShortcuts } from "@/hooks/useGlobalShortcuts";
@@ -147,7 +147,7 @@ const DashboardPage = () => {
       return;
     }
 
-    const isCompleted = task.status === Status.Completed;
+    const isCompleted = isCompletedStatus(task.status);
     const nextStatus = isCompleted ? Status.ToDo : Status.Completed;
 
     setStatusUpdatingId(task.id);
@@ -461,7 +461,7 @@ const DashboardPage = () => {
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Completed</p>
                 <p className="text-2xl font-bold text-gray-600">
-                  {(tasks || []).filter(task => task.status === Status.Completed).length}
+                  {(tasks || []).filter(task => isCompletedStatus(task.status)).length}
                 </p>
               </div>
               <div className="h-8 w-8 sm:h-10 sm:w-10 bg-gray-100 dark:bg-gray-900 rounded-lg flex items-center justify-center shrink-0">
@@ -558,7 +558,7 @@ const DashboardPage = () => {
                 {/* Mobile: Card-based layout */}
                 <div className="sm:hidden divide-y divide-border">
                   {(tasks || []).slice(0, 5).map((task) => {
-                    const isCompleted = task.status === Status.Completed;
+                    const isCompleted = isCompletedStatus(task.status);
 
                     return (
                       <div
@@ -612,7 +612,7 @@ const DashboardPage = () => {
                           {task.dueDate && (
                             <span className={cn(
                               "text-xs",
-                              new Date(task.dueDate) < new Date() && task.status !== Status.Completed
+                              new Date(task.dueDate) < new Date() && !isCompletedStatus(task.status)
                                 ? "text-destructive font-medium"
                                 : "text-muted-foreground"
                             )}>
@@ -642,7 +642,7 @@ const DashboardPage = () => {
                     </TableHeader>
                     <TableBody>
                       {(tasks || []).slice(0, 5).map((task) => {
-                        const isCompleted = task.status === Status.Completed;
+                        const isCompleted = isCompletedStatus(task.status);
 
                         return (
                           <TableRow 
@@ -710,7 +710,7 @@ const DashboardPage = () => {
                               {task.dueDate ? (
                                 <span className={cn(
                                   "text-sm",
-                                  new Date(task.dueDate) < new Date() && task.status !== Status.Completed
+                                  new Date(task.dueDate) < new Date() && !isCompletedStatus(task.status)
                                     ? "text-destructive font-medium"
                                     : "text-muted-foreground"
                                 )}>

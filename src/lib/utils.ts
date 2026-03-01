@@ -73,3 +73,27 @@ export const dataGridSxStyles = (isDarkMode: boolean) => {
     },
   };
 };
+
+/**
+ * Check if a task status represents a completed state
+ * Supports both "Completed" and "Done" as completed statuses
+ */
+export function isCompletedStatus(status: string | undefined): boolean {
+  return status === "Completed" || status === "Done";
+}
+
+/**
+ * Check if a task's status matches a column (handles Done/Completed equivalence)
+ * For Completed column, includes both "Completed" and "Done"
+ */
+export function taskMatchesStatusColumn(taskStatus: string | undefined, columnStatus: string): boolean {
+  const normalizedTaskStatus = taskStatus || "To Do";
+  
+  // For Completed column, include both "Completed" and "Done"
+  if (columnStatus === "Completed") {
+    return isCompletedStatus(normalizedTaskStatus);
+  }
+  
+  // For other columns, exact match
+  return normalizedTaskStatus === columnStatus;
+}

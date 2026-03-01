@@ -155,7 +155,7 @@ const TaskCard = React.memo(({ task, isSelected = false, onSelect, selectionMode
     const dueDate = new Date(task.dueDate);
     const now = new Date();
     
-    if (task.status === "Completed") return null;
+    if (task.status === "Completed" || task.status === "Done") return null;
     
     if (isBefore(dueDate, now)) {
       return { type: "overdue", text: "Overdue", variant: "destructive" as const };

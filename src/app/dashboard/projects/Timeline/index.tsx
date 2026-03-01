@@ -62,7 +62,7 @@ const Timeline = ({
         name: task.title,
         id: `Task-${task.id}`,
         type: "task" as TaskTypeItems,
-        progress: task.status === "Completed" ? 100 : task.points ? Math.min((task.points / 10) * 100, 90) : 0,
+        progress: (task.status === "Completed" || task.status === "Done") ? 100 : task.points ? Math.min((task.points / 10) * 100, 90) : 0,
         isDisabled: false,
         styles: {
           backgroundColor: getPriorityColor(task.priority),

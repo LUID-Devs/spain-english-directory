@@ -54,6 +54,7 @@ import {
 import { cn } from "@/lib/utils";
 import DeleteTaskModal from "@/components/DeleteTaskModal";
 import { useTaskModal } from "@/contexts/TaskModalContext";
+import { taskMatchesStatusColumn, isCompletedStatus } from "@/lib/utils";
 import { BoardSkeleton } from "@/components/TaskSkeleton";
 import type { DropTargetMonitor, DragSourceMonitor } from 'react-dnd';
 import {
@@ -109,6 +110,8 @@ const isValidWorkflowTransition = (fromStatus: string, toStatus: string): boolea
 const getWipLimit = (status: string): number => {
   return WIP_LIMITS[status] ?? Infinity;
 };
+
+
 
 // Hook to detect touch devices
 const useIsTouchDevice = () => {
@@ -204,7 +207,7 @@ const BoardView = ({
 
       // WIP Limit check
       const wipLimit = getWipLimit(toStatus);
-      const tasksInTargetColumn = tasks?.filter(t => (t.status || "To Do") === toStatus).length || 0;
+      const tasksInTargetColumn = tasks?.filter(t => taskMatchesStatusColumn(t.status, toStatus)).length || 0;
       
       if (wipLimit !== Infinity && tasksInTargetColumn >= wipLimit) {
         toast.error(
@@ -418,7 +421,7 @@ const TaskColumn = React.memo(({
     }),
   }));
 
-  const tasksCount = tasks.filter((task) => (task.status || "To Do") === status).length;
+  const tasksCount = tasks.filter((task) => taskMatchesStatusColumn(task.status, status)).length;
   const wipLimit = getWipLimit(status);
   const isWipExceeded = wipLimit !== Infinity && tasksCount > wipLimit;
   const isWipWarning = wipLimit !== Infinity && tasksCount >= wipLimit * 0.8 && tasksCount <= wipLimit;
@@ -564,7 +567,7 @@ const TaskColumn = React.memo(({
       
       <CardContent className="space-y-3 min-h-[200px]">
         {tasks
-          .filter((task) => (task.status || "To Do") === status)
+          .filter((task) => taskMatchesStatusColumn(task.status, status))
           .map((task) => (
             <Task key={task.id} task={task} onTaskSelect={onTaskSelect} />
           ))}
@@ -814,7 +817,7 @@ const Task = React.memo(({ task, onTaskSelect }: TaskProps) => {
     const dueDate = new Date(task.dueDate);
     const now = new Date();
     
-    if (task.status === "Completed") return null;
+    if (isCompletedStatus(task.status)) return null;
     
     if (isBefore(dueDate, now)) {
       return { type: "overdue", text: "Overdue", variant: "destructive" as const };

@@ -361,7 +361,7 @@ const ReusablePriorityPage = ({ priority }: Props) => {
                   Completed
                 </p>
                 <p className="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400">
-                  {filteredTasks?.filter(task => task.status === 'Completed').length || 0}
+                  {filteredTasks?.filter(task => task.status === 'Completed' || task.status === 'Done').length || 0}
                 </p>
               </div>
             </div>
@@ -381,7 +381,7 @@ const ReusablePriorityPage = ({ priority }: Props) => {
                 </p>
                 <p className="text-2xl sm:text-3xl font-bold text-blue-600 dark:text-blue-400">
                   {filteredTasks && filteredTasks.length > 0
-                    ? Math.round((filteredTasks.filter(task => task.status === 'Completed').length / filteredTasks.length) * 100)
+                    ? Math.round((filteredTasks.filter(task => task.status === 'Completed' || task.status === 'Done').length / filteredTasks.length) * 100)
                     : 0
                   }%
                 </p>
