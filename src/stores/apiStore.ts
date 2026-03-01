@@ -17,13 +17,15 @@ interface ApiState {
   taskComments: Record<string, ApiResponse<any[]>>;
   taskAttachments: Record<string, ApiResponse<any[]>>;
   searchResults: ApiResponse<any>;
-  
+  statusHistory: Record<string, ApiResponse<any[]>>;
+  statusTimeBreakdown: Record<string, ApiResponse<any>>;
+
   // Generic actions
   setApiData: <T>(key: string, data: ApiResponse<T>) => void;
   setLoading: (key: string, loading: boolean) => void;
   setError: (key: string, error: string | null) => void;
   clearData: (key?: string) => void;
-  
+
   // Specific actions for common operations
   setProjects: (data: any[], loading?: boolean, error?: string | null) => void;
   setTasks: (data: any[], loading?: boolean, error?: string | null) => void;
@@ -32,6 +34,8 @@ interface ApiState {
   setAgents: (data: any[], loading?: boolean, error?: string | null) => void;
   setTaskComments: (taskId: string, data: any[], loading?: boolean, error?: string | null) => void;
   setTaskAttachments: (taskId: string, data: any[], loading?: boolean, error?: string | null) => void;
+  setStatusHistory: (taskId: number, data: any[], loading?: boolean, error?: string | null) => void;
+  setStatusTimeBreakdown: (taskId: number, data: any, loading?: boolean, error?: string | null) => void;
 }
 
 const initialApiResponse = <T>(): ApiResponse<T> => ({
@@ -52,7 +56,9 @@ export const useApiStore = create<ApiState>()(
     taskComments: {},
     taskAttachments: {},
     searchResults: initialApiResponse<any>(),
-    
+    statusHistory: {},
+    statusTimeBreakdown: {},
+
     // Generic actions
     setApiData: <T>(key: string, data: ApiResponse<T>) => 
       set((state) => ({ 
@@ -95,6 +101,8 @@ export const useApiStore = create<ApiState>()(
           taskComments: {},
           taskAttachments: {},
           searchResults: initialApiResponse<any>(),
+          statusHistory: {},
+          statusTimeBreakdown: {},
         });
       }
     },
@@ -157,14 +165,38 @@ export const useApiStore = create<ApiState>()(
         }
       })),
     
-    setTaskAttachments: (taskId, data, loading = false, error = null) => 
+    setTaskAttachments: (taskId, data, loading = false, error = null) =>
       set((state) => ({
         taskAttachments: {
           ...state.taskAttachments,
-          [taskId]: { 
-            data, 
-            isLoading: loading, 
-            error 
+          [taskId]: {
+            data,
+            isLoading: loading,
+            error
+          }
+        }
+      })),
+
+    setStatusHistory: (taskId, data, loading = false, error = null) =>
+      set((state) => ({
+        statusHistory: {
+          ...state.statusHistory,
+          [taskId]: {
+            data,
+            isLoading: loading,
+            error
+          }
+        }
+      })),
+
+    setStatusTimeBreakdown: (taskId, data, loading = false, error = null) =>
+      set((state) => ({
+        statusTimeBreakdown: {
+          ...state.statusTimeBreakdown,
+          [taskId]: {
+            data,
+            isLoading: loading,
+            error
           }
         }
       })),

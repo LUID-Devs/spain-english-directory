@@ -1202,6 +1202,37 @@ class ApiService {
     };
   }
 
+  // Task Status History (Time in Status)
+  async getTaskStatusHistory(taskId: number): Promise<TaskStatusHistory[]> {
+    return this.request<TaskStatusHistory[]>(`/tasks/${taskId}/status-history`);
+  }
+
+  async getTaskStatusTimeBreakdown(taskId: number): Promise<StatusTimeBreakdownResponse> {
+    return this.request<StatusTimeBreakdownResponse>(`/tasks/${taskId}/status-time-breakdown`);
+  }
+
+  async initializeTaskStatusHistory(taskId: number, status: string, userId?: number): Promise<{ success: boolean; taskId: number; historyEntry: TaskStatusHistory }> {
+    return this.request<{ success: boolean; taskId: number; historyEntry: TaskStatusHistory }>(`/tasks/${taskId}/status-history`, {
+      method: 'POST',
+      body: JSON.stringify({ status, userId }),
+    });
+  }
+
+  async recordTaskStatusChange(taskId: number, newStatus: string, changedAt?: string): Promise<{ success: boolean; taskId: number; historyEntry: TaskStatusHistory; closedPreviousEntry: boolean }> {
+    return this.request<{ success: boolean; taskId: number; historyEntry: TaskStatusHistory; closedPreviousEntry: boolean }>(`/tasks/${taskId}/status-change`, {
+      method: 'POST',
+      body: JSON.stringify({ newStatus, changedAt }),
+    });
+  }
+
+  async getProjectStatusTimeAnalytics(projectId: number, params?: { from?: string; to?: string }): Promise<ProjectStatusTimeAnalyticsResponse> {
+    const queryParams = new URLSearchParams();
+    if (params?.from) queryParams.append('from', params.from);
+    if (params?.to) queryParams.append('to', params.to);
+    const queryString = queryParams.toString();
+    return this.request<ProjectStatusTimeAnalyticsResponse>(`/projects/${projectId}/status-time-analytics${queryString ? `?${queryString}` : ''}`);
+  }
+
   // Comments
   async getTaskComments(taskId: number): Promise<Comment[]> {
     return this.request<Comment[]>(`/tasks/${taskId}/comments`);
@@ -2677,65 +2708,61 @@ class ApiService {
     return this.request<GetViewSubscribersResponse>(`/api/views/${viewId}/subscribers`);
   }
 
-  // ==================== NESTED SUB-ISSUES API ====================
+  // ==================== TASK SHARING API ====================
 
   /**
-   * Get all sub-issues for a task
-   * GET /api/tasks/:taskId/sub-issues
+   * Share a task with an external user by email
+   * POST /api/tasks/:taskId/share
    */
-  async getSubIssues(taskId: number): Promise<SubIssuesResponse> {
-    return this.request<SubIssuesResponse>(`/api/tasks/${taskId}/sub-issues`);
-  }
-
-  /**
-   * Create a new sub-issue for a task
-   * POST /api/tasks/:taskId/sub-issues
-   */
-  async createSubIssue(taskId: number, data: Partial<Task>): Promise<{ message: string; subIssue: Task }> {
-    return this.request<{ message: string; subIssue: Task }>(`/api/tasks/${taskId}/sub-issues`, {
+  async shareTask(taskId: number, data: ShareTaskRequest): Promise<ShareTaskResponse> {
+    return this.request<ShareTaskResponse>(`/api/tasks/${taskId}/share`, {
       method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
   /**
-   * Move a task to a new parent (or make it top-level)
-   * PUT /api/tasks/:taskId/move
+   * Revoke external access to a task
+   * DELETE /api/tasks/:taskId/share/:externalUserId
    */
-  async moveTask(taskId: number, parentId: number | null, displayOrder?: number): Promise<{ message: string; task: Task }> {
-    return this.request<{ message: string; task: Task }>(`/api/tasks/${taskId}/move`, {
-      method: 'PUT',
-      body: JSON.stringify({ parentId, displayOrder }),
+  async revokeTaskShare(taskId: number, externalUserId: number): Promise<{ success: boolean; error?: string }> {
+    return this.request<{ success: boolean; error?: string }>(`/api/tasks/${taskId}/share/${externalUserId}`, {
+      method: 'DELETE',
     });
   }
 
   /**
-   * Reorder sub-issues (drag and drop)
-   * POST /api/tasks/reorder
+   * List all external shares for a task
+   * GET /api/tasks/:taskId/shares
    */
-  async reorderSubIssues(reorderings: { taskId: number; displayOrder: number }[]): Promise<{ message: string; count: number }> {
-    return this.request<{ message: string; count: number }>('/api/tasks/reorder', {
-      method: 'POST',
-      body: JSON.stringify({ reorderings }),
-    });
+  async getTaskShares(taskId: number): Promise<{ success: boolean; shares: TaskExternalShare[] }> {
+    return this.request<{ success: boolean; shares: TaskExternalShare[] }>(`/api/tasks/${taskId}/shares`);
   }
 
   /**
-   * Get breadcrumb path from root to task
-   * GET /api/tasks/:taskId/breadcrumb
+   * Get visibility info for a task (shows who has external access)
+   * GET /api/tasks/:taskId/visibility
    */
-  async getTaskBreadcrumb(taskId: number): Promise<TaskBreadcrumbResponse> {
-    return this.request<TaskBreadcrumbResponse>(`/api/tasks/${taskId}/breadcrumb`);
+  async getTaskVisibility(taskId: number): Promise<{ success: boolean; visibility: TaskVisibilityInfo }> {
+    return this.request<{ success: boolean; visibility: TaskVisibilityInfo }>(`/api/tasks/${taskId}/visibility`);
   }
 
   /**
-   * Convert a sub-issue to a top-level task
-   * POST /api/tasks/:taskId/convert-to-top-level
+   * Get a shared task by access token (for external users)
+   * GET /api/shared-tasks/:taskId?token=xxx
    */
-  async convertToTopLevel(taskId: number): Promise<{ message: string; taskId: number }> {
-    return this.request<{ message: string; taskId: number }>(`/api/tasks/${taskId}/convert-to-top-level`, {
-      method: 'POST',
-    });
+  async getSharedTask(taskId: number, token: string): Promise<{
+    success: boolean;
+    task?: Task;
+    sharedBy?: { userId: number; username?: string; email: string };
+    error?: string;
+  }> {
+    return this.request<{
+      success: boolean;
+      task?: Task;
+      sharedBy?: { userId: number; username?: string; email: string };
+      error?: string;
+    }>(`/api/shared-tasks/${taskId}?token=${encodeURIComponent(token)}`);
   }
 }
 
@@ -3758,4 +3785,121 @@ export interface GetViewSubscribersResponse {
   success: boolean;
   subscriptions: ViewSubscriber[];
   count: number;
+}
+
+// ==================== TASK SHARING TYPES ====================
+
+export interface ExternalUser {
+  id: number;
+  email: string;
+  name?: string;
+  token: string;
+  organizationId: number;
+  invitedBy: number;
+  lastAccessedAt?: string;
+  accessCount: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TaskExternalShare {
+  id: number;
+  taskId: number;
+  externalUserId: number;
+  sharedBy: number;
+  sharedAt: string;
+  revokedAt?: string;
+  isActive: boolean;
+  externalUser?: ExternalUser;
+}
+
+export interface ShareTaskRequest {
+  email: string;
+  name?: string;
+}
+
+export interface ShareTaskResponse {
+  success: boolean;
+  share?: TaskExternalShare & { externalUser: ExternalUser };
+  error?: string;
+}
+
+export interface TaskVisibilityInfo {
+  isSharedExternally: boolean;
+  externalShares: {
+    externalUserId: number;
+    email: string;
+    name?: string;
+    sharedAt: string;
+    lastAccessedAt?: string;
+    accessCount: number;
+    isActive: boolean;
+  }[];
+}
+
+// ==================== TIME IN STATUS TYPES ====================
+
+export interface TaskStatusHistory {
+  id: number;
+  taskId: number;
+  status: string;
+  enteredAt: string;
+  exitedAt?: string | null;
+  durationSeconds?: number | null;
+  enteredByUserId?: number | null;
+  enteredBy?: {
+    userId: number;
+    username: string;
+    email?: string;
+  } | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface StatusTimeBreakdown {
+  status: string;
+  totalSeconds: number;
+  entryCount: number;
+  averageDurationSeconds: number;
+  firstEnteredAt: string;
+  lastExitedAt?: string;
+}
+
+export interface StatusTimeBreakdownResponse {
+  success: boolean;
+  taskId: number;
+  currentStatus: string;
+  currentStatusSince: string;
+  timeInCurrentStatusSeconds: number;
+  breakdown: StatusTimeBreakdown[];
+  totalTrackedSeconds: number;
+}
+
+export interface ProjectStatusAnalyticsItem {
+  status: string;
+  taskCount: number;
+  totalSeconds: number;
+  averageSeconds: number;
+  medianSeconds: number;
+  minSeconds: number;
+  maxSeconds: number;
+  p95Seconds: number;
+}
+
+export interface ProjectStatusTimeAnalyticsResponse {
+  success: boolean;
+  projectId: number;
+  periodFrom?: string;
+  periodTo?: string;
+  tasksAnalyzed: number;
+  statusBreakdown: ProjectStatusAnalyticsItem[];
+}
+
+export interface TimeInStatusFilter {
+  status?: string;
+  minDurationSeconds?: number;
+  maxDurationSeconds?: number;
+  fromDate?: string;
+  toDate?: string;
 }

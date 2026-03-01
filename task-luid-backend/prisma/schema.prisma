@@ -20,9 +20,8 @@ model User {
   authoredTasks     Task[]    @relation("TaskAuthor")
   assignedTasks     Task[]    @relation("TaskAssignee")
   savedViews        SavedView[]
-  inlineComments    InlineComment[]
-  reviewRequestsSent    PRReviewRequest[] @relation("ReviewRequestedBy")
-  reviewRequestsReceived PRReviewRequest[] @relation("ReviewRequestedFrom")
+  formTemplates     FormTemplate[]
+  statusChanges     TaskStatusHistory[] @relation("StatusChangeUser")
 
   @@index([organizationId])
   @@map("users")
@@ -39,6 +38,7 @@ model Project {
   // Relations
   tasks          Task[]
   workflowStates WorkflowState[]
+  formTemplateAssignments FormTemplateProjectAssignment[]
 
   @@index([organizationId])
   @@map("projects")
@@ -73,8 +73,10 @@ model Task {
   points         Int?
   triaged        Boolean   @default(false)
   isShared       Boolean   @default(false) @map("is_shared")
+  isPrivate      Boolean   @default(false) @map("is_private")
   archivedAt     DateTime? @map("archived_at")
   organizationId Int       @map("organization_id")
+  formTemplateId Int?      @map("form_template_id")
 
   // Foreign Keys
   projectId      Int       @map("project_id")
@@ -89,7 +91,9 @@ model Task {
   cycle          Cycle?    @relation(fields: [cycleId], references: [id])
   comments       Comment[]
   attachments    Attachment[]
-  embeddings     TaskEmbedding[]
+  externalShares TaskExternalShare[]
+  customFieldValues TaskCustomFieldValue[]
+  statusHistory  TaskStatusHistory[]
 
   @@index([organizationId])
   @@index([projectId])
@@ -164,126 +168,281 @@ model SavedView {
   @@map("saved_views")
 }
 
-// ==================== GIT REVIEW MODELS ====================
+// External users invited to view specific tasks
+model ExternalUser {
+  id             Int       @id @default(autoincrement())
+  email          String
+  name           String?
+  token          String    @unique // Access token for shared link
+  organizationId Int       @map("organization_id")
+  invitedBy      Int       @map("invited_by")
+  lastAccessedAt DateTime? @map("last_accessed_at")
+  accessCount    Int       @default(0) @map("access_count")
+  isActive       Boolean   @default(true) @map("is_active")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
 
-model PRReview {
-  id                        Int       @id @default(autoincrement())
-  taskId                    Int       @map("task_id")
-  prId                      Int       @map("pr_id")
-  userId                    Int       @map("user_id")
-  status                    String    // pending, reviewing, approved, changes_requested, merged
-  notes                     String?
-  checklist                 Json      // Array of { id, label, checked }
-  reviewedAt                DateTime? @map("reviewed_at")
-  reviewedByUserId          Int?      @map("reviewed_by_user_id")
-  reviewedByUsername        String?   @map("reviewed_by_username")
-  reviewedByProfilePictureUrl String? @map("reviewed_by_profile_picture_url")
-  createdAt                 DateTime  @default(now()) @map("created_at")
-  updatedAt                 DateTime  @updatedAt @map("updated_at")
+  // Relations
+  taskShares     TaskExternalShare[]
 
-  @@unique([taskId, prId, userId])
+  @@unique([email, organizationId])
+  @@index([organizationId])
+  @@index([token])
+  @@map("external_users")
+}
+
+// Junction model for task external sharing
+model TaskExternalShare {
+  id             Int       @id @default(autoincrement())
+  taskId         Int       @map("task_id")
+  externalUserId Int       @map("external_user_id")
+  sharedBy       Int       @map("shared_by") // Internal user who shared
+  sharedAt       DateTime  @default(now()) @map("shared_at")
+  revokedAt      DateTime? @map("revoked_at")
+  isActive       Boolean   @default(true) @map("is_active")
+
+  // Relations
+  task           Task       @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  externalUser   ExternalUser @relation(fields: [externalUserId], references: [id], onDelete: Cascade)
+
+  @@unique([taskId, externalUserId])
   @@index([taskId])
-  @@index([prId])
+  @@index([externalUserId])
+  @@map("task_external_shares")
+}
+
+// Third-party integrations (Asana, Linear, etc.)
+enum IntegrationProvider {
+  ASANA
+  LINEAR
+  GITHUB
+  JIRA
+  TRELLO
+
+  @@map("integration_provider")
+}
+
+enum IntegrationStatus {
+  CONNECTED
+  DISCONNECTED
+  ERROR
+  SYNCING
+
+  @@map("integration_status")
+}
+
+model Integration {
+  id                Int                @id @default(autoincrement())
+  provider          IntegrationProvider
+  name              String             // Display name (e.g., "Asana - My Workspace")
+  status            IntegrationStatus  @default(DISCONNECTED)
+
+  // OAuth tokens (encrypted at application level)
+  accessToken       String?            @map("access_token")
+  refreshToken      String?            @map("refresh_token")
+  tokenExpiresAt    DateTime?          @map("token_expires_at")
+
+  // Provider-specific metadata
+  externalUserId    String?            @map("external_user_id") // User ID from provider
+  externalWorkspaceId String?          @map("external_workspace_id") // Workspace/team ID
+  externalWorkspaceName String?        @map("external_workspace_name")
+
+  // Configuration
+  config            Json?              // Provider-specific settings
+
+  // Sync tracking
+  lastSyncAt        DateTime?          @map("last_sync_at")
+  lastSyncError     String?            @map("last_sync_error")
+
+  // Relations
+  organizationId    Int                @map("organization_id")
+  userId            Int                @map("user_id") // User who connected the integration
+
+  // Timestamps
+  createdAt         DateTime           @default(now()) @map("created_at")
+  updatedAt         DateTime           @updatedAt @map("updated_at")
+
+  // Relations
+  syncedTasks       IntegratedTask[]
+
+  @@unique([provider, organizationId, userId])
+  @@index([organizationId])
   @@index([userId])
-  @@map("pr_reviews")
+  @@index([status])
+  @@map("integrations")
 }
 
-model InlineComment {
-  id          Int       @id @default(autoincrement())
-  prId        Int       @map("pr_id")
-  authorId    Int       @map("author_id")
-  filePath    String    @map("file_path")
-  lineNumber  Int       @map("line_number")
-  commitId    String?   @map("commit_id")
-  text        String
-  replyToId   Int?      @map("reply_to_id")
-  resolvedAt  DateTime? @map("resolved_at")
-  resolvedBy  Int?      @map("resolved_by")
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
+// Tasks synced from external integrations
+model IntegratedTask {
+  id              Int         @id @default(autoincrement())
+
+  // Local task reference (optional - if linked to existing task)
+  localTaskId     Int?        @map("local_task_id")
+
+  // External task data
+  externalId      String      @map("external_id") // ID from provider
+  externalUrl     String?     @map("external_url")
+  title           String
+  description     String?
+  status          String      // External status
+  priority        String?
+  assigneeEmail   String?     @map("assignee_email")
+  assigneeName    String?     @map("assignee_name")
+  dueDate         DateTime?   @map("due_date")
+
+  // Source metadata
+  sourceProjectId   String?   @map("source_project_id")
+  sourceProjectName String?   @map("source_project_name")
+
+  // Sync tracking
+  lastSyncedAt    DateTime    @default(now()) @map("last_synced_at")
+  rawData         Json        @map("raw_data") // Original provider data
 
   // Relations
-  author      User      @relation(fields: [authorId], references: [userId], onDelete: Cascade)
-  replies     InlineComment[] @relation("CommentReplies")
-  parent      InlineComment?  @relation("CommentReplies", fields: [replyToId], references: [id])
+  integrationId   Int         @map("integration_id")
+  integration     Integration @relation(fields: [integrationId], references: [id], onDelete: Cascade)
 
-  @@index([prId])
-  @@index([authorId])
-  @@index([replyToId])
-  @@map("inline_comments")
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+
+  @@unique([integrationId, externalId])
+  @@index([integrationId])
+  @@index([externalId])
+  @@index([localTaskId])
+  @@index([status])
+  @@map("integrated_tasks")
 }
 
-model PRReviewRequest {
-  id               Int       @id @default(autoincrement())
-  taskId           Int       @map("task_id")
-  prId             Int       @map("pr_id")
-  requestedById    Int       @map("requested_by_id")
-  requestedFromId  Int       @map("requested_from_id")
-  status           String    // pending, accepted, declined, completed
-  message          String?
-  dueDate          DateTime? @map("due_date")
-  responseMessage  String?   @map("response_message")
-  requestedAt      DateTime  @default(now()) @map("requested_at")
-  respondedAt      DateTime? @map("responded_at")
+// ==================== FORM TEMPLATES ====================
+
+model FormTemplate {
+  id                Int       @id @default(autoincrement())
+  name              String
+  description       String?
+  organizationId    Int       @map("organization_id")
+  isActive          Boolean   @default(true) @map("is_active")
+  isSystem          Boolean   @default(false) @map("is_system")
+  defaultStatus     String?   @map("default_status")
+  defaultPriority   String    @default("P2") @map("default_priority")
+  defaultAssigneeId Int?      @map("default_assignee_id")
+  createdBy         Int       @map("created_by")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
 
   // Relations
-  requestedBy      User      @relation("ReviewRequestedBy", fields: [requestedById], references: [userId], onDelete: Cascade)
-  requestedFrom    User      @relation("ReviewRequestedFrom", fields: [requestedFromId], references: [userId], onDelete: Cascade)
+  fields            FormField[]
+  projectAssignments FormTemplateProjectAssignment[]
+  user              User?     @relation(fields: [createdBy], references: [userId])
 
-  @@index([prId])
-  @@index([requestedById])
-  @@index([requestedFromId])
-  @@index([status])
-  @@map("pr_review_requests")
+  @@index([organizationId])
+  @@index([isActive])
+  @@index([isSystem])
+  @@map("form_templates")
 }
 
-model AIReview {
+model FormField {
   id            Int       @id @default(autoincrement())
-  prId          Int       @map("pr_id")
-  agentId       Int       @map("agent_id")
-  agentName     String    @map("agent_name")
-  status        String    // running, completed, failed
-  summary       String
-  findings      Json      // Array of findings
-  options       Json?     // Review options
-  errorMessage  String?   @map("error_message")
-  startedAt     DateTime  @default(now()) @map("started_at")
-  completedAt   DateTime? @map("completed_at")
-
-  @@index([prId])
-  @@index([agentId])
-  @@index([status])
-  @@map("ai_reviews")
-}
-
-model AIAgent {
-  id            Int       @id @default(autoincrement())
+  templateId    Int       @map("template_id")
   name          String
+  key           String
+  fieldType     String    @map("field_type") // text, textarea, number, date, select, multiselect, checkbox, url, email
   description   String?
-  capabilities  Json      // Array of capabilities
-  isActive      Boolean   @default(true) @map("is_active")
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt @map("updated_at")
-
-  @@map("ai_agents")
-}
-
-// ==================== SEMANTIC SEARCH MODELS ====================
-
-model TaskEmbedding {
-  id            Int       @id @default(autoincrement())
-  taskId        Int       @map("task_id")
-  content       String    // The text that was embedded
-  contentType   String    @map("content_type") // "title", "description", "comment"
-  embedding     Unsupported("vector(384)") // pgvector extension
-  modelName     String    @map("model_name") // Model used for embedding
+  isRequired    Boolean   @default(false) @map("is_required")
+  minLength     Int?      @map("min_length")
+  maxLength     Int?      @map("max_length")
+  minValue      Float?    @map("min_value")
+  maxValue      Float?    @map("max_value")
+  regexPattern  String?   @map("regex_pattern")
+  placeholder   String?
+  helpText      String?   @map("help_text")
+  order         Int       @default(0)
+  defaultValue  String?   @map("default_value")
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @updatedAt @map("updated_at")
 
   // Relations
-  task          Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  template      FormTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  options       FormFieldOption[]
+  values        TaskCustomFieldValue[]
+
+  @@index([templateId])
+  @@index([order])
+  @@map("form_fields")
+}
+
+model FormFieldOption {
+  id        Int       @id @default(autoincrement())
+  fieldId   Int       @map("field_id")
+  label     String
+  value     String
+  color     String?
+  order     Int       @default(0)
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  // Relations
+  field     FormField @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+
+  @@index([fieldId])
+  @@index([order])
+  @@map("form_field_options")
+}
+
+model FormTemplateProjectAssignment {
+  id          Int       @id @default(autoincrement())
+  templateId  Int       @map("template_id")
+  projectId   Int       @map("project_id")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  // Relations
+  template    FormTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([templateId, projectId])
+  @@index([templateId])
+  @@index([projectId])
+  @@map("form_template_project_assignments")
+}
+
+model TaskCustomFieldValue {
+  id        Int       @id @default(autoincrement())
+  taskId    Int       @map("task_id")
+  fieldId   Int       @map("field_id")
+  value     String    // Stored as JSON string
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  task      Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  field     FormField @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+
+  @@unique([taskId, fieldId])
+  @@index([taskId])
+  @@index([fieldId])
+  @@map("task_custom_field_values")
+}
+
+// ==================== TIME IN STATUS ====================
+
+model TaskStatusHistory {
+  id              Int       @id @default(autoincrement())
+  taskId          Int       @map("task_id")
+  status          String    // The status value (e.g., "To Do", "In Progress", "Done")
+  enteredAt       DateTime  @default(now()) @map("entered_at") // When task entered this status
+  exitedAt        DateTime? @map("exited_at") // When task left this status (null if current)
+  durationSeconds Int?      @map("duration_seconds") // Calculated duration in seconds
+  enteredByUserId Int?      @map("entered_by_user_id") // User who changed to this status
+  organizationId  Int       @map("organization_id")
+  
+  // Relations
+  task            Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  enteredBy       User?     @relation("StatusChangeUser", fields: [enteredByUserId], references: [userId], onDelete: SetNull)
+  
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
 
   @@index([taskId])
-  @@index([contentType])
-  @@map("task_embeddings")
+  @@index([status])
+  @@index([enteredAt])
+  @@index([organizationId])
+  @@map("task_status_history")
 }

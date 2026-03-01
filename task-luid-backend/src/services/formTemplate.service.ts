@@ -11,6 +11,7 @@ import {
   ListTemplatesResponse,
   FormTemplateValidationResult,
 } from "../types/formTemplate.types";
+import { initializeTaskStatusHistory } from "./timeInStatus.service";
 
 export const prisma = new PrismaClient();
 
@@ -301,4 +302,164 @@ export async function assignTemplateToProjects(
     where: { templateId },
     select: { id: true, projectId: true, templateId: true },
   });
+}
+
+// Apply template to create a new task with custom field values
+export async function applyTemplate(
+  templateId: number,
+  organizationId: number,
+  userId: number,
+  data: {
+    projectId: number;
+    title: string;
+    description?: string;
+    status?: string;
+    priority?: string;
+    assigneeId?: number;
+    dueDate?: string;
+    tags?: string[];
+    customFieldValues?: Record<string, any>;
+  }
+): Promise<{ task: any; customFieldValues: any[] } | null> {
+  // Get the template with all fields
+  const template = await prisma.formTemplate.findFirst({
+    where: { id: templateId, organizationId, isActive: true },
+    include: {
+      fields: {
+        include: { options: { orderBy: { order: 'asc' } } },
+        orderBy: { order: 'asc' },
+      },
+    },
+  });
+
+  if (!template) return null;
+
+  // Validate required fields
+  const missingRequiredFields = template.fields.filter(field => {
+    if (!field.isRequired) return false;
+    const value = data.customFieldValues?.[field.id];
+    return value === undefined || value === null || value === '';
+  });
+
+  if (missingRequiredFields.length > 0) {
+    throw new Error(
+      `Missing required fields: ${missingRequiredFields.map(f => f.name).join(', ')}`
+    );
+  }
+
+  // Create the task
+  const task = await prisma.task.create({
+    data: {
+      title: data.title,
+      description: data.description || '',
+      status: data.status || template.defaultStatus || 'To Do',
+      priority: data.priority || template.defaultPriority || 'P2',
+      projectId: data.projectId,
+      authorUserId: userId,
+      assignedUserId: data.assigneeId || template.defaultAssigneeId || null,
+      dueDate: data.dueDate ? new Date(data.dueDate) : null,
+      tags: data.tags?.join(',') || '',
+      organizationId,
+      formTemplateId: templateId,
+    },
+    include: {
+      project: true,
+      author: { select: { userId: true, username: true, profilePictureUrl: true } },
+      assignee: { select: { userId: true, username: true, profilePictureUrl: true } },
+    },
+  });
+
+  // Create custom field values
+  const customFieldValueRecords = [];
+  if (data.customFieldValues && Object.keys(data.customFieldValues).length > 0) {
+    for (const [fieldId, value] of Object.entries(data.customFieldValues)) {
+      if (value !== undefined && value !== null) {
+        const fieldValue = await prisma.taskCustomFieldValue.create({
+          data: {
+            taskId: task.id,
+            fieldId: parseInt(fieldId, 10),
+            value: JSON.stringify(value),
+          },
+          include: { field: true },
+        });
+        customFieldValueRecords.push(fieldValue);
+      }
+    }
+  }
+
+  // Initialize status history for the new task
+  await initializeTaskStatusHistory(
+    task.id,
+    task.status,
+    organizationId,
+    userId
+  );
+
+  return { task, customFieldValues: customFieldValueRecords };
+}
+
+// Get custom field values for a task
+export async function getTaskCustomFieldValues(
+  taskId: number,
+  organizationId: number
+): Promise<any[] | null> {
+  const task = await prisma.task.findFirst({
+    where: { id: taskId, organizationId },
+  });
+
+  if (!task) return null;
+
+  const values = await prisma.taskCustomFieldValue.findMany({
+    where: { taskId },
+    include: { field: { include: { options: true } } },
+  });
+
+  return values;
+}
+
+// Update custom field values for a task
+export async function updateTaskCustomFieldValues(
+  taskId: number,
+  organizationId: number,
+  customFields: Record<string, any>
+): Promise<any[] | null> {
+  const task = await prisma.task.findFirst({
+    where: { id: taskId, organizationId },
+  });
+
+  if (!task) return null;
+
+  const updatedValues = [];
+
+  for (const [fieldId, value] of Object.entries(customFields)) {
+    const fieldIdNum = parseInt(fieldId, 10);
+    
+    // Check if a value already exists
+    const existing = await prisma.taskCustomFieldValue.findUnique({
+      where: { taskId_fieldId: { taskId, fieldId: fieldIdNum } },
+    });
+
+    if (existing) {
+      // Update existing value
+      const updated = await prisma.taskCustomFieldValue.update({
+        where: { id: existing.id },
+        data: { value: JSON.stringify(value) },
+        include: { field: { include: { options: true } } },
+      });
+      updatedValues.push(updated);
+    } else {
+      // Create new value
+      const created = await prisma.taskCustomFieldValue.create({
+        data: {
+          taskId,
+          fieldId: fieldIdNum,
+          value: JSON.stringify(value),
+        },
+        include: { field: { include: { options: true } } },
+      });
+      updatedValues.push(created);
+    }
+  }
+
+  return updatedValues;
 }

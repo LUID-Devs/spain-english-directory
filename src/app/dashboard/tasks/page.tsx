@@ -46,7 +46,10 @@ import {
   Filter,
   Download,
   FileSpreadsheet,
-  FileJson
+  FileJson,
+  Clock,
+  Eye,
+  EyeOff
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link, useSearchParams } from "react-router-dom";
@@ -59,6 +62,9 @@ import { SmartFilterCriteria, applySmartFilter } from "@/lib/smartFilter";
 import { apiService } from "@/services/apiService";
 import { toast } from "sonner";
 import { useUndoableBulkDelete } from "@/hooks/useUndoableBulkDelete";
+import { TaskStatusWithTime, TaskStatusCell } from "@/components/TaskStatusWithTime";
+import { TimeInStatusFilterChip, TimeInStatusDisplay } from "@/components/TimeInStatus";
+import { TimeThresholds, compareByTimeInStatus } from "@/lib/timeInStatus";
 
 // Task status styling helper
 const getStatusVariant = (status: string) => {
@@ -95,9 +101,18 @@ const getPriorityVariant = (priority: string) => {
 const sortOptions = [
   { value: 'priority', label: 'Priority' },
   { value: 'status', label: 'Status' },
+  { value: 'timeInStatus', label: 'Time in Status' },
   { value: 'dueDate', label: 'Due Date' },
   { value: 'title', label: 'Title' },
   { value: 'createdAt', label: 'Created' },
+];
+
+// Time in status filter thresholds
+const timeThresholds = [
+  TimeThresholds.ONE_DAY,
+  TimeThresholds.THREE_DAYS,
+  TimeThresholds.ONE_WEEK,
+  TimeThresholds.TWO_WEEKS,
 ];
 
 const TasksPage = () => {
@@ -137,8 +152,25 @@ const TasksPage = () => {
   // Saved view state for subscription
   const [currentViewId, setCurrentViewId] = useState<number | null>(null);
 
+  // Time in status display toggle
+  const [showTimeInStatus, setShowTimeInStatus] = useState(() => {
+    const saved = localStorage.getItem('taskluid:showTimeInStatus');
+    return saved ? JSON.parse(saved) : true;
+  });
+
+  // Time in status filter
+  const [timeFilter, setTimeFilter] = useState<number | null>(() => {
+    const fromUrl = searchParams.get('timeFilter');
+    return fromUrl ? parseInt(fromUrl, 10) : null;
+  });
+
   // Track if we need to update URL (debounce search)
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Persist time in status display preference
+  useEffect(() => {
+    localStorage.setItem('taskluid:showTimeInStatus', JSON.stringify(showTimeInStatus));
+  }, [showTimeInStatus]);
 
   useEffect(() => {
     smartFilterQueryRef.current = smartFilterQuery;
@@ -235,32 +267,41 @@ const TasksPage = () => {
   const displayTasks = useMemo(() => {
     // Start with filtered tasks from AdvancedFilters, or all tasks
     let baseTasks = activeFilterCount > 0 ? filteredTasks : (tasks || []);
-    
+
     // Apply smart filter if active
     if (smartFilterCriteria && smartFilterCount > 0) {
       baseTasks = applySmartFilter(baseTasks, smartFilterCriteria, userId || undefined, users || []);
     }
-    
+
+    // Apply time in status filter (using updatedAt as proxy until backend supports time filtering)
+    if (timeFilter) {
+      // DISABLED: Using updatedAt as a proxy for time in status is inaccurate.
+      // Proper status history tracking is now implemented in the backend.
+      // Time filtering should be done server-side with status history data.
+      // TODO: Implement server-side time in status filtering
+      console.warn('Time in status filtering requires server-side support with status history data');
+    }
+
     // Apply search term
     if (!searchTerm) return baseTasks;
-    
+
     return baseTasks.filter((task) => {
-      const matchesSearch = 
+      const matchesSearch =
         task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         task.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         task.tags?.toLowerCase().includes(searchTerm.toLowerCase());
       return matchesSearch;
     });
-  }, [tasks, filteredTasks, activeFilterCount, searchTerm, smartFilterCriteria, smartFilterCount, userId, users]);
+  }, [tasks, filteredTasks, activeFilterCount, searchTerm, smartFilterCriteria, smartFilterCount, userId, users, timeFilter]);
 
   // Sort tasks
   const sortedTasks = useMemo(() => {
     const priorityOrder: Record<string, number> = { 'Urgent': 1, 'High': 2, 'Medium': 3, 'Low': 4, 'Backlog': 5 };
     const statusOrder: Record<string, number> = { 'To Do': 1, 'Work In Progress': 2, 'Under Review': 3, 'Completed': 4 };
-    
+
     return [...displayTasks].sort((a, b) => {
       let comparison = 0;
-      
+
       switch (sortBy) {
         case 'priority':
           comparison = (priorityOrder[a.priority] || 5) - (priorityOrder[b.priority] || 5);
@@ -268,6 +309,14 @@ const TasksPage = () => {
         case 'status':
           comparison = (statusOrder[a.status] || 5) - (statusOrder[b.status] || 5);
           break;
+        case 'timeInStatus': {
+          // DISABLED: Using updatedAt as a proxy for time in status is inaccurate.
+          // Proper status history tracking is now implemented in the backend.
+          // Sorting by time in status requires fetching status history for each task.
+          // TODO: Implement server-side sorting by time in status
+          comparison = 0;
+          break;
+        }
         case 'dueDate': {
           const aDate = a.dueDate ? new Date(a.dueDate).getTime() : Infinity;
           const bDate = b.dueDate ? new Date(b.dueDate).getTime() : Infinity;
@@ -286,7 +335,7 @@ const TasksPage = () => {
         default:
           comparison = 0;
       }
-      
+
       return sortOrder === 'asc' ? comparison : -comparison;
     });
   }, [displayTasks, sortBy, sortOrder]);
@@ -506,6 +555,8 @@ const TasksPage = () => {
     setSmartFilterQuery('');
     setSmartFilterCriteria(null);
     setSmartFilterCount(0);
+    setFilterPagination(null);
+    setTimeFilter(null);
     setSearchParams(new URLSearchParams(), { replace: true });
     toast.info("All filters cleared");
   }, [setSearchParams]);
@@ -567,7 +618,8 @@ const TasksPage = () => {
     setSearchParams(newParams, { replace: true });
   }, [searchParams, setSearchParams]);
 
-  const hasActiveFilters = searchTerm !== '' || activeFilterCount > 0 || smartFilterCount > 0;
+  const hasActiveFilters = searchTerm !== '' || activeFilterCount > 0 || smartFilterCount > 0 || timeFilter !== null;
+  // Use server-side pagination total when available, otherwise fall back to client-side counts
   const showingCount = sortedTasks.length;
   const totalCount = (tasks || []).length;
 
@@ -819,6 +871,34 @@ const TasksPage = () => {
               ))}
             </div>
           </div>
+
+          {/* Time in Status Filter */}
+          <div className="flex items-center gap-2 pt-3 border-t flex-wrap">
+            <span className="text-sm font-medium text-muted-foreground flex items-center gap-1">
+              <Clock className="h-3 w-3" />
+              Stale tasks:
+            </span>
+            <div className="flex items-center gap-2 flex-wrap">
+              {timeThresholds.map((threshold) => (
+                <TimeInStatusFilterChip
+                  key={threshold}
+                  threshold={threshold}
+                  isActive={timeFilter === threshold}
+                  onClick={() => {
+                    const newFilter = timeFilter === threshold ? null : threshold;
+                    setTimeFilter(newFilter);
+                    const newParams = new URLSearchParams(searchParams);
+                    if (newFilter) {
+                      newParams.set('timeFilter', newFilter.toString());
+                    } else {
+                      newParams.delete('timeFilter');
+                    }
+                    setSearchParams(newParams, { replace: true });
+                  }}
+                />
+              ))}
+            </div>
+          </div>
         </CardContent>
       </Card>
 
@@ -940,26 +1020,48 @@ const TasksPage = () => {
                 Sorted by {sortOptions.find(o => o.value === sortBy)?.label} ({sortOrder === 'asc' ? 'ascending' : 'descending'})
               </CardDescription>
             </div>
-            {sortedTasks.length > 0 && (
+            <div className="flex items-center gap-2">
+              {/* Time in Status Toggle */}
               <Button
-                variant="outline"
+                variant="ghost"
                 size="sm"
-                onClick={toggleAllSelection}
+                onClick={() => setShowTimeInStatus(!showTimeInStatus)}
                 className="gap-2"
+                title={showTimeInStatus ? 'Hide time in status' : 'Show time in status'}
               >
-                {selectedTasks.size === sortedTasks.length ? (
+                {showTimeInStatus ? (
                   <>
-                    <X className="h-4 w-4" />
-                    <span className="hidden sm:inline">Deselect All</span>
+                    <EyeOff className="h-4 w-4" />
+                    <span className="hidden sm:inline">Hide Time</span>
                   </>
                 ) : (
                   <>
-                    <CheckSquare className="h-4 w-4" />
-                    <span className="hidden sm:inline">Select All</span>
+                    <Eye className="h-4 w-4" />
+                    <span className="hidden sm:inline">Show Time</span>
                   </>
                 )}
               </Button>
-            )}
+              {sortedTasks.length > 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={toggleAllSelection}
+                  className="gap-2"
+                >
+                  {selectedTasks.size === sortedTasks.length ? (
+                    <>
+                      <X className="h-4 w-4" />
+                      <span className="hidden sm:inline">Deselect All</span>
+                    </>
+                  ) : (
+                    <>
+                      <CheckSquare className="h-4 w-4" />
+                      <span className="hidden sm:inline">Select All</span>
+                    </>
+                  )}
+                </Button>
+              )}
+            </div>
           </div>
         </CardHeader>
         <CardContent className="p-0 sm:p-6 sm:pt-0">
@@ -1007,9 +1109,7 @@ const TasksPage = () => {
                       </p>
                     )}
                     <div className="flex items-center gap-2 flex-wrap pl-7 mt-2">
-                      <Badge variant={getStatusVariant(task.status)}>
-                        {task.status}
-                      </Badge>
+                      <TaskStatusWithTime task={task} showTime={showTimeInStatus} />
                       {task.dueDate && (
                         <span className={cn(
                           "text-xs",
@@ -1053,7 +1153,12 @@ const TasksPage = () => {
                       </TableHead>
                       <TableHead>Task</TableHead>
                       <TableHead>Priority</TableHead>
-                      <TableHead>Status</TableHead>
+                      <TableHead>
+                        <span className="flex items-center gap-1">
+                          Status
+                          {showTimeInStatus && <Clock className="h-3 w-3 text-muted-foreground" />}
+                        </span>
+                      </TableHead>
                       <TableHead>Due Date</TableHead>
                       <TableHead>Project</TableHead>
                       <TableHead>Actions</TableHead>
@@ -1112,9 +1217,11 @@ const TasksPage = () => {
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <Badge variant={getStatusVariant(task.status)}>
-                            {task.status}
-                          </Badge>
+                          <TaskStatusCell
+                            task={task}
+                            showTime={showTimeInStatus}
+                            compact
+                          />
                         </TableCell>
                         <TableCell>
                           {task.dueDate ? (

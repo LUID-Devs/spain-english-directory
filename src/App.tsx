@@ -85,6 +85,7 @@ const DocsPage = React.lazy(() => import('@/pages/docs/DocsPage'));
 // Public Status Pages (lazy loaded)
 const ProjectStatusPage = React.lazy(() => import('@/pages/status/ProjectStatusPage'));
 const TaskSharePage = React.lazy(() => import('@/pages/share/TaskSharePage'));
+const SharedTaskView = React.lazy(() => import('@/pages/SharedTaskView'));
 
 // Career Tools (lazy loaded)
 const JobApplicationTracker = React.lazy(() => import('@/career-tools/job-tracker'));
@@ -176,6 +177,7 @@ function AppContent() {
           {/* Public Project Status Routes */}
           <Route path="/status/:token" element={<ProjectStatusPage />} />
           <Route path="/share/:token" element={<TaskSharePage />} />
+          <Route path="/shared-task" element={<SharedTaskView />} />
 
           {/* Auth Routes */}
           <Route path="/auth/login" element={<LoginPage />} />

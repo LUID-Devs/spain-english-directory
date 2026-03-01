@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Calendar, Clock, Flag, Tag, User, Timer, Play } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, Flag, Tag, User, Timer, Play, History } from 'lucide-react';
 import {
   useGetTaskQuery,
   useGetTimeLogsQuery,
@@ -20,6 +20,7 @@ import AttachmentsSection from '@/components/AttachmentsSection';
 import CommentsSection from '@/components/CommentsSection';
 import { TimeTrackingSection } from '@/components/TimeTracking';
 import { ManualTimeEntryForm } from '@/components/TimeTracking';
+import { TaskStatusHistoryPanel } from '@/components/TaskStatusHistoryPanel';
 import { sanitizeHtmlContent } from '@/lib/utils';
 import { toast } from 'sonner';
 
@@ -415,6 +416,9 @@ const TaskDetailPage = () => {
             <p className="text-sm text-muted-foreground">{formattedDates.updatedAt}</p>
           </CardContent>
         </Card>
+
+        {/* Time in Status Panel */}
+        <TaskStatusHistoryPanel task={task} />
       </div>
 
       <Card>

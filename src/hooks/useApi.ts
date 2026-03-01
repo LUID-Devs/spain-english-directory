@@ -3288,8 +3288,89 @@ export const useGetSubscriptionStatus = (viewId: number, options: { skip?: boole
   return { data, isLoading, error, refetch: fetchStatus };
 };
 
+// ==================== TIME IN STATUS HOOKS ====================
+
+export const useGetTaskStatusHistoryQuery = (taskId: number | undefined, options: { skip?: boolean } = {}) => {
+  const { statusHistory, setStatusHistory, setLoading, setError } = useApiStore();
+  const { getOrCreateRequest } = useRequestManager();
+
+  const fetchStatusHistory = useCallback(async () => {
+    if (!taskId) return;
+
+    try {
+      setLoading('statusHistory', true);
+      const data = await getOrCreateRequest(
+        `taskStatusHistory:${taskId}`,
+        () => apiService.getTaskStatusHistory(taskId),
+        5000
+      );
+      setStatusHistory(taskId, data);
+      return data;
+    } catch (error) {
+      console.error('Failed to fetch status history:', error);
+      setError('statusHistory', error instanceof Error ? error.message : 'Failed to fetch status history');
+      return undefined;
+    } finally {
+      setLoading('statusHistory', false);
+    }
+  }, [taskId, setStatusHistory, setLoading, setError, getOrCreateRequest]);
+
+  useEffect(() => {
+    if (options.skip || !taskId) return;
+    fetchStatusHistory();
+  }, [taskId, options.skip, fetchStatusHistory]);
+
+  return {
+    data: taskId ? statusHistory[taskId] : undefined,
+    isLoading: statusHistory.isLoading,
+    isError: !!statusHistory.error,
+    error: statusHistory.error ? new Error(statusHistory.error) : null,
+    refetch: fetchStatusHistory,
+  };
+};
+
+export const useGetTaskStatusTimeBreakdownQuery = (taskId: number | undefined, options: { skip?: boolean } = {}) => {
+  const { statusTimeBreakdown, setStatusTimeBreakdown, setLoading, setError } = useApiStore();
+  const { getOrCreateRequest } = useRequestManager();
+
+  const fetchBreakdown = useCallback(async () => {
+    if (!taskId) return;
+
+    try {
+      setLoading('statusTimeBreakdown', true);
+      const data = await getOrCreateRequest(
+        `taskStatusBreakdown:${taskId}`,
+        () => apiService.getTaskStatusTimeBreakdown(taskId),
+        5000
+      );
+      setStatusTimeBreakdown(taskId, data);
+      return data;
+    } catch (error) {
+      console.error('Failed to fetch status time breakdown:', error);
+      setError('statusTimeBreakdown', error instanceof Error ? error.message : 'Failed to fetch breakdown');
+      return undefined;
+    } finally {
+      setLoading('statusTimeBreakdown', false);
+    }
+  }, [taskId, setStatusTimeBreakdown, setLoading, setError, getOrCreateRequest]);
+
+  useEffect(() => {
+    if (options.skip || !taskId) return;
+    fetchBreakdown();
+  }, [taskId, options.skip, fetchBreakdown]);
+
+  return {
+    data: taskId ? statusTimeBreakdown[taskId] : undefined,
+    isLoading: statusTimeBreakdown.isLoading,
+    isError: !!statusTimeBreakdown.error,
+    error: statusTimeBreakdown.error ? new Error(statusTimeBreakdown.error) : null,
+    refetch: fetchBreakdown,
+  };
+};
+
 // Export types and enums
 export { Status, Priority, TaskType } from '@/services/apiService';
 export type { Task, Project, User, Comment, Attachment, UserWithStats, TaskStatus, SavedView, Goal, GoalTemplate, SearchSuggestion, GitLink, AsanaLink, TimeLog, TimeEstimate, ActiveTimer, TimeLogsResponse, ProjectTimeReport, AdvancedTaskFilter } from '@/services/apiService';
 export type { FilterPaginationOptions } from '@/services/advancedFilterApi';
 export type { FilterMetadata as FilterMetadataResponse } from '@/services/apiService';
+export type { TaskStatusHistory, StatusTimeBreakdown, StatusTimeBreakdownResponse } from '@/services/apiService';

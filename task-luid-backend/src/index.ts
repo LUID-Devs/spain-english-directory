@@ -4,9 +4,10 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import advancedFilterRoutes from "./routes/advancedFilterRoutes";
-import aiFilterRoutes from "./routes/aiFilterRoutes";
-import gitReviewRoutes from "./routes/gitReviewRoutes";
-import semanticSearchRoutes from "./routes/semanticSearchRoutes";
+import formTemplateRoutes from "./routes/formTemplateRoutes";
+import taskShareRoutes from "./routes/taskShareRoutes";
+import integrationRoutes from "./routes/integrationRoutes";
+import timeInStatusRoutes from "./routes/timeInStatusRoutes";
 
 // Load environment variables from .env file
 dotenv.config();
@@ -30,9 +31,10 @@ app.get("/health", (req: Request, res: Response) => {
 
 // API Routes
 app.use("/api", advancedFilterRoutes);
-app.use("/api", aiFilterRoutes);
-app.use("/api", gitReviewRoutes);
-app.use("/api", semanticSearchRoutes);
+app.use("/api", formTemplateRoutes);
+app.use("/api", taskShareRoutes);
+app.use("/api", integrationRoutes);
+app.use("/api", timeInStatusRoutes);
 
 // Error handling middleware
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
