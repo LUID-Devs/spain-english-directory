@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { 
@@ -14,7 +14,9 @@ import {
   Users,
   Lock,
   Globe,
-  ChevronRight
+  Search,
+  ListFilter,
+  Briefcase
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,6 +24,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Select,
   SelectContent,
@@ -31,18 +35,29 @@ import {
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/app/authProvider';
-import { apiService, Project, Goal } from '@/services/apiService';
+import { apiService, Project, Goal, Task } from '@/services/apiService';
+import { useCurrentUser } from '@/stores/userStore';
 import { toast } from 'sonner';
 import { formatISO } from 'date-fns';
 
 const NO_PROJECT_VALUE = '__none__';
 
 type CreateType = 'project' | 'initiative';
+type ProjectStatus = 'planning' | 'active' | 'on_hold' | 'completed' | 'cancelled';
+
+const PROJECT_STATUS_OPTIONS: { value: ProjectStatus; label: string; color: string }[] = [
+  { value: 'planning', label: 'Planning', color: 'bg-gray-500' },
+  { value: 'active', label: 'Active', color: 'bg-green-500' },
+  { value: 'on_hold', label: 'On Hold', color: 'bg-yellow-500' },
+  { value: 'completed', label: 'Completed', color: 'bg-blue-500' },
+  { value: 'cancelled', label: 'Cancelled', color: 'bg-red-500' },
+];
 
 const MobileAppCreatePage = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { activeOrganization, user } = useAuth();
+  const { currentUser } = useCurrentUser();
   const [activeTab, setActiveTab] = useState<CreateType>('project');
 
   const storedOrganizationValue = typeof window !== 'undefined'
@@ -64,6 +79,12 @@ const MobileAppCreatePage = () => {
   const [projectDescription, setProjectDescription] = useState('');
   const [projectStartDate, setProjectStartDate] = useState('');
   const [projectEndDate, setProjectEndDate] = useState('');
+  const [projectStatus, setProjectStatus] = useState<ProjectStatus>('planning');
+  
+  // Task attachment state
+  const [taskSearch, setTaskSearch] = useState('');
+  const [selectedTaskIds, setSelectedTaskIds] = useState<Set<number>>(new Set());
+  const [showTaskSelector, setShowTaskSelector] = useState(false);
 
   // Initiative form state
   const [initiativeTitle, setInitiativeTitle] = useState('');
@@ -74,16 +95,41 @@ const MobileAppCreatePage = () => {
   const [initiativeTargetDate, setInitiativeTargetDate] = useState('');
   const [initiativeProjectId, setInitiativeProjectId] = useState<string>('');
 
+  // Fetch projects for initiative linking
   const { data: projects } = useQuery({
     queryKey: ['projects'],
     queryFn: () => apiService.getProjects(),
     enabled: activeTab === 'initiative',
   });
 
+  // Fetch available tasks for attachment
+  const { data: availableTasks, isLoading: tasksLoading } = useQuery({
+    queryKey: ['tasks', 'user', currentUser?.userId],
+    queryFn: () => currentUser?.userId ? apiService.getTasksByUser(currentUser.userId) : Promise.resolve([]),
+    enabled: activeTab === 'project' && showTaskSelector && !!currentUser?.userId,
+  });
+
+  const filteredTasks = useMemo(() => {
+    const activeTasks = (availableTasks || []).filter((task: Task) => !task.archivedAt);
+    if (!taskSearch.trim()) return activeTasks;
+    const query = taskSearch.toLowerCase();
+    return activeTasks.filter((task: Task) => task.title.toLowerCase().includes(query));
+  }, [availableTasks, taskSearch]);
+
   const createProjectMutation = useMutation({
-    mutationFn: (data: Partial<Project>) => apiService.createProject(data),
+    mutationFn: async (data: Partial<Project>) => {
+      const newProject = await apiService.createProject(data);
+      
+      // Attach selected tasks if any
+      if (selectedTaskIds.size > 0) {
+        await apiService.bulkMoveToProject(Array.from(selectedTaskIds), Number(newProject.id));
+      }
+      
+      return newProject;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
       toast.success('Project created successfully');
       navigate('/dashboard/projects');
     },
@@ -107,6 +153,18 @@ const MobileAppCreatePage = () => {
   const isProjectValid = projectName.trim() && projectStartDate && projectEndDate;
   const isInitiativeValid = initiativeTitle.trim() && organizationId;
 
+  const toggleTask = (taskId: number) => {
+    setSelectedTaskIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(taskId)) {
+        next.delete(taskId);
+      } else {
+        next.add(taskId);
+      }
+      return next;
+    });
+  };
+
   const handleCreateProject = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!isProjectValid) return;
@@ -124,6 +182,7 @@ const MobileAppCreatePage = () => {
       description: projectDescription.trim() || undefined,
       startDate: formatISO(start, { representation: 'complete' }),
       endDate: formatISO(end, { representation: 'complete' }),
+      status: projectStatus,
     });
   };
 
@@ -155,6 +214,8 @@ const MobileAppCreatePage = () => {
     return `${diffDays} day${diffDays !== 1 ? 's' : ''}`;
   };
 
+  const getSelectedTasksCount = () => selectedTaskIds.size;
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -176,7 +237,7 @@ const MobileAppCreatePage = () => {
         </div>
       </header>
 
-      <main className="p-4 pb-24 max-w-lg mx-auto">
+      <main className="p-4 pb-32 max-w-lg mx-auto">
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as CreateType)} className="mb-6">
           <TabsList className="grid w-full grid-cols-2">
@@ -207,6 +268,7 @@ const MobileAppCreatePage = () => {
             </div>
 
             <form onSubmit={handleCreateProject} className="space-y-5">
+              {/* Project Name */}
               <div className="space-y-2">
                 <Label htmlFor="projectName" className="text-base">
                   Project Name <span className="text-destructive">*</span>
@@ -221,6 +283,7 @@ const MobileAppCreatePage = () => {
                 />
               </div>
 
+              {/* Description */}
               <div className="space-y-2">
                 <Label htmlFor="projectDescription" className="text-base">Description</Label>
                 <Textarea
@@ -235,6 +298,32 @@ const MobileAppCreatePage = () => {
 
               <Separator />
 
+              {/* Status Selection */}
+              <div className="space-y-3">
+                <Label className="text-base flex items-center gap-2">
+                  <ListFilter className="h-4 w-4 text-primary" />
+                  Status
+                </Label>
+                <Select value={projectStatus} onValueChange={(v) => setProjectStatus(v as ProjectStatus)}>
+                  <SelectTrigger className="h-12">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PROJECT_STATUS_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        <span className="flex items-center gap-2">
+                          <span className={`w-2 h-2 rounded-full ${option.color}`} />
+                          {option.label}
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <Separator />
+
+              {/* Timeline */}
               <div className="space-y-4">
                 <Label className="text-base">
                   <Calendar className="h-4 w-4 inline mr-2" />
@@ -274,6 +363,90 @@ const MobileAppCreatePage = () => {
                     Duration: <span className="font-medium text-foreground">{getProjectDurationText()}</span>
                   </p>
                 )}
+              </div>
+
+              <Separator />
+
+              {/* Attach Existing Tasks */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label className="text-base flex items-center gap-2">
+                    <Briefcase className="h-4 w-4 text-primary" />
+                    Attach Existing Tasks
+                  </Label>
+                  {getSelectedTasksCount() > 0 && (
+                    <Badge variant="secondary">
+                      {getSelectedTasksCount()} selected
+                    </Badge>
+                  )}
+                </div>
+                
+                {!showTaskSelector ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full h-12"
+                    onClick={() => setShowTaskSelector(true)}
+                  >
+                    <Search className="h-4 w-4 mr-2" />
+                    Select tasks to attach
+                  </Button>
+                ) : (
+                  <Card className="border-dashed">
+                    <CardContent className="p-3 space-y-3">
+                      <Input
+                        placeholder="Search tasks..."
+                        value={taskSearch}
+                        onChange={(e) => setTaskSearch(e.target.value)}
+                        className="h-10"
+                      />
+                      <div className="max-h-48 overflow-y-auto space-y-2">
+                        {tasksLoading ? (
+                          <div className="flex items-center justify-center py-4">
+                            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                          </div>
+                        ) : filteredTasks.length === 0 ? (
+                          <p className="text-sm text-muted-foreground text-center py-4">
+                            No tasks found.
+                          </p>
+                        ) : (
+                          filteredTasks.map((task: Task) => (
+                            <label
+                              key={task.id}
+                              className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted cursor-pointer"
+                            >
+                              <Checkbox
+                                checked={selectedTaskIds.has(task.id)}
+                                onCheckedChange={() => toggleTask(task.id)}
+                                className="mt-0.5"
+                              />
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium truncate">{task.title}</p>
+                                {task.project?.name && (
+                                  <p className="text-xs text-muted-foreground">
+                                    Current: {task.project.name}
+                                  </p>
+                                )}
+                              </div>
+                            </label>
+                          ))
+                        )}
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="w-full"
+                        onClick={() => setShowTaskSelector(false)}
+                      >
+                        Done
+                      </Button>
+                    </CardContent>
+                  </Card>
+                )}
+                <p className="text-xs text-muted-foreground">
+                  Selected tasks will be moved into this project after creation.
+                </p>
               </div>
 
               {/* Quick Tips */}
@@ -479,6 +652,7 @@ const MobileAppCreatePage = () => {
               <>
                 <FolderPlus className="h-5 w-5 mr-2" />
                 Create Project
+                {getSelectedTasksCount() > 0 && ` (${getSelectedTasksCount()} tasks)`}
               </>
             )}
           </Button>

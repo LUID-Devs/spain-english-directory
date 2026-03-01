@@ -1,8 +1,8 @@
+import dotenv from "dotenv";
 import express, { Application, Request, Response, NextFunction } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
-import dotenv from "dotenv";
 import advancedFilterRoutes from "./routes/advancedFilterRoutes";
 import aiFilterRoutes from "./routes/aiFilterRoutes";
 import gitReviewRoutes from "./routes/gitReviewRoutes";

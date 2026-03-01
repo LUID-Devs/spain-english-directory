@@ -1,13 +1,13 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Command } from 'cmdk';
-import {
-  LayoutDashboard,
-  FolderKanban,
-  ListTodo,
-  Users,
-  Settings,
-  Clock,
+import { 
+  LayoutDashboard, 
+  FolderKanban, 
+  ListTodo, 
+  Users, 
+  Settings, 
+  Clock, 
   Zap,
   Archive,
   Search,
@@ -20,7 +20,6 @@ import {
   Keyboard,
   Inbox,
   Plug,
-  Library,
   Link2,
   ExternalLink
 } from 'lucide-react';
@@ -137,15 +136,6 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
       action: () => navigateTo('/dashboard/tasks'),
       category: 'Navigation',
       keywords: ['task', 'todo']
-    },
-    {
-      id: 'library',
-      title: 'Go to Library',
-      shortcut: 'G B',
-      icon: <Library className="w-4 h-4" />,
-      action: () => navigateTo('/dashboard/library'),
-      category: 'Navigation',
-      keywords: ['library', 'content', 'workspace', 'browse']
     },
     {
       id: 'triage',
