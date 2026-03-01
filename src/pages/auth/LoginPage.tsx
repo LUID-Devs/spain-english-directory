@@ -298,7 +298,7 @@ const LoginPage = () => {
             )}
 
             <form onSubmit={handleMfaSubmit} className="space-y-6">
-              <div>
+              <div className="relative">
                 <label htmlFor="mfaCode" className="block text-sm font-medium text-gray-300 mb-2">
                   Verification Code
                 </label>
@@ -309,11 +309,17 @@ const LoginPage = () => {
                   value={mfaCode}
                   onChange={(e) => setMfaCode(e.target.value)}
                   required
-                  className="w-full px-4 py-3 bg-gray-900/50 border border-gray-500/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500/50 focus:border-gray-500/50 transition-all duration-300"
+                  disabled={loading}
+                  className="w-full px-4 py-3 bg-gray-900/50 border border-gray-500/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500/50 focus:border-gray-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-800/50"
                   placeholder="Enter verification code"
-                  whileFocus={{ scale: 1.02 }}
+                  whileFocus={{ scale: loading ? 1 : 1.02 }}
                   transition={{ type: "spring", stiffness: 300, damping: 20 }}
                 />
+                {loading && (
+                  <div className="absolute right-3 top-[34px]">
+                    <div className="w-4 h-4 border-2 border-gray-500/30 border-t-gray-500 rounded-full animate-spin"></div>
+                  </div>
+                )}
               </div>
 
               <motion.button
@@ -465,7 +471,7 @@ const LoginPage = () => {
               )}
 
               <form onSubmit={handleLogin} className="space-y-6">
-                <div>
+                <div className="relative">
                   <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-2">
                     Username
                   </label>
@@ -478,21 +484,27 @@ const LoginPage = () => {
                     onChange={handleInputChange}
                     onBlur={handleInputBlur}
                     required
-                    className={`w-full px-4 py-3 bg-gray-900/50 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 transition-all duration-300 ${
+                    disabled={loading}
+                    className={`w-full px-4 py-3 bg-gray-900/50 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-800/50 ${
                       usernameError
                         ? "border-red-500/60 focus:ring-red-500/50 focus:border-red-500/70"
                         : "border-blue-500/20 focus:ring-blue-500/50 focus:border-blue-500/50"
                     }`}
                     placeholder="Enter your username"
-                    whileFocus={{ scale: 1.02 }}
+                    whileFocus={{ scale: loading ? 1 : 1.02 }}
                     transition={{ type: "spring", stiffness: 300, damping: 20 }}
                   />
+                  {loading && (
+                    <div className="absolute right-3 top-[34px]">
+                      <div className="w-4 h-4 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin"></div>
+                    </div>
+                  )}
                   {usernameError && (
                     <p className="mt-2 text-sm text-red-400">{usernameError}</p>
                   )}
                 </div>
 
-                <div>
+                <div className="relative">
                   <div className="flex items-center justify-between mb-2">
                     <label htmlFor="password" className="block text-sm font-medium text-gray-300">
                       Password
@@ -511,6 +523,7 @@ const LoginPage = () => {
                     onChange={handleInputChange}
                     onBlur={handleInputBlur}
                     required
+                    disabled={loading}
                     autoComplete="current-password"
                     placeholder="••••••••"
                     className={

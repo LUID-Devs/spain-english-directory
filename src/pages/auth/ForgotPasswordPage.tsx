@@ -176,7 +176,7 @@ const ForgotPasswordPage = () => {
               )}
 
               <form onSubmit={handleSubmit} className="space-y-6">
-                <div>
+                <div className="relative">
                   <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-2">
                     Username
                   </label>
@@ -187,12 +187,17 @@ const ForgotPasswordPage = () => {
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     required
-                    disabled={rateLimited}
-                    className="w-full px-4 py-3 bg-gray-900/50 border border-blue-500/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={rateLimited || loading}
+                    className="w-full px-4 py-3 bg-gray-900/50 border border-blue-500/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-800/50"
                     placeholder="Enter your username"
-                    whileFocus={{ scale: 1.02 }}
+                    whileFocus={{ scale: (rateLimited || loading) ? 1 : 1.02 }}
                     transition={{ type: "spring", stiffness: 300, damping: 20 }}
                   />
+                  {loading && (
+                    <div className="absolute right-3 top-[34px]">
+                      <div className="w-4 h-4 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin"></div>
+                    </div>
+                  )}
                 </div>
 
                 <motion.button

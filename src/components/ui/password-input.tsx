@@ -9,17 +9,19 @@ interface PasswordInputProps extends Omit<React.InputHTMLAttributes<HTMLInputEle
 }
 
 const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
-  ({ className, containerClassName, toggleButtonClassName, ...props }, ref) => {
+  ({ className, containerClassName, toggleButtonClassName, disabled, ...props }, ref) => {
     const [showPassword, setShowPassword] = useState(false);
 
     return (
       <div className={cn("relative", containerClassName)}>
         <input
           type={showPassword ? "text" : "password"}
+          disabled={disabled}
           className={cn(
             "w-full px-4 py-3 bg-background border border-input rounded-lg text-foreground placeholder:text-muted-foreground",
             "focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring",
             "transition-all duration-300 pr-12",
+            "disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-800/50",
             className
           )}
           ref={ref}

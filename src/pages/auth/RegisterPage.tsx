@@ -307,7 +307,7 @@ const RegisterPage = () => {
             )}
 
             <form onSubmit={handleConfirmation} className="space-y-6">
-              <div>
+              <div className="relative">
                 <label htmlFor="confirmationCode" className="block text-sm font-medium text-gray-300 mb-2">
                   Confirmation Code
                 </label>
@@ -318,11 +318,17 @@ const RegisterPage = () => {
                   value={confirmationCode}
                   onChange={(e) => setConfirmationCode(e.target.value)}
                   required
-                  className="w-full px-4 py-3 bg-gray-900/50 border border-gray-500/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500/50 focus:border-gray-500/50 transition-all duration-300"
+                  disabled={loading}
+                  className="w-full px-4 py-3 bg-gray-900/50 border border-gray-500/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500/50 focus:border-gray-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-800/50"
                   placeholder="Enter confirmation code"
-                  whileFocus={{ scale: 1.02 }}
+                  whileFocus={{ scale: loading ? 1 : 1.02 }}
                   transition={{ type: "spring", stiffness: 300, damping: 20 }}
                 />
+                {loading && (
+                  <div className="absolute right-3 top-[34px]">
+                    <div className="w-4 h-4 border-2 border-gray-500/30 border-t-gray-500 rounded-full animate-spin"></div>
+                  </div>
+                )}
                 <p className="mt-2 text-xs text-gray-500">
                   Didn&apos;t receive the email? Check your spam folder or request a new code below.
                 </p>
@@ -622,7 +628,7 @@ const RegisterPage = () => {
 
               <form onSubmit={handleRegister} className="space-y-6">
                 {/* Username */}
-                <div>
+                <div className="relative">
                   <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-2">
                     Username
                   </label>
@@ -633,15 +639,21 @@ const RegisterPage = () => {
                     value={formData.username}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-4 py-3 bg-gray-900/50 border border-blue-500/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300"
+                    disabled={loading}
+                    className="w-full px-4 py-3 bg-gray-900/50 border border-blue-500/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-800/50"
                     placeholder="Choose a username"
-                    whileFocus={{ scale: 1.02 }}
+                    whileFocus={{ scale: loading ? 1 : 1.02 }}
                     transition={{ type: "spring", stiffness: 300, damping: 20 }}
                   />
+                  {loading && (
+                    <div className="absolute right-3 top-[34px]">
+                      <div className="w-4 h-4 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin"></div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Email */}
-                <div>
+                <div className="relative">
                   <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
                     Email
                   </label>
@@ -655,11 +667,17 @@ const RegisterPage = () => {
                     value={formData.email}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-4 py-3 bg-gray-900/50 border border-blue-500/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300"
+                    disabled={loading}
+                    className="w-full px-4 py-3 bg-gray-900/50 border border-blue-500/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-800/50"
                     placeholder="you@example.com"
-                    whileFocus={{ scale: 1.02 }}
+                    whileFocus={{ scale: loading ? 1 : 1.02 }}
                     transition={{ type: "spring", stiffness: 300, damping: 20 }}
                   />
+                  {loading && (
+                    <div className="absolute right-3 top-[34px]">
+                      <div className="w-4 h-4 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin"></div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Password */}
@@ -673,6 +691,7 @@ const RegisterPage = () => {
                     value={formData.password}
                     onChange={handleInputChange}
                     required
+                    disabled={loading}
                     autoComplete="new-password"
                     placeholder="Create a password"
                   />
@@ -722,6 +741,7 @@ const RegisterPage = () => {
                     value={formData.confirmPassword}
                     onChange={handleInputChange}
                     required
+                    disabled={loading}
                     autoComplete="new-password"
                     placeholder="Confirm your password"
                   />
