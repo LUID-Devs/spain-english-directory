@@ -184,7 +184,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     recognition: false,
     synthesis: false,
   });
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const recognitionRef = useRef<any | null>(null);
   const synthRef = useRef<SpeechSynthesis | null>(null);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
@@ -340,7 +340,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
       recognition.interimResults = true;
       recognition.lang = 'en-US';
       
-      recognition.onresult = (event: SpeechRecognitionEvent) => {
+      recognition.onresult = (event: any) => {
         const results = event.results;
         let finalTranscript = '';
         let interimTranscript = '';
@@ -360,7 +360,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         }
       };
       
-      recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+      recognition.onerror = (event: any) => {
         console.error('Speech recognition error:', event.error);
         setIsListening(false);
       };

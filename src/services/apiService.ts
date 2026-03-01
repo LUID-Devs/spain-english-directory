@@ -363,6 +363,13 @@ export interface Task {
   triaged?: boolean;
   createdAt?: string;
   updatedAt?: string;
+  
+  // Nested sub-issues hierarchy (Task #656)
+  parentTaskId?: number | null;
+  subTasks?: Task[];
+  subTaskCount?: number;
+  depth?: number;
+  isExpanded?: boolean;
 
   author?: User;
   assignee?: User;
@@ -1436,10 +1443,10 @@ class ApiService {
   }
 
   // AI Task Parsing
-  async parseTaskWithAI(text: string, teamMembers: string[]): Promise<AIParseTaskResponse> {
+  async parseTaskWithAI(text: string, teamMembers: string[], model?: string): Promise<AIParseTaskResponse> {
     const response = await this.request<AIParseTaskResponse>('/api/ai/parse-task', {
       method: 'POST',
-      body: JSON.stringify({ text, teamMembers }),
+      body: JSON.stringify({ text, teamMembers, model }),
     });
 
     if (response?.data?.priority) {
@@ -1465,7 +1472,7 @@ class ApiService {
     description?: string;
     priority: string;
     tags?: string;
-  }): Promise<{
+  }, model?: string): Promise<{
     success: boolean;
     suggestedDueDate?: string;
     reasoning?: string;
@@ -1479,6 +1486,7 @@ class ApiService {
     const payload = {
       ...taskData,
       priority: mapPriorityForApi(taskData.priority) as string,
+      model,
     };
 
     return this.request('/api/ai/suggest-due-date', {
@@ -1492,7 +1500,8 @@ class ApiService {
     text: string,
     availableProjects?: string[],
     availableLabels?: string[],
-    teamMembers?: string[]
+    teamMembers?: string[],
+    model?: string
   ): Promise<AIParseSearchFilterResponse> {
     return this.request<AIParseSearchFilterResponse>('/api/ai/parse-search-filter', {
       method: 'POST',
@@ -1501,6 +1510,7 @@ class ApiService {
         availableProjects,
         availableLabels,
         teamMembers,
+        model,
       }),
     });
   }
@@ -1559,6 +1569,101 @@ class ApiService {
       method: 'POST',
       body: JSON.stringify({ taskIds }),
     });
+  }
+
+  // ==================== NESTED SUB-ISSUES API (Task #656) ====================
+
+  async getTaskWithSubTasks(taskId: number, options?: { includeSubTasks?: boolean; maxDepth?: number }): Promise<Task> {
+    const params = new URLSearchParams();
+    if (options?.includeSubTasks) params.append('includeSubTasks', 'true');
+    if (options?.maxDepth) params.append('maxDepth', options.maxDepth.toString());
+    
+    const queryString = params.toString();
+    const task = await this.request<Task>(`/tasks/${taskId}${queryString ? `?${queryString}` : ''}`);
+    return mapTaskPriorityFromApi(task);
+  }
+
+  async getSubTasks(parentTaskId: number, options?: { recursive?: boolean; maxDepth?: number }): Promise<Task[]> {
+    const params = new URLSearchParams();
+    if (options?.recursive) params.append('recursive', 'true');
+    if (options?.maxDepth) params.append('maxDepth', options.maxDepth.toString());
+    
+    const queryString = params.toString();
+    const tasks = await this.request<Task[]>(`/tasks/${parentTaskId}/sub-tasks${queryString ? `?${queryString}` : ''}`);
+    return mapTasksPriorityFromApi(tasks);
+  }
+
+  async createSubTask(parentTaskId: number, task: Partial<Task>): Promise<Task> {
+    // Validate for zero-width characters to prevent visual spoofing
+    if (task.title !== undefined || task.description !== undefined) {
+      const { isValid, error } = validateTaskContent(task.title, task.description);
+      if (!isValid) {
+        throw new Error(error);
+      }
+    }
+
+    const payload = {
+      ...task,
+      priority: mapPriorityForApi(task.priority as string | null | undefined),
+      parentTaskId,
+    };
+
+    const created = await this.request<Task>(`/tasks/${parentTaskId}/sub-tasks`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+    return mapTaskPriorityFromApi(created);
+  }
+
+  async setParentTask(taskId: number, parentTaskId: number | null): Promise<Task> {
+    const updated = await this.request<Task>(`/tasks/${taskId}/parent`, {
+      method: 'PATCH',
+      body: JSON.stringify({ parentTaskId }),
+    });
+    return mapTaskPriorityFromApi(updated);
+  }
+
+  async moveSubTask(taskId: number, newParentTaskId: number | null, newOrder?: number): Promise<Task> {
+    const updated = await this.request<Task>(`/tasks/${taskId}/move`, {
+      method: 'PATCH',
+      body: JSON.stringify({ parentTaskId: newParentTaskId, order: newOrder }),
+    });
+    return mapTaskPriorityFromApi(updated);
+  }
+
+  async getTaskHierarchy(taskId: number): Promise<{ 
+    task: Task; 
+    ancestors: Task[]; 
+    descendants: Task[];
+    siblings: Task[];
+  }> {
+    const response = await this.request<{
+      task: Task;
+      ancestors: Task[];
+      descendants: Task[];
+      siblings: Task[];
+    }>(`/tasks/${taskId}/hierarchy`);
+    
+    return {
+      task: mapTaskPriorityFromApi(response.task),
+      ancestors: mapTasksPriorityFromApi(response.ancestors),
+      descendants: mapTasksPriorityFromApi(response.descendants),
+      siblings: mapTasksPriorityFromApi(response.siblings),
+    };
+  }
+
+  async getProjectTasksWithHierarchy(projectId: number, options?: { 
+    includeSubTasks?: boolean;
+    rootOnly?: boolean;
+  }): Promise<Task[]> {
+    const params = new URLSearchParams();
+    params.append('projectId', projectId.toString());
+    if (options?.includeSubTasks) params.append('includeSubTasks', 'true');
+    if (options?.rootOnly) params.append('rootOnly', 'true');
+    
+    const queryString = params.toString();
+    const tasks = await this.request<Task[]>(`/tasks/hierarchy${queryString ? `?${queryString}` : ''}`);
+    return mapTasksPriorityFromApi(tasks);
   }
 
   // Duplicate Detection
@@ -1887,6 +1992,83 @@ class ApiService {
 
   async getTaskPullRequests(taskId: number): Promise<{ success: boolean; data: GitLink[]; count: number }> {
     return this.request<{ success: boolean; data: GitLink[]; count: number }>(`/api/tasks/${taskId}/git-links/pull-requests`);
+  }
+
+  // ==================== GIT REVIEW API ====================
+
+  async getPRDiff(prId: number): Promise<{ success: boolean; diff: PRDiff }> {
+    return this.request<{ success: boolean; diff: PRDiff }>(`/api/git/pull-requests/${prId}/diff`);
+  }
+
+  async getPRComments(prId: number): Promise<{ success: boolean; comments: PRComment[] }> {
+    return this.request<{ success: boolean; comments: PRComment[] }>(`/api/git/pull-requests/${prId}/comments`);
+  }
+
+  async addPRComment(prId: number, comment: Omit<PRComment, 'id' | 'createdAt' | 'updatedAt' | 'author'>): Promise<{ success: boolean; comment: PRComment }> {
+    return this.request<{ success: boolean; comment: PRComment }>(`/api/git/pull-requests/${prId}/comments`, {
+      method: 'POST',
+      body: JSON.stringify(comment),
+    });
+  }
+
+  async updatePRComment(commentId: number, text: string): Promise<{ success: boolean; comment: PRComment }> {
+    return this.request<{ success: boolean; comment: PRComment }>(`/api/git/comments/${commentId}`, {
+      method: 'PUT',
+      body: JSON.stringify({ text }),
+    });
+  }
+
+  async deletePRComment(commentId: number): Promise<{ success: boolean }> {
+    return this.request<{ success: boolean }>(`/api/git/comments/${commentId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async resolvePRComment(commentId: number): Promise<{ success: boolean; comment: PRComment }> {
+    return this.request<{ success: boolean; comment: PRComment }>(`/api/git/comments/${commentId}/resolve`, {
+      method: 'POST',
+    });
+  }
+
+  async requestPRReview(prId: number, requestedFromUserId: number, message?: string, dueDate?: string): Promise<{ success: boolean; request: PRReviewRequest }> {
+    return this.request<{ success: boolean; request: PRReviewRequest }>(`/api/git/pull-requests/${prId}/request-review`, {
+      method: 'POST',
+      body: JSON.stringify({ requestedFromUserId, message, dueDate }),
+    });
+  }
+
+  async getPRReviewRequests(prId: number): Promise<{ success: boolean; requests: PRReviewRequest[] }> {
+    return this.request<{ success: boolean; requests: PRReviewRequest[] }>(`/api/git/pull-requests/${prId}/review-requests`);
+  }
+
+  async getPendingReviewRequests(): Promise<{ success: boolean; requests: PRReviewRequest[] }> {
+    return this.request<{ success: boolean; requests: PRReviewRequest[] }>('/api/git/review-requests/pending');
+  }
+
+  async respondToReviewRequest(requestId: number, accept: boolean, message?: string): Promise<{ success: boolean; request: PRReviewRequest }> {
+    return this.request<{ success: boolean; request: PRReviewRequest }>(`/api/git/review-requests/${requestId}/respond`, {
+      method: 'POST',
+      body: JSON.stringify({ accept, message }),
+    });
+  }
+
+  async startAIReview(prId: number, agentId?: number, options?: {
+    checkSecurity?: boolean;
+    checkPerformance?: boolean;
+    checkBestPractices?: boolean;
+  }): Promise<{ success: boolean; review: AIReviewResult }> {
+    return this.request<{ success: boolean; review: AIReviewResult }>(`/api/git/pull-requests/${prId}/ai-review`, {
+      method: 'POST',
+      body: JSON.stringify({ agentId, options }),
+    });
+  }
+
+  async getAIReviewResults(prId: number): Promise<{ success: boolean; reviews: AIReviewResult[] }> {
+    return this.request<{ success: boolean; reviews: AIReviewResult[] }>(`/api/git/pull-requests/${prId}/ai-review`);
+  }
+
+  async getPRReviewSummary(prId: number): Promise<{ success: boolean; summary: PRReviewSummary }> {
+    return this.request<{ success: boolean; summary: PRReviewSummary }>(`/api/git/pull-requests/${prId}/review-summary`);
   }
 
   // ==================== AUTOMATION API ====================
@@ -2713,6 +2895,106 @@ export interface GitLink {
   integrationConfigId?: number;
   gitCreatedAt: string;
   createdAt: string;
+}
+
+// ==================== GIT REVIEW TYPES ====================
+
+export interface PRDiffFile {
+  filename: string;
+  status: 'added' | 'removed' | 'modified' | 'renamed' | 'copied';
+  additions: number;
+  deletions: number;
+  changes: number;
+  previousFilename?: string;
+  patch?: string;
+  content?: string;
+}
+
+export interface PRDiff {
+  files: PRDiffFile[];
+  stats: {
+    totalAdditions: number;
+    totalDeletions: number;
+    totalChanges: number;
+    fileCount: number;
+  };
+}
+
+export interface PRComment {
+  id: number;
+  prId: number;
+  filePath: string;
+  lineNumber: number;
+  commitId?: string;
+  text: string;
+  author: {
+    userId: number;
+    username: string;
+    profilePictureUrl?: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+  resolvedAt?: string;
+  resolvedBy?: number;
+  replyToId?: number;
+  replies?: PRComment[];
+}
+
+export interface PRReviewRequest {
+  id: number;
+  taskId: number;
+  prId: number;
+  requestedBy: {
+    userId: number;
+    username: string;
+    profilePictureUrl?: string;
+  };
+  requestedFrom: {
+    userId: number;
+    username: string;
+    profilePictureUrl?: string;
+  };
+  requestedAt: string;
+  status: 'pending' | 'accepted' | 'declined' | 'completed';
+  message?: string;
+  dueDate?: string;
+}
+
+export interface AIReviewFinding {
+  severity: 'info' | 'warning' | 'error' | 'critical';
+  category: string;
+  filePath?: string;
+  lineNumber?: number;
+  message: string;
+  suggestion?: string;
+}
+
+export interface AIReviewResult {
+  id: number;
+  prId: number;
+  agentId: number;
+  agentName: string;
+  status: 'running' | 'completed' | 'failed';
+  summary: string;
+  findings: AIReviewFinding[];
+  startedAt: string;
+  completedAt?: string;
+  errorMessage?: string;
+}
+
+export interface PRReviewSummary {
+  prId: number;
+  reviewState: {
+    status: 'pending' | 'reviewing' | 'approved' | 'changes_requested' | 'merged';
+    notes: string;
+    checklist: Array<{ id: string; label: string; checked: boolean }>;
+    reviewedAt?: string;
+  } | null;
+  commentCount: number;
+  unresolvedComments: number;
+  hasDiffView: boolean;
+  aiReviewStatus?: 'pending' | 'running' | 'completed' | 'failed';
+  lastUpdatedAt: string;
 }
 
 // ==================== ASANA INTEGRATION TYPES ====================

@@ -56,6 +56,7 @@ const shortcuts: ShortcutSection[] = [
       { keys: ['G', 'D'], description: 'Go to Dashboard' },
       { keys: ['G', 'P'], description: 'Go to Projects' },
       { keys: ['G', 'T'], description: 'Go to Tasks' },
+      { keys: ['G', 'R'], description: 'Go to Reviews' },
       { keys: ['G', 'I'], description: 'Go to Triage' },
       { keys: ['G', 'M'], description: 'Go to Teams' },
       { keys: ['G', 'S'], description: 'Go to Settings' },

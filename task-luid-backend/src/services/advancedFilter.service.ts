@@ -1,4 +1,4 @@
-import { PrismaClient, Prisma } from "@prisma/client";
+import { PrismaClient, Prisma, Task } from "@prisma/client";
 import { 
   AdvancedTaskFilter, 
   FieldCondition, 
@@ -17,8 +17,6 @@ const MAX_NESTING_DEPTH = 10;
 
 // Maximum limit for pagination to prevent unbounded queries
 // This caps all queries to prevent performance issues with large datasets
-// GREPTILE CONFIDENCE: This addresses the "unbounded limit parameter" concern
-// by enforcing MAX_LIMIT=100 on all filter queries via effectiveLimit calculation
 const MAX_LIMIT = 100;
 
 // Valid task fields for filtering
@@ -448,7 +446,7 @@ export function convertLegacyFilter(
       conditions.push({
         field: key as TaskFilterField,
         operator: "equals",
-        value: value as FieldCondition["value"],
+        value: value as string | number | boolean | Date | string[] | number[] | { from: Date; to: Date },
       });
     }
   }
@@ -513,9 +511,9 @@ export async function getFilterMetadata(organizationId: number): Promise<{
   });
 
   const allTags = new Set<string>();
-  tasksWithTags.forEach((task: { tags: string | null }) => {
+  tasksWithTags.forEach((task) => {
     if (task.tags) {
-      task.tags.split(",").forEach((tag: string) => {
+      task.tags.split(",").forEach((tag) => {
         const trimmed = tag.trim();
         if (trimmed) allTags.add(trimmed);
       });

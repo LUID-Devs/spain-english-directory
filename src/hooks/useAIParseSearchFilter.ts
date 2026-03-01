@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { apiService } from '@/services/apiService';
+import { useAIModelStore } from '@/stores/aiModelStore';
 
 export interface ParsedSearchFilter {
   query: string;
@@ -32,11 +33,12 @@ export interface UseAIParseSearchFilterResult {
     availableProjects?: string[];
     availableLabels?: string[];
     teamMembers?: string[];
-  }) => Promise<ParsedSearchFilter | null>;
+  }, model?: string) => Promise<ParsedSearchFilter | null>;
   isLoading: boolean;
   error: string | null;
   creditsUsed: number | null;
   remainingCredits: number | null;
+  selectedModel: string;
 }
 
 export function useAIParseSearchFilter(): UseAIParseSearchFilterResult {
@@ -44,6 +46,8 @@ export function useAIParseSearchFilter(): UseAIParseSearchFilterResult {
   const [error, setError] = useState<string | null>(null);
   const [creditsUsed, setCreditsUsed] = useState<number | null>(null);
   const [remainingCredits, setRemainingCredits] = useState<number | null>(null);
+  
+  const { defaultModel } = useAIModelStore();
 
   const parseSearchFilter = useCallback(async (
     text: string,
@@ -51,7 +55,8 @@ export function useAIParseSearchFilter(): UseAIParseSearchFilterResult {
       availableProjects?: string[];
       availableLabels?: string[];
       teamMembers?: string[];
-    }
+    },
+    model?: string
   ): Promise<ParsedSearchFilter | null> => {
     if (!text || text.trim().length === 0) {
       return null;
@@ -76,6 +81,7 @@ export function useAIParseSearchFilter(): UseAIParseSearchFilterResult {
           availableProjects: context?.availableProjects,
           availableLabels: context?.availableLabels,
           teamMembers: context?.teamMembers,
+          model: model || defaultModel,
         }),
       });
 
@@ -94,7 +100,7 @@ export function useAIParseSearchFilter(): UseAIParseSearchFilterResult {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [defaultModel]);
 
   return {
     parseSearchFilter,
@@ -102,5 +108,6 @@ export function useAIParseSearchFilter(): UseAIParseSearchFilterResult {
     error,
     creditsUsed,
     remainingCredits,
+    selectedModel: defaultModel,
   };
 }

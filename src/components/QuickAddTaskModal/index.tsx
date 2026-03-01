@@ -1,12 +1,15 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useCreateTaskMutation, useGetProjectsQuery, useGetUsersQuery, useGetAgentsQuery } from '@/hooks/useApi';
 import { useCurrentUser } from '@/stores/userStore';
+import { useAIModelStore } from '@/stores/aiModelStore';
 import { apiService } from '@/services/apiService';
 import { Priority, Status } from '@/services/apiService';
 import { toast } from 'sonner';
 import { formatISO, parse, isValid, addDays, startOfTomorrow } from 'date-fns';
 import { Sparkles, Loader2, X, Send, ChevronDown, Bot, Hash, Calendar, User } from 'lucide-react';
 import { marked } from 'marked';
+import { ModelSelector } from '@/components/ModelSelector';
+import { ModelIndicator } from '@/components/ModelIndicator';
 
 interface QuickAddTaskModalProps {
   isOpen: boolean;
@@ -106,6 +109,8 @@ export const QuickAddTaskModal = ({ isOpen, onClose }: QuickAddTaskModalProps) =
   const inputRef = useRef<HTMLInputElement>(null);
 
   const { currentUser } = useCurrentUser();
+  const aiModelStore = useAIModelStore();
+  const selectedModel = aiModelStore.defaultModel;
   const [createTask] = useCreateTaskMutation();
   const { data: projects } = useGetProjectsQuery({}, { skip: !isOpen });
   const { data: users } = useGetUsersQuery(undefined, { skip: !isOpen });
@@ -181,10 +186,10 @@ export const QuickAddTaskModal = ({ isOpen, onClose }: QuickAddTaskModalProps) =
       let taskData: any;
 
       if (useAi) {
-        // Use AI parsing
+        // Use AI parsing with selected model
         setIsAiParsing(true);
         const teamMemberNames = users?.map(u => u.username) || [];
-        const response = await apiService.parseTaskWithAI(input.trim(), teamMemberNames);
+        const response = await apiService.parseTaskWithAI(input.trim(), teamMemberNames, selectedModel);
         setIsAiParsing(false);
 
         if (response.success && response.data) {
@@ -376,6 +381,7 @@ export const QuickAddTaskModal = ({ isOpen, onClose }: QuickAddTaskModalProps) =
           </div>
 
           <div className="flex items-center gap-2">
+            <ModelSelector size="sm" variant="ghost" showLabel={false} />
             <button
               onClick={() => setShowAiSuggestions(!showAiSuggestions)}
               className="flex items-center gap-1 px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -399,7 +405,10 @@ export const QuickAddTaskModal = ({ isOpen, onClose }: QuickAddTaskModalProps) =
         {/* AI Suggestions Panel */}
         {showAiSuggestions && (
           <div className="px-4 py-3 border-t border-border bg-primary/5">
-            <p className="text-xs text-muted-foreground mb-2">Try these examples:</p>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs text-muted-foreground">Try these examples:</p>
+              <ModelIndicator size="sm" variant="subtle" />
+            </div>
             <div className="flex flex-wrap gap-2">
               {[
                 'Review PR by Friday @cletus #urgent',

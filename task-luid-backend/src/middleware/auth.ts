@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
+import * as jwt from "jsonwebtoken";
 
 export interface AuthenticatedUser {
   userId: number;
@@ -47,7 +47,7 @@ export function authenticateToken(req: Request, res: Response, next: NextFunctio
     
     req.user = decoded;
     next();
-  } catch {
+  } catch (error) {
     res.status(403).json({
       success: false,
       error: "Invalid or expired token",

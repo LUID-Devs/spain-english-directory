@@ -20,6 +20,9 @@ model User {
   authoredTasks     Task[]    @relation("TaskAuthor")
   assignedTasks     Task[]    @relation("TaskAssignee")
   savedViews        SavedView[]
+  inlineComments    InlineComment[]
+  reviewRequestsSent    PRReviewRequest[] @relation("ReviewRequestedBy")
+  reviewRequestsReceived PRReviewRequest[] @relation("ReviewRequestedFrom")
 
   @@index([organizationId])
   @@map("users")
@@ -86,6 +89,7 @@ model Task {
   cycle          Cycle?    @relation(fields: [cycleId], references: [id])
   comments       Comment[]
   attachments    Attachment[]
+  embeddings     TaskEmbedding[]
 
   @@index([organizationId])
   @@index([projectId])
@@ -158,4 +162,128 @@ model SavedView {
   @@index([organizationId])
   @@index([ownerId])
   @@map("saved_views")
+}
+
+// ==================== GIT REVIEW MODELS ====================
+
+model PRReview {
+  id                        Int       @id @default(autoincrement())
+  taskId                    Int       @map("task_id")
+  prId                      Int       @map("pr_id")
+  userId                    Int       @map("user_id")
+  status                    String    // pending, reviewing, approved, changes_requested, merged
+  notes                     String?
+  checklist                 Json      // Array of { id, label, checked }
+  reviewedAt                DateTime? @map("reviewed_at")
+  reviewedByUserId          Int?      @map("reviewed_by_user_id")
+  reviewedByUsername        String?   @map("reviewed_by_username")
+  reviewedByProfilePictureUrl String? @map("reviewed_by_profile_picture_url")
+  createdAt                 DateTime  @default(now()) @map("created_at")
+  updatedAt                 DateTime  @updatedAt @map("updated_at")
+
+  @@unique([taskId, prId, userId])
+  @@index([taskId])
+  @@index([prId])
+  @@index([userId])
+  @@map("pr_reviews")
+}
+
+model InlineComment {
+  id          Int       @id @default(autoincrement())
+  prId        Int       @map("pr_id")
+  authorId    Int       @map("author_id")
+  filePath    String    @map("file_path")
+  lineNumber  Int       @map("line_number")
+  commitId    String?   @map("commit_id")
+  text        String
+  replyToId   Int?      @map("reply_to_id")
+  resolvedAt  DateTime? @map("resolved_at")
+  resolvedBy  Int?      @map("resolved_by")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  author      User      @relation(fields: [authorId], references: [userId], onDelete: Cascade)
+  replies     InlineComment[] @relation("CommentReplies")
+  parent      InlineComment?  @relation("CommentReplies", fields: [replyToId], references: [id])
+
+  @@index([prId])
+  @@index([authorId])
+  @@index([replyToId])
+  @@map("inline_comments")
+}
+
+model PRReviewRequest {
+  id               Int       @id @default(autoincrement())
+  taskId           Int       @map("task_id")
+  prId             Int       @map("pr_id")
+  requestedById    Int       @map("requested_by_id")
+  requestedFromId  Int       @map("requested_from_id")
+  status           String    // pending, accepted, declined, completed
+  message          String?
+  dueDate          DateTime? @map("due_date")
+  responseMessage  String?   @map("response_message")
+  requestedAt      DateTime  @default(now()) @map("requested_at")
+  respondedAt      DateTime? @map("responded_at")
+
+  // Relations
+  requestedBy      User      @relation("ReviewRequestedBy", fields: [requestedById], references: [userId], onDelete: Cascade)
+  requestedFrom    User      @relation("ReviewRequestedFrom", fields: [requestedFromId], references: [userId], onDelete: Cascade)
+
+  @@index([prId])
+  @@index([requestedById])
+  @@index([requestedFromId])
+  @@index([status])
+  @@map("pr_review_requests")
+}
+
+model AIReview {
+  id            Int       @id @default(autoincrement())
+  prId          Int       @map("pr_id")
+  agentId       Int       @map("agent_id")
+  agentName     String    @map("agent_name")
+  status        String    // running, completed, failed
+  summary       String
+  findings      Json      // Array of findings
+  options       Json?     // Review options
+  errorMessage  String?   @map("error_message")
+  startedAt     DateTime  @default(now()) @map("started_at")
+  completedAt   DateTime? @map("completed_at")
+
+  @@index([prId])
+  @@index([agentId])
+  @@index([status])
+  @@map("ai_reviews")
+}
+
+model AIAgent {
+  id            Int       @id @default(autoincrement())
+  name          String
+  description   String?
+  capabilities  Json      // Array of capabilities
+  isActive      Boolean   @default(true) @map("is_active")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  @@map("ai_agents")
+}
+
+// ==================== SEMANTIC SEARCH MODELS ====================
+
+model TaskEmbedding {
+  id            Int       @id @default(autoincrement())
+  taskId        Int       @map("task_id")
+  content       String    // The text that was embedded
+  contentType   String    @map("content_type") // "title", "description", "comment"
+  embedding     Unsupported("vector(384)") // pgvector extension
+  modelName     String    @map("model_name") // Model used for embedding
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  task          Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@index([taskId])
+  @@index([contentType])
+  @@map("task_embeddings")
 }

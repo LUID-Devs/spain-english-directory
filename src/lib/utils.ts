@@ -97,3 +97,24 @@ export function taskMatchesStatusColumn(taskStatus: string | undefined, columnSt
   // For other columns, exact match
   return normalizedTaskStatus === columnStatus;
 }
+
+/**
+ * Format a date as a relative time string (e.g., "2 hours ago", "in 3 days")
+ * Falls back to a simple string if date-fns is not available
+ */
+export function formatDistanceToNow(date: Date | number): string {
+  const now = new Date();
+  const targetDate = typeof date === 'number' ? new Date(date) : date;
+  const diffMs = now.getTime() - targetDate.getTime();
+  const diffSecs = Math.floor(diffMs / 1000);
+  const diffMins = Math.floor(diffSecs / 60);
+  const diffHours = Math.floor(diffMins / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffSecs < 60) return 'just now';
+  if (diffMins < 60) return `${diffMins} minute${diffMins === 1 ? '' : 's'} ago`;
+  if (diffHours < 24) return `${diffHours} hour${diffHours === 1 ? '' : 's'} ago`;
+  if (diffDays < 30) return `${diffDays} day${diffDays === 1 ? '' : 's'} ago`;
+  
+  return targetDate.toLocaleDateString();
+}

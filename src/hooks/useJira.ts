@@ -1,16 +1,21 @@
 import { useState, useCallback, useEffect } from 'react';
 import {
+  JiraSite,
   JiraProject,
   JiraIssueType,
   JiraStatus,
+  JiraPriority,
   JiraUser,
   JiraIssue,
   JiraLink,
   JiraSyncConfig,
   JiraSyncResult,
+  JiraSprint,
+  getJiraSites,
   getJiraProjects,
   getJiraIssueTypes,
   getJiraStatuses,
+  getJiraPriorities,
   getJiraUsers,
   searchJiraIssues,
   getTaskJiraLinks,
@@ -21,6 +26,8 @@ import {
   syncToJira,
   syncFromJira,
   getJiraIntegrationStatus,
+  getJiraSprints,
+  getJiraComponents,
 } from '@/services/jiraService';
 import { toast } from 'sonner';
 
@@ -29,31 +36,42 @@ export interface UseJiraIntegrationReturn {
   isConnected: boolean;
   isLoading: boolean;
   error: string | null;
-  domain?: string;
   
   // Data
+  sites: JiraSite[];
   projects: JiraProject[];
   issueTypes: JiraIssueType[];
   statuses: JiraStatus[];
+  priorities: JiraPriority[];
   users: JiraUser[];
+  sprints: JiraSprint[];
+  components: { id: string; name: string; description?: string }[];
   searchResults: JiraIssue[];
   taskLinks: JiraLink[];
   
   // Loading states for specific operations
+  isLoadingSites: boolean;
   isLoadingProjects: boolean;
   isLoadingIssueTypes: boolean;
   isLoadingStatuses: boolean;
+  isLoadingPriorities: boolean;
   isLoadingUsers: boolean;
+  isLoadingSprints: boolean;
+  isLoadingComponents: boolean;
   isLoadingSearch: boolean;
   isLoadingLinks: boolean;
   
   // Actions
   refetchStatus: () => Promise<void>;
-  fetchProjects: () => Promise<void>;
+  fetchSites: () => Promise<void>;
+  fetchProjects: (siteId: string) => Promise<void>;
   fetchIssueTypes: (projectId: string) => Promise<void>;
   fetchStatuses: (projectId: string) => Promise<void>;
-  fetchUsers: (projectId: string) => Promise<void>;
-  searchIssues: (projectId: string, query: string) => Promise<void>;
+  fetchPriorities: (siteId: string) => Promise<void>;
+  fetchUsers: (siteId: string) => Promise<void>;
+  fetchSprints: (projectId: string) => Promise<void>;
+  fetchComponents: (projectId: string) => Promise<void>;
+  searchIssues: (siteId: string, query: string) => Promise<void>;
   fetchTaskLinks: (taskId: number) => Promise<void>;
   linkTask: (taskId: number, jiraIssueId: string, config?: Partial<JiraSyncConfig>) => Promise<boolean>;
   createAndLink: (taskId: number, config: JiraSyncConfig) => Promise<boolean>;
@@ -65,42 +83,55 @@ export interface UseJiraIntegrationReturn {
 
 export function useJiraIntegration(): UseJiraIntegrationReturn {
   const [isConnected, setIsConnected] = useState(false);
-  const [domain, setDomain] = useState<string | undefined>(undefined);
   
-  // Separate loading and error states per operation to prevent race conditions
+  // Separate loading and error states per operation
   const [isLoadingStatus, setIsLoadingStatus] = useState(false);
+  const [isLoadingSites, setIsLoadingSites] = useState(false);
   const [isLoadingProjects, setIsLoadingProjects] = useState(false);
   const [isLoadingIssueTypes, setIsLoadingIssueTypes] = useState(false);
   const [isLoadingStatuses, setIsLoadingStatuses] = useState(false);
+  const [isLoadingPriorities, setIsLoadingPriorities] = useState(false);
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
+  const [isLoadingSprints, setIsLoadingSprints] = useState(false);
+  const [isLoadingComponents, setIsLoadingComponents] = useState(false);
   const [isLoadingSearch, setIsLoadingSearch] = useState(false);
   const [isLoadingLinks, setIsLoadingLinks] = useState(false);
   const [isLoadingAction, setIsLoadingAction] = useState(false);
   
   const [errorStatus, setErrorStatus] = useState<string | null>(null);
+  const [errorSites, setErrorSites] = useState<string | null>(null);
   const [errorProjects, setErrorProjects] = useState<string | null>(null);
   const [errorIssueTypes, setErrorIssueTypes] = useState<string | null>(null);
   const [errorStatuses, setErrorStatuses] = useState<string | null>(null);
+  const [errorPriorities, setErrorPriorities] = useState<string | null>(null);
   const [errorUsers, setErrorUsers] = useState<string | null>(null);
+  const [errorSprints, setErrorSprints] = useState<string | null>(null);
+  const [errorComponents, setErrorComponents] = useState<string | null>(null);
   const [errorSearch, setErrorSearch] = useState<string | null>(null);
   const [errorLinks, setErrorLinks] = useState<string | null>(null);
   const [errorAction, setErrorAction] = useState<string | null>(null);
   
+  const [sites, setSites] = useState<JiraSite[]>([]);
   const [projects, setProjects] = useState<JiraProject[]>([]);
   const [issueTypes, setIssueTypes] = useState<JiraIssueType[]>([]);
   const [statuses, setStatuses] = useState<JiraStatus[]>([]);
+  const [priorities, setPriorities] = useState<JiraPriority[]>([]);
   const [users, setUsers] = useState<JiraUser[]>([]);
+  const [sprints, setSprints] = useState<JiraSprint[]>([]);
+  const [components, setComponents] = useState<{ id: string; name: string; description?: string }[]>([]);
   const [searchResults, setSearchResults] = useState<JiraIssue[]>([]);
   const [taskLinks, setTaskLinks] = useState<JiraLink[]>([]);
 
-  // Combined loading state for backward compatibility
-  const isLoading = isLoadingStatus || isLoadingProjects || isLoadingIssueTypes || 
-                    isLoadingStatuses || isLoadingUsers || isLoadingSearch || 
-                    isLoadingLinks || isLoadingAction;
+  // Combined loading state
+  const isLoading = isLoadingStatus || isLoadingSites || isLoadingProjects || 
+                    isLoadingIssueTypes || isLoadingStatuses || isLoadingPriorities || 
+                    isLoadingUsers || isLoadingSprints || isLoadingComponents || 
+                    isLoadingSearch || isLoadingLinks || isLoadingAction;
   
-  // Combined error state - returns the most recent error from any operation
-  const error = errorStatus || errorProjects || errorIssueTypes || errorStatuses || 
-                errorUsers || errorSearch || errorLinks || errorAction;
+  // Combined error state
+  const error = errorStatus || errorSites || errorProjects || errorIssueTypes || 
+                errorStatuses || errorPriorities || errorUsers || errorSprints || 
+                errorComponents || errorSearch || errorLinks || errorAction;
 
   const refetchStatus = useCallback(async () => {
     setIsLoadingStatus(true);
@@ -112,18 +143,33 @@ export function useJiraIntegration(): UseJiraIntegrationReturn {
         setIsConnected(false);
       } else {
         setIsConnected(result.data?.connected || false);
-        setDomain(result.data?.domain);
       }
     } finally {
       setIsLoadingStatus(false);
     }
   }, []);
 
-  const fetchProjects = useCallback(async () => {
+  const fetchSites = useCallback(async () => {
+    setIsLoadingSites(true);
+    setErrorSites(null);
+    try {
+      const result = await getJiraSites();
+      if (result.error) {
+        setErrorSites(result.error);
+        toast.error(result.error);
+      } else {
+        setSites(result.data || []);
+      }
+    } finally {
+      setIsLoadingSites(false);
+    }
+  }, []);
+
+  const fetchProjects = useCallback(async (siteId: string) => {
     setIsLoadingProjects(true);
     setErrorProjects(null);
     try {
-      const result = await getJiraProjects();
+      const result = await getJiraProjects(siteId);
       if (result.error) {
         setErrorProjects(result.error);
         toast.error(result.error);
@@ -167,11 +213,27 @@ export function useJiraIntegration(): UseJiraIntegrationReturn {
     }
   }, []);
 
-  const fetchUsers = useCallback(async (projectId: string) => {
+  const fetchPriorities = useCallback(async (siteId: string) => {
+    setIsLoadingPriorities(true);
+    setErrorPriorities(null);
+    try {
+      const result = await getJiraPriorities(siteId);
+      if (result.error) {
+        setErrorPriorities(result.error);
+        toast.error(result.error);
+      } else {
+        setPriorities(result.data || []);
+      }
+    } finally {
+      setIsLoadingPriorities(false);
+    }
+  }, []);
+
+  const fetchUsers = useCallback(async (siteId: string) => {
     setIsLoadingUsers(true);
     setErrorUsers(null);
     try {
-      const result = await getJiraUsers(projectId);
+      const result = await getJiraUsers(siteId);
       if (result.error) {
         setErrorUsers(result.error);
         toast.error(result.error);
@@ -183,7 +245,39 @@ export function useJiraIntegration(): UseJiraIntegrationReturn {
     }
   }, []);
 
-  const searchIssues = useCallback(async (projectId: string, query: string) => {
+  const fetchSprints = useCallback(async (projectId: string) => {
+    setIsLoadingSprints(true);
+    setErrorSprints(null);
+    try {
+      const result = await getJiraSprints(projectId);
+      if (result.error) {
+        setErrorSprints(result.error);
+        toast.error(result.error);
+      } else {
+        setSprints(result.data || []);
+      }
+    } finally {
+      setIsLoadingSprints(false);
+    }
+  }, []);
+
+  const fetchComponents = useCallback(async (projectId: string) => {
+    setIsLoadingComponents(true);
+    setErrorComponents(null);
+    try {
+      const result = await getJiraComponents(projectId);
+      if (result.error) {
+        setErrorComponents(result.error);
+        toast.error(result.error);
+      } else {
+        setComponents(result.data || []);
+      }
+    } finally {
+      setIsLoadingComponents(false);
+    }
+  }, []);
+
+  const searchIssues = useCallback(async (siteId: string, query: string) => {
     if (!query.trim()) {
       setSearchResults([]);
       return;
@@ -191,7 +285,7 @@ export function useJiraIntegration(): UseJiraIntegrationReturn {
     setIsLoadingSearch(true);
     setErrorSearch(null);
     try {
-      const result = await searchJiraIssues(projectId, query);
+      const result = await searchJiraIssues(siteId, query);
       if (result.error) {
         setErrorSearch(result.error);
       } else {
@@ -350,24 +444,35 @@ export function useJiraIntegration(): UseJiraIntegrationReturn {
     isConnected,
     isLoading,
     error,
-    domain,
+    sites,
     projects,
     issueTypes,
     statuses,
+    priorities,
     users,
+    sprints,
+    components,
     searchResults,
     taskLinks,
+    isLoadingSites,
     isLoadingProjects,
     isLoadingIssueTypes,
     isLoadingStatuses,
+    isLoadingPriorities,
     isLoadingUsers,
+    isLoadingSprints,
+    isLoadingComponents,
     isLoadingSearch,
     isLoadingLinks,
     refetchStatus,
+    fetchSites,
     fetchProjects,
     fetchIssueTypes,
     fetchStatuses,
+    fetchPriorities,
     fetchUsers,
+    fetchSprints,
+    fetchComponents,
     searchIssues,
     fetchTaskLinks,
     linkTask,

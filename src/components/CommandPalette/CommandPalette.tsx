@@ -20,10 +20,14 @@ import {
   Keyboard,
   Inbox,
   Plug,
-  Library
+  Library,
+  Link2,
+  ExternalLink
 } from 'lucide-react';
 import { useGlobalStore } from '@/stores/globalStore';
 import { useQuickAddTask } from '@/hooks/useQuickAddTask';
+import { useUnifiedSearch } from '@/hooks/useUnifiedSearch';
+import { UnifiedSearchResult } from '@/services/unifiedSearchService';
 import './CommandPalette.css';
 
 interface CommandPaletteProps {
@@ -45,14 +49,35 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
   const navigate = useNavigate();
   const { isDarkMode, toggleDarkMode } = useGlobalStore();
   const { open: openQuickAdd } = useQuickAddTask();
+  const { 
+    hasConnectedIntegrations,
+    connectedIntegrations,
+    suggestions,
+    fetchSuggestions 
+  } = useUnifiedSearch();
   const [searchQuery, setSearchQuery] = useState('');
+  const [showExternalResults, setShowExternalResults] = useState(false);
 
   // Reset search when closed
   useEffect(() => {
     if (!isOpen) {
       queueMicrotask(() => setSearchQuery(''));
+      setShowExternalResults(false);
     }
   }, [isOpen]);
+
+  // Fetch external search suggestions when query changes
+  useEffect(() => {
+    if (searchQuery.length >= 2 && hasConnectedIntegrations) {
+      const timer = setTimeout(() => {
+        fetchSuggestions(searchQuery, 5);
+        setShowExternalResults(true);
+      }, 300);
+      return () => clearTimeout(timer);
+    } else {
+      setShowExternalResults(false);
+    }
+  }, [searchQuery, fetchSuggestions, hasConnectedIntegrations]);
 
   const navigateTo = useCallback((path: string) => {
     navigate(path);
@@ -179,11 +204,11 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
     {
       id: 'integrations',
       title: 'Go to Integrations',
-      shortcut: 'G N',
-      icon: <Plug className="w-4 h-4" />,
+      shortcut: 'G I',
+      icon: <Link2 className="w-4 h-4" />,
       action: () => navigateTo('/dashboard/integrations'),
       category: 'Navigation',
-      keywords: ['integrations', 'asana', 'jira', 'linear']
+      keywords: ['integrations', 'asana', 'linear', 'jira', 'connect']
     },
     // Priorities
     {
@@ -308,6 +333,38 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
                   </Command.Item>
                 ))}
             </Command.Group>
+
+            {/* External Search Results */}
+            {showExternalResults && suggestions.length > 0 && (
+              <Command.Group heading="External Tasks" className="command-palette-group">
+                {suggestions.map((result: UnifiedSearchResult) => (
+                  <Command.Item
+                    key={result.id}
+                    onSelect={() => {
+                      window.open(result.url, '_blank');
+                      onClose();
+                    }}
+                    className="command-palette-item"
+                  >
+                    <span 
+                      className="w-2 h-2 rounded-full flex-shrink-0" 
+                      style={{ 
+                        backgroundColor: 
+                          result.source === 'asana' ? '#F06A6A' : 
+                          result.source === 'linear' ? '#5E6AD2' : '#0052CC' 
+                      }} 
+                    />
+                    <ExternalLink className="w-4 h-4 flex-shrink-0" />
+                    <span className="command-palette-item-title truncate">
+                      {result.title}
+                    </span>
+                    <span className="text-xs text-gray-400 ml-auto flex-shrink-0 uppercase">
+                      {result.source}
+                    </span>
+                  </Command.Item>
+                ))}
+              </Command.Group>
+            )}
           </Command.List>
 
           <div className="command-palette-footer">

@@ -1,21 +1,20 @@
 import { useState, useCallback, useEffect } from 'react';
 import {
+  LinearOrganization,
   LinearTeam,
   LinearProject,
-  LinearCycle,
-  LinearState,
   LinearUser,
-  LinearLabel,
   LinearIssue,
   LinearLink,
   LinearSyncConfig,
   LinearSyncResult,
+  LinearState,
+  LinearLabel,
+  LinearCycle,
+  getLinearOrganizations,
   getLinearTeams,
   getLinearProjects,
-  getLinearCycles,
-  getLinearStates,
   getLinearUsers,
-  getLinearLabels,
   searchLinearIssues,
   getTaskLinearLinks,
   linkLinearIssue,
@@ -25,6 +24,9 @@ import {
   syncToLinear,
   syncFromLinear,
   getLinearIntegrationStatus,
+  getLinearStates,
+  getLinearLabels,
+  getLinearCycles,
 } from '@/services/linearService';
 import { toast } from 'sonner';
 
@@ -35,33 +37,36 @@ export interface UseLinearIntegrationReturn {
   error: string | null;
   
   // Data
+  organizations: LinearOrganization[];
   teams: LinearTeam[];
   projects: LinearProject[];
-  cycles: LinearCycle[];
-  states: LinearState[];
   users: LinearUser[];
+  states: LinearState[];
   labels: LinearLabel[];
+  cycles: LinearCycle[];
   searchResults: LinearIssue[];
   taskLinks: LinearLink[];
   
   // Loading states for specific operations
+  isLoadingOrganizations: boolean;
   isLoadingTeams: boolean;
   isLoadingProjects: boolean;
-  isLoadingCycles: boolean;
-  isLoadingStates: boolean;
   isLoadingUsers: boolean;
+  isLoadingStates: boolean;
   isLoadingLabels: boolean;
+  isLoadingCycles: boolean;
   isLoadingSearch: boolean;
   isLoadingLinks: boolean;
   
   // Actions
   refetchStatus: () => Promise<void>;
-  fetchTeams: () => Promise<void>;
+  fetchOrganizations: () => Promise<void>;
+  fetchTeams: (organizationId: string) => Promise<void>;
   fetchProjects: (teamId: string) => Promise<void>;
-  fetchCycles: (teamId: string) => Promise<void>;
+  fetchUsers: (organizationId: string) => Promise<void>;
   fetchStates: (teamId: string) => Promise<void>;
-  fetchUsers: (teamId: string) => Promise<void>;
   fetchLabels: (teamId: string) => Promise<void>;
+  fetchCycles: (teamId: string) => Promise<void>;
   searchIssues: (teamId: string, query: string) => Promise<void>;
   fetchTaskLinks: (taskId: number) => Promise<void>;
   linkTask: (taskId: number, linearIssueId: string, config?: Partial<LinearSyncConfig>) => Promise<boolean>;
@@ -75,46 +80,51 @@ export interface UseLinearIntegrationReturn {
 export function useLinearIntegration(): UseLinearIntegrationReturn {
   const [isConnected, setIsConnected] = useState(false);
   
-  // Separate loading and error states per operation to prevent race conditions
+  // Separate loading and error states per operation
   const [isLoadingStatus, setIsLoadingStatus] = useState(false);
+  const [isLoadingOrganizations, setIsLoadingOrganizations] = useState(false);
   const [isLoadingTeams, setIsLoadingTeams] = useState(false);
   const [isLoadingProjects, setIsLoadingProjects] = useState(false);
-  const [isLoadingCycles, setIsLoadingCycles] = useState(false);
-  const [isLoadingStates, setIsLoadingStates] = useState(false);
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
+  const [isLoadingStates, setIsLoadingStates] = useState(false);
   const [isLoadingLabels, setIsLoadingLabels] = useState(false);
+  const [isLoadingCycles, setIsLoadingCycles] = useState(false);
   const [isLoadingSearch, setIsLoadingSearch] = useState(false);
   const [isLoadingLinks, setIsLoadingLinks] = useState(false);
   const [isLoadingAction, setIsLoadingAction] = useState(false);
   
   const [errorStatus, setErrorStatus] = useState<string | null>(null);
+  const [errorOrganizations, setErrorOrganizations] = useState<string | null>(null);
   const [errorTeams, setErrorTeams] = useState<string | null>(null);
   const [errorProjects, setErrorProjects] = useState<string | null>(null);
-  const [errorCycles, setErrorCycles] = useState<string | null>(null);
-  const [errorStates, setErrorStates] = useState<string | null>(null);
   const [errorUsers, setErrorUsers] = useState<string | null>(null);
+  const [errorStates, setErrorStates] = useState<string | null>(null);
   const [errorLabels, setErrorLabels] = useState<string | null>(null);
+  const [errorCycles, setErrorCycles] = useState<string | null>(null);
   const [errorSearch, setErrorSearch] = useState<string | null>(null);
   const [errorLinks, setErrorLinks] = useState<string | null>(null);
   const [errorAction, setErrorAction] = useState<string | null>(null);
   
+  const [organizations, setOrganizations] = useState<LinearOrganization[]>([]);
   const [teams, setTeams] = useState<LinearTeam[]>([]);
   const [projects, setProjects] = useState<LinearProject[]>([]);
-  const [cycles, setCycles] = useState<LinearCycle[]>([]);
-  const [states, setStates] = useState<LinearState[]>([]);
   const [users, setUsers] = useState<LinearUser[]>([]);
+  const [states, setStates] = useState<LinearState[]>([]);
   const [labels, setLabels] = useState<LinearLabel[]>([]);
+  const [cycles, setCycles] = useState<LinearCycle[]>([]);
   const [searchResults, setSearchResults] = useState<LinearIssue[]>([]);
   const [taskLinks, setTaskLinks] = useState<LinearLink[]>([]);
 
-  // Combined loading state for backward compatibility
-  const isLoading = isLoadingStatus || isLoadingTeams || isLoadingProjects || 
-                    isLoadingCycles || isLoadingStates || isLoadingUsers || 
-                    isLoadingLabels || isLoadingSearch || isLoadingLinks || isLoadingAction;
+  // Combined loading state
+  const isLoading = isLoadingStatus || isLoadingOrganizations || isLoadingTeams || 
+                    isLoadingProjects || isLoadingUsers || isLoadingStates || 
+                    isLoadingLabels || isLoadingCycles || isLoadingSearch || 
+                    isLoadingLinks || isLoadingAction;
   
-  // Combined error state - returns the most recent error from any operation
-  const error = errorStatus || errorTeams || errorProjects || errorCycles || 
-                errorStates || errorUsers || errorLabels || errorSearch || errorLinks || errorAction;
+  // Combined error state
+  const error = errorStatus || errorOrganizations || errorTeams || errorProjects || 
+                errorUsers || errorStates || errorLabels || errorCycles || 
+                errorSearch || errorLinks || errorAction;
 
   const refetchStatus = useCallback(async () => {
     setIsLoadingStatus(true);
@@ -132,11 +142,27 @@ export function useLinearIntegration(): UseLinearIntegrationReturn {
     }
   }, []);
 
-  const fetchTeams = useCallback(async () => {
+  const fetchOrganizations = useCallback(async () => {
+    setIsLoadingOrganizations(true);
+    setErrorOrganizations(null);
+    try {
+      const result = await getLinearOrganizations();
+      if (result.error) {
+        setErrorOrganizations(result.error);
+        toast.error(result.error);
+      } else {
+        setOrganizations(result.data || []);
+      }
+    } finally {
+      setIsLoadingOrganizations(false);
+    }
+  }, []);
+
+  const fetchTeams = useCallback(async (organizationId: string) => {
     setIsLoadingTeams(true);
     setErrorTeams(null);
     try {
-      const result = await getLinearTeams();
+      const result = await getLinearTeams(organizationId);
       if (result.error) {
         setErrorTeams(result.error);
         toast.error(result.error);
@@ -164,19 +190,19 @@ export function useLinearIntegration(): UseLinearIntegrationReturn {
     }
   }, []);
 
-  const fetchCycles = useCallback(async (teamId: string) => {
-    setIsLoadingCycles(true);
-    setErrorCycles(null);
+  const fetchUsers = useCallback(async (organizationId: string) => {
+    setIsLoadingUsers(true);
+    setErrorUsers(null);
     try {
-      const result = await getLinearCycles(teamId);
+      const result = await getLinearUsers(organizationId);
       if (result.error) {
-        setErrorCycles(result.error);
+        setErrorUsers(result.error);
         toast.error(result.error);
       } else {
-        setCycles(result.data || []);
+        setUsers(result.data || []);
       }
     } finally {
-      setIsLoadingCycles(false);
+      setIsLoadingUsers(false);
     }
   }, []);
 
@@ -196,22 +222,6 @@ export function useLinearIntegration(): UseLinearIntegrationReturn {
     }
   }, []);
 
-  const fetchUsers = useCallback(async (teamId: string) => {
-    setIsLoadingUsers(true);
-    setErrorUsers(null);
-    try {
-      const result = await getLinearUsers(teamId);
-      if (result.error) {
-        setErrorUsers(result.error);
-        toast.error(result.error);
-      } else {
-        setUsers(result.data || []);
-      }
-    } finally {
-      setIsLoadingUsers(false);
-    }
-  }, []);
-
   const fetchLabels = useCallback(async (teamId: string) => {
     setIsLoadingLabels(true);
     setErrorLabels(null);
@@ -225,6 +235,22 @@ export function useLinearIntegration(): UseLinearIntegrationReturn {
       }
     } finally {
       setIsLoadingLabels(false);
+    }
+  }, []);
+
+  const fetchCycles = useCallback(async (teamId: string) => {
+    setIsLoadingCycles(true);
+    setErrorCycles(null);
+    try {
+      const result = await getLinearCycles(teamId);
+      if (result.error) {
+        setErrorCycles(result.error);
+        toast.error(result.error);
+      } else {
+        setCycles(result.data || []);
+      }
+    } finally {
+      setIsLoadingCycles(false);
     }
   }, []);
 
@@ -395,29 +421,32 @@ export function useLinearIntegration(): UseLinearIntegrationReturn {
     isConnected,
     isLoading,
     error,
+    organizations,
     teams,
     projects,
-    cycles,
-    states,
     users,
+    states,
     labels,
+    cycles,
     searchResults,
     taskLinks,
+    isLoadingOrganizations,
     isLoadingTeams,
     isLoadingProjects,
-    isLoadingCycles,
-    isLoadingStates,
     isLoadingUsers,
+    isLoadingStates,
     isLoadingLabels,
+    isLoadingCycles,
     isLoadingSearch,
     isLoadingLinks,
     refetchStatus,
+    fetchOrganizations,
     fetchTeams,
     fetchProjects,
-    fetchCycles,
-    fetchStates,
     fetchUsers,
+    fetchStates,
     fetchLabels,
+    fetchCycles,
     searchIssues,
     fetchTaskLinks,
     linkTask,

@@ -4,6 +4,7 @@ import { FormTemplateSelector } from "@/components/FormTemplateSelector";
 import { useFormTemplates } from "@/hooks/useFormTemplates";
 import { useCurrentUser } from "@/stores/userStore";
 import { useSubscription } from "@/stores/subscriptionStore";
+import { useAIModelStore } from "@/stores/aiModelStore";
 import { apiService, ParsedTaskData } from "@/services/apiService";
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
@@ -35,6 +36,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { ModelSelector } from "@/components/ModelSelector";
+import { ModelIndicator } from "@/components/ModelIndicator";
 
 // Configure marked for safe HTML output
 marked.setOptions({
@@ -56,6 +59,8 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
   const navigate = useNavigate();
   const { currentUser } = useCurrentUser();
   const { totalCredits, fetchCredits } = useSubscription();
+  const aiModelStore = useAIModelStore();
+  const selectedModel = aiModelStore.defaultModel;
   const {data: users} = useGetUsersQuery(undefined, {
     skip: !isOpen, // Only load when modal is open
   });
@@ -173,7 +178,7 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
       // Get team member names for assignee matching
       const teamMemberNames = users?.map(u => u.username) || [];
 
-      const response = await apiService.parseTaskWithAI(aiInput.trim(), teamMemberNames);
+      const response = await apiService.parseTaskWithAI(aiInput.trim(), teamMemberNames, selectedModel);
 
       if (response.success && response.data) {
         const parsed = response.data;
@@ -257,7 +262,7 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
         description: plainDescription || undefined,
         priority,
         tags: tags || undefined,
-      });
+      }, selectedModel);
 
       if (response.success && response.suggestedDueDate) {
         setDueDateSuggestion({
@@ -493,15 +498,22 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
                   {AI_CREDIT_COST} credit
                 </span>
               </div>
-              {showAiInput ? (
-                <ChevronUp className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-              ) : (
-                <ChevronDown className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-              )}
+              <div className="flex items-center gap-2">
+                <ModelIndicator size="sm" variant="subtle" />
+                {showAiInput ? (
+                  <ChevronUp className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                ) : (
+                  <ChevronDown className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                )}
+              </div>
             </button>
 
             {showAiInput && (
               <div className="mt-3 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground">Select AI Model:</span>
+                  <ModelSelector size="sm" variant="outline" showLabel={true} />
+                </div>
                 <Textarea
                   value={aiInput}
                   onChange={(e) => setAiInput(e.target.value)}

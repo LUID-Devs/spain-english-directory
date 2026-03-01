@@ -8,6 +8,7 @@ import { useAuth } from "@/app/authProvider";
 import NavbarSearchComponent, { NavbarSearchRef } from "@/components/NavbarSearch";
 import WorkspaceSwitcher from "@/components/WorkspaceSwitcher";
 import { NotificationBell } from "@/components/NotificationBell";
+import { PRReviewNotifications } from "@/components/gitReview";
 import { Button } from "@/components/ui/button";
 
 const Navbar = () => {
@@ -151,6 +152,9 @@ const Navbar = () => {
 
         {/* Notification Bell */}
         <NotificationBell />
+
+        {/* PR Review Notifications */}
+        <PRReviewNotifications />
 
         {/* Settings Link */}
         <Button variant="ghost" size="sm" asChild className="hidden sm:flex min-h-[44px] min-w-[44px] p-2" aria-label="Settings">

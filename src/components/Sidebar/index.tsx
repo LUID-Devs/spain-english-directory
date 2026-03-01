@@ -35,7 +35,8 @@ import {
   Plug,
   LayoutGrid,
   Library,
-  LayoutTemplate
+  LayoutTemplate,
+  GitPullRequest
 } from "lucide-react";
 import InviteToWorkspaceModal from "@/components/InviteToWorkspaceModal";
 import { useLocation, Link } from "react-router-dom";
@@ -44,6 +45,7 @@ import { useGetProjectsQuery, useGetTeamsQuery } from "@/hooks/useApi";
 import { useProjects } from "@/stores/apiStore";
 import { useCurrentUser } from "@/stores/userStore";
 import { useAuth } from "@/app/authProvider";
+import { useGitReviewNotifications } from "@/hooks/useGitReview";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -57,6 +59,7 @@ const Sidebar = () => {
 
   const auth = useAuth();
   const { currentUser } = useCurrentUser();
+  const { unreadCount } = useGitReviewNotifications();
 
   const { data: queryProjects } = useGetProjectsQuery({}, {
     skip: isSidebarCollapsed, // Skip loading if sidebar is collapsed
@@ -150,6 +153,7 @@ const Sidebar = () => {
             <SidebarLink href="/dashboard" icon={Home} label="Dashboard" />
             <SidebarLink href="/dashboard/library" icon={Library} label="Library" />
             <SidebarLink href="/dashboard/tasks" icon={CheckSquare} label="My Tasks" />
+            <SidebarLink href="/dashboard/reviews" icon={GitPullRequest} label="Reviews" count={unreadCount > 0 ? unreadCount : undefined} />
             <SidebarLink href="/dashboard/library" icon={Library} label="Library" />
             <SidebarLink href="/dashboard/triage" icon={ClipboardList} label="Triage" />
             <SidebarLink href="/dashboard/workspaces" icon={LayoutGrid} label="Workspaces" />
@@ -262,9 +266,10 @@ interface SidebarLinkProps {
   isCompact?: boolean;
   isSubItem?: boolean;
   badge?: "danger" | "warning" | "success" | "info";
+  count?: number;
 }
 
-const SidebarLink = ({ href, icon: Icon, label, isCompact = false, isSubItem = false, badge }: SidebarLinkProps) => {
+const SidebarLink = ({ href, icon: Icon, label, isCompact = false, isSubItem = false, badge, count }: SidebarLinkProps) => {
   const location = useLocation();
   const isActive =
     location.pathname === href || 
@@ -308,7 +313,12 @@ const SidebarLink = ({ href, icon: Icon, label, isCompact = false, isSubItem = f
         )}>
           {label}
         </span>
-        {badge && (
+        {count !== undefined && count > 0 && (
+          <Badge variant="destructive" className="text-xs px-1.5 py-0 h-5 min-w-[20px] flex items-center justify-center">
+            {count > 99 ? '99+' : count}
+          </Badge>
+        )}
+        {badge && !count && (
           <Badge variant={getBadgeVariant(badge) as any} className="h-2 w-2 p-0 rounded-full" />
         )}
       </div>

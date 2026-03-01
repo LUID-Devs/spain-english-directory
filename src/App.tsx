@@ -51,6 +51,7 @@ const AnalyticsDashboardPage = React.lazy(() => import('@/pages/dashboard/analyt
 const TimeReportsPage = React.lazy(() => import('@/pages/dashboard/time-reports/TimeReportsPage'));
 const IntegrationHubPage = React.lazy(() => import('@/pages/dashboard/integrations/IntegrationHubPage'));
 const MobileAppCreatePage = React.lazy(() => import('@/pages/dashboard/mobile/MobileAppCreatePage'));
+const ReviewsPage = React.lazy(() => import('@/pages/dashboard/reviews/ReviewsPage'));
 
 // Priority Pages (lazy loaded)
 const HighPriorityPage = React.lazy(() => import('@/pages/dashboard/priority/HighPriorityPage'));
@@ -353,6 +354,12 @@ function AppContent() {
                 <Route path="library" element={
                   <RouteErrorBoundary componentName="Library">
                     <WorkspaceLibraryPage />
+                  </RouteErrorBoundary>
+                } />
+                {/* Reviews Route */}
+                <Route path="reviews" element={
+                  <RouteErrorBoundary componentName="Reviews">
+                    <ReviewsPage />
                   </RouteErrorBoundary>
                 } />
                 </Routes>

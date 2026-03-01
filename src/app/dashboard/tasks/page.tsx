@@ -1,5 +1,6 @@
 import React, { useMemo, useState, useCallback, useRef, useEffect } from "react";
 import {
+  Priority,
   Task,
   Status,
 } from "@/hooks/useApi";
@@ -42,6 +43,7 @@ import {
   ArrowUp,
   ArrowDown,
   Check,
+  Filter,
   Download,
   FileSpreadsheet,
   FileJson
@@ -121,13 +123,6 @@ const TasksPage = () => {
   const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
   const [activeFilterCount, setActiveFilterCount] = useState(0);
   
-  // Server-side pagination metadata from advanced filters
-  const [filterPagination, setFilterPagination] = useState<{
-    totalCount: number;
-    totalPages: number;
-    hasNextPage: boolean;
-  } | null>(null);
-  
   // Smart filter state
   const [smartFilterQuery, setSmartFilterQuery] = useState(searchParams.get('smart') || '');
   const smartFilterQueryRef = useRef(smartFilterQuery);
@@ -140,7 +135,7 @@ const TasksPage = () => {
   );
 
   // Saved view state for subscription
-  const [currentViewId] = useState<number | null>(null);
+  const [currentViewId, setCurrentViewId] = useState<number | null>(null);
 
   // Track if we need to update URL (debounce search)
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -297,7 +292,7 @@ const TasksPage = () => {
   }, [displayTasks, sortBy, sortOrder]);
 
   // Bulk selection handlers
-  const toggleTaskSelection = useCallback((taskId: number, event?: { shiftKey?: boolean; metaKey?: boolean; ctrlKey?: boolean }) => {
+  const toggleTaskSelection = useCallback((taskId: number, event?: React.MouseEvent) => {
     setSelectedTasks(prev => {
       const newSet = new Set(prev);
       
@@ -431,14 +426,14 @@ const TasksPage = () => {
   }, []);
 
   // Export helper functions
-  const convertTasksToCSV = useCallback((tasksToExport: Task[]): string => {
+  const convertTasksToCSV = (tasksToExport: Task[]): string => {
     const headers = ['ID', 'Title', 'Description', 'Status', 'Priority', 'Tags', 'Start Date', 'Due Date', 'Author', 'Assignee', 'Project', 'Created At', 'Updated At'];
-
+    
     const rows = tasksToExport.map(task => {
       const author = users?.find(u => u.userId === task.authorUserId)?.username || '';
       const assignee = users?.find(u => u.userId === task.assignedUserId)?.username || '';
       const project = projects?.find(p => p.id === task.projectId)?.name || '';
-
+      
       return [
         task.id,
         `"${task.title?.replace(/"/g, '""') || ''}"`,
@@ -454,9 +449,9 @@ const TasksPage = () => {
         task.createdAt ? new Date(task.createdAt).toLocaleDateString() : ''
       ];
     });
-
+    
     return [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
-  }, [users, projects]);
+  };
 
   const downloadFile = (content: string, filename: string, mimeType: string) => {
     const blob = new Blob([content], { type: mimeType });
@@ -484,7 +479,7 @@ const TasksPage = () => {
     const timestamp = new Date().toISOString().split('T')[0];
     downloadFile(csv, `tasks-${timestamp}.csv`, 'text/csv;charset=utf-8;');
     toast.success(`Exported ${tasksToExport.length} tasks to CSV`);
-  }, [sortedTasks, selectedTasks, convertTasksToCSV]);
+  }, [sortedTasks, selectedTasks]);
 
   const handleExportJSON = useCallback(() => {
     const tasksToExport = selectedTasks.size > 0 
@@ -511,7 +506,6 @@ const TasksPage = () => {
     setSmartFilterQuery('');
     setSmartFilterCriteria(null);
     setSmartFilterCount(0);
-    setFilterPagination(null);
     setSearchParams(new URLSearchParams(), { replace: true });
     toast.info("All filters cleared");
   }, [setSearchParams]);
@@ -519,11 +513,9 @@ const TasksPage = () => {
   // Handle filter changes from AdvancedFilters (now with server-side pagination)
   const handleFilterChange = useCallback((newFilteredTasks: Task[], pagination?: { totalCount: number; totalPages: number; hasNextPage: boolean }) => {
     setFilteredTasks(newFilteredTasks);
-    // Store pagination metadata for accurate count display
+    // Optionally store pagination info if needed
     if (pagination) {
-      setFilterPagination(pagination);
-    } else {
-      setFilterPagination(null);
+      console.log('Filter pagination:', pagination);
     }
   }, []);
 
@@ -576,9 +568,8 @@ const TasksPage = () => {
   }, [searchParams, setSearchParams]);
 
   const hasActiveFilters = searchTerm !== '' || activeFilterCount > 0 || smartFilterCount > 0;
-  // Use server-side pagination total when available, otherwise fall back to client-side counts
   const showingCount = sortedTasks.length;
-  const totalCount = filterPagination?.totalCount ?? (tasks || []).length;
+  const totalCount = (tasks || []).length;
 
   if (tasksLoading) {
     return (
@@ -988,7 +979,7 @@ const TasksPage = () => {
                         onCheckedChange={() => {}}
                         onClick={(e) => {
                           e.stopPropagation();
-                          toggleTaskSelection(task.id, e);
+                          toggleTaskSelection(task.id, e as unknown as React.MouseEvent);
                         }}
                         data-ignore-row-click
                         className="mt-1 h-5 w-5 min-h-[20px] min-w-[20px]"
@@ -1081,7 +1072,7 @@ const TasksPage = () => {
                             onCheckedChange={() => {}}
                             onClick={(e) => {
                               e.stopPropagation();
-                              toggleTaskSelection(task.id, e);
+                              toggleTaskSelection(task.id, e as unknown as React.MouseEvent);
                             }}
                             data-ignore-row-click
                             aria-label={`Select task ${task.title}`}

@@ -6,35 +6,26 @@
 import { apiService } from './apiService';
 
 // Linear Types
+export interface LinearOrganization {
+  id: string;
+  name: string;
+  logoUrl?: string;
+}
+
 export interface LinearTeam {
   id: string;
   name: string;
   key: string;
   color?: string;
-  icon?: string;
+  organization?: LinearOrganization;
 }
 
 export interface LinearProject {
   id: string;
   name: string;
-  color?: string;
-  state: 'backlog' | 'planned' | 'started' | 'paused' | 'completed' | 'canceled';
-}
-
-export interface LinearCycle {
-  id: string;
-  number: number;
-  name: string;
-  startsAt: string;
-  endsAt: string;
-  state: 'upcoming' | 'started' | 'completed';
-}
-
-export interface LinearState {
-  id: string;
-  name: string;
-  color: string;
-  type: 'backlog' | 'unstarted' | 'started' | 'completed' | 'canceled';
+  state: string;
+  url: string;
+  team?: LinearTeam;
 }
 
 export interface LinearUser {
@@ -42,13 +33,7 @@ export interface LinearUser {
   name: string;
   email: string;
   avatarUrl?: string;
-  displayName: string;
-}
-
-export interface LinearLabel {
-  id: string;
-  name: string;
-  color: string;
+  displayName?: string;
 }
 
 export interface LinearIssue {
@@ -59,20 +44,49 @@ export interface LinearIssue {
   state: {
     id: string;
     name: string;
+    color: string;
     type: string;
   };
   priority: number;
-  priorityLabel: 'No priority' | 'Urgent' | 'High' | 'Medium' | 'Low';
-  assignee?: LinearUser;
-  creator: LinearUser;
+  url: string;
   createdAt: string;
   updatedAt: string;
   dueDate?: string;
-  url: string;
+  assignee?: LinearUser;
   team?: LinearTeam;
   project?: LinearProject;
-  cycle?: LinearCycle;
-  labels?: LinearLabel[];
+  labels?: {
+    id: string;
+    name: string;
+    color: string;
+  }[];
+  cycle?: {
+    id: string;
+    number: number;
+    name?: string;
+  };
+}
+
+export interface LinearCycle {
+  id: string;
+  number: number;
+  name?: string;
+  startsAt: string;
+  endsAt: string;
+  state: string;
+}
+
+export interface LinearState {
+  id: string;
+  name: string;
+  color: string;
+  type: string;
+}
+
+export interface LinearLabel {
+  id: string;
+  name: string;
+  color: string;
 }
 
 export interface LinearLink {
@@ -85,7 +99,7 @@ export interface LinearLink {
   linearTeamName?: string;
   linearProjectId?: string;
   linearProjectName?: string;
-  linearPermalink?: string;
+  linearUrl: string;
   syncEnabled: boolean;
   lastSyncedAt?: string;
   syncDirection: 'to_linear' | 'from_linear' | 'bidirectional';
@@ -99,6 +113,7 @@ export interface LinearSyncConfig {
   projectId?: string;
   cycleId?: string;
   stateId?: string;
+  labelIds?: string[];
   syncDirection: 'to_linear' | 'from_linear' | 'bidirectional';
   fieldMappings: {
     title: boolean;
@@ -107,13 +122,13 @@ export interface LinearSyncConfig {
     dueDate: boolean;
     assignee: boolean;
     priority: boolean;
+    labels: boolean;
   };
 }
 
 export interface LinearSyncResult {
   success: boolean;
   linearIssueId?: string;
-  linearIssueIdentifier?: string;
   message?: string;
   errors?: string[];
 }
@@ -126,11 +141,23 @@ interface ApiResponse<T> {
 }
 
 /**
- * Get Linear teams for the authenticated user
+ * Get Linear organizations for the authenticated user
  */
-export async function getLinearTeams(): Promise<ApiResponse<LinearTeam[]>> {
+export async function getLinearOrganizations(): Promise<ApiResponse<LinearOrganization[]>> {
   try {
-    const data = await apiService.request<LinearTeam[]>('/integrations/linear/teams');
+    const data = await apiService.request<LinearOrganization[]>('/integrations/linear/organizations');
+    return { data };
+  } catch (error: any) {
+    return { error: error.message || 'Failed to fetch Linear organizations' };
+  }
+}
+
+/**
+ * Get Linear teams for an organization
+ */
+export async function getLinearTeams(organizationId: string): Promise<ApiResponse<LinearTeam[]>> {
+  try {
+    const data = await apiService.request<LinearTeam[]>(`/integrations/linear/organizations/${organizationId}/teams`);
     return { data };
   } catch (error: any) {
     return { error: error.message || 'Failed to fetch Linear teams' };
@@ -150,19 +177,7 @@ export async function getLinearProjects(teamId: string): Promise<ApiResponse<Lin
 }
 
 /**
- * Get Linear cycles for a team
- */
-export async function getLinearCycles(teamId: string): Promise<ApiResponse<LinearCycle[]>> {
-  try {
-    const data = await apiService.request<LinearCycle[]>(`/integrations/linear/teams/${teamId}/cycles`);
-    return { data };
-  } catch (error: any) {
-    return { error: error.message || 'Failed to fetch Linear cycles' };
-  }
-}
-
-/**
- * Get Linear states (workflow states) for a team
+ * Get Linear states for a team
  */
 export async function getLinearStates(teamId: string): Promise<ApiResponse<LinearState[]>> {
   try {
@@ -170,18 +185,6 @@ export async function getLinearStates(teamId: string): Promise<ApiResponse<Linea
     return { data };
   } catch (error: any) {
     return { error: error.message || 'Failed to fetch Linear states' };
-  }
-}
-
-/**
- * Get Linear users for a team
- */
-export async function getLinearUsers(teamId: string): Promise<ApiResponse<LinearUser[]>> {
-  try {
-    const data = await apiService.request<LinearUser[]>(`/integrations/linear/teams/${teamId}/users`);
-    return { data };
-  } catch (error: any) {
-    return { error: error.message || 'Failed to fetch Linear users' };
   }
 }
 
@@ -194,6 +197,30 @@ export async function getLinearLabels(teamId: string): Promise<ApiResponse<Linea
     return { data };
   } catch (error: any) {
     return { error: error.message || 'Failed to fetch Linear labels' };
+  }
+}
+
+/**
+ * Get Linear cycles for a team
+ */
+export async function getLinearCycles(teamId: string): Promise<ApiResponse<LinearCycle[]>> {
+  try {
+    const data = await apiService.request<LinearCycle[]>(`/integrations/linear/teams/${teamId}/cycles`);
+    return { data };
+  } catch (error: any) {
+    return { error: error.message || 'Failed to fetch Linear cycles' };
+  }
+}
+
+/**
+ * Get Linear users for an organization
+ */
+export async function getLinearUsers(organizationId: string): Promise<ApiResponse<LinearUser[]>> {
+  try {
+    const data = await apiService.request<LinearUser[]>(`/integrations/linear/organizations/${organizationId}/users`);
+    return { data };
+  } catch (error: any) {
+    return { error: error.message || 'Failed to fetch Linear users' };
   }
 }
 
@@ -333,11 +360,11 @@ export async function syncFromLinear(taskId: number, linkId?: number): Promise<A
  */
 export async function getLinearIntegrationStatus(): Promise<ApiResponse<{
   connected: boolean;
-  teamCount?: number;
-  defaultTeamId?: string;
+  organizationCount?: number;
+  defaultOrganizationId?: string;
 }>> {
   try {
-    const data = await apiService.request<{ connected: boolean; teamCount?: number; defaultTeamId?: string }>('/integrations/linear/status');
+    const data = await apiService.request<{ connected: boolean; organizationCount?: number; defaultOrganizationId?: string }>('/integrations/linear/status');
     return { data };
   } catch (error: any) {
     return { error: error.message || 'Failed to get Linear status' };
@@ -350,10 +377,38 @@ export async function getLinearIntegrationStatus(): Promise<ApiResponse<{
 export async function disconnectLinear(): Promise<ApiResponse<void>> {
   try {
     await apiService.request<void>('/integrations/linear/disconnect', {
-      method: 'POST',
+      method: 'DELETE',
     });
     return {};
   } catch (error: any) {
     return { error: error.message || 'Failed to disconnect Linear' };
+  }
+}
+
+/**
+ * Get all Linear issues for unified search
+ */
+export async function getAllLinearIssues(filters?: {
+  teamId?: string;
+  state?: string;
+  assigneeId?: string;
+  projectId?: string;
+  searchQuery?: string;
+}): Promise<ApiResponse<LinearIssue[]>> {
+  try {
+    const params = new URLSearchParams();
+    if (filters?.teamId) params.append('teamId', filters.teamId);
+    if (filters?.state) params.append('state', filters.state);
+    if (filters?.assigneeId) params.append('assigneeId', filters.assigneeId);
+    if (filters?.projectId) params.append('projectId', filters.projectId);
+    if (filters?.searchQuery) params.append('searchQuery', filters.searchQuery);
+    
+    const queryString = params.toString();
+    const url = `/integrations/linear/issues${queryString ? `?${queryString}` : ''}`;
+    
+    const data = await apiService.request<LinearIssue[]>(url);
+    return { data };
+  } catch (error: any) {
+    return { error: error.message || 'Failed to fetch Linear issues' };
   }
 }

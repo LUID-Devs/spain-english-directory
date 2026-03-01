@@ -14,7 +14,8 @@ import {
   Clock,
   List as ListIcon,
   CheckCircle2,
-  MessageSquareMore
+  MessageSquareMore,
+  GitCommitVertical
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -172,6 +173,9 @@ const TaskCard = React.memo(({ task, isSelected = false, onSelect, selectionMode
   const PriorityIcon = priorityConfig.icon;
   const StatusIcon = statusConfig.icon;
   
+  // Sub-task count (Task #656)
+  const hasSubTasks = task.subTaskCount && task.subTaskCount > 0;
+  
   return (
     <Card
       onClick={handleClick}
@@ -308,6 +312,13 @@ const TaskCard = React.memo(({ task, isSelected = false, onSelect, selectionMode
               <div className="flex items-center gap-0.5 text-[10px]">
                 <MessageSquareMore size={10} aria-hidden="true" />
                 <span>{numberOfComments}</span>
+              </div>
+            )}
+            {/* Sub-task counter (Task #656) */}
+            {hasSubTasks && (
+              <div className="flex items-center gap-0.5 text-[10px]">
+                <GitCommitVertical size={10} aria-hidden="true" />
+                <span>{task.subTaskCount}</span>
               </div>
             )}
           </div>

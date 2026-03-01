@@ -53,6 +53,9 @@ export const useKeyboardShortcuts = ({
       case 'a':
         navigate('/dashboard/archived-tasks');
         break;
+      case 'r':
+        navigate('/dashboard/reviews');
+        break;
       default:
         // Unknown key, do nothing
         break;

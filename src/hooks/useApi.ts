@@ -1968,6 +1968,239 @@ export const useHybridSearchQuery = (
   };
 };
 
+// ==================== NESTED SUB-ISSUES HOOKS (Task #656) ====================
+
+export const useGetTaskWithSubTasksQuery = (taskId: number | undefined, options?: { 
+  includeSubTasks?: boolean; 
+  maxDepth?: number;
+  skip?: boolean;
+}) => {
+  const [task, setTask] = useState<Task | null>(null);
+  const [isLoading, setIsLoading] = useState(!options?.skip);
+  const [error, setError] = useState<Error | null>(null);
+  const hasFetchedRef = useRef(false);
+
+  const fetchTask = useCallback(async () => {
+    if (!taskId || options?.skip) return;
+    
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const data = await apiService.getTaskWithSubTasks(taskId, {
+        includeSubTasks: options?.includeSubTasks,
+        maxDepth: options?.maxDepth,
+      });
+      setTask(data);
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Failed to fetch task'));
+    } finally {
+      setIsLoading(false);
+    }
+  }, [taskId, options?.skip, options?.includeSubTasks, options?.maxDepth]);
+
+  useEffect(() => {
+    if (!hasFetchedRef.current && !options?.skip && taskId) {
+      hasFetchedRef.current = true;
+      fetchTask();
+    }
+  }, [fetchTask, options?.skip, taskId]);
+
+  return {
+    data: task,
+    isLoading,
+    error,
+    refetch: fetchTask,
+  };
+};
+
+export const useGetSubTasksQuery = (parentTaskId: number | undefined, options?: {
+  recursive?: boolean;
+  maxDepth?: number;
+  skip?: boolean;
+}) => {
+  const [subTasks, setSubTasks] = useState<Task[]>([]);
+  const [isLoading, setIsLoading] = useState(!options?.skip);
+  const [error, setError] = useState<Error | null>(null);
+
+  const fetchSubTasks = useCallback(async () => {
+    if (!parentTaskId || options?.skip) return;
+    
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const data = await apiService.getSubTasks(parentTaskId, {
+        recursive: options?.recursive,
+        maxDepth: options?.maxDepth,
+      });
+      setSubTasks(data);
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Failed to fetch sub-tasks'));
+    } finally {
+      setIsLoading(false);
+    }
+  }, [parentTaskId, options?.skip, options?.recursive, options?.maxDepth]);
+
+  useEffect(() => {
+    fetchSubTasks();
+  }, [fetchSubTasks]);
+
+  return {
+    data: subTasks,
+    isLoading,
+    error,
+    refetch: fetchSubTasks,
+  };
+};
+
+export const useCreateSubTaskMutation = () => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const createSubTask = useCallback(async ({ 
+    parentTaskId, 
+    taskData 
+  }: { 
+    parentTaskId: number; 
+    taskData: Partial<Task>;
+  }) => {
+    setIsLoading(true);
+    try {
+      const result = await apiService.createSubTask(parentTaskId, taskData);
+      toast.success('Sub-task created successfully');
+      return result;
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to create sub-task');
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const mutationWrapper = useCallback((args: { parentTaskId: number; taskData: Partial<Task> }) => ({
+    unwrap: () => createSubTask(args),
+  }), [createSubTask]);
+
+  return [mutationWrapper, { isLoading }] as const;
+};
+
+export const useSetParentTaskMutation = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const { setTasks } = useApiStore();
+
+  const setParentTask = useCallback(async ({
+    taskId,
+    parentTaskId,
+  }: {
+    taskId: number;
+    parentTaskId: number | null;
+  }) => {
+    setIsLoading(true);
+    try {
+      const result = await apiService.setParentTask(taskId, parentTaskId);
+      
+      // Optimistic update
+      const currentTasks = useApiStore.getState().tasks.data;
+      if (currentTasks) {
+        const updatedTasks = currentTasks.map(t => 
+          t.id === taskId ? { ...t, parentTaskId } : t
+        );
+        setTasks(updatedTasks);
+      }
+      
+      toast.success(parentTaskId ? 'Task nested successfully' : 'Task unnested successfully');
+      return result;
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to update parent task');
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [setTasks]);
+
+  const mutationWrapper = useCallback((args: { taskId: number; parentTaskId: number | null }) => ({
+    unwrap: () => setParentTask(args),
+  }), [setParentTask]);
+
+  return [mutationWrapper, { isLoading }] as const;
+};
+
+export const useMoveSubTaskMutation = () => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const moveSubTask = useCallback(async ({
+    taskId,
+    newParentTaskId,
+    newOrder,
+  }: {
+    taskId: number;
+    newParentTaskId: number | null;
+    newOrder?: number;
+  }) => {
+    setIsLoading(true);
+    try {
+      const result = await apiService.moveSubTask(taskId, newParentTaskId, newOrder);
+      toast.success('Task moved successfully');
+      return result;
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to move task');
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const mutationWrapper = useCallback((args: { taskId: number; newParentTaskId: number | null; newOrder?: number }) => ({
+    unwrap: () => moveSubTask(args),
+  }), [moveSubTask]);
+
+  return [mutationWrapper, { isLoading }] as const;
+};
+
+export const useGetProjectTasksWithHierarchyQuery = (
+  projectId: number | undefined,
+  options?: {
+    includeSubTasks?: boolean;
+    rootOnly?: boolean;
+    skip?: boolean;
+  }
+) => {
+  const { tasks, setTasks, setLoading, setError } = useApiStore();
+  const hasFetchedRef = useRef(false);
+
+  const fetchTasks = useCallback(async () => {
+    if (!projectId || options?.skip) return;
+
+    try {
+      setLoading('tasks', true);
+      const data = await apiService.getProjectTasksWithHierarchy(projectId, {
+        includeSubTasks: options?.includeSubTasks,
+        rootOnly: options?.rootOnly,
+      });
+      setTasks(data);
+    } catch (err) {
+      setError('tasks', err instanceof Error ? err.message : 'Failed to fetch tasks');
+    } finally {
+      setLoading('tasks', false);
+    }
+  }, [projectId, options?.skip, options?.includeSubTasks, options?.rootOnly, setTasks, setLoading, setError]);
+
+  useEffect(() => {
+    if (!hasFetchedRef.current && !options?.skip && projectId) {
+      hasFetchedRef.current = true;
+      fetchTasks();
+    }
+  }, [fetchTasks, options?.skip, projectId]);
+
+  return {
+    data: tasks.data,
+    isLoading: tasks.isLoading,
+    isError: !!tasks.error,
+    error: tasks.error ? new Error(tasks.error) : null,
+    refetch: fetchTasks,
+  };
+};
+
 // Attachments hooks
 export const useGetTaskAttachmentsQuery = (taskId: number) => {
   const { taskAttachments, setTaskAttachments } = useApiStore();

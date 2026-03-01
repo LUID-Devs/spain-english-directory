@@ -4,7 +4,9 @@ import helmet from "helmet";
 import morgan from "morgan";
 import dotenv from "dotenv";
 import advancedFilterRoutes from "./routes/advancedFilterRoutes";
-import formTemplateRoutes from "./routes/formTemplateRoutes";
+import aiFilterRoutes from "./routes/aiFilterRoutes";
+import gitReviewRoutes from "./routes/gitReviewRoutes";
+import semanticSearchRoutes from "./routes/semanticSearchRoutes";
 
 // Load environment variables from .env file
 dotenv.config();
@@ -28,10 +30,12 @@ app.get("/health", (req: Request, res: Response) => {
 
 // API Routes
 app.use("/api", advancedFilterRoutes);
-app.use("/api", formTemplateRoutes);
+app.use("/api", aiFilterRoutes);
+app.use("/api", gitReviewRoutes);
+app.use("/api", semanticSearchRoutes);
 
 // Error handling middleware
-app.use((err: Error, req: Request, res: Response, _next: NextFunction) => {
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error(err.stack);
   res.status(500).json({
     success: false,

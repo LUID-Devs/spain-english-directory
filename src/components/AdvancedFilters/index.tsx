@@ -1,8 +1,6 @@
 // Advanced Filters Components
 // Provides both the legacy flat filter UI and the new nested group builder
 
-/* eslint-disable react-refresh/only-export-components */
-
 export { AdvancedFilters } from './index-original';
 export { AdvancedFilters as AdvancedFiltersLegacy } from './index-original';
 
