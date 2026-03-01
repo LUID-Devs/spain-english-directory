@@ -363,7 +363,6 @@ export interface Task {
   triaged?: boolean;
   createdAt?: string;
   updatedAt?: string;
-
   // Nested sub-issues hierarchy (Task #656 + TASK-781)
   parentTaskId?: number | null;
   parentId?: number | null; // Alias for compatibility
@@ -2709,6 +2708,7 @@ class ApiService {
     return this.request<GetViewSubscribersResponse>(`/api/views/${viewId}/subscribers`);
   }
 
+<<<<<<< HEAD
   // ==================== TASK SHARING API ====================
 
   /**
@@ -2764,6 +2764,67 @@ class ApiService {
       sharedBy?: { userId: number; username?: string; email: string };
       error?: string;
     }>(`/api/shared-tasks/${taskId}?token=${encodeURIComponent(token)}`);
+  }
+
+  // ==================== NESTED SUB-ISSUES API ====================
+
+  /**
+   * Get all sub-issues for a task
+   * GET /api/tasks/:taskId/sub-issues
+   */
+  async getSubIssues(taskId: number): Promise<SubIssuesResponse> {
+    return this.request<SubIssuesResponse>(`/api/tasks/${taskId}/sub-issues`);
+  }
+
+  /**
+   * Create a new sub-issue for a task
+   * POST /api/tasks/:taskId/sub-issues
+   */
+  async createSubIssue(taskId: number, data: Partial<Task>): Promise<{ message: string; subIssue: Task }> {
+    return this.request<{ message: string; subIssue: Task }>(`/api/tasks/${taskId}/sub-issues`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  /**
+   * Move a task to a new parent (or make it top-level)
+   * PUT /api/tasks/:taskId/move
+   */
+  async moveTask(taskId: number, parentId: number | null, displayOrder?: number): Promise<{ message: string; task: Task }> {
+    return this.request<{ message: string; task: Task }>(`/api/tasks/${taskId}/move`, {
+      method: 'PUT',
+      body: JSON.stringify({ parentId, displayOrder }),
+    });
+  }
+
+  /**
+   * Reorder sub-issues (drag and drop)
+   * POST /api/tasks/reorder
+   */
+  async reorderSubIssues(reorderings: { taskId: number; displayOrder: number }[]): Promise<{ message: string; count: number }> {
+    return this.request<{ message: string; count: number }>('/api/tasks/reorder', {
+      method: 'POST',
+      body: JSON.stringify({ reorderings }),
+    });
+  }
+
+  /**
+   * Get breadcrumb path from root to task
+   * GET /api/tasks/:taskId/breadcrumb
+   */
+  async getTaskBreadcrumb(taskId: number): Promise<TaskBreadcrumbResponse> {
+    return this.request<TaskBreadcrumbResponse>(`/api/tasks/${taskId}/breadcrumb`);
+  }
+
+  /**
+   * Convert a sub-issue to a top-level task
+   * POST /api/tasks/:taskId/convert-to-top-level
+   */
+  async convertToTopLevel(taskId: number): Promise<{ message: string; taskId: number }> {
+    return this.request<{ message: string; taskId: number }>(`/api/tasks/${taskId}/convert-to-top-level`, {
+      method: 'POST',
+    });
   }
 }
 
