@@ -15,6 +15,7 @@ import CommandPalette from '@/components/CommandPalette';
 import KeyboardShortcutsHelp from '@/components/KeyboardShortcutsHelp';
 import RouteErrorBoundary from '@/components/RouteErrorBoundary';
 import AuthErrorDisplay from '@/components/AuthErrorDisplay';
+import { UploadProgressIndicator } from '@/components/UploadProgress';
 
 // Landing Pages - eagerly loaded for SEO and fast first paint
 import LandingPage from '@/pages/landing/LandingPage';
@@ -47,6 +48,7 @@ const GoalsPage = React.lazy(() => import('@/pages/dashboard/goals/GoalsPage'));
 const GoalDetailPage = React.lazy(() => import('@/pages/dashboard/goals/GoalDetailPage'));
 const CreateGoalPage = React.lazy(() => import('@/pages/dashboard/goals/CreateGoalPage'));
 const AnalyticsDashboardPage = React.lazy(() => import('@/pages/dashboard/analytics/AnalyticsDashboardPage'));
+const TimeReportsPage = React.lazy(() => import('@/pages/dashboard/time-reports/TimeReportsPage'));
 const IntegrationHubPage = React.lazy(() => import('@/pages/dashboard/integrations/IntegrationHubPage'));
 const MobileAppCreatePage = React.lazy(() => import('@/pages/dashboard/mobile/MobileAppCreatePage'));
 
@@ -58,7 +60,9 @@ const LowPriorityPage = React.lazy(() => import('@/pages/dashboard/priority/LowP
 const BacklogPriorityPage = React.lazy(() => import('@/pages/dashboard/priority/BacklogPriorityPage'));
 const ArchivedTasksPage = React.lazy(() => import('@/app/dashboard/archived-tasks/page'));
 const AutomationPage = React.lazy(() => import('@/pages/dashboard/automation/AutomationPage'));
-const LibraryPage = React.lazy(() => import('@/pages/dashboard/library/LibraryPage'));
+const WorkspaceLibraryPage = React.lazy(() => import('@/pages/dashboard/library/WorkspaceLibraryPage'));
+const FormTemplatesPage = React.lazy(() => import('@/pages/dashboard/form-templates/FormTemplatesPage'));
+const FormTemplateBuilderPage = React.lazy(() => import('@/pages/dashboard/form-templates/FormTemplateBuilderPage'));
 
 // Other Pages (lazy loaded)
 const ConverterPage = React.lazy(() => import('@/pages/converter/ConverterPage'));
@@ -264,6 +268,11 @@ function AppContent() {
                     <AnalyticsDashboardPage />
                   </RouteErrorBoundary>
                 } />
+                <Route path="time-reports" element={
+                  <RouteErrorBoundary componentName="Time Reports">
+                    <TimeReportsPage />
+                  </RouteErrorBoundary>
+                } />
                 <Route path="goals" element={
                   <RouteErrorBoundary componentName="Goals">
                     <GoalsPage />
@@ -277,6 +286,22 @@ function AppContent() {
                 <Route path="goals/:goalId" element={
                   <RouteErrorBoundary componentName="Goal Detail">
                     <GoalDetailPage />
+                  </RouteErrorBoundary>
+                } />
+                {/* Form Template Routes */}
+                <Route path="form-templates" element={
+                  <RouteErrorBoundary componentName="Form Templates">
+                    <FormTemplatesPage />
+                  </RouteErrorBoundary>
+                } />
+                <Route path="form-templates/create" element={
+                  <RouteErrorBoundary componentName="Create Form Template">
+                    <FormTemplateBuilderPage />
+                  </RouteErrorBoundary>
+                } />
+                <Route path="form-templates/:id/edit" element={
+                  <RouteErrorBoundary componentName="Edit Form Template">
+                    <FormTemplateBuilderPage />
                   </RouteErrorBoundary>
                 } />
                 <Route path="mobile/create" element={
@@ -327,7 +352,7 @@ function AppContent() {
                 } />
                 <Route path="library" element={
                   <RouteErrorBoundary componentName="Library">
-                    <LibraryPage />
+                    <WorkspaceLibraryPage />
                   </RouteErrorBoundary>
                 } />
                 </Routes>
@@ -366,6 +391,9 @@ function AppContent() {
       
       {/* Keyboard Shortcuts Help Modal */}
       <KeyboardShortcutsHelp isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)} />
+      
+      {/* Global Background Upload Progress */}
+      <UploadProgressIndicator />
     </UndoProvider>
   );
 }

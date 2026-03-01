@@ -163,6 +163,11 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
     assignedUserId: undefined as number | undefined,
   });
 
+  // Custom fields state
+  const { values: customFieldValues, updateValues: updateCustomFieldValues } = useTaskCustomFields(isOpen ? taskId : null);
+  const { template: formTemplate } = useFormTemplate(task?.formTemplateId || null);
+  const [isUpdatingCustomFields, setIsUpdatingCustomFields] = useState(false);
+
   const isPrivateTask = task?.project?.visibility
     ? task.project.visibility === "private"
     : true;
@@ -264,6 +269,20 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
       return newForm;
     });
   }, [debouncedSave]);
+
+  // Handle custom field changes
+  const handleCustomFieldChange = useCallback(async (fieldId: number, value: any) => {
+    const newValues = { ...customFieldValues, [fieldId]: value };
+    setIsUpdatingCustomFields(true);
+    try {
+      await updateCustomFieldValues(newValues);
+    } catch (error) {
+      console.error("Failed to update custom field:", error);
+      toast.error("Failed to save custom field");
+    } finally {
+      setIsUpdatingCustomFields(false);
+    }
+  }, [customFieldValues, updateCustomFieldValues]);
 
   // Handle keyboard scrolling and shortcuts (moved AFTER autoSave and handleFieldChange)
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -998,6 +1017,33 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                       className="w-full h-9 lg:h-10"
                     />
                   </div>
+
+                  {/* Custom Fields - displayed if task has a form template */}
+                  {formTemplate && formTemplate.fields.length > 0 && (
+                    <div className="space-y-2 border-t border-border pt-3 mt-2">
+                      <Label className="text-foreground font-medium text-xs lg:text-sm flex items-center gap-2">
+                        <Tag className="h-3 w-3 lg:h-4 lg:w-4" />
+                        {formTemplate.name} Fields
+                        {isUpdatingCustomFields && (
+                          <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
+                        )}
+                      </Label>
+                      <div className="space-y-3">
+                        {formTemplate.fields
+                          .sort((a, b) => a.order - b.order)
+                          .map((field) => (
+                            <CustomFieldRenderer
+                              key={field.id}
+                              field={field}
+                              value={customFieldValues[field.id]}
+                              onChange={(value) => handleCustomFieldChange(field.id, value)}
+                              disabled={isUpdatingCustomFields}
+                              size="sm"
+                            />
+                          ))}
+                      </div>
+                    </div>
+                  )}
 
                   {/* Author - full width on mobile */}
                   <div className="space-y-1 lg:space-y-2">

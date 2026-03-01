@@ -4,6 +4,7 @@ import helmet from "helmet";
 import morgan from "morgan";
 import dotenv from "dotenv";
 import advancedFilterRoutes from "./routes/advancedFilterRoutes";
+import formTemplateRoutes from "./routes/formTemplateRoutes";
 
 // Load environment variables from .env file
 dotenv.config();
@@ -27,6 +28,7 @@ app.get("/health", (req: Request, res: Response) => {
 
 // API Routes
 app.use("/api", advancedFilterRoutes);
+app.use("/api", formTemplateRoutes);
 
 // Error handling middleware
 app.use((err: Error, req: Request, res: Response, _next: NextFunction) => {

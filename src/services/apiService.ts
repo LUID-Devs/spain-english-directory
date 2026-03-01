@@ -358,6 +358,7 @@ export interface Task {
   projectId: number;
   authorUserId?: number;
   assignedUserId?: number;
+  formTemplateId?: number;
   archivedAt?: string;
   triaged?: boolean;
   createdAt?: string;
@@ -655,7 +656,21 @@ class ApiService {
     this.baseUrl = rawBaseUrl.replace(/\/$/, '');
   }
 
-  private resolveEndpoint(endpoint: string): string {
+  // Public getters for external hooks
+  public getBaseUrl(): string {
+    return this.baseUrl;
+  }
+
+  // Public wrappers for private methods
+  public resolveEndpoint(endpoint: string): string {
+    return this._resolveEndpoint(endpoint);
+  }
+
+  public async getAuthHeaders(): Promise<Record<string, string>> {
+    return this._getAuthHeaders();
+  }
+
+  private _resolveEndpoint(endpoint: string): string {
     if (/^https?:\/\//i.test(endpoint)) {
       return endpoint;
     }
@@ -683,7 +698,7 @@ class ApiService {
     return endpoint;
   }
 
-  private async getAuthHeaders(): Promise<Record<string, string>> {
+  private async _getAuthHeaders(): Promise<Record<string, string>> {
     const authHeader: Record<string, string> = {};
 
     try {

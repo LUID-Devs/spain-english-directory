@@ -1749,6 +1749,224 @@ export const useGetSearchSuggestionsQuery = (params: { query: string; type?: str
   };
 };
 
+// ==================== HYBRID SEMANTIC SEARCH HOOK ====================
+
+const searchCache = new SearchCache();
+
+export interface UseHybridSearchOptions {
+  skip?: boolean;
+  debounceMs?: number;
+  /** Fallback to client-side search if server fails */
+  enableClientFallback?: boolean;
+  /** Tasks for client-side fallback */
+  fallbackTasks?: Task[];
+  /** Enable real-time index updates */
+  enableRealtimeUpdates?: boolean;
+}
+
+/**
+ * Hook for hybrid semantic search combining AI embeddings with keyword matching
+ * 
+ * Features:
+ * - Semantic similarity matching using vector embeddings
+ * - Keyword relevance scoring for exact matches
+ * - Combined hybrid ranking for best results
+ * - Client-side fallback when server is unavailable
+ * - Real-time index updates via WebSocket
+ * - Intelligent caching for performance
+ * 
+ * @example
+ * ```tsx
+ * const { data, isLoading } = useHybridSearchQuery(
+ *   { query: 'login bug', limit: 10 },
+ *   { enableClientFallback: true, fallbackTasks: allTasks }
+ * );
+ * ```
+ */
+export const useHybridSearchQuery = (
+  params: HybridSearchParams,
+  options: UseHybridSearchOptions = {}
+) => {
+  const [searchResults, setSearchResults] = useState<HybridSearchResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const paramsRef = useRef(params);
+  const skipRef = useRef(options.skip);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const unsubscribeRef = useRef<(() => void) | null>(null);
+  
+  const { 
+    debounceMs = 200, // Faster for semantic search
+    enableClientFallback = true,
+    fallbackTasks = [],
+    enableRealtimeUpdates = false
+  } = options;
+  
+  // Generate cache key from params
+  const cacheKey = useMemo(() => {
+    return `hybrid:${JSON.stringify(params)}`;
+  }, [params]);
+
+  const search = useCallback(async () => {
+    if (skipRef.current || !paramsRef.current.query.trim()) {
+      setSearchResults(null);
+      return;
+    }
+
+    // Check cache first
+    const cached = searchCache.get(cacheKey);
+    if (cached) {
+      setSearchResults(cached);
+      return;
+    }
+    
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      const startTime = performance.now();
+      const results = await apiService.hybridSemanticSearch(paramsRef.current);
+      const searchTimeMs = performance.now() - startTime;
+      
+      // Enhance results with timing
+      const enhancedResults: HybridSearchResponse = {
+        ...results,
+        searchTimeMs: results.searchTimeMs || searchTimeMs,
+        fromCache: false,
+      };
+      
+      // Cache results
+      searchCache.set(cacheKey, enhancedResults);
+      
+      setSearchResults(enhancedResults);
+    } catch (err) {
+      console.error('Hybrid semantic search failed:', err);
+      
+      // Client-side fallback
+      if (enableClientFallback && fallbackTasks.length > 0) {
+        const startTime = performance.now();
+        const clientResults = performClientHybridSearch(
+          paramsRef.current.query,
+          fallbackTasks,
+          {
+            semanticWeight: paramsRef.current.semanticWeight,
+            semanticThreshold: paramsRef.current.semanticThreshold,
+            limit: paramsRef.current.limit,
+          }
+        );
+        
+        const fallbackResponse: HybridSearchResponse = {
+          results: clientResults,
+          totalCount: clientResults.length,
+          usedSemanticSearch: false,
+          embeddingTimeMs: 0,
+          searchTimeMs: performance.now() - startTime,
+          fromCache: false,
+        };
+        
+        setSearchResults(fallbackResponse);
+      } else {
+        setError(err instanceof Error ? err.message : 'Search failed');
+        setSearchResults(null);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  }, [cacheKey, enableClientFallback, fallbackTasks]);
+
+  // Handle real-time index updates
+  useEffect(() => {
+    if (!enableRealtimeUpdates) return;
+    
+    // Subscribe to index updates
+    unsubscribeRef.current = apiService.subscribeToIndexUpdates((event: IndexUpdateEvent) => {
+      // Invalidate relevant cache entries
+      if (event.entityType === 'task') {
+        searchCache.invalidate(/task/);
+      }
+    });
+    
+    return () => {
+      if (unsubscribeRef.current) {
+        unsubscribeRef.current();
+        unsubscribeRef.current = null;
+      }
+    };
+  }, [enableRealtimeUpdates]);
+
+  useEffect(() => {
+    // Update refs
+    paramsRef.current = params;
+    skipRef.current = options.skip;
+    
+    // Clear any pending debounced search
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+      debounceRef.current = null;
+    }
+    
+    // Search whenever params change (if not skipped and query is valid)
+    if (!options.skip && params.query.trim() && params.query.length >= 3) {
+      debounceRef.current = setTimeout(() => {
+        search();
+      }, debounceMs);
+    } else if (options.skip || !params.query.trim()) {
+      setSearchResults(null);
+      setError(null);
+    }
+
+    // Cleanup debounce on unmount or params change
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+    };
+  }, [
+    params.query,
+    params.limit,
+    params.semanticThreshold,
+    params.semanticWeight,
+    params.projectId,
+    params.status,
+    params.priority,
+    options.skip,
+    debounceMs,
+    search
+  ]);
+
+  // Extract tasks from results for convenience
+  const tasks = useMemo(() => {
+    return searchResults?.results.map(r => r.task) || [];
+  }, [searchResults]);
+
+  // Calculate if semantic search was actually used
+  const usedSemantic = useMemo(() => {
+    return searchResults?.usedSemanticSearch || false;
+  }, [searchResults]);
+
+  // Get performance metrics
+  const performanceMetrics = useMemo(() => {
+    return {
+      embeddingTimeMs: searchResults?.embeddingTimeMs || 0,
+      searchTimeMs: searchResults?.searchTimeMs || 0,
+      fromCache: searchResults?.fromCache || false,
+      totalTimeMs: (searchResults?.embeddingTimeMs || 0) + (searchResults?.searchTimeMs || 0),
+    };
+  }, [searchResults]);
+
+  return {
+    data: searchResults,
+    tasks,
+    isLoading,
+    isError: !!error,
+    error: error ? new Error(error) : null,
+    refetch: search,
+    usedSemantic,
+    performanceMetrics,
+    suggestions: searchResults?.suggestions,
+  };
+};
+
 // Attachments hooks
 export const useGetTaskAttachmentsQuery = (taskId: number) => {
   const { taskAttachments, setTaskAttachments } = useApiStore();

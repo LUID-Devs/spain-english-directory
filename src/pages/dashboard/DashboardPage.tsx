@@ -29,6 +29,7 @@ import { apiService } from "@/services/apiService";
 import { toast } from "sonner";
 import { useState, useCallback } from "react";
 import { DashboardSkeleton } from "@/components/DashboardSkeleton";
+import { TodayTimeWidget, WeeklyTimeWidget } from "@/components/TimeTracking";
 
 // Lazy load charts to reduce initial bundle size
 const DashboardCharts = React.lazy(() => import("@/components/DashboardCharts"));
@@ -508,6 +509,13 @@ const DashboardPage = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Time Tracking Widgets */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 sm:mb-6">
+        <TodayTimeWidget />
+        <WeeklyTimeWidget />
+      </div>
+
       <Card className="mb-4 sm:mb-6">
           <CardHeader className="p-4 sm:p-6">
             <div className="flex items-center justify-between">

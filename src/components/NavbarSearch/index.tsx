@@ -31,11 +31,13 @@ import {
   useGetTasksByUserQuery,
   useGetProjectsQuery,
   useGetUsersQuery,
+  useHybridSearchQuery,
   SearchSuggestion,
   Task,
   Project,
   User as UserType
 } from "@/hooks/useApi";
+import { Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTaskModal } from "@/contexts/TaskModalContext";
 import { useCurrentUser } from "@/stores/userStore";
@@ -209,7 +211,8 @@ const NavbarSearch = forwardRef<NavbarSearchRef, NavbarSearchProps>(({
   const [isSyntaxHelpOpen, setIsSyntaxHelpOpen] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [searchMode, setSearchMode] = useState<'basic' | 'advanced' | 'syntax'>('basic');
+  const [searchMode, setSearchMode] = useState<'basic' | 'advanced' | 'syntax' | 'hybrid'>('basic');
+  const [enableSemanticSearch, setEnableSemanticSearch] = useState(true); // Feature flag for hybrid search
   const searchInputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { openTaskModal } = useTaskModal();

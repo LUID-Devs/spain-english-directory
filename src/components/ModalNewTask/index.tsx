@@ -1,5 +1,7 @@
 import { Priority, Status, useCreateTaskMutation, useGetUsersQuery, useGetAgentsQuery, useGetProjectsQuery, useGetProjectStatusesQuery, useUploadTaskDescriptionImageMutation, useGetTasksByUserQuery, useCheckDuplicatesMutation } from "@/hooks/useApi";
 import { DuplicateDetectionPopover } from "@/components/DuplicateDetection";
+import { FormTemplateSelector } from "@/components/FormTemplateSelector";
+import { useFormTemplates } from "@/hooks/useFormTemplates";
 import { useCurrentUser } from "@/stores/userStore";
 import { useSubscription } from "@/stores/subscriptionStore";
 import { apiService, ParsedTaskData } from "@/services/apiService";
@@ -102,6 +104,17 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
   // Quick tips visibility
   const [showQuickTips, setShowQuickTips] = useState(true);
 
+  // Form Template state
+  const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(null);
+  const [customFieldValues, setCustomFieldValues] = useState<Record<string, any>>({});
+
+  // Fetch form templates
+  const { templates } = useFormTemplates({
+    organizationId: currentUser?.activeOrganizationId || null,
+    includeSystem: true,
+    isActive: true,
+  });
+
   // Reset form to initial state
   const resetForm = () => {
     setTitle("");
@@ -116,6 +129,8 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
     setAiInput("");
     setShowAiInput(true);
     setDueDateSuggestion(null);
+    setSelectedTemplateId(null);
+    setCustomFieldValues({});
     // Keep authorUserId as the current user
     if (currentUser?.userId) {
       setAuthorUserId(currentUser.userId.toString());
@@ -124,6 +139,20 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
     if (id === null) {
       setProjectId("");
     }
+  };
+
+  // Handle template selection
+  const handleSelectTemplate = (templateId: number | null) => {
+    setSelectedTemplateId(templateId);
+    setCustomFieldValues({}); // Reset custom fields when template changes
+  };
+
+  // Handle custom field value change
+  const handleCustomFieldChange = (fieldId: number, value: any) => {
+    setCustomFieldValues(prev => ({
+      ...prev,
+      [fieldId]: value
+    }));
   };
 
   // AI Parse Task function
@@ -390,6 +419,8 @@ const ModalNewTask = ({ isOpen, onClose, id = null, defaultPriority }: Props) =>
         authorUserId: parseInt(authorUserId),
         assignedUserId: assignedUserId ? parseInt(assignedUserId) : undefined,
         projectId: id !== null ? Number(id) : Number(projectId),
+        formTemplateId: selectedTemplateId || undefined,
+        customFields: Object.keys(customFieldValues).length > 0 ? customFieldValues : undefined,
       };
 
       const result = await createTask(taskData).unwrap();
