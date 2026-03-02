@@ -319,9 +319,17 @@ const TaskDetailPage = () => {
     }
   }, [setTimeEstimate, taskId, refetchTimeEstimate]);
 
-  const handleDeleteTimeLog = useCallback(async () => {
-    toast.info('Delete time log - not yet implemented');
-  }, []);
+  const handleDeleteTimeLog = useCallback(async (logId: number) => {
+    try {
+      await apiService.deleteTimeLog(logId);
+      toast.success('Time log deleted');
+      await refetchTimeLogs();
+      await refetchTimeEstimate();
+    } catch (error) {
+      console.error('Failed to delete time log:', error);
+      toast.error('Failed to delete time log');
+    }
+  }, [refetchTimeLogs, refetchTimeEstimate]);
 
   // Keyboard shortcut for timer (Ctrl+Space)
   useEffect(() => {

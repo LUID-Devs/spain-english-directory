@@ -64,7 +64,9 @@ import { toast } from "sonner";
 import { useUndoableBulkDelete } from "@/hooks/useUndoableBulkDelete";
 import { TaskStatusWithTime, TaskStatusCell } from "@/components/TaskStatusWithTime";
 import { TimeInStatusFilterChip, TimeInStatusDisplay } from "@/components/TimeInStatus";
-import { TimeThresholds, compareByTimeInStatus } from "@/lib/timeInStatus";
+import { TimeThresholds } from "@/lib/timeInStatus";
+import { useApiStore } from "@/stores/apiStore";
+import { useRequestManager } from "@/stores/requestManager";
 
 // Task status styling helper
 const getStatusVariant = (status: string) => {
@@ -118,6 +120,9 @@ const timeThresholds = [
 const TasksPage = () => {
   const { currentUser } = useCurrentUser();
   const userId = currentUser?.userId ?? null;
+  const statusTimeBreakdown = useApiStore((state) => state.statusTimeBreakdown);
+  const setStatusTimeBreakdown = useApiStore((state) => state.setStatusTimeBreakdown);
+  const { getOrCreateRequest } = useRequestManager();
   const { openTaskModal } = useTaskModal();
   const lastSelectedRef = useRef<number | null>(null);
   
@@ -275,11 +280,10 @@ const TasksPage = () => {
 
     // Apply time in status filter (using updatedAt as proxy until backend supports time filtering)
     if (timeFilter) {
-      // DISABLED: Using updatedAt as a proxy for time in status is inaccurate.
-      // Proper status history tracking is now implemented in the backend.
-      // Time filtering should be done server-side with status history data.
-      // TODO: Implement server-side time in status filtering
-      console.warn('Time in status filtering requires server-side support with status history data');
+      baseTasks = baseTasks.filter((task) => {
+        const timeInStatus = statusTimeBreakdown[task.id]?.data?.timeInCurrentStatusSeconds ?? 0;
+        return timeInStatus >= timeFilter;
+      });
     }
 
     // Apply search term
@@ -292,7 +296,18 @@ const TasksPage = () => {
         task.tags?.toLowerCase().includes(searchTerm.toLowerCase());
       return matchesSearch;
     });
-  }, [tasks, filteredTasks, activeFilterCount, searchTerm, smartFilterCriteria, smartFilterCount, userId, users, timeFilter]);
+  }, [
+    tasks,
+    filteredTasks,
+    activeFilterCount,
+    searchTerm,
+    smartFilterCriteria,
+    smartFilterCount,
+    userId,
+    users,
+    timeFilter,
+    statusTimeBreakdown,
+  ]);
 
   // Sort tasks
   const sortedTasks = useMemo(() => {
@@ -310,11 +325,9 @@ const TasksPage = () => {
           comparison = (statusOrder[a.status] || 5) - (statusOrder[b.status] || 5);
           break;
         case 'timeInStatus': {
-          // DISABLED: Using updatedAt as a proxy for time in status is inaccurate.
-          // Proper status history tracking is now implemented in the backend.
-          // Sorting by time in status requires fetching status history for each task.
-          // TODO: Implement server-side sorting by time in status
-          comparison = 0;
+          const aTime = statusTimeBreakdown[a.id]?.data?.timeInCurrentStatusSeconds ?? 0;
+          const bTime = statusTimeBreakdown[b.id]?.data?.timeInCurrentStatusSeconds ?? 0;
+          comparison = aTime - bTime;
           break;
         }
         case 'dueDate': {
@@ -338,7 +351,38 @@ const TasksPage = () => {
 
       return sortOrder === 'asc' ? comparison : -comparison;
     });
-  }, [displayTasks, sortBy, sortOrder]);
+  }, [displayTasks, sortBy, sortOrder, statusTimeBreakdown]);
+
+  useEffect(() => {
+    if (!tasks || (!timeFilter && sortBy !== 'timeInStatus')) return;
+
+    tasks.forEach((task) => {
+      if (statusTimeBreakdown[task.id]?.data) {
+        return;
+      }
+
+      getOrCreateRequest(
+        `taskStatusBreakdown:${task.id}`,
+        () => apiService.getTaskStatusTimeBreakdown(task.id),
+        5000
+      )
+        .then((data) => {
+          if (data) {
+            setStatusTimeBreakdown(task.id, data);
+          }
+        })
+        .catch((error) => {
+          console.error('Failed to prefetch time in status breakdown:', error);
+        });
+    });
+  }, [
+    tasks,
+    timeFilter,
+    sortBy,
+    statusTimeBreakdown,
+    getOrCreateRequest,
+    setStatusTimeBreakdown,
+  ]);
 
   // Bulk selection handlers
   const toggleTaskSelection = useCallback((taskId: number, event?: React.MouseEvent) => {

@@ -157,6 +157,8 @@ export async function linkExternalTask(
   config?: {
     syncEnabled?: boolean;
     syncDirection?: 'to_external' | 'from_external' | 'bidirectional';
+    title?: string;
+    url?: string;
   }
 ): Promise<ApiResponse<{ id: number; createdAt: string }>> {
   try {

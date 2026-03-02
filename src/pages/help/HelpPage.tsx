@@ -4,6 +4,7 @@ import { Home, Book, MessageCircle, Mail, ArrowLeft, HelpCircle, Search, FileTex
 
 const HelpPage: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const communityLink = import.meta.env.VITE_COMMUNITY_URL || 'https://community.taskluid.com';
   
   const faqs = [
     {
@@ -44,8 +45,8 @@ const HelpPage: React.FC = () => {
       icon: MessageCircle,
       title: 'Community',
       description: 'Join our community forum to ask questions and share tips.',
-      link: '#',
-      linkText: 'Coming Soon'
+      link: communityLink,
+      linkText: 'Join Community'
     },
     {
       icon: Mail,

@@ -605,9 +605,16 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
   }, [setTimeEstimate, taskId, refetchTimeEstimate]);
 
   const handleDeleteTimeLog = useCallback(async (logId: number) => {
-    // TODO: Implement delete time log mutation
-    toast.info("Delete time log - not yet implemented");
-  }, []);
+    try {
+      await apiService.deleteTimeLog(logId);
+      toast.success("Time log deleted");
+      await refetchTimeLogs();
+      await refetchTimeEstimate();
+    } catch (error) {
+      console.error("Failed to delete time log:", error);
+      toast.error("Failed to delete time log");
+    }
+  }, [refetchTimeLogs, refetchTimeEstimate]);
 
   return (
     <React.Fragment>

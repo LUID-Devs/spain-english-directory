@@ -110,6 +110,8 @@ export const UnifiedSearch: React.FC<UnifiedSearchProps> = ({
     const success = await linkTask(taskIdToLink, result.source, result.externalId, {
       syncEnabled: true,
       syncDirection: 'bidirectional',
+      title: result.title,
+      url: result.url,
     });
     if (success) {
       setLinkedTaskIds(prev => new Set(prev).add(result.id));
