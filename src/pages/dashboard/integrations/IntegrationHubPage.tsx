@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import { toast } from 'sonner';
 import { useAsanaIntegration } from '@/hooks/useAsana';
-import { useJiraIntegration } from '@/hooks/useJira';
 import { useLinearIntegration } from '@/hooks/useLinear';
+import { useJiraIntegration } from '@/hooks/useJira';
 import { AIIntegrationSearch } from '@/components/integrations/AIIntegrationSearch';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -19,7 +19,6 @@ import {
   CheckCircle2,
   XCircle,
   GitBranch,
-  CheckCircle2,
   Brain,
 } from 'lucide-react';
 
@@ -88,24 +87,17 @@ const IntegrationHubPage: React.FC = () => {
 
   const handleConnectAsana = () => {
     const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://api.taskluid.com';
-    window.location.href = `${baseUrl}/integrations/oauth/asana/authorize`;
-  };
-
-  const handleConnectJira = () => {
-    const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://api.taskluid.com';
-    window.location.href = `${baseUrl}/integrations/oauth/jira/authorize`;
+    window.location.href = `${baseUrl}/integrations/asana/connect`;
   };
 
   const handleConnectLinear = () => {
     const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://api.taskluid.com';
-    window.location.href = `${baseUrl}/integrations/oauth/linear/authorize`;
+    window.location.href = `${baseUrl}/integrations/linear/connect`;
   };
 
-  const handleRefreshAll = () => {
-    refetchAsanaStatus();
-    refetchJiraStatus();
-    refetchLinearStatus();
-    toast.success('Integration statuses refreshed');
+  const handleConnectJira = () => {
+    const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://api.taskluid.com';
+    window.location.href = `${baseUrl}/integrations/jira/connect`;
   };
 
   const getStatusBadge = (isConnected: boolean, isLoading: boolean) => {
@@ -120,22 +112,11 @@ const IntegrationHubPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-start justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold text-foreground">Integration Hub</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Connect TaskLuid to Asana, Jira, and Linear to keep projects synced across tools.
-          </p>
-        </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleRefreshAll}
-          disabled={isAnyLoading}
-        >
-          <RefreshCw className={`h-4 w-4 mr-2 ${isAnyLoading ? 'animate-spin' : ''}`} />
-          Refresh All
-        </Button>
+      <div>
+        <h1 className="text-2xl font-semibold text-foreground">Integration Hub</h1>
+        <p className="text-sm text-muted-foreground mt-1">
+          Connect TaskLuid to Asana, Jira, and Linear to keep projects synced across tools.
+        </p>
       </div>
 
       {/* Connection Summary */}
@@ -171,9 +152,7 @@ const IntegrationHubPage: React.FC = () => {
           <CardHeader className="flex flex-row items-start justify-between space-y-0">
             <div>
               <CardTitle className="text-base flex items-center gap-2">
-                <div className="w-6 h-6 rounded bg-[#F06A6A] flex items-center justify-center">
-                  <span className="text-white text-xs font-bold">A</span>
-                </div>
+                <span className="h-2 w-2 rounded-full bg-pink-500" />
                 Asana
               </CardTitle>
               <CardDescription>Tasks, projects, comments</CardDescription>
@@ -217,9 +196,7 @@ const IntegrationHubPage: React.FC = () => {
           <CardHeader className="flex flex-row items-start justify-between space-y-0">
             <div>
               <CardTitle className="text-base flex items-center gap-2">
-                <div className="w-6 h-6 rounded bg-[#5E6AD2] flex items-center justify-center">
-                  <span className="text-white text-xs font-bold">L</span>
-                </div>
+                <span className="h-2 w-2 rounded-full bg-purple-500" />
                 Linear
               </CardTitle>
               <CardDescription>Issues, cycles, projects</CardDescription>
@@ -421,60 +398,6 @@ const IntegrationHubPage: React.FC = () => {
           </CardContent>
         </Card>
       </div>
-
-      {hasAnyConnection && (
-        <>
-          <Separator />
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base flex items-center gap-2">
-                <GitBranch className="h-4 w-4" />
-                Cross-Platform Linking
-              </CardTitle>
-              <CardDescription>
-                Link TaskLuid tasks to issues in your connected tools.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4 md:grid-cols-3">
-                {isAsanaConnected && (
-                  <div className="flex items-center gap-3 p-3 rounded-lg border">
-                    <div className="w-8 h-8 rounded bg-[#F06A6A] flex items-center justify-center">
-                      <span className="text-white text-xs font-bold">A</span>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium">Asana</p>
-                      <p className="text-xs text-muted-foreground">Link from task detail page</p>
-                    </div>
-                  </div>
-                )}
-                {isJiraConnected && (
-                  <div className="flex items-center gap-3 p-3 rounded-lg border">
-                    <div className="w-8 h-8 rounded bg-[#0052CC] flex items-center justify-center">
-                      <span className="text-white text-xs font-bold">J</span>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium">Jira</p>
-                      <p className="text-xs text-muted-foreground">Link from task detail page</p>
-                    </div>
-                  </div>
-                )}
-                {isLinearConnected && (
-                  <div className="flex items-center gap-3 p-3 rounded-lg border">
-                    <div className="w-8 h-8 rounded bg-[#5E6AD2] flex items-center justify-center">
-                      <span className="text-white text-xs font-bold">L</span>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium">Linear</p>
-                      <p className="text-xs text-muted-foreground">Link from task detail page</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </>
-      )}
     </div>
   );
 };

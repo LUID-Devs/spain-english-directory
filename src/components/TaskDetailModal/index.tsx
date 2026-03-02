@@ -14,7 +14,6 @@ import {
   useStopTimerMutation,
   useSetTimeEstimateMutation,
   useUpdateTimeLogMutation,
-  useCreateTaskShareMutation,
   Status,
   Priority,
   TaskType,
@@ -96,7 +95,6 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
   const [stopTimer] = useStopTimerMutation();
   const [setTimeEstimate] = useSetTimeEstimateMutation();
   const [updateTimeLog] = useUpdateTimeLogMutation();
-  const [createTaskShare] = useCreateTaskShareMutation();
 
   // Check if timer is running for this task
   const isTimerRunningForThisTask = activeTimerData?.timer?.taskId === taskId;
@@ -150,6 +148,15 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
   const [shareRequirePassword, setShareRequirePassword] = useState(false);
   const [sharePassword, setSharePassword] = useState("");
   const [inviteEmails, setInviteEmails] = useState("");
+  const [emailError, setEmailError] = useState<string | null>(null);
+
+  // Email validation function
+  const validateEmails = (emails: string): boolean => {
+    if (!emails.trim()) return true;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailList = emails.split(',').map(e => e.trim()).filter(e => e);
+    return emailList.every(email => emailRegex.test(email));
+  };
 
   const [editForm, setEditForm] = useState({
     title: "",
@@ -389,14 +396,26 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
         requirePassword: shareRequirePassword,
       };
 
+      // Only require password when:
+      // 1. Creating a new password-protected share, OR
+      // 2. Updating and password protection is being enabled for the first time, OR
+      // 3. User explicitly enters a new password (changing existing password)
       if (shareRequirePassword) {
         const trimmed = sharePassword.trim();
-        if (trimmed.length < 6) {
+        const isNewShare = !shareData;
+        const isEnablingPassword = shareData && !shareData.requirePassword;
+        const isChangingPassword = trimmed.length > 0;
+
+        if ((isNewShare || isEnablingPassword) && trimmed.length < 6) {
           setShareError("Password must be at least 6 characters");
           setShareLoading(false);
           return;
         }
-        payload.password = trimmed;
+
+        // Only include password in payload if user entered a new one
+        if (isChangingPassword) {
+          payload.password = trimmed;
+        }
       }
 
       const data = await apiService.createTaskShare(taskId, payload);
@@ -1151,10 +1170,18 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
               <Input
                 placeholder="name@company.com, name2@company.com"
                 value={inviteEmails}
-                onChange={(event) => setInviteEmails(event.target.value)}
+                onChange={(event) => {
+                  setInviteEmails(event.target.value);
+                  setEmailError(null);
+                }}
               />
               <Button type="button" onClick={() => {
                 if (shareData?.shareUrl && inviteEmails) {
+                  if (!validateEmails(inviteEmails)) {
+                    setEmailError('Please enter valid email addresses separated by commas');
+                    return;
+                  }
+                  setEmailError(null);
                   const subject = encodeURIComponent(`Shared task: ${task?.title || 'Task'}`);
                   const body = encodeURIComponent(`View the shared task here: ${shareData.shareUrl}`);
                   window.open(`mailto:${inviteEmails}?subject=${subject}&body=${body}`);
@@ -1163,6 +1190,9 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                 Send invite
               </Button>
             </div>
+            {emailError && (
+              <p className="text-xs text-destructive">{emailError}</p>
+            )}
             <p className="text-xs text-muted-foreground">
               We will open your email client with the share link.
             </p>

@@ -221,10 +221,10 @@ export const AIModelSettings: React.FC = () => {
                       </DialogDescription>
                     </DialogHeader>
                     <ul className="text-sm text-muted-foreground list-disc pl-5 space-y-2 mt-4">
-                      <li><strong>Code/Technical:</strong> GPT-4.1</li>
+                      <li><strong>Coding:</strong> GPT-4.1</li>
                       <li><strong>Writing:</strong> Claude 3.5 Sonnet</li>
+                      <li><strong>Research:</strong> Gemini 1.5 Pro</li>
                       <li><strong>Analysis:</strong> Claude 3 Opus</li>
-                      <li><strong>Reasoning/Research:</strong> Gemini 1.5 Pro</li>
                       <li><strong>General:</strong> Claude 3.5 Sonnet</li>
                     </ul>
                   </DialogContent>

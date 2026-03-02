@@ -442,6 +442,13 @@ export interface TaskShareInfo {
   viewCount?: number;
 }
 
+export interface ExternalComment {
+  id: number;
+  text: string;
+  authorName: string;
+  createdAt: string;
+}
+
 export interface PublicTaskShare {
   task: {
     id: number;
@@ -457,12 +464,7 @@ export interface PublicTaskShare {
     updatedAt?: string;
   };
   allowComments: boolean;
-  externalComments?: Array<{
-    id: number;
-    text: string;
-    authorName: string;
-    createdAt: string;
-  }>;
+  externalComments?: ExternalComment[];
   expiresAt?: string | null;
 }
 export interface SearchResults {

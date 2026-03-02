@@ -105,6 +105,7 @@ export interface JiraIssue {
     components?: {
       id: string;
       name: string;
+      description?: string;
     }[];
     fixVersions?: {
       id: string;
