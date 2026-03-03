@@ -1,10 +1,32 @@
 "use client";
 
-import React, { useMemo } from "react";
-import { useRoadmapData } from "@/hooks/useRoadmapApi";
+import React, { useMemo, useState } from "react";
+import { DisplayOption, Gantt, ViewMode } from "gantt-task-react";
+import "gantt-task-react/dist/index.css";
+import { useRoadmapData, useCreateMilestone } from "@/hooks/useRoadmapApi";
+import { useAuth } from "@/app/authProvider";
+import { useGlobalStore } from "@/stores/globalStore";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { 
   Loader2, 
   AlertCircle, 
@@ -21,6 +43,7 @@ import {
 import { EmptyState } from "@/components/EmptyState";
 import { format, differenceInDays, isPast, isToday } from "date-fns";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 // Health status indicators
 const healthConfig = {
@@ -68,6 +91,21 @@ const milestoneConfig = {
 
 export default function RoadmapPage() {
   const { data: roadmapData, isLoading, isError, refetch } = useRoadmapData();
+  const { activeOrganization } = useAuth();
+  const { isDarkMode } = useGlobalStore();
+  const { createMilestone, isLoading: isCreatingMilestone } = useCreateMilestone();
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<"timeline" | "gantt">("timeline");
+  const [ganttOptions, setGanttOptions] = useState<DisplayOption>({
+    viewMode: ViewMode.Month,
+    locale: "en-US",
+  });
+  const [milestoneForm, setMilestoneForm] = useState({
+    name: "",
+    description: "",
+    targetDate: "",
+    projectId: "all",
+  });
 
   // Calculate summary stats
   const stats = useMemo(() => {
@@ -146,6 +184,106 @@ export default function RoadmapPage() {
   }
 
   const { projects, milestones, dependencies } = roadmapData || { projects: [], milestones: [], dependencies: [] };
+  const availableProjects = projects.map((project) => ({ id: project.id, name: project.name }));
+
+  const ganttTasks = useMemo(() => {
+    const healthToHex: Record<string, string> = {
+      on_track: "#10B981",
+      at_risk: "#F59E0B",
+      delayed: "#EF4444",
+      unknown: "#9CA3AF",
+    };
+    const milestoneToHex: Record<string, string> = {
+      upcoming: "#3B82F6",
+      at_risk: "#F59E0B",
+      missed: "#EF4444",
+      completed: "#10B981",
+    };
+
+    const projectTasks = projects
+      .filter((project: any) => project.startDate && project.endDate)
+      .map((project: any) => {
+        const health = healthConfig[project.healthStatus as keyof typeof healthConfig] || healthConfig.unknown;
+        const baseColor = healthToHex[project.healthStatus] || healthToHex.unknown;
+        const completed = project.taskStats?.completed || 0;
+        const total = project.taskStats?.total || 0;
+        const progress = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+        return {
+          start: new Date(project.startDate),
+          end: new Date(project.endDate),
+          name: project.name,
+          id: `project-${project.id}`,
+          type: "project" as const,
+          progress,
+          isDisabled: false,
+          styles: {
+            backgroundColor: isDarkMode ? "#1F2937" : baseColor,
+            backgroundSelectedColor: isDarkMode ? "#111827" : baseColor,
+            progressColor: isDarkMode ? "#ffffff" : "#000000",
+            progressSelectedColor: isDarkMode ? "#ffffff" : "#000000",
+          },
+        };
+      });
+
+    const milestoneTasks = milestones
+      .filter((milestone: any) => milestone.targetDate)
+      .map((milestone: any) => {
+        const color = milestoneToHex[milestone.status] || "#9CA3AF";
+        const target = new Date(milestone.targetDate);
+
+        return {
+          start: target,
+          end: target,
+          name: milestone.name,
+          id: `milestone-${milestone.id}`,
+          type: "milestone" as const,
+          progress: milestone.progress || 0,
+          isDisabled: false,
+          styles: {
+            backgroundColor: isDarkMode ? "#6B7280" : color,
+            backgroundSelectedColor: isDarkMode ? "#4B5563" : color,
+            progressColor: isDarkMode ? "#ffffff" : "#000000",
+            progressSelectedColor: isDarkMode ? "#ffffff" : "#000000",
+          },
+        };
+      });
+
+    return [...projectTasks, ...milestoneTasks];
+  }, [projects, milestones, isDarkMode]);
+
+  const projectsMissingDates = useMemo(
+    () => projects.filter((project: any) => !project.startDate || !project.endDate),
+    [projects]
+  );
+
+  const handleCreateMilestone = async () => {
+    const organizationId = activeOrganization?.id ?? Number(localStorage.getItem("activeOrganizationId"));
+    if (!organizationId) {
+      toast.error("Select a workspace to create a milestone.");
+      return;
+    }
+    if (!milestoneForm.name.trim() || !milestoneForm.targetDate) {
+      toast.error("Milestone name and target date are required.");
+      return;
+    }
+
+    try {
+      await createMilestone({
+        organizationId,
+        projectId: milestoneForm.projectId === "all" ? undefined : Number(milestoneForm.projectId),
+        name: milestoneForm.name.trim(),
+        description: milestoneForm.description.trim() || undefined,
+        targetDate: new Date(milestoneForm.targetDate).toISOString(),
+      });
+      toast.success("Milestone created.");
+      setMilestoneForm({ name: "", description: "", targetDate: "", projectId: "all" });
+      setIsCreateOpen(false);
+      refetch();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to create milestone.");
+    }
+  };
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -161,15 +299,21 @@ export default function RoadmapPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" disabled>
+          <Button
+            variant={viewMode === "timeline" ? "default" : "outline"}
+            onClick={() => setViewMode("timeline")}
+          >
             <Calendar className="h-4 w-4 mr-2" />
             Timeline
           </Button>
-          <Button variant="outline" disabled>
+          <Button
+            variant={viewMode === "gantt" ? "default" : "outline"}
+            onClick={() => setViewMode("gantt")}
+          >
             <GitBranch className="h-4 w-4 mr-2" />
             Gantt
           </Button>
-          <Button disabled>
+          <Button onClick={() => setIsCreateOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
             Add Milestone
           </Button>
@@ -275,7 +419,7 @@ export default function RoadmapPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Target className="h-5 w-5" />
-              Projects Timeline
+              {viewMode === "gantt" ? "Roadmap Gantt" : "Projects Timeline"}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -285,7 +429,7 @@ export default function RoadmapPage() {
                 title="No projects yet"
                 description="Create projects to see them on the roadmap."
               />
-            ) : (
+            ) : viewMode === "timeline" ? (
               <div className="space-y-4">
                 {projects.map((project: any) => {
                   const health = healthConfig[project.healthStatus as keyof typeof healthConfig] || healthConfig.unknown;
@@ -380,6 +524,61 @@ export default function RoadmapPage() {
                     </div>
                   );
                 })}
+              </div>
+            ) : ganttTasks.length === 0 ? (
+              <EmptyState
+                icon={Calendar}
+                title="No scheduled items"
+                description="Add start/end dates to projects or milestone target dates to populate the Gantt view."
+              />
+            ) : (
+              <div className="space-y-4">
+                <div className="flex flex-wrap items-center gap-2">
+                  {[ViewMode.Day, ViewMode.Week, ViewMode.Month].map((mode) => (
+                    <Button
+                      key={mode}
+                      size="sm"
+                      variant={ganttOptions.viewMode === mode ? "default" : "outline"}
+                      onClick={() => setGanttOptions((prev) => ({ ...prev, viewMode: mode }))}
+                    >
+                      {mode === ViewMode.Day ? "Day" : mode === ViewMode.Week ? "Week" : "Month"}
+                    </Button>
+                  ))}
+                </div>
+                <div className="border rounded-lg overflow-hidden">
+                  <Gantt
+                    tasks={ganttTasks}
+                    {...ganttOptions}
+                    columnWidth={ganttOptions.viewMode === ViewMode.Month ? 180 : ganttOptions.viewMode === ViewMode.Week ? 120 : 80}
+                    listCellWidth="220px"
+                    barBackgroundColor={isDarkMode ? "#374151" : "#E5E7EB"}
+                    barBackgroundSelectedColor={isDarkMode ? "#1F2937" : "#D1D5DB"}
+                    arrowColor={isDarkMode ? "#6B7280" : "#9CA3AF"}
+                    fontFamily="Inter, -apple-system, BlinkMacSystemFont, system-ui, sans-serif"
+                    fontSize="13px"
+                    todayColor={isDarkMode ? "#1E40AF" : "#3B82F6"}
+                    TooltipContent={({ task, fontSize, fontFamily }) => (
+                      <div 
+                        className="bg-background border border-border rounded-lg shadow-lg p-3 max-w-xs"
+                        style={{ fontSize, fontFamily }}
+                      >
+                        <div className="font-semibold text-foreground mb-1">
+                          {task.name}
+                        </div>
+                        <div className="text-sm text-muted-foreground space-y-1">
+                          <div>Start: {task.start.toLocaleDateString()}</div>
+                          <div>End: {task.end.toLocaleDateString()}</div>
+                          <div>Progress: {Math.round(task.progress || 0)}%</div>
+                        </div>
+                      </div>
+                    )}
+                  />
+                </div>
+                {projectsMissingDates.length > 0 && (
+                  <p className="text-xs text-muted-foreground">
+                    {projectsMissingDates.length} project{projectsMissingDates.length !== 1 ? "s" : ""} missing start or end dates.
+                  </p>
+                )}
               </div>
             )}
           </CardContent>
@@ -496,6 +695,92 @@ export default function RoadmapPage() {
           </CardContent>
         </Card>
       )}
+
+      <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Create Milestone</DialogTitle>
+            <DialogDescription>
+              Track a key date or deliverable across your projects.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="milestone-name">Milestone name</Label>
+              <Input
+                id="milestone-name"
+                value={milestoneForm.name}
+                onChange={(event) =>
+                  setMilestoneForm((prev) => ({ ...prev, name: event.target.value }))
+                }
+                placeholder="e.g. Beta launch"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="milestone-project">Project</Label>
+              <Select
+                value={milestoneForm.projectId}
+                onValueChange={(value) =>
+                  setMilestoneForm((prev) => ({ ...prev, projectId: value }))
+                }
+              >
+                <SelectTrigger id="milestone-project">
+                  <SelectValue placeholder="All projects" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All projects</SelectItem>
+                  {availableProjects.map((project) => (
+                    <SelectItem key={project.id} value={String(project.id)}>
+                      {project.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="milestone-date">Target date</Label>
+              <Input
+                id="milestone-date"
+                type="date"
+                value={milestoneForm.targetDate}
+                onChange={(event) =>
+                  setMilestoneForm((prev) => ({ ...prev, targetDate: event.target.value }))
+                }
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="milestone-description">Description (optional)</Label>
+              <Textarea
+                id="milestone-description"
+                value={milestoneForm.description}
+                onChange={(event) =>
+                  setMilestoneForm((prev) => ({ ...prev, description: event.target.value }))
+                }
+                rows={3}
+                placeholder="Share context or success criteria."
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsCreateOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleCreateMilestone}
+              disabled={isCreatingMilestone || !milestoneForm.name.trim() || !milestoneForm.targetDate}
+            >
+              {isCreatingMilestone ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Creating
+                </>
+              ) : (
+                "Create milestone"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

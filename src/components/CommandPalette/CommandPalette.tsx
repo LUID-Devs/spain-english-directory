@@ -61,7 +61,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
   useEffect(() => {
     if (!isOpen) {
       queueMicrotask(() => setSearchQuery(''));
-      setShowExternalResults(false);
+      queueMicrotask(() => setShowExternalResults(false));
     }
   }, [isOpen]);
 
@@ -74,7 +74,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
       }, 300);
       return () => clearTimeout(timer);
     } else {
-      setShowExternalResults(false);
+      queueMicrotask(() => setShowExternalResults(false));
     }
   }, [searchQuery, fetchSuggestions, hasConnectedIntegrations]);
 

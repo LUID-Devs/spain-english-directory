@@ -92,7 +92,7 @@ export const AIIntegrationSearch: React.FC<AIIntegrationSearchProps> = ({
     if (connectedSources.asana) available.push('asana');
     if (connectedSources.linear) available.push('linear');
     if (connectedSources.jira) available.push('jira');
-    setSelectedSources(available);
+    queueMicrotask(() => setSelectedSources(available));
   }, [connectedSources]);
 
   const handleSourceToggle = useCallback((source: ExternalTaskSource) => {

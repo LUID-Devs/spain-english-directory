@@ -52,6 +52,7 @@ const TimeReportsPage = React.lazy(() => import('@/pages/dashboard/time-reports/
 const IntegrationHubPage = React.lazy(() => import('@/pages/dashboard/integrations/IntegrationHubPage'));
 const MobileAppCreatePage = React.lazy(() => import('@/pages/dashboard/mobile/MobileAppCreatePage'));
 const ReviewsPage = React.lazy(() => import('@/pages/dashboard/reviews/ReviewsPage'));
+const RoadmapPage = React.lazy(() => import('@/app/dashboard/roadmap/page'));
 
 // Priority Pages (lazy loaded)
 const HighPriorityPage = React.lazy(() => import('@/pages/dashboard/priority/HighPriorityPage'));
@@ -61,7 +62,7 @@ const LowPriorityPage = React.lazy(() => import('@/pages/dashboard/priority/LowP
 const BacklogPriorityPage = React.lazy(() => import('@/pages/dashboard/priority/BacklogPriorityPage'));
 const ArchivedTasksPage = React.lazy(() => import('@/app/dashboard/archived-tasks/page'));
 const AutomationPage = React.lazy(() => import('@/pages/dashboard/automation/AutomationPage'));
-const WorkspaceLibraryPage = React.lazy(() => import('@/pages/dashboard/library/WorkspaceLibraryPage'));
+const WorkspaceLibraryPage = React.lazy(() => import('@/pages/dashboard/workspace-library/WorkspaceLibraryPage'));
 const FormTemplatesPage = React.lazy(() => import('@/pages/dashboard/form-templates/FormTemplatesPage'));
 const FormTemplateBuilderPage = React.lazy(() => import('@/pages/dashboard/form-templates/FormTemplateBuilderPage'));
 
@@ -271,6 +272,11 @@ function AppContent() {
                     <AnalyticsDashboardPage />
                   </RouteErrorBoundary>
                 } />
+                <Route path="roadmap" element={
+                  <RouteErrorBoundary componentName="Roadmap">
+                    <RoadmapPage />
+                  </RouteErrorBoundary>
+                } />
                 <Route path="time-reports" element={
                   <RouteErrorBoundary componentName="Time Reports">
                     <TimeReportsPage />
@@ -355,6 +361,11 @@ function AppContent() {
                 } />
                 <Route path="library" element={
                   <RouteErrorBoundary componentName="Library">
+                    <WorkspaceLibraryPage />
+                  </RouteErrorBoundary>
+                } />
+                <Route path="workspace-library" element={
+                  <RouteErrorBoundary componentName="Workspace Library">
                     <WorkspaceLibraryPage />
                   </RouteErrorBoundary>
                 } />

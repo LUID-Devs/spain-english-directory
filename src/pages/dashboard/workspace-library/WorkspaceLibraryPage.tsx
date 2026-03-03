@@ -45,6 +45,8 @@ import { useGetProjectsQuery, useGetTasksByUserQuery, Project, Task, Priority, S
 import { useAuth } from '@/app/authProvider';
 import { useTaskModal } from '@/contexts/TaskModalContext';
 import { formatDistanceToNow } from '@/lib/dateUtils';
+import { apiService } from '@/services/apiService';
+import { toast } from 'sonner';
 
 // Content item types
  type ContentType = 'all' | 'projects' | 'tasks' | 'goals';
@@ -84,7 +86,7 @@ const WorkspaceLibraryPage: React.FC = () => {
   const [dateFilter, setDateFilter] = useState<string>('all');
 
   // Fetch data
-  const { data: projects, isLoading: projectsLoading } = useGetProjectsQuery();
+  const { data: projects, isLoading: projectsLoading, refetch: refetchProjects } = useGetProjectsQuery();
   const userId = user?.userId || (user?.sub ? parseInt(user.sub) : null);
   const { data: tasks, isLoading: tasksLoading } = useGetTasksByUserQuery(
     typeof userId === 'number' && !isNaN(userId) ? userId : null,
@@ -140,6 +142,50 @@ const WorkspaceLibraryPage: React.FC = () => {
     return items;
   }, [projects, tasks, contentType]);
 
+  const handleToggleFavorite = async (item: ContentItem) => {
+    if (item.type !== 'project') {
+      toast.info('Favorites are only available for projects right now.');
+      return;
+    }
+    if (!userId || Number.isNaN(userId)) {
+      toast.error('Sign in to manage favorites.');
+      return;
+    }
+
+    try {
+      if (item.isFavorited) {
+        await apiService.unfavoriteProject(String(item.id), userId);
+        toast.success('Project removed from favorites.');
+      } else {
+        await apiService.favoriteProject(String(item.id), userId);
+        toast.success('Project added to favorites.');
+      }
+      await refetchProjects();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to update favorite.');
+    }
+  };
+
+  const handleShareItem = async (item: ContentItem) => {
+    try {
+      if (item.type === 'project') {
+        const share = await apiService.createProjectShare(Number(item.id));
+        await navigator.clipboard.writeText(share.shareUrl);
+        toast.success('Project share link copied.');
+        return;
+      }
+      if (item.type === 'task') {
+        const share = await apiService.createTaskShare(Number(item.id));
+        await navigator.clipboard.writeText(share.shareUrl);
+        toast.success('Task share link copied.');
+        return;
+      }
+      toast.info('Sharing goals is not available yet.');
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to create share link.');
+    }
+  };
+
   // Filter and sort items
   const filteredItems = useMemo(() => {
     let filtered = contentItems;
@@ -189,6 +235,14 @@ const WorkspaceLibraryPage: React.FC = () => {
       );
     }
     
+    const priorityOrder = {
+      [Priority.Urgent]: 0,
+      [Priority.High]: 1,
+      [Priority.Medium]: 2,
+      [Priority.Low]: 3,
+      [Priority.Backlog]: 4,
+    };
+
     // Sort
     filtered.sort((a, b) => {
       let comparison = 0;
@@ -204,7 +258,6 @@ const WorkspaceLibraryPage: React.FC = () => {
           comparison = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
           break;
         case 'priority':
-          const priorityOrder = { [Priority.Urgent]: 0, [Priority.High]: 1, [Priority.Medium]: 2, [Priority.Low]: 3, [Priority.Backlog]: 4 };
           comparison = (priorityOrder[a.priority as Priority] ?? 5) - (priorityOrder[b.priority as Priority] ?? 5);
           break;
       }
@@ -454,12 +507,19 @@ const WorkspaceLibraryPage: React.FC = () => {
                       key={`${item.type}-${item.id}`}
                       item={item}
                       onClick={() => handleItemClick(item)}
+                      onFavoriteToggle={handleToggleFavorite}
+                      onShare={handleShareItem}
                     />
                   ))}
                 </div>
               ) : (
                 <Card>
-                  <ContentList items={favoritedItems} onItemClick={handleItemClick} />
+                  <ContentList
+                    items={favoritedItems}
+                    onItemClick={handleItemClick}
+                    onFavoriteToggle={handleToggleFavorite}
+                    onShare={handleShareItem}
+                  />
                 </Card>
               )}
             </div>
@@ -484,12 +544,19 @@ const WorkspaceLibraryPage: React.FC = () => {
                       key={`${item.type}-${item.id}`}
                       item={item}
                       onClick={() => handleItemClick(item)}
+                      onFavoriteToggle={handleToggleFavorite}
+                      onShare={handleShareItem}
                     />
                   ))}
                 </div>
               ) : (
                 <Card>
-                  <ContentList items={filteredItems} onItemClick={handleItemClick} />
+                  <ContentList
+                    items={filteredItems}
+                    onItemClick={handleItemClick}
+                    onFavoriteToggle={handleToggleFavorite}
+                    onShare={handleShareItem}
+                  />
                 </Card>
               )
             ) : (
@@ -525,9 +592,11 @@ const WorkspaceLibraryPage: React.FC = () => {
 interface ContentCardProps {
   item: ContentItem;
   onClick: () => void;
+  onFavoriteToggle: (item: ContentItem) => void;
+  onShare: (item: ContentItem) => void;
 }
 
-const ContentCard: React.FC<ContentCardProps> = ({ item, onClick }) => {
+const ContentCard: React.FC<ContentCardProps> = ({ item, onClick, onFavoriteToggle, onShare }) => {
   const getIcon = () => {
     switch (item.type) {
       case 'project':
@@ -605,10 +674,20 @@ const ContentCard: React.FC<ContentCardProps> = ({ item, onClick }) => {
                   Open
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={(e) => e.stopPropagation()}>
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onFavoriteToggle(item);
+                  }}
+                >
                   {item.isFavorited ? 'Remove from favorites' : 'Add to favorites'}
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={(e) => e.stopPropagation()}>
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onShare(item);
+                  }}
+                >
                   Share
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -662,9 +741,11 @@ const ContentCard: React.FC<ContentCardProps> = ({ item, onClick }) => {
 interface ContentListProps {
   items: ContentItem[];
   onItemClick: (item: ContentItem) => void;
+  onFavoriteToggle: (item: ContentItem) => void;
+  onShare: (item: ContentItem) => void;
 }
 
-const ContentList: React.FC<ContentListProps> = ({ items, onItemClick }) => {
+const ContentList: React.FC<ContentListProps> = ({ items, onItemClick, onFavoriteToggle, onShare }) => {
   const getIcon = (type: string) => {
     switch (type) {
       case 'project':
@@ -763,20 +844,30 @@ const ContentList: React.FC<ContentListProps> = ({ items, onItemClick }) => {
                 <MoreVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onItemClick(item); }}>
-                Open
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={(e) => e.stopPropagation()}>
-                {item.isFavorited ? 'Remove from favorites' : 'Add to favorites'}
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={(e) => e.stopPropagation()}>
-                Share
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onItemClick(item); }}>
+              Open
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={(e) => {
+                e.stopPropagation();
+                onFavoriteToggle(item);
+              }}
+            >
+              {item.isFavorited ? 'Remove from favorites' : 'Add to favorites'}
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={(e) => {
+                e.stopPropagation();
+                onShare(item);
+              }}
+            >
+              Share
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
       ))}
     </div>
   );

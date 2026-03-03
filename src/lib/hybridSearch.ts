@@ -300,8 +300,8 @@ export function calculateKeywordScore(
   }
   
   // Comments matching (if available)
-  let commentsScore = 0;
-  let commentMatchCount = 0;
+  const commentsScore = 0;
+  const commentMatchCount = 0;
   // Comments would need to be loaded separately or included in task
   
   // Synonym expansion for better matching

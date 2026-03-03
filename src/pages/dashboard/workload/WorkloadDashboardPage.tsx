@@ -25,6 +25,8 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
+import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
 import {
   Select,
   SelectContent,
@@ -49,6 +51,8 @@ const WorkloadDashboardPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [selectedMember, setSelectedMember] = useState<WorkloadMember | null>(null);
+  const [settingsDraft, setSettingsDraft] = useState<TeamWorkloadResponse['settings'] | null>(null);
+  const [isSavingSettings, setIsSavingSettings] = useState(false);
 
   const fetchWorkloadData = async (showRefreshing = false) => {
     if (showRefreshing) setRefreshing(true);
@@ -71,6 +75,33 @@ const WorkloadDashboardPage: React.FC = () => {
   useEffect(() => {
     fetchWorkloadData();
   }, []);
+
+  useEffect(() => {
+    if (workloadData?.settings) {
+      setSettingsDraft(workloadData.settings);
+    }
+  }, [workloadData?.settings]);
+
+  const handleSaveSettings = async () => {
+    if (!settingsDraft) return;
+    setIsSavingSettings(true);
+    try {
+      const response = await apiService.updateWorkloadSettings(settingsDraft);
+      if (response.success) {
+        setWorkloadData((prev) =>
+          prev ? { ...prev, settings: response.settings } : prev
+        );
+        toast.success('Workload settings updated');
+      } else {
+        toast.error('Failed to update workload settings');
+      }
+    } catch (error) {
+      console.error('Failed to update workload settings:', error);
+      toast.error('Failed to update workload settings');
+    } finally {
+      setIsSavingSettings(false);
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -184,7 +215,14 @@ const WorkloadDashboardPage: React.FC = () => {
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Capacity Metric</label>
-                  <Select defaultValue={settings.capacityMetric}>
+                  <Select
+                    value={settingsDraft?.capacityMetric ?? settings.capacityMetric}
+                    onValueChange={(value) =>
+                      setSettingsDraft((prev) =>
+                        prev ? { ...prev, capacityMetric: value as TeamWorkloadResponse['settings']['capacityMetric'] } : prev
+                      )
+                    }
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -196,16 +234,90 @@ const WorkloadDashboardPage: React.FC = () => {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Default Capacity: {settings.defaultCapacity}</label>
-                  <Progress value={settings.defaultCapacity} max={20} />
+                  <label className="text-sm font-medium">Default Capacity</label>
+                  <Input
+                    type="number"
+                    min={1}
+                    value={settingsDraft?.defaultCapacity ?? settings.defaultCapacity}
+                    onChange={(event) => {
+                      const value = Number(event.target.value);
+                      setSettingsDraft((prev) =>
+                        prev ? { ...prev, defaultCapacity: Number.isNaN(value) ? prev.defaultCapacity : value } : prev
+                      );
+                    }}
+                  />
+                  <Progress value={settingsDraft?.defaultCapacity ?? settings.defaultCapacity} max={20} />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Warning Threshold: {settings.warningThreshold}%</label>
-                  <Progress value={settings.warningThreshold} className="bg-yellow-200" />
+                  <label className="text-sm font-medium">Warning Threshold (%)</label>
+                  <Input
+                    type="number"
+                    min={0}
+                    max={100}
+                    value={settingsDraft?.warningThreshold ?? settings.warningThreshold}
+                    onChange={(event) => {
+                      const value = Number(event.target.value);
+                      setSettingsDraft((prev) =>
+                        prev ? { ...prev, warningThreshold: Number.isNaN(value) ? prev.warningThreshold : value } : prev
+                      );
+                    }}
+                  />
+                  <Progress value={settingsDraft?.warningThreshold ?? settings.warningThreshold} className="bg-yellow-200" />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Danger Threshold: {settings.dangerThreshold}%</label>
-                  <Progress value={settings.dangerThreshold} className="bg-red-200" />
+                  <label className="text-sm font-medium">Danger Threshold (%)</label>
+                  <Input
+                    type="number"
+                    min={0}
+                    max={100}
+                    value={settingsDraft?.dangerThreshold ?? settings.dangerThreshold}
+                    onChange={(event) => {
+                      const value = Number(event.target.value);
+                      setSettingsDraft((prev) =>
+                        prev ? { ...prev, dangerThreshold: Number.isNaN(value) ? prev.dangerThreshold : value } : prev
+                      );
+                    }}
+                  />
+                  <Progress value={settingsDraft?.dangerThreshold ?? settings.dangerThreshold} className="bg-red-200" />
+                </div>
+                <div className="flex items-center justify-between rounded-lg border p-3">
+                  <div>
+                    <p className="text-sm font-medium">Show unassigned tasks</p>
+                    <p className="text-xs text-muted-foreground">Include unassigned tasks in the workload view.</p>
+                  </div>
+                  <Switch
+                    checked={settingsDraft?.showUnassigned ?? settings.showUnassigned}
+                    onCheckedChange={(checked) =>
+                      setSettingsDraft((prev) => (prev ? { ...prev, showUnassigned: checked } : prev))
+                    }
+                  />
+                </div>
+                <div className="flex items-center justify-between rounded-lg border p-3">
+                  <div>
+                    <p className="text-sm font-medium">Show out of office</p>
+                    <p className="text-xs text-muted-foreground">Highlight out of office members.</p>
+                  </div>
+                  <Switch
+                    checked={settingsDraft?.showOutOfOffice ?? settings.showOutOfOffice}
+                    onCheckedChange={(checked) =>
+                      setSettingsDraft((prev) => (prev ? { ...prev, showOutOfOffice: checked } : prev))
+                    }
+                  />
+                </div>
+                <div className="flex justify-end gap-2 pt-2">
+                  <Button variant="outline" onClick={() => setSettingsDraft(settings)}>
+                    Reset
+                  </Button>
+                  <Button onClick={handleSaveSettings} disabled={isSavingSettings}>
+                    {isSavingSettings ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Saving
+                      </>
+                    ) : (
+                      "Save Settings"
+                    )}
+                  </Button>
                 </div>
               </div>
             </DialogContent>

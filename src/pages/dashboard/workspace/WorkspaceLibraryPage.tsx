@@ -130,9 +130,11 @@ const WorkspaceLibraryPage: React.FC = () => {
         case 'date':
           return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
         case 'activity':
-          const aTime = a.lastActive ? new Date(a.lastActive).getTime() : 0;
-          const bTime = b.lastActive ? new Date(b.lastActive).getTime() : 0;
-          return bTime - aTime;
+          {
+            const aTime = a.lastActive ? new Date(a.lastActive).getTime() : 0;
+            const bTime = b.lastActive ? new Date(b.lastActive).getTime() : 0;
+            return bTime - aTime;
+          }
         default:
           return 0;
       }

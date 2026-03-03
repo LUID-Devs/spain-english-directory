@@ -442,6 +442,18 @@ export interface TaskShareInfo {
   viewCount?: number;
 }
 
+export interface ProjectShareInfo {
+  success?: boolean;
+  shareUrl: string;
+  token: string;
+  expiresAt?: string | null;
+  requirePassword: boolean;
+  showTaskDetails: boolean;
+  showAssignees: boolean;
+  showComments: boolean;
+  viewCount?: number;
+}
+
 export interface ExternalComment {
   id: number;
   text: string;
@@ -1084,6 +1096,27 @@ class ApiService {
   async revokeTaskShare(taskId: number): Promise<{ success: boolean; message: string }> {
     return this.request<{ success: boolean; message: string }>(`/tasks/${taskId}/share`, {
       method: 'DELETE',
+    });
+  }
+
+  async getProjectShare(projectId: number): Promise<ProjectShareInfo> {
+    return this.request<ProjectShareInfo>(`/api/projects/${projectId}/share`);
+  }
+
+  async createProjectShare(
+    projectId: number,
+    payload: {
+      expiresInDays?: number | null;
+      requirePassword?: boolean;
+      password?: string;
+      showTaskDetails?: boolean;
+      showAssignees?: boolean;
+      showComments?: boolean;
+    } = {}
+  ): Promise<ProjectShareInfo> {
+    return this.request<ProjectShareInfo>(`/api/projects/${projectId}/share`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
     });
   }
 

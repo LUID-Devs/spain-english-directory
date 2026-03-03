@@ -85,8 +85,10 @@ export const IntegrationSettingsPanel: React.FC<IntegrationSettingsProps> = ({
   const [hasChanges, setHasChanges] = useState(false);
 
   useEffect(() => {
-    setSyncConfig(integration.syncConfig);
-    setHasChanges(false);
+    queueMicrotask(() => {
+      setSyncConfig(integration.syncConfig);
+      setHasChanges(false);
+    });
   }, [integration]);
 
   const handleSyncConfigChange = (updates: Partial<SyncConfiguration>) => {

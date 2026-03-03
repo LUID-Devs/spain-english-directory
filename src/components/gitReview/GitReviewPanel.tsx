@@ -141,7 +141,7 @@ const GitReviewPanel: React.FC<GitReviewPanelProps> = ({ taskId, pullRequests })
         loadedReviews[pr.id] = saved;
       }
     });
-    setReviews(loadedReviews);
+    queueMicrotask(() => setReviews(loadedReviews));
   }, [taskId, pullRequests.map(pr => pr.id).join(',')]);
 
   // Toggle expand

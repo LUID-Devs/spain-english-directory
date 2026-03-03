@@ -20,6 +20,23 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import InviteToWorkspaceModal from "@/components/InviteToWorkspaceModal";
 import { escapeHtml } from "@/lib/escapeHtml";
 
@@ -48,6 +65,13 @@ const TeamsPage = () => {
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [currentUserRole, setCurrentUserRole] = useState<string>('member');
   const [retryCount, setRetryCount] = useState(0);
+  const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false);
+  const [isRemoveDialogOpen, setIsRemoveDialogOpen] = useState(false);
+  const [selectedMember, setSelectedMember] = useState<WorkspaceMember | null>(null);
+  const [selectedRole, setSelectedRole] = useState('member');
+  const [unassignTasks, setUnassignTasks] = useState(false);
+  const [isUpdatingRole, setIsUpdatingRole] = useState(false);
+  const [isRemovingMember, setIsRemovingMember] = useState(false);
 
   const isPersonalWorkspace = activeOrganization?.settings?.isPersonal;
 
@@ -171,6 +195,77 @@ const TeamsPage = () => {
   };
 
   const canInvite = (currentUserRole === 'owner' || currentUserRole === 'admin') && !isPersonalWorkspace;
+  const canManageMembers = (currentUserRole === 'owner' || currentUserRole === 'admin') && !isPersonalWorkspace;
+
+  const openRoleDialog = (member: WorkspaceMember) => {
+    setSelectedMember(member);
+    setSelectedRole(member.role);
+    setIsRoleDialogOpen(true);
+  };
+
+  const openRemoveDialog = (member: WorkspaceMember) => {
+    setSelectedMember(member);
+    setUnassignTasks(false);
+    setIsRemoveDialogOpen(true);
+  };
+
+  const handleUpdateRole = async () => {
+    if (!selectedMember || !activeOrganization?.id) return;
+    setIsUpdatingRole(true);
+    try {
+      const headers = await getAuthHeaders();
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/organizations/${activeOrganization.id}/members/${selectedMember.userId}`,
+        {
+          method: 'PUT',
+          credentials: 'include',
+          headers,
+          body: JSON.stringify({ role: selectedRole }),
+        }
+      );
+      const data = await response.json();
+      if (response.ok && data.success) {
+        setIsRoleDialogOpen(false);
+        setSelectedMember(null);
+        setRetryCount((count) => count + 1);
+      } else {
+        setError(data.message || 'Failed to update role');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update role');
+    } finally {
+      setIsUpdatingRole(false);
+    }
+  };
+
+  const handleRemoveMember = async () => {
+    if (!selectedMember || !activeOrganization?.id) return;
+    setIsRemovingMember(true);
+    try {
+      const headers = await getAuthHeaders();
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/organizations/${activeOrganization.id}/members/${selectedMember.userId}`,
+        {
+          method: 'DELETE',
+          credentials: 'include',
+          headers,
+          body: JSON.stringify({ unassignTasks }),
+        }
+      );
+      const data = await response.json();
+      if (response.ok && data.success) {
+        setIsRemoveDialogOpen(false);
+        setSelectedMember(null);
+        setRetryCount((count) => count + 1);
+      } else {
+        setError(data.message || 'Failed to remove member');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to remove member');
+    } finally {
+      setIsRemovingMember(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -368,6 +463,27 @@ const TeamsPage = () => {
                   </div>
                   <div className="flex items-center gap-3">
                     {getRoleBadge(member.role)}
+                    {canManageMembers && member.user?.email?.toLowerCase() !== user?.email?.toLowerCase() && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => openRoleDialog(member)}>
+                            Manage role
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            className="text-destructive focus:text-destructive"
+                            onClick={() => openRemoveDialog(member)}
+                          >
+                            Remove member
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
                   </div>
                 </div>
               ))}
@@ -381,6 +497,65 @@ const TeamsPage = () => {
         isOpen={isInviteModalOpen}
         onClose={() => setIsInviteModalOpen(false)}
       />
+
+      <Dialog open={isRoleDialogOpen} onOpenChange={setIsRoleDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Update role</DialogTitle>
+            <DialogDescription>
+              Change the role for {selectedMember?.user?.username || 'this member'}.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <Select value={selectedRole} onValueChange={setSelectedRole}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select role" />
+              </SelectTrigger>
+              <SelectContent>
+                {currentUserRole === 'owner' && <SelectItem value="owner">Owner</SelectItem>}
+                <SelectItem value="admin">Admin</SelectItem>
+                <SelectItem value="member">Member</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsRoleDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleUpdateRole} disabled={isUpdatingRole}>
+              {isUpdatingRole ? 'Saving...' : 'Save'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isRemoveDialogOpen} onOpenChange={setIsRemoveDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Remove member</DialogTitle>
+            <DialogDescription>
+              Remove {selectedMember?.user?.username || 'this member'} from the workspace.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex items-center justify-between rounded-lg border p-3">
+            <div>
+              <p className="text-sm font-medium">Unassign tasks</p>
+              <p className="text-xs text-muted-foreground">
+                Leave tasks unassigned when removing this member.
+              </p>
+            </div>
+            <Switch checked={unassignTasks} onCheckedChange={setUnassignTasks} />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsRemoveDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleRemoveMember} disabled={isRemovingMember}>
+              {isRemovingMember ? 'Removing...' : 'Remove'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

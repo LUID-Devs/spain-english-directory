@@ -31,6 +31,7 @@ import GitReviewPanel from "@/components/gitReview/GitReviewPanel";
 import { apiService, type TaskShareInfo } from "@/services/apiService";
 import { useAgents, useAssignTaskToAgent, useTaskAgentAssignments, useUnassignTaskFromAgent } from "@/hooks/useMissionControl";
 import { UsageGate } from "@/components/subscription/UsageGate";
+import { useFormTemplate, useTaskCustomFields } from "@/hooks/useFormTemplates";
 import {
   Dialog,
   DialogContent,

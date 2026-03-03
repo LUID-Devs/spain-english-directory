@@ -226,12 +226,12 @@ export function useSkillExecution<T = unknown>(skillId: string) {
 export function useTaskAnalysis() {
   const execution = useSkillExecution('task:analysis');
   
-  const analyze = useCallback(async (
+  const analyze = async (
     taskId: number,
     analysisType: 'categorize' | 'complexity' | 'duplicates' | 'workload' | 'full' = 'full'
   ) => {
     return execution.execute({ taskId, analysisType });
-  }, [execution.execute]);
+  };
 
   return {
     ...execution,
@@ -242,13 +242,13 @@ export function useTaskAnalysis() {
 export function useAdvancedSearch() {
   const execution = useSkillExecution('data:search');
   
-  const search = useCallback(async (
+  const search = async (
     query: string,
     targets: ('tasks' | 'projects' | 'users')[] = ['tasks'],
     filters?: Record<string, unknown>
   ) => {
     return execution.execute({ query, targets, filters });
-  }, [execution.execute]);
+  };
 
   return {
     ...execution,
@@ -259,7 +259,7 @@ export function useAdvancedSearch() {
 export function useNotification() {
   const execution = useSkillExecution('communication:notification');
   
-  const notify = useCallback(async (
+  const notify = async (
     type: 'task_assigned' | 'task_due' | 'mention' | 'project_update' | 'custom',
     recipients: { userIds?: number[]; teamId?: number; projectId?: number },
     content: { title: string; message: string; taskId?: number; projectId?: number; actionUrl?: string },
@@ -271,7 +271,7 @@ export function useNotification() {
       content,
       ...options
     });
-  }, [execution.execute]);
+  };
 
   return {
     ...execution,
