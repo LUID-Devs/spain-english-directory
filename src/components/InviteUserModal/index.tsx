@@ -16,7 +16,7 @@ import { useGetTeamsQuery } from "@/hooks/useApi";
 
 interface Team {
   id: number;
-  name: string;
+  teamName: string;
   description?: string;
 }
 
@@ -167,7 +167,7 @@ const InviteUserModal = ({ isOpen, onClose, onInvite }: InviteUserModalProps) =>
                 ) : teams && teams.length > 0 ? (
                   teams.map((team: Team) => (
                     <SelectItem key={team.id} value={String(team.id)}>
-                      {team.name}
+                      {team.teamName}
                     </SelectItem>
                   ))
                 ) : (

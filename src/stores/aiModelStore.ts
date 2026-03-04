@@ -29,6 +29,8 @@ interface AIModelState extends AIModelPreferences {
   getEffectiveModel: (workspaceId?: number, chatId?: string) => AIModel;
   toggleModelIndicator: () => void;
   toggleCostEstimates: () => void;
+  setAutoModeEnabled: (enabled: boolean) => void;
+  setShowCostEstimates: (enabled: boolean) => void;
   setPreferredFallbackModel: (model: AIModel) => void;
   resetWorkspaceModel: (workspaceId: number) => void;
   resetChatModel: (chatId: string) => void;
@@ -123,6 +125,14 @@ export const useAIModelStore = create<AIModelState>()(
         set((state) => ({
           showCostEstimates: !state.showCostEstimates,
         }));
+      },
+
+      setAutoModeEnabled: (enabled) => {
+        set({ autoModeEnabled: enabled });
+      },
+
+      setShowCostEstimates: (enabled) => {
+        set({ showCostEstimates: enabled });
       },
 
       setPreferredFallbackModel: (model) => {

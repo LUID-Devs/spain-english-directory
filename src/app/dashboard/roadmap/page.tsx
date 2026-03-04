@@ -132,57 +132,6 @@ export default function RoadmapPage() {
     };
   }, [roadmapData]);
 
-  // Loading state
-  if (isLoading) {
-    return (
-      <div className="container mx-auto p-6 space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-              <Target className="h-8 w-8" />
-              Roadmap
-            </h1>
-            <p className="text-muted-foreground">Strategic planning and milestone tracking</p>
-          </div>
-        </div>
-        <Card>
-          <CardContent className="flex items-center justify-center h-96">
-            <div className="text-center space-y-4">
-              <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
-              <p className="text-muted-foreground">Loading roadmap...</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  // Error state
-  if (isError) {
-    return (
-      <div className="container mx-auto p-6 space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-              <Target className="h-8 w-8" />
-              Roadmap
-            </h1>
-            <p className="text-muted-foreground">Strategic planning and milestone tracking</p>
-          </div>
-        </div>
-        <EmptyState
-          icon={AlertCircle}
-          title="Failed to load roadmap"
-          description="We couldn't load your roadmap data. Please try again."
-          action={{
-            label: "Try Again",
-            onClick: () => refetch(),
-          }}
-        />
-      </div>
-    );
-  }
-
   const { projects, milestones, dependencies } = roadmapData || { projects: [], milestones: [], dependencies: [] };
   const availableProjects = projects.map((project) => ({ id: project.id, name: project.name }));
 
@@ -256,6 +205,57 @@ export default function RoadmapPage() {
     () => projects.filter((project: any) => !project.startDate || !project.endDate),
     [projects]
   );
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="container mx-auto p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
+              <Target className="h-8 w-8" />
+              Roadmap
+            </h1>
+            <p className="text-muted-foreground">Strategic planning and milestone tracking</p>
+          </div>
+        </div>
+        <Card>
+          <CardContent className="flex items-center justify-center h-96">
+            <div className="text-center space-y-4">
+              <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
+              <p className="text-muted-foreground">Loading roadmap...</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Error state
+  if (isError) {
+    return (
+      <div className="container mx-auto p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
+              <Target className="h-8 w-8" />
+              Roadmap
+            </h1>
+            <p className="text-muted-foreground">Strategic planning and milestone tracking</p>
+          </div>
+        </div>
+        <EmptyState
+          icon={AlertCircle}
+          title="Failed to load roadmap"
+          description="We couldn't load your roadmap data. Please try again."
+          action={{
+            label: "Try Again",
+            onClick: () => refetch(),
+          }}
+        />
+      </div>
+    );
+  }
 
   const handleCreateMilestone = async () => {
     const organizationId = activeOrganization?.id ?? Number(localStorage.getItem("activeOrganizationId"));

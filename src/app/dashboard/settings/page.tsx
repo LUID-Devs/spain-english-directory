@@ -17,9 +17,12 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Edit, Key, Shield, User, Mail, Building2, Crown, Loader2, AlertTriangle, LogOut, UserPlus, Archive } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { escapeHtml } from "@/lib/escapeHtml";
 import InviteToWorkspaceModal from "@/components/InviteToWorkspaceModal";
+import AIModelSelector from "@/components/AIModelSelector";
+import AgentContextSettings from "@/components/AgentContextSettings";
 
 // Types for workspace data
 interface WorkspaceMember {
@@ -49,6 +52,11 @@ interface WorkspaceData {
   };
 }
 
+interface Team {
+  id: number;
+  teamName: string;
+}
+
 const SettingsPage = () => {
   const { user, activeOrganization, refreshAuth } = useAuth();
 
@@ -59,6 +67,12 @@ const SettingsPage = () => {
     username: user?.preferred_username || user?.username || "Not available",
     email: user?.email || "Not available",
   };
+  const roleOptions = [
+    { value: "viewer", label: "Viewer" },
+    { value: "member", label: "Member" },
+    { value: "project_manager", label: "Project Manager" },
+    { value: "admin", label: "Admin" },
+  ];
 
   const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
   const sanitizedEmail = isValidEmail(userSettings.email) ? userSettings.email : "";
@@ -74,10 +88,14 @@ const SettingsPage = () => {
   const [profileForm, setProfileForm] = useState({
     username: userSettings.username,
     email: sanitizedEmail,
+    teamId: user?.teamId ? String(user.teamId) : "unassigned",
+    role: (user?.role as string) || "member",
   });
   const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
   const [isPasswordLoading, setIsPasswordLoading] = useState(false);
   const [isProfileLoading, setIsProfileLoading] = useState(false);
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [teamsError, setTeamsError] = useState<string | null>(null);
 
   // Workspace state
   const [workspaceData, setWorkspaceData] = useState<WorkspaceData | null>(null);
@@ -93,6 +111,11 @@ const SettingsPage = () => {
   const [isLeavingWorkspace, setIsLeavingWorkspace] = useState(false);
   const [isArchivingWorkspace, setIsArchivingWorkspace] = useState(false);
   const [currentUserRole, setCurrentUserRole] = useState<string>('member');
+
+  const currentTeam = teams.find((team) => team.id === Number(user?.teamId));
+  const currentTeamName = currentTeam?.teamName || "Unassigned";
+  const currentRoleLabel =
+    roleOptions.find((role) => role.value === user?.role)?.label || "Member";
 
   // Get auth headers helper
   const getAuthHeaders = async (): Promise<HeadersInit> => {
@@ -172,6 +195,41 @@ const SettingsPage = () => {
 
     fetchWorkspaceData();
   }, [activeOrganization?.id, user?.email]);
+
+  useEffect(() => {
+    const fetchTeams = async () => {
+      setTeamsError(null);
+      try {
+        const headers = await getAuthHeaders();
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/teams`, {
+          credentials: 'include',
+          headers,
+        });
+        if (!response.ok) {
+          const data = await response.json().catch(() => ({}));
+          throw new Error(data.message || "Failed to load teams");
+        }
+        const data = await response.json();
+        setTeams(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error("Error loading teams:", error);
+        setTeamsError("Failed to load teams");
+      }
+    };
+
+    fetchTeams();
+  }, []);
+
+  useEffect(() => {
+    if (!isProfileDialogOpen) {
+      setProfileForm({
+        username: userSettings.username,
+        email: sanitizedEmail,
+        teamId: user?.teamId ? String(user.teamId) : "unassigned",
+        role: (user?.role as string) || "member",
+      });
+    }
+  }, [isProfileDialogOpen, sanitizedEmail, user?.role, user?.teamId, userSettings.username]);
 
   // Handle workspace update
   const handleWorkspaceUpdate = async () => {
@@ -355,6 +413,8 @@ const SettingsPage = () => {
 
   const handleProfileUpdate = async () => {
     const trimmedEmail = profileForm.email.trim();
+    const selectedTeamId =
+      profileForm.teamId === "unassigned" ? null : Number(profileForm.teamId);
 
     if (!trimmedEmail) {
       toast.error("Email is required.");
@@ -372,6 +432,19 @@ const SettingsPage = () => {
       return;
     }
 
+    if (profileForm.teamId !== "unassigned" && Number.isNaN(selectedTeamId)) {
+      toast.error("Please select a valid team.");
+      return;
+    }
+
+    if (
+      profileForm.teamId !== "unassigned" &&
+      !teams.find((team) => team.id === selectedTeamId)
+    ) {
+      toast.error("Selected team not found.");
+      return;
+    }
+
     setIsProfileLoading(true);
     
     try {
@@ -385,6 +458,8 @@ const SettingsPage = () => {
           body: JSON.stringify({
             username: profileForm.username.trim(),
             email: trimmedEmail,
+            teamId: selectedTeamId,
+            role: profileForm.role,
           }),
         }
       );
@@ -475,8 +550,34 @@ const SettingsPage = () => {
                 </Badge>
               </div>
             </div>
-            
-            {/* Team and Role fields removed - not supported by API */}
+
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Team</Label>
+              <div className="flex items-center gap-2">
+                <div className="flex-1 p-3 bg-muted rounded-md text-sm">
+                  {currentTeamName}
+                </div>
+                {teamsError && (
+                  <Badge variant="outline" className="gap-1 text-xs text-amber-600 border-amber-300">
+                    <AlertTriangle className="h-3 w-3" />
+                    Unavailable
+                  </Badge>
+                )}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Role</Label>
+              <div className="flex items-center gap-2">
+                <div className="flex-1 p-3 bg-muted rounded-md text-sm">
+                  {currentRoleLabel}
+                </div>
+                <Badge variant="outline" className="gap-1">
+                  <Shield className="h-3 w-3" />
+                  {currentRoleLabel}
+                </Badge>
+              </div>
+            </div>
           </div>
           
           <div className="pt-4">
@@ -516,8 +617,46 @@ const SettingsPage = () => {
                       placeholder="Enter email"
                     />
                   </div>
-                  
-                  {/* Team and Role fields removed - API does not support these */}
+
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-team">Team</Label>
+                    <Select
+                      value={profileForm.teamId}
+                      onValueChange={(value) => setProfileForm(prev => ({ ...prev, teamId: value }))}
+                      disabled={teams.length === 0}
+                    >
+                      <SelectTrigger id="edit-team">
+                        <SelectValue placeholder={teamsError ? "Teams unavailable" : "Select team"} />
+                      </SelectTrigger>
+                      <SelectContent>
+                      <SelectItem value="unassigned">Unassigned</SelectItem>
+                        {teams.map((team) => (
+                          <SelectItem key={team.id} value={String(team.id)}>
+                            {team.teamName}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-role">Role</Label>
+                    <Select
+                      value={profileForm.role}
+                      onValueChange={(value) => setProfileForm(prev => ({ ...prev, role: value }))}
+                    >
+                      <SelectTrigger id="edit-role">
+                        <SelectValue placeholder="Select role" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {roleOptions.map((role) => (
+                          <SelectItem key={role.value} value={role.value}>
+                            {role.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
                 
                 <DialogFooter>
@@ -528,6 +667,8 @@ const SettingsPage = () => {
                       setProfileForm({
                         username: userSettings.username,
                         email: sanitizedEmail,
+                        teamId: user?.teamId ? String(user.teamId) : "unassigned",
+                        role: (user?.role as string) || "member",
                       });
                     }}
                   >
@@ -702,6 +843,7 @@ const SettingsPage = () => {
 
       {/* AI Settings Section */}
       <AIModelSelector />
+      <AgentContextSettings />
 
       {/* Workspace Settings */}
       <Card>

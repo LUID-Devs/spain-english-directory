@@ -122,6 +122,48 @@ export interface SavedView {
   updatedAt: string;
 }
 
+export type AgentContextStrategy = "none" | "minimal" | "full";
+
+export type AgentTaskCategory =
+  | "routine_ops"
+  | "research"
+  | "implementation"
+  | "bug_fix"
+  | "code_review"
+  | "documentation";
+
+export interface AgentContextConfig {
+  defaultStrategy: AgentContextStrategy;
+  enforceJustification: boolean;
+  categoriesRequiringContext: AgentTaskCategory[];
+  abTestConfig?: {
+    enabled: boolean;
+    experimentPercentage: number;
+    controlStrategy: AgentContextStrategy;
+    experimentalStrategy: AgentContextStrategy;
+  } | null;
+}
+
+export interface AgentContextStats {
+  totalRuns: number;
+  runsByStrategy: Record<AgentContextStrategy, number>;
+  successRates: Record<
+    AgentContextStrategy,
+    { success: number; total: number; rate: number }
+  >;
+  averageTokens: Record<AgentContextStrategy, number>;
+}
+
+export interface AgentContextDecision {
+  category: AgentTaskCategory;
+  decision: {
+    strategy: AgentContextStrategy;
+    reason: string;
+    isABTest: boolean;
+    abTestGroup?: "control" | "experimental";
+  };
+}
+
 // ==================== ADVANCED FILTER TYPES ====================
 
 export type FilterOperator =
@@ -2152,6 +2194,15 @@ class ApiService {
     return this.request<{ success: boolean; settings: NotificationSettings }>('/api/user-notifications/settings');
   }
 
+  async updateNotificationSettings(
+    settings: Partial<NotificationSettings>
+  ): Promise<{ success: boolean; settings: NotificationSettings }> {
+    return this.request<{ success: boolean; settings: NotificationSettings }>('/api/user-notifications/settings', {
+      method: 'PUT',
+      body: JSON.stringify(settings),
+    });
+  }
+
   // ==================== GIT LINKS API ====================
 
   async getTaskGitLinks(taskId: number): Promise<{ success: boolean; data: GitLink[]; count: number }> {
@@ -2450,6 +2501,48 @@ class ApiService {
 
     const queryString = queryParams.toString();
     return this.request(`/api/timeline/task/${taskId}${queryString ? `?${queryString}` : ''}`);
+  }
+
+  // ==================== AGENT CONTEXT API ====================
+
+  async getAgentContextConfig(): Promise<{ success: boolean; data: AgentContextConfig }> {
+    return this.request(`/api/agent-context/config`);
+  }
+
+  async updateAgentContextConfig(
+    data: Partial<AgentContextConfig>
+  ): Promise<{ success: boolean; data: AgentContextConfig }> {
+    return this.request(`/api/agent-context/config`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getAgentContextStats(days = 30): Promise<{ success: boolean; data: AgentContextStats }> {
+    const queryParams = new URLSearchParams();
+    queryParams.append('days', String(days));
+    return this.request(`/api/agent-context/stats?${queryParams.toString()}`);
+  }
+
+  async previewAgentContextDecision(payload: {
+    taskTitle: string;
+    taskDescription?: string;
+    hasDeepConventions?: boolean;
+    isMultiStep?: boolean;
+    estimatedFileChanges?: number;
+    explicitContextStrategy?: AgentContextStrategy;
+    contextJustification?: string;
+  }): Promise<{ success: boolean; data: AgentContextDecision }> {
+    return this.request(`/api/agent-context/preview`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async clearAgentContextHistory(): Promise<{ success: boolean }> {
+    return this.request(`/api/agent-context/history`, {
+      method: 'DELETE',
+    });
   }
 
   // ==================== ROADMAP API ====================

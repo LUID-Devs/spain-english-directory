@@ -32,13 +32,8 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
-import { 
-  useAISettingsStore, 
-  AI_MODELS, 
-  AIModel, 
-  ModelInfo,
-  formatCost
-} from '@/stores/aiSettingsStore';
+import { AI_MODELS, AIModel, AIModelConfig, formatCost } from '@/types/aiModels';
+import { useAIModelStore } from '@/stores/aiModelStore';
 
 const ICON_MAP = {
   sparkles: Sparkles,
@@ -49,13 +44,14 @@ const ICON_MAP = {
 };
 
 interface AIModelCardProps {
-  model: ModelInfo;
+  model: AIModelConfig;
   isSelected: boolean;
   onSelect: () => void;
 }
 
 const AIModelCard: React.FC<AIModelCardProps> = ({ model, isSelected, onSelect }) => {
-  const Icon = ICON_MAP[model.icon as keyof typeof ICON_MAP] || Cpu;
+  const iconKey = model.icon?.toLowerCase() as keyof typeof ICON_MAP;
+  const Icon = ICON_MAP[iconKey] || Cpu;
   
   return (
     <button
@@ -126,24 +122,25 @@ const AIModelCard: React.FC<AIModelCardProps> = ({ model, isSelected, onSelect }
 
 export const AIModelSelector: React.FC = () => {
   const { 
-    selectedModel, 
-    showTokenEstimates, 
-    enableAutoMode,
-    estimatedTokensUsed,
-    estimatedCost,
-    setSelectedModel,
-    setShowTokenEstimates,
-    setEnableAutoMode,
+    defaultModel,
+    showCostEstimates,
+    autoModeEnabled,
+    sessionTokensUsed,
+    sessionCostEstimate,
+    setDefaultModel,
+    setShowCostEstimates,
+    setAutoModeEnabled,
     resetUsage
-  } = useAISettingsStore();
+  } = useAIModelStore();
 
   const [showDetails, setShowDetails] = useState(false);
   
-  const currentModel = AI_MODELS[selectedModel];
-  const CurrentIcon = ICON_MAP[currentModel?.icon as keyof typeof ICON_MAP] || Cpu;
+  const currentModel = AI_MODELS.find((model) => model.id === defaultModel);
+  const currentIconKey = currentModel?.icon?.toLowerCase() as keyof typeof ICON_MAP;
+  const CurrentIcon = ICON_MAP[currentIconKey] || Cpu;
 
   const handleModelSelect = (modelId: AIModel) => {
-    setSelectedModel(modelId);
+    setDefaultModel(modelId);
   };
 
   return (
@@ -178,21 +175,20 @@ export const AIModelSelector: React.FC = () => {
             <DropdownMenuContent className="w-[calc(100vw-2rem)] max-w-sm">
               <DropdownMenuLabel>Choose a model</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              {(Object.keys(AI_MODELS) as AIModel[]).map((modelId) => {
-                const model = AI_MODELS[modelId];
-                const Icon = ICON_MAP[model.icon as keyof typeof ICON_MAP] || Cpu;
+              {AI_MODELS.map((model) => {
+                const Icon = ICON_MAP[model.icon?.toLowerCase() as keyof typeof ICON_MAP] || Cpu;
                 return (
                   <DropdownMenuItem
-                    key={modelId}
-                    onClick={() => handleModelSelect(modelId)}
+                    key={model.id}
+                    onClick={() => handleModelSelect(model.id)}
                     className={cn(
                       'flex items-center gap-2 cursor-pointer',
-                      selectedModel === modelId && 'bg-primary/10'
+                      defaultModel === model.id && 'bg-primary/10'
                     )}
                   >
                     <Icon className="w-4 h-4" style={{ color: model.color }} />
                     <span>{model.name}</span>
-                    {selectedModel === modelId && (
+                    {defaultModel === model.id && (
                       <Check className="w-4 h-4 ml-auto text-primary" />
                     )}
                   </DropdownMenuItem>
@@ -204,12 +200,12 @@ export const AIModelSelector: React.FC = () => {
 
         {/* Desktop Grid */}
         <div className="hidden md:grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {(Object.keys(AI_MODELS) as AIModel[]).map((modelId) => (
+          {AI_MODELS.map((model) => (
             <AIModelCard
-              key={modelId}
-              model={AI_MODELS[modelId]}
-              isSelected={selectedModel === modelId}
-              onSelect={() => handleModelSelect(modelId)}
+              key={model.id}
+              model={model}
+              isSelected={defaultModel === model.id}
+              onSelect={() => handleModelSelect(model.id)}
             />
           ))}
         </div>
@@ -227,8 +223,8 @@ export const AIModelSelector: React.FC = () => {
             </div>
             <Switch
               id="auto-mode"
-              checked={enableAutoMode}
-              onCheckedChange={setEnableAutoMode}
+              checked={autoModeEnabled}
+              onCheckedChange={setAutoModeEnabled}
             />
           </div>
 
@@ -243,25 +239,25 @@ export const AIModelSelector: React.FC = () => {
             </div>
             <Switch
               id="token-estimates"
-              checked={showTokenEstimates}
-              onCheckedChange={setShowTokenEstimates}
+              checked={showCostEstimates}
+              onCheckedChange={setShowCostEstimates}
             />
           </div>
         </div>
 
         {/* Usage Stats */}
-        {estimatedTokensUsed > 0 && (
+        {sessionTokensUsed > 0 && (
           <div className="pt-4 border-t">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Info className="w-4 h-4 text-muted-foreground" />
                 <span className="text-sm text-muted-foreground">
-                  Session Usage: {estimatedTokensUsed.toLocaleString()} tokens
+                  Session Usage: {sessionTokensUsed.toLocaleString()} tokens
                 </span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium">
-                  {formatCost(estimatedCost)} est.
+                  {formatCost(sessionCostEstimate)} est.
                 </span>
                 <Button 
                   variant="ghost" 
@@ -330,9 +326,9 @@ export const AIModelSelector: React.FC = () => {
 
 // Compact dropdown for use in other contexts (e.g., AI input areas)
 export const AIModelDropdown: React.FC<{ className?: string }> = ({ className }) => {
-  const { selectedModel, setSelectedModel } = useAISettingsStore();
-  const currentModel = AI_MODELS[selectedModel];
-  const CurrentIcon = ICON_MAP[currentModel?.icon as keyof typeof ICON_MAP] || Cpu;
+  const { defaultModel, setDefaultModel } = useAIModelStore();
+  const currentModel = AI_MODELS.find((model) => model.id === defaultModel);
+  const CurrentIcon = ICON_MAP[currentModel?.icon?.toLowerCase() as keyof typeof ICON_MAP] || Cpu;
 
   return (
     <DropdownMenu>
@@ -353,16 +349,15 @@ export const AIModelDropdown: React.FC<{ className?: string }> = ({ className })
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel>AI Model</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        {(Object.keys(AI_MODELS) as AIModel[]).map((modelId) => {
-          const model = AI_MODELS[modelId];
-          const Icon = ICON_MAP[model.icon as keyof typeof ICON_MAP] || Cpu;
+        {AI_MODELS.map((model) => {
+          const Icon = ICON_MAP[model.icon?.toLowerCase() as keyof typeof ICON_MAP] || Cpu;
           return (
             <DropdownMenuItem
-              key={modelId}
-              onClick={() => setSelectedModel(modelId)}
+              key={model.id}
+              onClick={() => setDefaultModel(model.id)}
               className={cn(
                 'flex items-center gap-2 cursor-pointer',
-                selectedModel === modelId && 'bg-primary/10'
+                defaultModel === model.id && 'bg-primary/10'
               )}
             >
               <Icon className="w-4 h-4" style={{ color: model.color }} />
@@ -372,7 +367,7 @@ export const AIModelDropdown: React.FC<{ className?: string }> = ({ className })
                   {model.id === 'auto' ? 'Auto-select' : `${formatCost(model.costPer1KTokens)}/1K tokens`}
                 </span>
               </div>
-              {selectedModel === modelId && (
+              {defaultModel === model.id && (
                 <Check className="w-4 h-4 ml-auto text-primary" />
               )}
             </DropdownMenuItem>
