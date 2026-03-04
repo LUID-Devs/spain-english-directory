@@ -16,8 +16,7 @@ import {
   Database,
   ShieldCheck,
   Sparkles,
-  CheckCircle2,
-  XCircle,
+  ExternalLink,
   GitBranch,
   Brain,
 } from 'lucide-react';
@@ -29,7 +28,15 @@ const IntegrationHubPage: React.FC = () => {
     error: asanaError, 
     refetchStatus: refetchAsanaStatus 
   } = useAsanaIntegration();
-
+  
+  const { 
+    isConnected: isJiraConnected, 
+    isLoading: isJiraLoading, 
+    error: jiraError, 
+    domain: jiraDomain,
+    refetchStatus: refetchJiraStatus 
+  } = useJiraIntegration();
+  
   const { 
     isConnected: isLinearConnected, 
     isLoading: isLinearLoading, 
@@ -37,20 +44,16 @@ const IntegrationHubPage: React.FC = () => {
     refetchStatus: refetchLinearStatus 
   } = useLinearIntegration();
 
-  const { 
-    isConnected: isJiraConnected, 
-    isLoading: isJiraLoading, 
-    error: jiraError, 
-    refetchStatus: refetchJiraStatus 
-  } = useJiraIntegration();
+  const hasAnyConnection = isAsanaConnected || isJiraConnected || isLinearConnected;
+  const isAnyLoading = isAsanaLoading || isJiraLoading || isLinearLoading;
 
   useEffect(() => {
     if (asanaError) toast.error(`Asana: ${asanaError}`);
-    if (linearError) toast.error(`Linear: ${linearError}`);
     if (jiraError) toast.error(`Jira: ${jiraError}`);
-  }, [asanaError, linearError, jiraError]);
+    if (linearError) toast.error(`Linear: ${linearError}`);
+  }, [asanaError, jiraError, linearError]);
 
-  // Handle OAuth redirects
+  // Handle OAuth callback redirects
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const asanaStatus = params.get('asana');
@@ -83,32 +86,27 @@ const IntegrationHubPage: React.FC = () => {
     if (asanaStatus || linearStatus || jiraStatus) {
       window.history.replaceState({}, '', window.location.pathname);
     }
-  }, [refetchAsanaStatus, refetchLinearStatus, refetchJiraStatus]);
+  }, [refetchAsanaStatus, refetchJiraStatus, refetchLinearStatus]);
 
   const handleConnectAsana = () => {
     const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://api.taskluid.com';
-    window.location.href = `${baseUrl}/integrations/asana/connect`;
-  };
-
-  const handleConnectLinear = () => {
-    const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://api.taskluid.com';
-    window.location.href = `${baseUrl}/integrations/linear/connect`;
+    const returnUrl = encodeURIComponent(window.location.href);
+    window.location.href = `${baseUrl}/integrations/oauth/asana/authorize?returnUrl=${returnUrl}`;
   };
 
   const handleConnectJira = () => {
     const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://api.taskluid.com';
-    window.location.href = `${baseUrl}/integrations/jira/connect`;
+    const returnUrl = encodeURIComponent(window.location.href);
+    window.location.href = `${baseUrl}/integrations/oauth/jira/authorize?returnUrl=${returnUrl}`;
   };
 
-  const getStatusBadge = (isConnected: boolean, isLoading: boolean) => {
-    if (isLoading) return <Badge variant="outline">Checking...</Badge>;
-    if (isConnected) return <Badge variant="default" className="bg-green-600">Connected</Badge>;
-    return <Badge variant="secondary">Not connected</Badge>;
+  const handleConnectLinear = () => {
+    const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://api.taskluid.com';
+    const returnUrl = encodeURIComponent(window.location.href);
+    window.location.href = `${baseUrl}/integrations/oauth/linear/authorize?returnUrl=${returnUrl}`;
   };
 
   const connectedCount = [isAsanaConnected, isLinearConnected, isJiraConnected].filter(Boolean).length;
-  const isAnyLoading = isAsanaLoading || isLinearLoading || isJiraLoading;
-  const hasAnyConnection = isAsanaConnected || isLinearConnected || isJiraConnected;
 
   return (
     <div className="space-y-6">
@@ -157,7 +155,9 @@ const IntegrationHubPage: React.FC = () => {
               </CardTitle>
               <CardDescription>Tasks, projects, comments</CardDescription>
             </div>
-            {getStatusBadge(isAsanaConnected, isAsanaLoading)}
+            <Badge variant={isAsanaConnected ? 'default' : 'secondary'}>
+              {isAsanaLoading ? 'Checking' : isAsanaConnected ? 'Connected' : 'Not connected'}
+            </Badge>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -178,15 +178,81 @@ const IntegrationHubPage: React.FC = () => {
               >
                 {isAsanaConnected ? 'Connected' : 'Connect Asana'}
               </Button>
+              {isAsanaConnected && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => refetchAsanaStatus()}
+                  disabled={isAsanaLoading}
+                >
+                  <RefreshCw className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Jira Card */}
+        <Card>
+          <CardHeader className="flex flex-row items-start justify-between space-y-0">
+            <div>
+              <CardTitle className="text-base flex items-center gap-2">
+                <div className="w-6 h-6 rounded bg-[#0052CC] flex items-center justify-center">
+                  <span className="text-white text-xs font-bold">J</span>
+                </div>
+                Jira
+              </CardTitle>
+              <CardDescription>Issues, sprints, comments</CardDescription>
+            </div>
+            <Badge variant={isJiraConnected ? 'default' : 'secondary'}>
+              {isJiraLoading ? 'Checking' : isJiraConnected ? 'Connected' : 'Not connected'}
+            </Badge>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              {isJiraConnected && jiraDomain ? (
+                <>
+                  <ExternalLink className="h-4 w-4" />
+                  <a 
+                    href={`https://${jiraDomain}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="hover:underline"
+                  >
+                    {jiraDomain}
+                  </a>
+                </>
+              ) : (
+                <>
+                  <Link2 className="h-4 w-4" />
+                  <span>Bi-directional sync ready</span>
+                </>
+              )}
+            </div>
+            {jiraError && (
+              <div className="flex items-center gap-2 text-sm text-amber-600">
+                <AlertTriangle className="h-4 w-4" />
+                <span>{jiraError}</span>
+              </div>
+            )}
+            <div className="flex flex-wrap gap-2">
               <Button
                 size="sm"
-                variant="outline"
-                onClick={() => refetchAsanaStatus()}
-                disabled={isAsanaLoading}
+                onClick={handleConnectJira}
+                disabled={isJiraLoading || isJiraConnected}
               >
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Refresh
+                {isJiraConnected ? 'Connected' : 'Connect Jira'}
               </Button>
+              {isJiraConnected && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => refetchJiraStatus()}
+                  disabled={isJiraLoading}
+                >
+                  <RefreshCw className="h-4 w-4" />
+                </Button>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -201,7 +267,9 @@ const IntegrationHubPage: React.FC = () => {
               </CardTitle>
               <CardDescription>Issues, cycles, projects</CardDescription>
             </div>
-            {getStatusBadge(isLinearConnected, isLinearLoading)}
+            <Badge variant={isLinearConnected ? 'default' : 'secondary'}>
+              {isLinearLoading ? 'Checking' : isLinearConnected ? 'Connected' : 'Not connected'}
+            </Badge>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -222,61 +290,16 @@ const IntegrationHubPage: React.FC = () => {
               >
                 {isLinearConnected ? 'Connected' : 'Connect Linear'}
               </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => refetchLinearStatus()}
-                disabled={isLinearLoading}
-              >
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Refresh
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Jira Card */}
-        <Card>
-          <CardHeader className="flex flex-row items-start justify-between space-y-0">
-            <div>
-              <CardTitle className="text-base flex items-center gap-2">
-                <div className="w-6 h-6 rounded bg-[#0052CC] flex items-center justify-center">
-                  <span className="text-white text-xs font-bold">J</span>
-                </div>
-                Jira
-              </CardTitle>
-              <CardDescription>Issues, sprints, comments</CardDescription>
-            </div>
-            {getStatusBadge(isJiraConnected, isJiraLoading)}
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Link2 className="h-4 w-4" />
-              <span>Bi-directional sync ready</span>
-            </div>
-            {jiraError && (
-              <div className="flex items-center gap-2 text-sm text-amber-600">
-                <AlertTriangle className="h-4 w-4" />
-                <span>{jiraError}</span>
-              </div>
-            )}
-            <div className="flex flex-wrap gap-2">
-              <Button
-                size="sm"
-                onClick={handleConnectJira}
-                disabled={isJiraLoading || isJiraConnected}
-              >
-                {isJiraConnected ? 'Connected' : 'Connect Jira'}
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => refetchJiraStatus()}
-                disabled={isJiraLoading}
-              >
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Refresh
-              </Button>
+              {isLinearConnected && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => refetchLinearStatus()}
+                  disabled={isLinearLoading}
+                >
+                  <RefreshCw className="h-4 w-4" />
+                </Button>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -372,7 +395,11 @@ const IntegrationHubPage: React.FC = () => {
           </CardHeader>
           <CardContent className="flex items-center gap-2 text-sm text-muted-foreground">
             <Sparkles className="h-4 w-4" />
-            <span>{connectedCount >= 2 ? 'Ready to detect duplicates' : 'Requires at least 2 connected integrations.'}</span>
+            <span>
+              {connectedCount >= 2
+                ? 'Scanning for duplicates...'
+                : 'Requires at least 2 connected integrations.'}
+            </span>
           </CardContent>
         </Card>
 
@@ -394,7 +421,7 @@ const IntegrationHubPage: React.FC = () => {
           </CardHeader>
           <CardContent className="flex items-center gap-2 text-sm text-muted-foreground">
             <RefreshCw className="h-4 w-4" />
-            <span>{connectedCount > 0 ? 'Sync active' : 'Sync history will appear after your first connection.'}</span>
+            <span>{hasAnyConnection ? 'All systems operational' : 'Sync history will appear after your first connection.'}</span>
           </CardContent>
         </Card>
       </div>
