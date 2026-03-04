@@ -238,7 +238,7 @@ export const SmartFilterBar: React.FC<SmartFilterBarProps> = ({
   const handleUseAI = useCallback(async () => {
     if (!inputValue.trim()) return;
 
-    const result = await parseSearchFilter(inputValue, context);
+    const result = await parseSearchFilter(inputValue, context, selectedModel);
     
     if (result) {
       const criteria = convertAIFilterToCriteria(result);

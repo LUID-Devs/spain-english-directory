@@ -58,7 +58,7 @@ export function useTaskShare(options: UseTaskShareOptions) {
   const revokeShare = async (externalUserId: number) => {
     if (!taskId) throw new Error('Task ID required');
 
-    const response = await apiService.revokeTaskShare(taskId, externalUserId);
+    const response = await apiService.revokeTaskExternalShare(taskId, externalUserId);
     if (!response.success) {
       throw new Error(response.error || 'Failed to revoke access');
     }

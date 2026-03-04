@@ -1,131 +1,140 @@
 import React from 'react';
-import { Check, ChevronDown, Sparkles } from 'lucide-react';
+import { Check, ChevronDown, Sparkles, Brain, Code, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
   DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { cn } from '@/lib/utils';
-import { AI_MODELS, AIModel, formatCost } from '@/types/aiModels';
+import { Badge } from '@/components/ui/badge';
+import { AIModel, AI_MODELS, getModelConfig } from '@/types/aiModels';
+import { useAIModelStore } from '@/stores/aiModelStore';
+
+const iconMap = {
+  Sparkles,
+  Brain,
+  Code,
+  Zap,
+};
 
 interface ModelSelectorProps {
-  value: AIModel;
-  onChange: (model: AIModel) => void;
+  value?: AIModel;
+  onChange?: (model: AIModel) => void;
+  workspaceId?: number;
+  chatId?: string;
   showLabel?: boolean;
-  size?: 'default' | 'sm' | 'lg';
+  size?: 'sm' | 'default' | 'lg';
+  variant?: 'default' | 'outline' | 'ghost';
   className?: string;
+  disabled?: boolean;
 }
-
-const iconMap: Record<string, React.ComponentType<{ className?: string; style?: React.CSSProperties }>> = {
-  Sparkles: ({ className, style }) => (
-    <svg className={className} style={style} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z" />
-    </svg>
-  ),
-  Code: ({ className, style }) => (
-    <svg className={className} style={style} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <polyline points="16 18 22 12 16 6" />
-      <polyline points="8 6 2 12 8 18" />
-    </svg>
-  ),
-  Brain: ({ className, style }) => (
-    <svg className={className} style={style} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-1.04Z" />
-      <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-1.04Z" />
-    </svg>
-  ),
-  Zap: ({ className, style }) => (
-    <svg className={className} style={style} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-    </svg>
-  ),
-  Pen: ({ className, style }) => (
-    <svg className={className} style={style} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
-    </svg>
-  ),
-};
 
 export const ModelSelector: React.FC<ModelSelectorProps> = ({
   value,
   onChange,
+  workspaceId,
+  chatId,
   showLabel = true,
   size = 'default',
-  className,
+  variant = 'outline',
+  className = '',
+  disabled = false,
 }) => {
-  const selectedModel = AI_MODELS.find(m => m.id === value) || AI_MODELS[0];
-  const SelectedIcon = iconMap[selectedModel.icon] || Sparkles;
+  const store = useAIModelStore();
+  
+  // Use controlled value or get from store
+  const selectedModel = value || store.getEffectiveModel(workspaceId, chatId);
+  const modelConfig = getModelConfig(selectedModel);
+  
+  const handleModelChange = (model: AIModel) => {
+    if (onChange) {
+      onChange(model);
+    } else {
+      // Update store based on context
+      if (chatId) {
+        store.setChatModel(chatId, model);
+      } else if (workspaceId) {
+        store.setWorkspaceModel(workspaceId, model);
+      } else {
+        store.setDefaultModel(model);
+      }
+    }
+  };
+
+  const SelectedIcon = iconMap[modelConfig.icon as keyof typeof iconMap] || Sparkles;
 
   const sizeClasses = {
-    sm: 'h-7 text-xs',
-    default: 'h-9 text-sm',
-    lg: 'h-11 text-base',
+    sm: 'h-7 text-xs px-2',
+    default: 'h-9 text-sm px-3',
+    lg: 'h-11 text-base px-4',
   };
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          variant="outline"
-          className={cn(
-            'gap-2 px-3',
-            sizeClasses[size],
-            className
-          )}
+          variant={variant}
+          size="sm"
+          disabled={disabled}
+          className={`flex items-center gap-2 ${sizeClasses[size]} ${className}`}
         >
-          <SelectedIcon
-            className="w-4 h-4"
-            style={{ color: selectedModel.color }}
+          <SelectedIcon 
+            className="h-4 w-4" 
+            style={{ color: modelConfig.color }}
           />
-          {showLabel && <span>{selectedModel.name}</span>}
-          <ChevronDown className="w-3 h-3 ml-1" />
+          {showLabel && (
+            <span className="hidden sm:inline">{modelConfig.name}</span>
+          )}
+          <ChevronDown className="h-3 w-3 opacity-50" />
         </Button>
       </DropdownMenuTrigger>
-      
-      <DropdownMenuContent align="end" className="w-64">
-        <DropdownMenuLabel>Select AI Model</DropdownMenuLabel>
+      <DropdownMenuContent align="end" className="w-72">
+        <DropdownMenuLabel className="flex items-center gap-2">
+          <Sparkles className="h-4 w-4 text-primary" />
+          Select AI Model
+        </DropdownMenuLabel>
         <DropdownMenuSeparator />
         
         {AI_MODELS.map((model) => {
-          const Icon = iconMap[model.icon] || Sparkles;
-          const isSelected = value === model.id;
+          const Icon = iconMap[model.icon as keyof typeof iconMap] || Sparkles;
+          const isSelected = selectedModel === model.id;
           
           return (
             <DropdownMenuItem
               key={model.id}
-              onClick={() => onChange(model.id)}
-              className={cn(
-                'flex items-start gap-3 py-3 cursor-pointer',
-                isSelected && 'bg-primary/10'
-              )}
+              onClick={() => handleModelChange(model.id)}
+              className="flex items-start gap-3 py-3 cursor-pointer"
             >
-              <div
-                className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
+              <div 
+                className="flex-shrink-0 w-8 h-8 rounded-md flex items-center justify-center"
                 style={{ backgroundColor: `${model.color}20` }}
               >
-                <Icon
-                  className="w-4 h-4"
-                  style={{ color: model.color }}
-                />
+                <Icon className="h-4 w-4" style={{ color: model.color }} />
               </div>
-              
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="font-medium">{model.name}</span>
-                  {isSelected && <Check className="w-3 h-3 text-primary" />}
+                  {isSelected && (
+                    <Check className="h-4 w-4 text-primary" />
+                  )}
                 </div>
-                <p className="text-xs text-muted-foreground line-clamp-1">
+                <p className="text-xs text-muted-foreground mt-0.5">
                   {model.description}
                 </p>
-                {model.id !== 'auto' && (
-                  <span className="text-xs text-muted-foreground">
-                    ~{formatCost(model.costPer1KTokens * 10)}/10K tokens
-                  </span>
-                )}
+                <div className="flex flex-wrap gap-1 mt-1.5">
+                  {model.strengths.map((strength) => (
+                    <Badge 
+                      key={strength} 
+                      variant="secondary" 
+                      className="text-[10px] px-1 py-0"
+                    >
+                      {strength}
+                    </Badge>
+                  ))}
+                </div>
               </div>
             </DropdownMenuItem>
           );

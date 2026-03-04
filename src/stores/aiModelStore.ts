@@ -82,36 +82,36 @@ export const useAIModelStore = create<AIModelState>()(
 
       getEffectiveModel: (workspaceId?, chatId?) => {
         const state = get();
-        
+
         // Priority: chat > workspace > default
         if (chatId && state.chatModels[chatId]) {
           return state.chatModels[chatId];
         }
-        
+
         if (workspaceId && state.workspaceModels[workspaceId]) {
           return state.workspaceModels[workspaceId];
         }
-        
+
         return state.defaultModel;
       },
 
       getModelForTask: (taskType) => {
         const { defaultModel, autoModeEnabled } = get();
-        
+
         if (autoModeEnabled && (defaultModel === 'auto' || !defaultModel)) {
           const taskModelMap: Record<string, AIModel> = {
-            'code': 'gpt-4.1',
-            'coding': 'gpt-4.1',
-            'technical': 'gpt-4.1',
-            'writing': 'claude-3.5-sonnet',
-            'analysis': 'claude-3-opus',
-            'research': 'gemini-1.5-pro',
-            'reasoning': 'gemini-1.5-pro',
-            'general': 'claude-3.5-sonnet',
+            code: 'gpt-4.1',
+            coding: 'gpt-4.1',
+            technical: 'gpt-4.1',
+            writing: 'claude-3.5-sonnet',
+            analysis: 'claude-3-opus',
+            research: 'gemini-1.5-pro',
+            reasoning: 'gemini-1.5-pro',
+            general: 'claude-3.5-sonnet',
           };
           return taskModelMap[taskType.toLowerCase()] || 'claude-3.5-sonnet';
         }
-        
+
         return defaultModel;
       },
 
@@ -160,7 +160,7 @@ export const useAIModelStore = create<AIModelState>()(
       addUsage: (tokens, model) => {
         const { defaultModel, sessionTokensUsed, sessionCostEstimate } = get();
         const modelUsed = model || defaultModel;
-        
+
         let costPer1K = 0;
         if (modelUsed !== 'auto') {
           const config = getModelConfig(modelUsed);
@@ -183,6 +183,43 @@ export const useAIModelStore = create<AIModelState>()(
     }),
     {
       name: 'ai-model-preferences',
+      version: 1,
+      migrate: (persistedState: any, version: number) => {
+        if (version === 0) {
+          const validModels: AIModel[] = [
+            'auto',
+            'gpt-4.1',
+            'claude-3.5-sonnet',
+            'claude-3-opus',
+            'gemini-1.5-pro',
+          ];
+
+          if (persistedState.defaultModel && !validModels.includes(persistedState.defaultModel)) {
+            persistedState.defaultModel = DEFAULT_MODEL;
+          }
+
+          if (persistedState.preferredFallbackModel && !validModels.includes(persistedState.preferredFallbackModel)) {
+            persistedState.preferredFallbackModel = 'claude-3.5-sonnet';
+          }
+
+          if (persistedState.workspaceModels) {
+            Object.keys(persistedState.workspaceModels).forEach((key) => {
+              if (!validModels.includes(persistedState.workspaceModels[key])) {
+                delete persistedState.workspaceModels[key];
+              }
+            });
+          }
+
+          if (persistedState.chatModels) {
+            Object.keys(persistedState.chatModels).forEach((key) => {
+              if (!validModels.includes(persistedState.chatModels[key])) {
+                delete persistedState.chatModels[key];
+              }
+            });
+          }
+        }
+        return persistedState as AIModelPreferences;
+      },
       partialize: (state) => ({
         defaultModel: state.defaultModel,
         workspaceModels: state.workspaceModels,
@@ -191,7 +228,6 @@ export const useAIModelStore = create<AIModelState>()(
         autoModeEnabled: state.autoModeEnabled,
         preferredFallbackModel: state.preferredFallbackModel,
         showCostEstimates: state.showCostEstimates,
-        // Don't persist usage stats - they reset on session
       }),
     }
   )
