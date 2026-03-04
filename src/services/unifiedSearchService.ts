@@ -286,8 +286,6 @@ export function getPriorityLabel(priority?: string): string {
     'p2': 'Medium',
     'p3': 'Low',
     'highest': 'Urgent',
-    'high': 'High',
-    'low': 'Low',
     'lowest': 'Backlog',
   };
 
