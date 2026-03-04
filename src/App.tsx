@@ -22,6 +22,7 @@ import LandingPage from '@/pages/landing/LandingPage';
 import LuidKitLandingPage from '@/pages/landing/LuidKitLandingPage';
 import ResumeLuidLandingPage from '@/pages/landing/ResumeLuidLandingPage';
 import LuidSuiteLandingPage from '@/pages/landing/LuidSuiteLandingPage';
+import PricingPage from '@/pages/pricing/PricingPage';
 
 // Auth Components (eager imports for immediate auth flow)
 import LoginPage from '@/pages/auth/LoginPage';
@@ -69,7 +70,6 @@ const FormTemplateBuilderPage = React.lazy(() => import('@/pages/dashboard/form-
 // Other Pages (lazy loaded)
 const ConverterPage = React.lazy(() => import('@/pages/converter/ConverterPage'));
 // Pricing page - must be prerendered for SEO (see vite-plugin-static-prerender.ts)
-const PricingPage = React.lazy(() => import('@/pages/pricing/PricingPage'));
 const FeaturesPage = React.lazy(() => import('@/pages/features/FeaturesPage'));
 const ComparePage = React.lazy(() => import('@/pages/compare/ComparePage'));
 const InviteAcceptPage = React.lazy(() => import('@/pages/organizations/invite/InviteAcceptPage'));
