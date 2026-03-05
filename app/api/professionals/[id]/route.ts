@@ -55,7 +55,7 @@ export async function GET(
       {
         success: false,
         error: 'Failed to fetch professional',
-        message: error instanceof Error ? error.message : 'Unknown error',
+        message: 'An internal error occurred. Please try again later.',
       },
       { status: 500 }
     );

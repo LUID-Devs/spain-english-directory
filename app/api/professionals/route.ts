@@ -13,7 +13,8 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get('category');
     const search = searchParams.get('search');
     const page = parseInt(searchParams.get('page') || '1', 10);
-    const limit = parseInt(searchParams.get('limit') || String(DEFAULT_PAGE_SIZE), 10);
+    const limitRaw = parseInt(searchParams.get('limit') || String(DEFAULT_PAGE_SIZE), 10);
+    const limit = isNaN(limitRaw) || limitRaw < 1 ? DEFAULT_PAGE_SIZE : Math.min(limitRaw, 100);
     
     // Build where clause
     const where: any = {};
@@ -96,7 +97,7 @@ export async function GET(request: NextRequest) {
       {
         success: false,
         error: 'Failed to fetch professionals',
-        message: error instanceof Error ? error.message : 'Unknown error',
+        message: 'An internal error occurred. Please try again later.',
       },
       { status: 500 }
     );

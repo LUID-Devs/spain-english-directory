@@ -132,7 +132,7 @@ export async function POST(request: NextRequest) {
       {
         success: false,
         error: 'Failed to submit claim request',
-        message: error instanceof Error ? error.message : 'Unknown error',
+        message: 'An internal error occurred. Please try again later.',
       },
       { status: 500 }
     );

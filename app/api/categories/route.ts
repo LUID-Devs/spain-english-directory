@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
       {
         success: false,
         error: 'Failed to fetch categories',
-        message: error instanceof Error ? error.message : 'Unknown error',
+        message: 'An internal error occurred. Please try again later.',
       },
       { status: 500 }
     );
