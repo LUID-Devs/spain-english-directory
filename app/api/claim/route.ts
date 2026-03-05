@@ -102,7 +102,8 @@ export async function POST(request: NextRequest) {
       claimantName,
       claimantEmail: claimantEmail.toLowerCase().trim(),
       claimantPhone,
-      documentUrl: message || null,
+      relationship,
+      notes: message || null,
       verificationCode: '',
       verificationCodeExpiresAt: new Date(),
       status: 'pending',
@@ -111,7 +112,7 @@ export async function POST(request: NextRequest) {
     
     console.log('=== LISTING CLAIM REQUEST ===');
     console.log(`Professional: ${professional.name} (ID: ${professionalId})`);
-    console.log(`Claimant: ${claimantName} <${claimantEmail}>`);
+    console.log(`Claimant: ${claimantName} <[REDACTED]>`);
     if (claimantPhone) console.log(`Phone: [REDACTED]`);
     console.log(`Relationship: ${relationship}`);
     if (message) console.log(`Message: [REDACTED]`);

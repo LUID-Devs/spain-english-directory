@@ -3,6 +3,7 @@ import sequelize from '../lib/db';
 import DirectoryEntry from './DirectoryEntry';
 
 export type ClaimStatus = 'pending' | 'verified' | 'approved' | 'rejected';
+export type ClaimRelationship = 'owner' | 'employee' | 'authorized';
 
 interface ClaimAttributes {
   id: number;
@@ -10,6 +11,7 @@ interface ClaimAttributes {
   claimantName: string;
   claimantEmail: string;
   claimantPhone?: string;
+  relationship?: ClaimRelationship;
   documentUrl?: string;
   verificationCode: string;
   verificationCodeExpiresAt: Date;
@@ -26,13 +28,14 @@ interface ClaimAttributes {
 
 interface ClaimCreationAttributes extends Optional<ClaimAttributes, 'id'> {}
 
-class Claim extends Model<ClaimAttributes, ClaimCreationAttributes> 
+class Claim extends Model<ClaimAttributes, ClaimCreationAttributes>
   implements ClaimAttributes {
   public id!: number;
   public directoryEntryId!: number;
   public claimantName!: string;
   public claimantEmail!: string;
   public claimantPhone?: string;
+  public relationship?: ClaimRelationship;
   public documentUrl?: string;
   public verificationCode!: string;
   public verificationCodeExpiresAt!: Date;
@@ -76,6 +79,10 @@ Claim.init(
     },
     claimantPhone: {
       type: DataTypes.STRING(50),
+      allowNull: true,
+    },
+    relationship: {
+      type: DataTypes.ENUM('owner', 'employee', 'authorized'),
       allowNull: true,
     },
     documentUrl: {
