@@ -5,9 +5,15 @@ import Category from './Category';
 import City from './City';
 import Lead, { LeadStatus } from './Lead';
 import Review from './Review';
-import Professional, { ListingType } from './Professional';
+import ProfessionalModel, { ListingType } from './Professional';
 
-// Define associations
+// Professional is an alias for DirectoryEntry to maintain backwards compatibility with API routes
+export const Professional = DirectoryEntry;
+
+// Export the new Professional model for new features
+export { ProfessionalModel };
+
+// Define associations for DirectoryEntry (also used by Professional alias)
 DirectoryEntry.hasMany(Claim, {
   foreignKey: 'directoryEntryId',
   as: 'claims',
@@ -38,6 +44,27 @@ Review.belongsTo(DirectoryEntry, {
   as: 'professional',
 });
 
+// Define associations for ProfessionalModel (new professionals table)
+ProfessionalModel.belongsTo(Category, {
+  foreignKey: 'categoryId',
+  as: 'category',
+});
+
+ProfessionalModel.belongsTo(City, {
+  foreignKey: 'cityId',
+  as: 'city',
+});
+
+Category.hasMany(ProfessionalModel, {
+  foreignKey: 'categoryId',
+  as: 'professionals',
+});
+
+City.hasMany(ProfessionalModel, {
+  foreignKey: 'cityId',
+  as: 'professionals',
+});
+
 export {
   sequelize,
   DirectoryEntry,
@@ -47,7 +74,6 @@ export {
   Lead,
   LeadStatus,
   Review,
-  Professional,
   ListingType,
 };
 

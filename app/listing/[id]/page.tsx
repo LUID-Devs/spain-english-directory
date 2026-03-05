@@ -6,7 +6,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ClaimButton from '@/components/ClaimButton';
 import ClaimModal from '@/components/ClaimModal';
-import { DirectoryListing } from '@/lib/data/listings';
+import { DirectoryListing } from '@/lib/data/listing-types';
 
 interface ListingWithClaim extends DirectoryListing {
   claimStatus?: string;
@@ -23,28 +23,39 @@ export default function ListingDetailPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    // For now, use mock data. In production, fetch from API
     const fetchListing = async () => {
       try {
-        // Try to fetch from API first
-        const response = await fetch(`/api/listings/${listingId}`);
+        // Fetch from API
+        const response = await fetch(`/api/professionals/${listingId}`);
         if (response.ok) {
-          const data = await response.json();
-          setListing(data);
-        } else {
-          // Fallback to mock data if API fails
-          const { generateMockListings } = await import('@/lib/data/listings');
-          const allListings = [
-            ...generateMockListings('madrid', 'doctors'),
-            ...generateMockListings('barcelona', 'lawyers'),
-            ...generateMockListings('valencia', 'dentists'),
-          ];
-          const found = allListings.find(l => l.id === listingId);
-          if (found) {
-            setListing(found);
+          const result = await response.json();
+          if (result.success) {
+            const data = result.data;
+            // Map API response to DirectoryListing format
+            setListing({
+              id: data.id,
+              name: data.name,
+              category: data.category?.name || data.category,
+              city: data.city?.name || data.city,
+              address: data.address || '',
+              phone: data.phone || '',
+              email: data.email || '',
+              website: data.website,
+              description: data.description || '',
+              specialties: data.category?.specialties?.slice(0, 3) || [],
+              languages: data.speaksEnglish ? ['English', 'Spanish'] : ['Spanish'],
+              rating: 0, // Would need to calculate from reviews
+              reviewCount: 0,
+              isVerified: data.isVerified,
+              isFeatured: data.isFeatured,
+              claimStatus: data.claimStatus,
+              claimedBy: data.claimedBy,
+            });
           } else {
             setError('Listing not found');
           }
+        } else {
+          setError('Listing not found');
         }
       } catch (err) {
         setError('Failed to load listing');

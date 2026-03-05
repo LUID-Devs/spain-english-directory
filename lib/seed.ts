@@ -2,7 +2,7 @@ import {
   sequelize, 
   Category, 
   City, 
-  Professional, 
+  ProfessionalModel, 
   Review, 
   Lead,
   ListingType,
@@ -40,7 +40,7 @@ async function seed() {
     console.log(`✅ Created ${cities.length} cities`);
 
     // Create Professionals
-    const professionals = await Professional.bulkCreate([
+    const professionals = await ProfessionalModel.bulkCreate([
       {
         name: 'Dr. Sarah Johnson',
         email: 'dr.johnson@medicamadrid.es',

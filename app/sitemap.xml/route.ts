@@ -4,6 +4,9 @@ import { categories } from '@/lib/data/categories';
 
 const BASE_URL = 'https://spainenglishdirectory.com';
 
+// Use dynamic rendering since we may want to fetch professionals from DB
+export const dynamic = 'force-dynamic';
+
 export async function GET(): Promise<Response> {
   try {
     const sitemapEntries: MetadataRoute.Sitemap = [];
@@ -46,6 +49,23 @@ export async function GET(): Promise<Response> {
           priority: 0.9,
         });
       }
+    }
+
+    // Individual professional pages - dynamically fetched from DB
+    // Using dynamic import to avoid build-time issues
+    const { DirectoryEntry } = await import('@/models');
+    const professionals = await DirectoryEntry.findAll({
+      attributes: ['id', 'updatedAt'],
+      order: [['id', 'ASC']],
+    });
+
+    for (const professional of professionals) {
+      sitemapEntries.push({
+        url: `${BASE_URL}/professionals/${professional.id}`,
+        lastModified: professional.updatedAt || new Date(),
+        changeFrequency: 'weekly',
+        priority: 0.7,
+      });
     }
 
     // Generate XML

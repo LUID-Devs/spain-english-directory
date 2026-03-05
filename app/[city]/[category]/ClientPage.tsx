@@ -7,7 +7,7 @@ import FilterSidebar from '@/components/FilterSidebar';
 import ProfessionalList from '@/components/ProfessionalList';
 import Pagination from '@/components/Pagination';
 import FAQSection from '@/components/FAQSection';
-import { DirectoryListing, getListings } from '@/lib/data/listings';
+import { DirectoryListing, ListingsResponse } from '@/lib/data/listing-types';
 
 interface ClientPageProps {
   initialData: {
@@ -63,30 +63,43 @@ export default function ClientPage({
   const [selectedSpecialty, setSelectedSpecialty] = useState<string | null>(urlSpecialty);
   const [selectedLanguage, setSelectedLanguage] = useState<string | null>(urlLanguage);
   const [currentPage, setCurrentPage] = useState(urlPage);
-  
-  // Get filtered listings based on current filters
-  const filteredData = getListings(citySlug, categorySlug, {
-    page: currentPage,
-    limit: 20,
-    specialty: selectedSpecialty || undefined,
-    language: selectedLanguage || undefined,
+  const [data, setData] = useState<ListingsResponse>({
+    listings: initialData.listings,
+    total: initialData.total,
+    page: initialData.page,
+    totalPages: initialData.totalPages,
   });
-  
-  const [listings, setListings] = useState(filteredData.listings);
-  const [totalPages, setTotalPages] = useState(filteredData.totalPages);
-  const [total, setTotal] = useState(filteredData.total);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Update listings when filters change
+  // Fetch listings from API when filters change
   useEffect(() => {
-    const data = getListings(citySlug, categorySlug, {
-      page: currentPage,
-      limit: 20,
-      specialty: selectedSpecialty || undefined,
-      language: selectedLanguage || undefined,
-    });
-    setListings(data.listings);
-    setTotalPages(data.totalPages);
-    setTotal(data.total);
+    const fetchListings = async () => {
+      setIsLoading(true);
+      try {
+        const params = new URLSearchParams();
+        params.set('city', citySlug);
+        params.set('category', categorySlug);
+        params.set('page', currentPage.toString());
+        params.set('limit', '20');
+        if (selectedSpecialty) params.set('specialty', selectedSpecialty);
+        if (selectedLanguage) params.set('language', selectedLanguage);
+        
+        const response = await fetch(`/api/listings?${params.toString()}`);
+        
+        if (response.ok) {
+          const result = await response.json();
+          if (result.success) {
+            setData(result.data);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching listings:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchListings();
   }, [citySlug, categorySlug, currentPage, selectedSpecialty, selectedLanguage]);
 
   const updateURL = useCallback((
@@ -141,7 +154,7 @@ export default function ClientPage({
   return (
     <>
       {/* Loading overlay */}
-      {isPending && (
+      {(isPending || isLoading) && (
         <div className="fixed inset-0 bg-white/50 z-50 flex items-center justify-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
         </div>
@@ -174,21 +187,21 @@ export default function ClientPage({
           <div className="flex-1">
             <div className="mb-4 flex items-center justify-between">
               <p className="text-gray-600">
-                Showing <span className="font-medium">{listings.length}</span> of{' '}
-                <span className="font-medium">{total}</span> results
+                Showing <span className="font-medium">{data.listings.length}</span> of{' '}
+                <span className="font-medium">{data.total}</span> results
               </p>
             </div>
 
             <ProfessionalList 
-              listings={listings}
-              total={total}
+              listings={data.listings}
+              total={data.total}
               cityName={city.name}
               categoryName={category.name}
             />
 
             <Pagination
               currentPage={currentPage}
-              totalPages={totalPages}
+              totalPages={data.totalPages}
               onPageChange={handlePageChange}
             />
           </div>

@@ -58,6 +58,7 @@ class DirectoryEntry extends Model<DirectoryEntryAttributes, DirectoryEntryCreat
   public claimVerificationExpiry?: Date;
   public claimRequestedAt?: Date;
   public claimedBy?: string;
+  public reviews?: any[];
   public claimedAt?: Date;
   public ownerUserId?: number;
   public readonly createdAt!: Date;

@@ -1,10 +1,13 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
-import { cities, getCityBySlug, CitySlug } from '@/lib/data/cities';
-import { categories, getCategoryBySlug, CategorySlug } from '@/lib/data/categories';
-import { getListings } from '@/lib/data/listings';
+import { cities, getCityBySlug } from '@/lib/data/cities';
+import { categories, getCategoryBySlug } from '@/lib/data/categories';
+import { getListingsFromDB } from '@/lib/data/listings-server';
 import ClientPage from './ClientPage';
+
+// Use dynamic rendering since we need database access
+export const dynamic = 'force-dynamic';
 
 interface PageProps {
   params: Promise<{ city: string; category: string }>;
@@ -23,7 +26,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
   }
   
-  const data = getListings(citySlug, categorySlug);
+  const data = await getListingsFromDB(citySlug, categorySlug);
   const entryCount = data.total;
   
   const title = `English Speaking ${category.name} in ${city.name} | Spain Directory`;
@@ -70,21 +73,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-// Generate static params for all city+category combinations
-export async function generateStaticParams() {
-  const params: { city: string; category: string }[] = [];
-  
-  for (const city of cities) {
-    for (const category of categories) {
-      params.push({
-        city: city.slug,
-        category: category.slug,
-      });
-    }
-  }
-  
-  return params;
-}
+
 
 // Generate JSON-LD structured data
 function generateStructuredData(
@@ -178,7 +167,11 @@ function generateStructuredData(
 }
 
 // Generate FAQs for the page
-function generateFAQs(cityName: string, categoryName: string, categorySingular: string) {
+function generateFAQs(cityName: string, categoryName: string, categorySingular: string, verifiedCount: number) {
+  const verifiedText = verifiedCount > 0
+    ? `${verifiedCount} of our listed ${categoryName.toLowerCase()} are verified for their professional credentials.`
+    : `Our ${categoryName.toLowerCase()} are reviewed for quality and many are verified for their professional credentials.`;
+  
   return [
     {
       question: `Why should I choose an English-speaking ${categorySingular.toLowerCase()} in ${cityName}?`,
@@ -190,7 +183,7 @@ function generateFAQs(cityName: string, categoryName: string, categorySingular: 
     },
     {
       question: `Are the ${categoryName.toLowerCase()} in ${cityName} verified?`,
-      answer: `Yes, all ${categoryName.toLowerCase()} in our ${cityName} directory are verified for their professional credentials and English language proficiency. We regularly update our listings to ensure accuracy.`
+      answer: verifiedText + ` We regularly update our listings to ensure accuracy and indicate verified professionals with a badge.`
     },
     {
       question: `What areas of ${cityName} do these ${categoryName.toLowerCase()} serve?`,
@@ -211,8 +204,9 @@ export default async function CityCategoryPage({ params }: PageProps) {
   }
   
   // Get initial listings data
+  const listingsData = await getListingsFromDB(citySlug, categorySlug, { page: 1, limit: 20 });
   const initialData = {
-    ...getListings(citySlug, categorySlug, { page: 1, limit: 20 }),
+    ...listingsData,
     specialty: null,
     language: null,
   };
@@ -224,7 +218,8 @@ export default async function CityCategoryPage({ params }: PageProps) {
   };
   
   // Generate FAQs
-  const faqs = generateFAQs(city.name, category.name, category.singular);
+  const verifiedCount = listingsData.listings.filter(l => l.isVerified).length;
+  const faqs = generateFAQs(city.name, category.name, category.singular, verifiedCount);
   
   // Breadcrumb items
   const breadcrumbItems = [
