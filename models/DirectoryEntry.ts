@@ -1,8 +1,6 @@
 import { DataTypes, Model, Optional } from 'sequelize';
 import sequelize from '../lib/db';
 
-export type ClaimStatus = 'unclaimed' | 'pending' | 'verified' | 'approved' | 'rejected';
-
 interface DirectoryEntryAttributes {
   id: number;
   name: string;
@@ -15,15 +13,12 @@ interface DirectoryEntryAttributes {
   email?: string;
   website?: string;
   speaksEnglish: boolean;
-  claimStatus: ClaimStatus;
+  isFeatured: boolean;
+  isVerified: boolean;
+  isClaimed: boolean;
   claimedBy?: string;
-  claimEmail?: string;
-  claimPhone?: string;
-  claimVerificationCode?: string;
-  claimVerificationExpiry?: Date;
-  claimRequestedAt?: Date;
-  claimApprovedAt?: Date;
-  claimApprovedBy?: string;
+  claimedAt?: Date;
+  ownerUserId?: number;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -43,15 +38,12 @@ class DirectoryEntry extends Model<DirectoryEntryAttributes, DirectoryEntryCreat
   public email?: string;
   public website?: string;
   public speaksEnglish!: boolean;
-  public claimStatus!: ClaimStatus;
+  public isFeatured!: boolean;
+  public isVerified!: boolean;
+  public isClaimed!: boolean;
   public claimedBy?: string;
-  public claimEmail?: string;
-  public claimPhone?: string;
-  public claimVerificationCode?: string;
-  public claimVerificationExpiry?: Date;
-  public claimRequestedAt?: Date;
-  public claimApprovedAt?: Date;
-  public claimApprovedBy?: string;
+  public claimedAt?: Date;
+  public ownerUserId?: number;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }
@@ -59,7 +51,7 @@ class DirectoryEntry extends Model<DirectoryEntryAttributes, DirectoryEntryCreat
 DirectoryEntry.init(
   {
     id: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },
@@ -104,41 +96,31 @@ DirectoryEntry.init(
       defaultValue: true,
       allowNull: false,
     },
-    claimStatus: {
-      type: DataTypes.ENUM('unclaimed', 'pending', 'verified', 'approved', 'rejected'),
-      defaultValue: 'unclaimed',
+    isFeatured: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: false,
+    },
+    isVerified: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: false,
+    },
+    isClaimed: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
       allowNull: false,
     },
     claimedBy: {
       type: DataTypes.STRING(255),
       allowNull: true,
     },
-    claimEmail: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    claimPhone: {
-      type: DataTypes.STRING(50),
-      allowNull: true,
-    },
-    claimVerificationCode: {
-      type: DataTypes.STRING(10),
-      allowNull: true,
-    },
-    claimVerificationExpiry: {
+    claimedAt: {
       type: DataTypes.DATE,
       allowNull: true,
     },
-    claimRequestedAt: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
-    claimApprovedAt: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
-    claimApprovedBy: {
-      type: DataTypes.STRING(255),
+    ownerUserId: {
+      type: DataTypes.INTEGER,
       allowNull: true,
     },
   },
@@ -146,6 +128,14 @@ DirectoryEntry.init(
     tableName: 'directory_entries',
     sequelize,
     timestamps: true,
+    indexes: [
+      { fields: ['name'] },
+      { fields: ['city'] },
+      { fields: ['category'] },
+      { fields: ['isFeatured'] },
+      { fields: ['isVerified'] },
+      { fields: ['name', 'description'] },
+    ],
   }
 );
 

@@ -1,217 +1,300 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { Suspense } from 'react';
-import { 
-  isValidCity, 
-  isValidCategory, 
-  getCityBySlug, 
-  getCategoryBySlug,
-  getIntroContent,
-  getFAQs,
-  getListings
-} from '@/lib/data';
-import ClientPage from './ClientPage';
+import Link from 'next/link';
+import { Category, City, DirectoryEntry } from '@/models';
+import ClaimButton from '@/components/claims/ClaimButton';
 
 interface PageProps {
-  params: Promise<{
-    city: string;
-    category: string;
-  }>;
+  params: Promise<{ city: string; category: string }>;
 }
 
-// Base URL for canonical links
-const BASE_URL = 'https://spainenglishdirectory.com';
+// Format helpers
+function formatTitle(slug: string): string {
+  return slug
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
 
-// Generate static params for all city/category combinations
-export function generateStaticParams() {
-  const cities = ['madrid', 'barcelona', 'valencia', 'seville', 'malaga'];
-  const categories = ['doctors', 'lawyers', 'dentists', 'accountants', 'therapists', 'veterinarians', 'realtors', 'mechanics', 'hairdressers', 'fitness-trainers'];
-  
-  const params: { city: string; category: string }[] = [];
-  
-  for (const city of cities) {
-    for (const category of categories) {
-      params.push({ city, category });
-    }
+function formatCategoryName(slug: string): string {
+  const formatted = formatTitle(slug);
+  // Common pluralizations for categories
+  if (['dental', 'legal', 'medical', 'healthcare'].includes(slug.toLowerCase())) {
+    return formatted + ' Services';
   }
-  
-  return params;
+  return formatted;
 }
 
 // Generate metadata for SEO
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { city: citySlug, category: categorySlug } = await params;
+  const cityName = formatTitle(citySlug);
+  const categoryName = formatCategoryName(categorySlug);
   
-  if (!isValidCity(citySlug) || !isValidCategory(categorySlug)) {
-    return {
-      title: 'Not Found',
-    };
-  }
-  
-  const content = getIntroContent(citySlug, categorySlug);
-  const category = getCategoryBySlug(categorySlug)!;
-  const city = getCityBySlug(citySlug)!;
-  const canonicalUrl = `${BASE_URL}/${citySlug}/${categorySlug}`;
+  const title = `English-Speaking ${categoryName} in ${cityName} | Spain English Directory`;
+  const description = `Find English-speaking ${categoryName.toLowerCase()} in ${cityName}, Spain. Browse verified professionals, read reviews, and connect with service providers who speak your language.`;
   
   return {
-    title: `${content.title} | Spain English Directory`,
-    description: `Find trusted English-speaking ${category.name.toLowerCase()} in ${city.name}, Spain. Browse verified listings with reviews, contact details, and specialties.`,
+    title,
+    description,
     keywords: [
-      `english speaking ${category.singular.toLowerCase()} ${city.name.toLowerCase()}`,
-      `${category.singular.toLowerCase()} ${city.name.toLowerCase()} english`,
-      `english ${category.name.toLowerCase()} ${city.name.toLowerCase()} spain`,
-      `find ${category.name.toLowerCase()} ${city.name.toLowerCase()}`,
-      `${category.name.toLowerCase()} in ${city.name.toLowerCase()}`,
+      `English speaking ${categorySlug} ${citySlug}`,
+      `${categoryName} ${cityName} Spain`,
+      `English ${categorySlug} ${cityName}`,
+      'Spain English Directory',
+      `expat ${categorySlug} ${cityName}`,
     ],
-    alternates: {
-      canonical: canonicalUrl,
-    },
     openGraph: {
-      title: content.title,
-      description: `Find trusted English-speaking ${category.name.toLowerCase()} in ${city.name}. Browse verified listings with reviews and contact details.`,
+      title,
+      description,
       type: 'website',
       locale: 'en_US',
       siteName: 'Spain English Directory',
-      url: canonicalUrl,
-      images: [
-        {
-          url: `${BASE_URL}/og-image.jpg`,
-          width: 1200,
-          height: 630,
-          alt: `${content.title} - Spain English Directory`,
-        },
-      ],
     },
     twitter: {
-      card: 'summary_large_image',
-      title: content.title,
-      description: `Find trusted English-speaking ${category.name.toLowerCase()} in ${city.name}. Browse verified listings with reviews and contact details.`,
-      images: [`${BASE_URL}/og-image.jpg`],
+      card: 'summary',
+      title,
+      description,
     },
-    robots: {
-      index: true,
-      follow: true,
-      googleBot: {
-        index: true,
-        follow: true,
-        'max-video-preview': -1,
-        'max-image-preview': 'large',
-        'max-snippet': -1,
-      },
+    alternates: {
+      canonical: `https://spainenglishdirectory.com/${citySlug}/${categorySlug}`,
     },
   };
 }
 
-export default async function CombinationPage({ params }: PageProps) {
+// Generate static params for all city+category combinations
+export async function generateStaticParams() {
+  try {
+    const [cities, categories] = await Promise.all([
+      City.findAll({ attributes: ['slug'] }),
+      Category.findAll({ attributes: ['slug'] }),
+    ]);
+    
+    const params: { city: string; category: string }[] = [];
+    
+    for (const city of cities) {
+      for (const category of categories) {
+        params.push({
+          city: city.slug,
+          category: category.slug,
+        });
+      }
+    }
+    
+    return params;
+  } catch (error) {
+    console.error('Error generating static params:', error);
+    return [];
+  }
+}
+
+// Fetch entries for city+category combination
+async function getEntries(citySlug: string, categorySlug: string) {
+  try {
+    const entries = await DirectoryEntry.findAll({
+      where: {
+        city: citySlug,
+        category: categorySlug,
+      },
+      order: [
+        ['isFeatured', 'DESC'],
+        ['isVerified', 'DESC'],
+        ['name', 'ASC'],
+      ],
+    });
+    return entries;
+  } catch (error) {
+    console.error('Error fetching entries:', error);
+    return [];
+  }
+}
+
+// Validate that city and category exist
+async function validateParams(citySlug: string, categorySlug: string) {
+  try {
+    const [city, category] = await Promise.all([
+      City.findOne({ where: { slug: citySlug.toLowerCase() } }),
+      Category.findOne({ where: { slug: categorySlug.toLowerCase() } }),
+    ]);
+    return { city, category };
+  } catch (error) {
+    console.error('Error validating params:', error);
+    return { city: null, category: null };
+  }
+}
+
+export default async function CityCategoryPage({ params }: PageProps) {
   const { city: citySlug, category: categorySlug } = await params;
   
-  // Validate params - return 404 for invalid city/category combos
-  if (!isValidCity(citySlug) || !isValidCategory(categorySlug)) {
+  // Validate city and category exist
+  const { city, category } = await validateParams(citySlug, categorySlug);
+  
+  if (!city || !category) {
     notFound();
   }
   
-  const content = getIntroContent(citySlug, categorySlug);
-  const category = getCategoryBySlug(categorySlug)!;
-  const city = getCityBySlug(citySlug)!;
-  const faqs = getFAQs(categorySlug, citySlug);
+  const entries = await getEntries(citySlug, categorySlug);
+  const cityName = city.name;
+  const categoryName = formatCategoryName(categorySlug);
   
-  const { listings, total, page, totalPages } = getListings(citySlug, categorySlug, {
-    page: 1,
-    limit: 20,
-  });
-  
-  const breadcrumbItems = [
-    { label: 'Home', href: '/' },
-    { label: city.name, href: `/${citySlug}` },
-    { label: category.name },
-  ];
-
-  // Generate ItemList structured data for the collection of listings
-  const itemListStructuredData = {
-    '@context': 'https://schema.org',
-    '@type': 'ItemList',
-    name: `${content.title}`,
-    description: `Directory of English-speaking ${category.name.toLowerCase()} in ${city.name}`,
-    url: `${BASE_URL}/${citySlug}/${categorySlug}`,
-    itemListElement: listings.map((listing, index) => ({
-      '@type': 'ListItem',
-      position: index + 1,
-      item: {
-        '@type': 'LocalBusiness',
-        name: listing.name,
-        description: listing.description,
-        address: {
-          '@type': 'PostalAddress',
-          streetAddress: listing.address.split(',')[0],
-          addressLocality: listing.city,
-          addressCountry: 'ES',
-        },
-        telephone: listing.phone,
-        email: listing.email,
-        url: listing.website || `${BASE_URL}/listing/${listing.id}`,
-        aggregateRating: {
-          '@type': 'AggregateRating',
-          ratingValue: listing.rating.toFixed(1),
-          reviewCount: listing.reviewCount,
-        },
-      },
-    })),
-  };
-
-  // Generate WebPage structured data
-  const webPageStructuredData = {
-    '@context': 'https://schema.org',
-    '@type': 'WebPage',
-    name: content.title,
-    description: `Find trusted English-speaking ${category.name.toLowerCase()} in ${city.name}, Spain.`,
-    url: `${BASE_URL}/${citySlug}/${categorySlug}`,
-    breadcrumb: {
-      '@type': 'BreadcrumbList',
-      itemListElement: breadcrumbItems.map((item, index) => ({
-        '@type': 'ListItem',
-        position: index + 1,
-        name: item.label,
-        item: item.href ? `${BASE_URL}${item.href}` : `${BASE_URL}/${citySlug}/${categorySlug}`,
-      })),
-    },
-    about: {
-      '@type': 'Thing',
-      name: `${category.name} in ${city.name}`,
-      description: `English-speaking ${category.name.toLowerCase()} serving the international community in ${city.name}`,
-    },
-  };
-
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* ItemList Structured Data */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListStructuredData) }}
-      />
-      {/* WebPage Structured Data */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageStructuredData) }}
-      />
-      <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">Loading...</div>}>
-        <ClientPage 
-          initialData={{
-            listings,
-            total,
-            page,
-            totalPages,
-            specialty: null,
-            language: null,
-          }}
-          citySlug={citySlug}
-          categorySlug={categorySlug}
-          content={content}
-          city={city}
-          category={category}
-          faqs={faqs}
-          breadcrumbItems={breadcrumbItems}
-        />
-      </Suspense>
+    <div className="min-h-screen p-8 pb-20">
+      <div className="max-w-6xl mx-auto">
+        {/* Breadcrumb Navigation */}
+        <nav aria-label="Breadcrumb" className="mb-6">
+          <ol className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+            <li>
+              <Link href="/" className="hover:text-blue-600 transition">
+                Home
+              </Link>
+            </li>
+            <li>
+              <span className="mx-2">/</span>
+            </li>
+            <li>
+              <Link href={`/${citySlug}`} className="hover:text-blue-600 transition">
+                {cityName}
+              </Link>
+            </li>
+            <li>
+              <span className="mx-2">/</span>
+            </li>
+            <li aria-current="page" className="text-gray-900 dark:text-gray-100 font-medium">
+              {category.name}
+            </li>
+          </ol>
+        </nav>
+        
+        {/* Header */}
+        <header className="mb-10">
+          <h1 className="text-3xl md:text-4xl font-bold mb-4">
+            English-Speaking {categoryName} in {cityName}
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400 text-lg max-w-3xl">
+            Find trusted English-speaking {categoryName.toLowerCase()} in {cityName}. 
+            Browse {entries.length} verified professionals ready to help you in your language.
+          </p>
+        </header>
+        
+        {/* Entries Grid */}
+        {entries.length > 0 ? (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {entries.map((entry) => (
+              <article 
+                key={entry.id}
+                className="border rounded-lg p-6 hover:shadow-lg transition bg-white dark:bg-gray-900"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    <h2 className="font-semibold text-lg">{entry.name}</h2>
+                    <p className="text-sm text-gray-500">
+                      {category.name} • {cityName}
+                    </p>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    {entry.isVerified && (
+                      <span className="px-2 py-1 bg-blue-100 text-blue-600 text-xs rounded-full">
+                        Verified
+                      </span>
+                    )}
+                    {entry.isFeatured && (
+                      <span className="px-2 py-1 bg-yellow-100 text-yellow-600 text-xs rounded-full">
+                        Featured
+                      </span>
+                    )}
+                    {entry.isClaimed ? (
+                      <span className="px-2 py-1 bg-green-100 text-green-600 text-xs rounded-full">
+                        Claimed
+                      </span>
+                    ) : (
+                      <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
+                        Unclaimed
+                      </span>
+                    )}
+                  </div>
+                </div>
+                
+                {entry.description && (
+                  <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-3">
+                    {entry.description}
+                  </p>
+                )}
+                
+                {(entry.phone || entry.email || entry.website) && (
+                  <div className="text-sm text-gray-500 mb-4 space-y-1">
+                    {entry.phone && (
+                      <p>
+                        <span className="font-medium">Phone:</span>{' '}
+                        <a href={`tel:${entry.phone}`} className="text-blue-600 hover:underline">
+                          {entry.phone}
+                        </a>
+                      </p>
+                    )}
+                    {entry.email && (
+                      <p>
+                        <span className="font-medium">Email:</span>{' '}
+                        <a href={`mailto:${entry.email}`} className="text-blue-600 hover:underline">
+                          {entry.email}
+                        </a>
+                      </p>
+                    )}
+                    {entry.website && (
+                      <p>
+                        <span className="font-medium">Website:</span>{' '}
+                        <a 
+                          href={entry.website} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:underline"
+                        >
+                          Visit Website
+                        </a>
+                      </p>
+                    )}
+                  </div>
+                )}
+                
+                <div className="mt-4 pt-4 border-t">
+                  <ClaimButton
+                    listingId={entry.id}
+                    listingName={entry.name}
+                    isClaimed={entry.isClaimed}
+                  />
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-16 bg-gray-50 dark:bg-gray-800 rounded-lg">
+            <h2 className="text-xl font-semibold mb-2">No providers found</h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              We don&apos;t have any {categoryName.toLowerCase()} listed in {cityName} yet.
+            </p>
+            <p className="text-sm text-gray-500">
+              Check back soon or browse other categories in {cityName}.
+            </p>
+          </div>
+        )}
+        
+        {/* Related Links */}
+        <div className="mt-12 pt-8 border-t">
+          <h3 className="text-lg font-semibold mb-4">Explore More</h3>
+          <div className="flex flex-wrap gap-4">
+            <Link 
+              href={`/${citySlug}`}
+              className="text-blue-600 hover:underline"
+            >
+              All services in {cityName} →
+            </Link>
+            <Link 
+              href={`/categories/${categorySlug}`}
+              className="text-blue-600 hover:underline"
+            >
+              {categoryName} in all cities →
+            </Link>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
