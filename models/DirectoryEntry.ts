@@ -40,6 +40,10 @@ class DirectoryEntry extends Model<DirectoryEntryAttributes, DirectoryEntryCreat
   public speaksEnglish!: boolean;
   public isFeatured!: boolean;
   public isVerified!: boolean;
+  public isClaimed!: boolean;
+  public claimedBy?: string;
+  public claimedAt?: Date;
+  public ownerUserId?: number;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }
@@ -47,7 +51,7 @@ class DirectoryEntry extends Model<DirectoryEntryAttributes, DirectoryEntryCreat
 DirectoryEntry.init(
   {
     id: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },
@@ -102,19 +106,28 @@ DirectoryEntry.init(
       defaultValue: false,
       allowNull: false,
     },
+    isClaimed: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: false,
+    },
+    claimedBy: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
+    claimedAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    ownerUserId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
   },
   {
     tableName: 'directory_entries',
     sequelize,
     timestamps: true,
-    indexes: [
-      { fields: ['name'] },
-      { fields: ['city'] },
-      { fields: ['category'] },
-      { fields: ['isFeatured'] },
-      { fields: ['isVerified'] },
-      { fields: ['name', 'description'] },
-    ],
   }
 );
 
