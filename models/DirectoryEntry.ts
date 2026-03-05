@@ -13,6 +13,9 @@ interface DirectoryEntryAttributes {
   email?: string;
   website?: string;
   speaksEnglish: boolean;
+  claimedBy?: number | null;
+  claimedAt?: Date | null;
+  isVerified: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -32,6 +35,9 @@ class DirectoryEntry extends Model<DirectoryEntryAttributes, DirectoryEntryCreat
   public email?: string;
   public website?: string;
   public speaksEnglish!: boolean;
+  public claimedBy?: number | null;
+  public claimedAt?: Date | null;
+  public isVerified!: boolean;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }
@@ -82,6 +88,23 @@ DirectoryEntry.init(
     speaksEnglish: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
+      allowNull: false,
+    },
+    claimedBy: {
+      type: DataTypes.INTEGER.UNSIGNED,
+      allowNull: true,
+      references: {
+        model: 'claims',
+        key: 'id',
+      },
+    },
+    claimedAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    isVerified: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
       allowNull: false,
     },
   },
