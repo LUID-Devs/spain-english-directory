@@ -3,18 +3,15 @@ import { Claim, DirectoryEntry } from '@/models';
 import { sendVerificationCode } from '@/lib/email';
 import crypto from 'crypto';
 
-// Generate a 6-digit verification code
 function generateVerificationCode(): string {
   return crypto.randomInt(100000, 999999).toString();
 }
 
-// POST /api/claims - Create a new claim
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { directoryEntryId, claimantName, claimantEmail, claimantPhone, documentUrl } = body;
 
-    // Validate required fields
     if (!directoryEntryId || !claimantName || !claimantEmail) {
       return NextResponse.json(
         { error: 'Missing required fields: directoryEntryId, claimantName, claimantEmail' },
@@ -22,7 +19,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if the directory entry exists
     const entry = await DirectoryEntry.findByPk(directoryEntryId);
     if (!entry) {
       return NextResponse.json(
@@ -31,7 +27,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if the listing is already claimed
     if (entry.isClaimed) {
       return NextResponse.json(
         { error: 'This listing has already been claimed' },
@@ -39,11 +34,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if there's already a pending claim for this email + listing
     const existingClaim = await Claim.findOne({
       where: {
         directoryEntryId,
-        claimantEmail,
+        claimantEmail: claimantEmail.toLowerCase().trim(),
         status: ['pending', 'verified'],
       },
     });
@@ -55,11 +49,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate verification code
     const verificationCode = generateVerificationCode();
-    const verificationCodeExpiresAt = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes
+    const verificationCodeExpiresAt = new Date(Date.now() + 30 * 60 * 1000);
 
-    // Create the claim
     const claim = await Claim.create({
       directoryEntryId,
       claimantName,
@@ -72,13 +64,7 @@ export async function POST(request: NextRequest) {
       isVerified: false,
     });
 
-    // Send verification email
     const emailSent = await sendVerificationCode(claimantEmail, verificationCode, entry.name);
-
-    if (!emailSent) {
-      console.error('Failed to send verification email to:', claimantEmail);
-      // Continue anyway - we can resend later
-    }
 
     return NextResponse.json({
       success: true,
@@ -96,12 +82,10 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// GET /api/claims?email=xxx - Get claims by email (for checking status)
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const email = searchParams.get('email');
-    const entryId = searchParams.get('entryId');
 
     if (!email) {
       return NextResponse.json(
@@ -110,13 +94,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const whereClause: any = { claimantEmail: email.toLowerCase().trim() };
-    if (entryId) {
-      whereClause.directoryEntryId = entryId;
-    }
-
     const claims = await Claim.findAll({
-      where: whereClause,
+      where: { claimantEmail: email.toLowerCase().trim() },
       include: [{
         model: DirectoryEntry,
         as: 'directoryEntry',

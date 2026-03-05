@@ -10,8 +10,6 @@ export interface DirectoryEntry {
   email?: string;
   website?: string;
   speaksEnglish: boolean;
-  isFeatured: boolean;
-  isVerified: boolean;
   isClaimed: boolean;
   claimedBy?: string;
   claimedAt?: string;
@@ -48,9 +46,4 @@ export interface ClaimFormData {
   claimantEmail: string;
   claimantPhone?: string;
   documentUrl?: string;
-}
-
-export interface VerificationData {
-  claimId: number;
-  code: string;
 }

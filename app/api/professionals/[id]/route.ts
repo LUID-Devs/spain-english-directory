@@ -1,29 +1,73 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { Professional, Category, City, Review } from '@/models';
 
-// POST /api/professionals/:id - Update professional profile
-export async function POST(
+export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
-    const body = await request.json();
+    const professionalId = parseInt(id, 10);
     
-    // TODO: Verify user owns this professional listing
-    // TODO: Update in database
+    if (isNaN(professionalId)) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Invalid ID format',
+          message: 'ID must be a valid number',
+        },
+        { status: 400 }
+      );
+    }
     
-    console.log(`Updating professional ${id}:`, body);
+    const professional = await Professional.findByPk(professionalId, {
+      include: [
+        { model: Category, as: 'category' },
+        { model: City, as: 'city' },
+        { model: Review, as: 'reviews' },
+      ],
+    });
+    
+    if (!professional) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Not found',
+          message: `Professional with ID ${professionalId} not found`,
+        },
+        { status: 404 }
+      );
+    }
     
     return NextResponse.json({
-      id,
-      ...body,
-      updatedAt: new Date().toISOString(),
+      success: true,
+      data: professional,
+    }, {
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+      },
     });
   } catch (error) {
-    console.error('Error updating profile:', error);
+    console.error('Error fetching professional:', error);
     return NextResponse.json(
-      { message: 'Failed to update profile' },
+      {
+        success: false,
+        error: 'Failed to fetch professional',
+        message: 'An internal error occurred. Please try again later.',
+      },
       { status: 500 }
     );
   }
+}
+
+export async function OPTIONS() {
+  return NextResponse.json({}, {
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+    },
+  });
 }

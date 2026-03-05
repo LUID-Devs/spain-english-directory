@@ -1,0 +1,67 @@
+name: Greptile Confidence Gate
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, edited]
+
+concurrency:
+  group: greptile-confidence-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  confidence_gate:
+    runs-on: ${{ vars.GREPTILE_CONFIDENCE_RUNNER || 'self-hosted' }}
+    permissions:
+      checks: read
+      pull-requests: read
+    steps:
+      - name: Wait for checks then validate Greptile confidence
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const pullNumber = pr?.number;
+            const headSha = pr?.head?.sha;
+            const action = context.payload.action;
+            if (!pullNumber || !headSha) {
+              core.notice("No PR context available; skipping confidence gate");
+              return;
+            }
+
+            const { data: existingChecks } = await github.rest.checks.listForRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: headSha,
+              check_name: "confidence_gate",
+              per_page: 100
+            });
+
+            const priorCompleted = existingChecks.check_runs.find((run) => {
+              const isGitHubActions = run.app?.slug === "github-actions";
+              const isCurrentRun = (run.details_url || "").includes(`/actions/runs/${context.runId}/`);
+              return isGitHubActions && !isCurrentRun && run.status === "completed";
+            });
+
+            if (priorCompleted && action !== "edited") {
+              core.notice(
+                `Reusing prior confidence gate result for ${headSha.slice(0, 7)} (${priorCompleted.conclusion}); skipping duplicate run.`
+              );
+              return;
+            }
+
+            const { data: prData } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pullNumber
+            });
+
+            const text = (prData.body || "").replace(/<[^>]+>/g, "");
+            const m = text.match(/Confidence Score:\s*([0-5](?:\.\d+)?)\s*\/\s*5/i);
+
+            if (!m) {
+              core.setFailed("Greptile confidence score not found in PR body");
+              return;
+            }
+
+            const score = parseFloat(m[1]);
+            if (score < 4) core.setFailed(`Greptile confidence ${score}/5 < 4/5`);
+            else console.log(`Greptile confidence ${score}/5 ✅`);

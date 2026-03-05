@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile } from 'fs/promises';
-import { join } from 'path';
-import { randomBytes } from 'crypto';
+import { mkdir } from 'fs/promises';
+import path from 'path';
+import crypto from 'crypto';
 
-// POST /api/upload - Upload a document
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
-    const file = formData.get('file') as File | null;
+    const file = formData.get('file') as File;
+    const type = formData.get('type') as string || 'document';
 
     if (!file) {
       return NextResponse.json(
@@ -16,61 +17,51 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate file type
-    const allowedTypes = [
-      'application/pdf',
-      'image/jpeg',
-      'image/png',
-      'image/jpg',
-    ];
-    
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
     if (!allowedTypes.includes(file.type)) {
       return NextResponse.json(
-        { error: 'Invalid file type. Only PDF, JPEG, and PNG are allowed.' },
+        { error: 'Invalid file type. Allowed: JPEG, PNG, PDF' },
         { status: 400 }
       );
     }
 
-    // Validate file size (5MB max)
-    const maxSize = 5 * 1024 * 1024; // 5MB
+    const maxSize = 5 * 1024 * 1024;
     if (file.size > maxSize) {
       return NextResponse.json(
-        { error: 'File too large. Maximum size is 5MB.' },
+        { error: 'File too large. Maximum size: 5MB' },
         { status: 400 }
       );
     }
 
-    // Generate unique filename
-    const timestamp = Date.now();
-    const randomString = randomBytes(8).toString('hex');
-    const extension = file.name.split('.').pop();
-    const filename = `${timestamp}-${randomString}.${extension}`;
-
-    // Save to public/uploads
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    const uploadPath = join(process.cwd(), 'public', 'uploads', filename);
     
-    await writeFile(uploadPath, buffer);
+    const hash = crypto.createHash('md5').update(buffer).digest('hex').slice(0, 16);
+    const ext = path.extname(file.name) || '.bin';
+    const timestamp = Date.now();
+    const filename = `${type}_${timestamp}_${hash}${ext}`;
+
+    const uploadDir = path.join(process.cwd(), 'public', 'uploads', type);
+    await mkdir(uploadDir, { recursive: true });
+
+    const filePath = path.join(uploadDir, filename);
+    await writeFile(filePath, buffer);
+
+    const publicUrl = `/uploads/${type}/${filename}`;
 
     return NextResponse.json({
       success: true,
-      url: `/uploads/${filename}`,
+      url: publicUrl,
       filename: file.name,
+      size: file.size,
+      type: file.type,
     });
 
   } catch (error) {
-    console.error('Failed to upload file:', error);
+    console.error('Error uploading file:', error);
     return NextResponse.json(
       { error: 'Failed to upload file' },
       { status: 500 }
     );
   }
 }
-
-// Configure for large file uploads
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};

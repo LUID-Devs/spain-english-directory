@@ -1,0 +1,35 @@
+-- Task 1121: Add Madrid Healthcare Providers - Batch 1
+-- Data entry by Cletus
+-- Includes: Hospitals, Dental Clinics, Medical Centers
+
+INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
+
+-- 1. Clínica Cloe - English-Speaking Dental Clinic
+('Clínica Cloe', 'Dentists', 'Modern dental clinic with fully English-speaking staff specializing in general dentistry, implants, orthodontics, and cosmetic dentistry. Multilingual team speaks Spanish, English, French, German and Ukrainian. State-of-the-art digital technology including 3D imaging and intraoral scanners. Offers minimally invasive treatments and is the organizer of "CLOE Smiles For Madrid" oral health program for schools.', 'Avenida de los Prunos 5-7, 28042 Madrid', 'Madrid', 'Madrid', '+34 917 48 90 88', 'info@clinicacloe.com', 'https://www.clinicacloe.com', true, true, true, false, NOW(), NOW()),
+
+-- 2. 32Dental - English-Speaking Dental Center
+('32Dental', 'Dentists', 'International dental clinic in Madrid offering comprehensive dental care in English. Specialties include oral surgery, implantology, prosthodontics, endodontics, and periodontics. Emergency dental services available outside regular hours. Modern facilities with experienced English-speaking dentists serving expats and international patients.', 'Calle Marcenado 32, 28002 Madrid', 'Madrid', 'Madrid', '+34 911 38 59 28', 'info@32dental.es', 'https://32dental.es', true, true, true, false, NOW(), NOW()),
+
+-- 3. Unidad Médica Angloamericana - English-Speaking Medical Clinic
+('Unidad Médica Angloamericana', 'Medical Clinics', 'Private medical center in Madrid with fully bilingual English-speaking doctors, nurses and administrative staff. Serving Madrid''s English-speaking community since establishment with comprehensive primary care services. Multilingual staff speaks English, Spanish, French and German. Specializes in primary care, preventive medicine, and specialist referrals for expats and international patients.', 'Calle Conde de Aranda 1, 28001 Madrid', 'Madrid', 'Madrid', '+34 914 351 823', 'info@unidadmedica.com', 'https://www.unidadmedica.com', true, true, true, false, NOW(), NOW()),
+
+-- 4. Hospital Universitario HM Madrid - Private University Hospital
+('Hospital Universitario HM Madrid', 'Hospitals', 'Large private university hospital in the Chamberí district of Madrid, part of the HM Hospitales network. Full-service hospital with international patient department offering care in English. Specialties include cardiology, neurosurgery, oncology, orthopedics, and all major medical and surgical disciplines. Direct billing to international insurance providers.', 'Plaza del Conde del Valle de Súchil 16, 28015 Madrid', 'Madrid', 'Madrid', '+34 919 370 000', 'info@hmmadrid.com', 'https://www.hmmadrid.com', true, true, true, false, NOW(), NOW()),
+
+-- 5. Hospital Universitario Quirónsalud Madrid - International Reference Hospital
+('Hospital Universitario Quirónsalud Madrid', 'Hospitals', 'Leading private university hospital and international reference center in Madrid. Internationally-renowned specialists across all medical and surgical specialties. Comprehensive international patient services with English-speaking staff. Research hospital involved in numerous clinical studies bringing newest treatments to patients. Located in Pozuelo de Alarcón, 20 minutes from Madrid city center.', 'Calle Diego de Velázquez 1, 28223 Pozuelo de Alarcón', 'Madrid', 'Madrid', '+34 914 521 900', 'info.madrid@quironsalud.es', 'https://www.quironsalud.com', true, true, true, false, NOW(), NOW()),
+
+-- 6. Hospital VOT - Private Hospital with International Services
+('Hospital VOT', 'Hospitals', 'Private hospital in Madrid offering specialized and personalized care to the international community. Full range of medical and surgical services with English-speaking staff. Located in the La Latina area of central Madrid. Offers coverage for residents, travelers, and those visiting for work or education. Emergency services and comprehensive diagnostic facilities available.', 'Calle San Bernabé 13, 28005 Madrid', 'Madrid', 'Madrid', '+34 913 657 600', 'info@hospitalvot.es', 'https://www.hospitalvot.org', true, true, true, false, NOW(), NOW()),
+
+-- 7. Centro Dental Smiling - English-Speaking Dental Clinic
+('Centro Dental Smiling', 'Dentists', 'English-speaking dental clinic in central Madrid near Gran Vía. Comprehensive dental services including general dentistry, orthodontics, implants, cosmetic dentistry, and pediatric dentistry. International team of dentists fluent in English. Modern facilities with digital radiology and 3D imaging. Flexible appointment scheduling for busy professionals and families.', 'Calle de Hortaleza 70, 28004 Madrid', 'Madrid', 'Madrid', '+34 915 23 32 72', 'info@clinicasmiling.com', 'https://www.clinicasmiling.com', true, false, true, false, NOW(), NOW()),
+
+-- 8. Hospital Universitario HM Sanchinarro - General and Children''s Hospital
+('Hospital Universitario HM Sanchinarro', 'Hospitals', 'General medical-surgical and children''s hospital serving Madrid''s northern districts. Part of HM Hospitales network with international patient services. Full range of specialties including pediatrics, obstetrics, cardiology, and oncology. English-speaking staff and direct insurance billing. Reference center for international quality healthcare in Madrid.', 'Calle Oña 10, 28050 Madrid', 'Madrid', 'Madrid', '+34 902 089 800', 'info@hmsanchinarro.com', 'https://www.hmsanchinarro.com', true, false, true, false, NOW(), NOW()),
+
+-- 9. Clínica Aya Estudio Dental - Digital Dental Clinic
+('Clínica Aya Estudio Dental', 'Dentists', 'Modern dental clinic in the Tetuán district of Madrid specializing in minimally invasive treatments and digital dentistry. All staff speaks English. Advanced technology includes intraoral scanners, 3D radiographs, and 3D printers. Services include implants, orthodontics (Invisalign), whitening, endodontics, and periodontal care. Patient-centered approach with comfortable, modern facilities.', 'Avenida de Brasil 17, 28020 Madrid', 'Madrid', 'Madrid', '+34 915 70 42 45', 'info@clinicaaya.es', 'https://www.clinicaaya.es', true, false, true, false, NOW(), NOW()),
+
+-- 10. International Doctor 24H - Urgent Medical Care for Expats
+('International Doctor 24H', 'Medical Clinics', 'Specialized urgent care medical service dedicated to tourists and expats in Madrid. 24/7 English-speaking doctors providing home visits, hotel visits, and clinic appointments. No appointment needed for urgent care. Services include emergency consultations, prescription services, medical certificates, and coordination with hospitals. Multilingual team serves major Spanish cities.', 'Madrid City Center (Mobile Service)', 'Madrid', 'Madrid', '+34 678 752 098', 'madrid@internationaldoctor24h.com', 'https://internationaldoctor24h.com', true, false, true, false, NOW(), NOW());

@@ -1,13 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Claim } from '@/models';
 
-// POST /api/claims/verify - Verify email verification code
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { claimId, code } = body;
 
-    // Validate required fields
     if (!claimId || !code) {
       return NextResponse.json(
         { error: 'Missing required fields: claimId, code' },
@@ -15,7 +13,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Find the claim
     const claim = await Claim.findByPk(claimId);
     if (!claim) {
       return NextResponse.json(
@@ -24,7 +21,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if already verified
     if (claim.isVerified) {
       return NextResponse.json({
         success: true,
@@ -36,15 +32,13 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Check if code is expired
     if (new Date() > claim.verificationCodeExpiresAt) {
       return NextResponse.json(
-        { error: 'Verification code has expired. Please request a new one.' },
+        { error: 'Verification code has expired' },
         { status: 410 }
       );
     }
 
-    // Verify the code
     if (claim.verificationCode !== code.trim()) {
       return NextResponse.json(
         { error: 'Invalid verification code' },
@@ -52,7 +46,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Update claim as verified
     await claim.update({
       isVerified: true,
       verifiedAt: new Date(),
@@ -77,7 +70,6 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// PATCH /api/claims/verify - Resend verification code
 export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json();
@@ -105,7 +97,6 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    // Generate new code
     const { sendVerificationCode } = await import('@/lib/email');
     const { default: DirectoryEntry } = await import('@/models/DirectoryEntry');
     const crypto = await import('crypto');
@@ -118,7 +109,6 @@ export async function PATCH(request: NextRequest) {
       verificationCodeExpiresAt: newExpiry,
     });
 
-    // Send new code
     const entry = await DirectoryEntry.findByPk(claim.directoryEntryId);
     if (entry) {
       await sendVerificationCode(claim.claimantEmail, newCode, entry.name);
