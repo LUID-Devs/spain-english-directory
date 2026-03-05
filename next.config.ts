@@ -1,10 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  serverExternalPackages: ['sequelize', 'pg', 'pg-hstore'],
   async headers() {
     return [
       {
-        // Apply these headers to all API routes
         source: '/api/:path*',
         headers: [
           { key: 'Access-Control-Allow-Origin', value: '*' },
