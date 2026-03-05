@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Next.js
+.next/
+
+# Environment
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
