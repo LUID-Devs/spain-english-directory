@@ -94,9 +94,9 @@ export async function POST(request: NextRequest) {
     if (professional.email) {
       console.log('=== CONTACT FORM SUBMISSION ===');
       console.log(`To: ${professional.email}`);
-      console.log(`From: ${email}`);
+      console.log(`From: [REDACTED]`);
       console.log(`Subject: New message from ${name} via Spain English Directory`);
-      console.log(`Message: ${message}`);
+      console.log(`Message: [REDACTED]`);
       console.log(`Lead ID: ${lead.id}`);
       console.log('=============================');
     }

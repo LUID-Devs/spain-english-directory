@@ -51,10 +51,11 @@ export async function GET(request: NextRequest) {
     }
     
     if (search) {
+      const escapedSearch = search.replace(/[%_\\]/g, '\\$&');
       where[Op.or] = [
-        { name: { [Op.iLike]: `%${search}%` } },
-        { description: { [Op.iLike]: `%${search}%` } },
-        { address: { [Op.iLike]: `%${search}%` } },
+        { name: { [Op.iLike]: `%${escapedSearch}%` } },
+        { description: { [Op.iLike]: `%${escapedSearch}%` } },
+        { address: { [Op.iLike]: `%${escapedSearch}%` } },
       ];
     }
     

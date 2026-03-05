@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Professional } from '@/models';
+import { Professional, Claim } from '@/models';
 
 interface ClaimRequest {
   professionalId: number;
@@ -96,21 +96,34 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // TODO: Store claim request in database
-    // For now, log the claim request
+    // Store claim request in database
+    const claim = await Claim.create({
+      directoryEntryId: professionalId,
+      claimantName,
+      claimantEmail: claimantEmail.toLowerCase().trim(),
+      claimantPhone,
+      documentUrl: message || null,
+      verificationCode: '',
+      verificationCodeExpiresAt: new Date(),
+      status: 'pending',
+      isVerified: false,
+    });
+    
     console.log('=== LISTING CLAIM REQUEST ===');
     console.log(`Professional: ${professional.name} (ID: ${professionalId})`);
     console.log(`Claimant: ${claimantName} <${claimantEmail}>`);
-    if (claimantPhone) console.log(`Phone: ${claimantPhone}`);
+    if (claimantPhone) console.log(`Phone: [REDACTED]`);
     console.log(`Relationship: ${relationship}`);
-    if (message) console.log(`Message: ${message}`);
+    if (message) console.log(`Message: [REDACTED]`);
     console.log(`Submitted at: ${new Date().toISOString()}`);
+    console.log(`Claim ID: ${claim.id}`);
     console.log('=============================');
     
     return NextResponse.json({
       success: true,
       message: 'Claim request submitted successfully. We will review your request and contact you shortly.',
       data: {
+        claimId: claim.id,
         professionalId,
         professionalName: professional.name,
         claimantName,

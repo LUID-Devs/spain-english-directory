@@ -57,9 +57,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       const escapedQuery = filters.query.trim().replace(/[%_\\]/g, '\\$&');
       const searchTerm = `%${escapedQuery}%`;
       searchConditions.push(
-        { name: { [Op.iLike]: searchTerm, escape: '\\' } },
-        { description: { [Op.iLike]: searchTerm, escape: '\\' } },
-        { category: { [Op.iLike]: searchTerm, escape: '\\' } }
+        { name: { [Op.iLike]: searchTerm } },
+        { description: { [Op.iLike]: searchTerm } },
+        { category: { [Op.iLike]: searchTerm } }
       );
     }
 
