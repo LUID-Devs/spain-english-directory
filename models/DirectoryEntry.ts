@@ -16,6 +16,14 @@ interface DirectoryEntryAttributes {
   isFeatured: boolean;
   isVerified: boolean;
   isClaimed: boolean;
+  claimStatus?: 'unclaimed' | 'pending' | 'verified' | 'approved' | 'rejected';
+  claimApprovedAt?: Date;
+  claimApprovedBy?: string;
+  claimEmail?: string;
+  claimPhone?: string;
+  claimVerificationCode?: string;
+  claimVerificationExpiry?: Date;
+  claimRequestedAt?: Date;
   claimedBy?: string;
   claimedAt?: Date;
   ownerUserId?: number;
@@ -41,6 +49,14 @@ class DirectoryEntry extends Model<DirectoryEntryAttributes, DirectoryEntryCreat
   public isFeatured!: boolean;
   public isVerified!: boolean;
   public isClaimed!: boolean;
+  public claimStatus?: 'unclaimed' | 'pending' | 'verified' | 'approved' | 'rejected';
+  public claimApprovedAt?: Date;
+  public claimApprovedBy?: string;
+  public claimEmail?: string;
+  public claimPhone?: string;
+  public claimVerificationCode?: string;
+  public claimVerificationExpiry?: Date;
+  public claimRequestedAt?: Date;
   public claimedBy?: string;
   public claimedAt?: Date;
   public ownerUserId?: number;
@@ -110,6 +126,38 @@ DirectoryEntry.init(
       type: DataTypes.BOOLEAN,
       defaultValue: false,
       allowNull: false,
+    },
+    claimStatus: {
+      type: DataTypes.ENUM('unclaimed', 'pending', 'verified', 'approved', 'rejected'),
+      allowNull: true,
+    },
+    claimApprovedAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    claimApprovedBy: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
+    claimEmail: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
+    claimPhone: {
+      type: DataTypes.STRING(50),
+      allowNull: true,
+    },
+    claimVerificationCode: {
+      type: DataTypes.STRING(10),
+      allowNull: true,
+    },
+    claimVerificationExpiry: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    claimRequestedAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
     },
     claimedBy: {
       type: DataTypes.STRING(255),

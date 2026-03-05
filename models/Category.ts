@@ -6,6 +6,7 @@ interface CategoryAttributes {
   name: string;
   slug: string;
   description?: string;
+  icon?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -18,6 +19,7 @@ class Category extends Model<CategoryAttributes, CategoryCreationAttributes>
   public name!: string;
   public slug!: string;
   public description?: string;
+  public icon?: string;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }
@@ -40,6 +42,10 @@ Category.init(
     },
     description: {
       type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    icon: {
+      type: DataTypes.STRING(50),
       allowNull: true,
     },
   },
