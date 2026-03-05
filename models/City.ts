@@ -5,17 +5,21 @@ interface CityAttributes {
   id: number;
   name: string;
   slug: string;
+  province?: string;
+  region?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
 interface CityCreationAttributes extends Optional<CityAttributes, 'id'> {}
 
-class City extends Model<CityAttributes, CityCreationAttributes> 
+class City extends Model<CityAttributes, CityCreationAttributes>
   implements CityAttributes {
   public id!: number;
   public name!: string;
   public slug!: string;
+  public province?: string;
+  public region?: string;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }
@@ -36,11 +40,22 @@ City.init(
       allowNull: false,
       unique: true,
     },
+    province: {
+      type: DataTypes.STRING(100),
+      allowNull: true,
+    },
+    region: {
+      type: DataTypes.STRING(100),
+      allowNull: true,
+    },
   },
   {
     tableName: 'cities',
     sequelize,
     timestamps: true,
+    indexes: [
+      { fields: ['slug'] },
+    ],
   }
 );
 

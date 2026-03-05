@@ -21,14 +21,14 @@ interface ClaimAttributes {
   reviewedBy?: number;
   reviewedAt?: Date;
   rejectionReason?: string;
-  notes?: string;
+  notes?: string | null;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
 interface ClaimCreationAttributes extends Optional<ClaimAttributes, 'id'> {}
 
-class Claim extends Model<ClaimAttributes, ClaimCreationAttributes> 
+class Claim extends Model<ClaimAttributes, ClaimCreationAttributes>
   implements ClaimAttributes {
   public id!: number;
   public directoryEntryId!: number;

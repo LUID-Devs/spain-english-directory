@@ -12,7 +12,7 @@ interface CategoryAttributes {
 
 interface CategoryCreationAttributes extends Optional<CategoryAttributes, 'id'> {}
 
-class Category extends Model<CategoryAttributes, CategoryCreationAttributes> 
+class Category extends Model<CategoryAttributes, CategoryCreationAttributes>
   implements CategoryAttributes {
   public id!: number;
   public name!: string;
@@ -47,6 +47,9 @@ Category.init(
     tableName: 'categories',
     sequelize,
     timestamps: true,
+    indexes: [
+      { fields: ['slug'] },
+    ],
   }
 );
 

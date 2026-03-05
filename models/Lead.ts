@@ -1,14 +1,13 @@
 import { DataTypes, Model, Optional } from 'sequelize';
 import sequelize from '../lib/db';
 
-export const LeadStatus = {
-  NEW: 'new' as const,
-  CONTACTED: 'contacted' as const,
-  CONVERTED: 'converted' as const,
-  CLOSED: 'closed' as const,
-};
+export type LeadStatus = 'new' | 'contacted' | 'closed';
 
-export type LeadStatusType = typeof LeadStatus[keyof typeof LeadStatus];
+export const LeadStatus = {
+  NEW: 'new' as LeadStatus,
+  CONTACTED: 'contacted' as LeadStatus,
+  CLOSED: 'closed' as LeadStatus,
+};
 
 interface LeadAttributes {
   id: number;
@@ -16,21 +15,21 @@ interface LeadAttributes {
   requesterName: string;
   requesterEmail: string;
   message: string;
-  status: LeadStatusType;
+  status: LeadStatus;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
 interface LeadCreationAttributes extends Optional<LeadAttributes, 'id'> {}
 
-class Lead extends Model<LeadAttributes, LeadCreationAttributes> 
+class Lead extends Model<LeadAttributes, LeadCreationAttributes>
   implements LeadAttributes {
   public id!: number;
   public professionalId!: number;
   public requesterName!: string;
   public requesterEmail!: string;
   public message!: string;
-  public status!: LeadStatusType;
+  public status!: LeadStatus;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }
@@ -46,7 +45,7 @@ Lead.init(
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'professionals',
+        model: 'directory_entries',
         key: 'id',
       },
       onDelete: 'CASCADE',
@@ -64,7 +63,7 @@ Lead.init(
       allowNull: false,
     },
     status: {
-      type: DataTypes.ENUM('new', 'contacted', 'converted', 'closed'),
+      type: DataTypes.ENUM('new', 'contacted', 'closed'),
       defaultValue: 'new',
       allowNull: false,
     },

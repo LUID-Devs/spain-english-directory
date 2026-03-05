@@ -14,7 +14,7 @@ interface ReviewAttributes {
 
 interface ReviewCreationAttributes extends Optional<ReviewAttributes, 'id'> {}
 
-class Review extends Model<ReviewAttributes, ReviewCreationAttributes> 
+class Review extends Model<ReviewAttributes, ReviewCreationAttributes>
   implements ReviewAttributes {
   public id!: number;
   public professionalId!: number;
@@ -37,7 +37,7 @@ Review.init(
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'professionals',
+        model: 'directory_entries',
         key: 'id',
       },
       onDelete: 'CASCADE',
@@ -68,6 +68,9 @@ Review.init(
     tableName: 'reviews',
     sequelize,
     timestamps: true,
+    indexes: [
+      { fields: ['professionalId'] },
+    ],
   }
 );
 
