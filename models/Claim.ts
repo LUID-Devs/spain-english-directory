@@ -132,6 +132,7 @@ Claim.init(
     tableName: 'claims',
     sequelize,
     timestamps: true,
+    underscored: true,
   }
 );
 

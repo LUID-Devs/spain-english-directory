@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
       claimantEmail: claimantEmail.toLowerCase().trim(),
       claimantPhone,
       relationship,
-      notes: message || null,
+      notes: message || undefined,
       verificationCode: '',
       verificationCodeExpiresAt: new Date(),
       status: 'pending',
