@@ -1,63 +1,64 @@
 import sequelize from '../lib/db';
+import DirectoryEntry from './DirectoryEntry';
+import Claim from './Claim';
 import Category from './Category';
 import City from './City';
-import Professional, { ListingType } from './Professional';
-import Review from './Review';
 import Lead, { LeadStatus } from './Lead';
+import Review from './Review';
 
 // Define associations
-Professional.belongsTo(Category, { 
-  foreignKey: 'categoryId', 
-  as: 'category' 
-});
-Category.hasMany(Professional, { 
-  foreignKey: 'categoryId', 
-  as: 'professionals' 
+DirectoryEntry.hasMany(Claim, {
+  foreignKey: 'directoryEntryId',
+  as: 'claims',
 });
 
-Professional.belongsTo(City, { 
-  foreignKey: 'cityId', 
-  as: 'city' 
-});
-City.hasMany(Professional, { 
-  foreignKey: 'cityId', 
-  as: 'professionals' 
+Claim.belongsTo(DirectoryEntry, {
+  foreignKey: 'directoryEntryId',
+  as: 'directoryEntry',
 });
 
-Professional.hasMany(Review, { 
-  foreignKey: 'professionalId', 
-  as: 'reviews' 
-});
-Review.belongsTo(Professional, { 
-  foreignKey: 'professionalId', 
-  as: 'professional' 
+DirectoryEntry.hasMany(Lead, {
+  foreignKey: 'professionalId',
+  as: 'leads',
 });
 
-Professional.hasMany(Lead, { 
-  foreignKey: 'professionalId', 
-  as: 'leads' 
+Lead.belongsTo(DirectoryEntry, {
+  foreignKey: 'professionalId',
+  as: 'professional',
 });
-Lead.belongsTo(Professional, { 
-  foreignKey: 'professionalId', 
-  as: 'professional' 
+
+DirectoryEntry.hasMany(Review, {
+  foreignKey: 'professionalId',
+  as: 'reviews',
 });
+
+Review.belongsTo(DirectoryEntry, {
+  foreignKey: 'professionalId',
+  as: 'professional',
+});
+
+// Professional is an alias for DirectoryEntry for semantic clarity
+export const Professional = DirectoryEntry;
 
 export {
   sequelize,
+  DirectoryEntry,
+  Claim,
   Category,
   City,
-  Professional,
-  ListingType,
-  Review,
   Lead,
   LeadStatus,
+  Review,
 };
 
 export default {
   sequelize,
+  DirectoryEntry,
+  Claim,
   Category,
   City,
-  Professional,
-  Review,
   Lead,
+  LeadStatus,
+  Review,
+  Professional: DirectoryEntry,
 };

@@ -6,20 +6,18 @@ interface CategoryAttributes {
   name: string;
   slug: string;
   description?: string;
-  icon?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
 interface CategoryCreationAttributes extends Optional<CategoryAttributes, 'id'> {}
 
-class Category extends Model<CategoryAttributes, CategoryCreationAttributes> 
+class Category extends Model<CategoryAttributes, CategoryCreationAttributes>
   implements CategoryAttributes {
   public id!: number;
   public name!: string;
   public slug!: string;
   public description?: string;
-  public icon?: string;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }
@@ -27,7 +25,7 @@ class Category extends Model<CategoryAttributes, CategoryCreationAttributes>
 Category.init(
   {
     id: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },
@@ -44,20 +42,13 @@ Category.init(
       type: DataTypes.TEXT,
       allowNull: true,
     },
-    icon: {
-      type: DataTypes.STRING(100),
-      allowNull: true,
-    },
   },
   {
     tableName: 'categories',
     sequelize,
     timestamps: true,
     indexes: [
-      {
-        unique: true,
-        fields: ['slug'],
-      },
+      { fields: ['slug'] },
     ],
   }
 );

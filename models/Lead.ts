@@ -1,13 +1,13 @@
 import { DataTypes, Model, Optional } from 'sequelize';
 import sequelize from '../lib/db';
-import Professional from './Professional';
 
-export enum LeadStatus {
-  NEW = 'new',
-  CONTACTED = 'contacted',
-  CONVERTED = 'converted',
-  CLOSED = 'closed',
-}
+export type LeadStatus = 'new' | 'contacted' | 'closed';
+
+export const LeadStatus = {
+  NEW: 'new' as LeadStatus,
+  CONTACTED: 'contacted' as LeadStatus,
+  CLOSED: 'closed' as LeadStatus,
+};
 
 interface LeadAttributes {
   id: number;
@@ -22,7 +22,7 @@ interface LeadAttributes {
 
 interface LeadCreationAttributes extends Optional<LeadAttributes, 'id'> {}
 
-class Lead extends Model<LeadAttributes, LeadCreationAttributes> 
+class Lead extends Model<LeadAttributes, LeadCreationAttributes>
   implements LeadAttributes {
   public id!: number;
   public professionalId!: number;
@@ -37,38 +37,34 @@ class Lead extends Model<LeadAttributes, LeadCreationAttributes>
 Lead.init(
   {
     id: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },
     professionalId: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: Professional,
+        model: 'directory_entries',
         key: 'id',
       },
       onDelete: 'CASCADE',
-      onUpdate: 'CASCADE',
     },
     requesterName: {
-      type: DataTypes.STRING(100),
+      type: DataTypes.STRING(255),
       allowNull: false,
     },
     requesterEmail: {
       type: DataTypes.STRING(255),
       allowNull: false,
-      validate: {
-        isEmail: true,
-      },
     },
     message: {
       type: DataTypes.TEXT,
       allowNull: false,
     },
     status: {
-      type: DataTypes.ENUM(...Object.values(LeadStatus)),
-      defaultValue: LeadStatus.NEW,
+      type: DataTypes.ENUM('new', 'contacted', 'closed'),
+      defaultValue: 'new',
       allowNull: false,
     },
   },
@@ -76,14 +72,6 @@ Lead.init(
     tableName: 'leads',
     sequelize,
     timestamps: true,
-    indexes: [
-      {
-        fields: ['professionalId'],
-      },
-      {
-        fields: ['status'],
-      },
-    ],
   }
 );
 

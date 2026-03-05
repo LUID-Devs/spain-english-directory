@@ -1,13 +1,12 @@
 import { DataTypes, Model, Optional } from 'sequelize';
 import sequelize from '../lib/db';
-import Professional from './Professional';
 
 interface ReviewAttributes {
   id: number;
   professionalId: number;
+  reviewerName: string;
   rating: number;
   comment?: string;
-  reviewerName: string;
   isVerified: boolean;
   createdAt?: Date;
   updatedAt?: Date;
@@ -15,13 +14,13 @@ interface ReviewAttributes {
 
 interface ReviewCreationAttributes extends Optional<ReviewAttributes, 'id'> {}
 
-class Review extends Model<ReviewAttributes, ReviewCreationAttributes> 
+class Review extends Model<ReviewAttributes, ReviewCreationAttributes>
   implements ReviewAttributes {
   public id!: number;
   public professionalId!: number;
+  public reviewerName!: string;
   public rating!: number;
   public comment?: string;
-  public reviewerName!: string;
   public isVerified!: boolean;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -30,19 +29,22 @@ class Review extends Model<ReviewAttributes, ReviewCreationAttributes>
 Review.init(
   {
     id: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },
     professionalId: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: Professional,
+        model: 'directory_entries',
         key: 'id',
       },
       onDelete: 'CASCADE',
-      onUpdate: 'CASCADE',
+    },
+    reviewerName: {
+      type: DataTypes.STRING(255),
+      allowNull: false,
     },
     rating: {
       type: DataTypes.INTEGER,
@@ -56,10 +58,6 @@ Review.init(
       type: DataTypes.TEXT,
       allowNull: true,
     },
-    reviewerName: {
-      type: DataTypes.STRING(100),
-      allowNull: false,
-    },
     isVerified: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
@@ -71,12 +69,7 @@ Review.init(
     sequelize,
     timestamps: true,
     indexes: [
-      {
-        fields: ['professionalId'],
-      },
-      {
-        fields: ['rating'],
-      },
+      { fields: ['professionalId'] },
     ],
   }
 );
