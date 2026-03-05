@@ -4,5 +4,3 @@ export { default as ListingCard } from './ListingCard';
 export { default as ProfessionalList } from './ProfessionalList';
 export { default as Pagination } from './Pagination';
 export { default as FAQSection } from './FAQSection';
-export { default as ClaimButton } from './ClaimButton';
-export { default as ClaimModal } from './ClaimModal';
