@@ -5,6 +5,7 @@ import Category from './Category';
 import City from './City';
 import Lead, { LeadStatus } from './Lead';
 import Review from './Review';
+import Professional, { ListingType } from './Professional';
 
 // Define associations
 DirectoryEntry.hasMany(Claim, {
@@ -37,9 +38,6 @@ Review.belongsTo(DirectoryEntry, {
   as: 'professional',
 });
 
-// Professional is an alias for DirectoryEntry for semantic clarity
-export const Professional = DirectoryEntry;
-
 export {
   sequelize,
   DirectoryEntry,
@@ -49,6 +47,8 @@ export {
   Lead,
   LeadStatus,
   Review,
+  Professional,
+  ListingType,
 };
 
 export default {
@@ -60,5 +60,6 @@ export default {
   Lead,
   LeadStatus,
   Review,
-  Professional: DirectoryEntry,
+  Professional,
+  ListingType,
 };

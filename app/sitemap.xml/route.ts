@@ -1,17 +1,11 @@
 import { MetadataRoute } from 'next';
-import { Category, City, DirectoryEntry } from '@/models';
+import { cities } from '@/lib/data/cities';
+import { categories } from '@/lib/data/categories';
 
 const BASE_URL = 'https://spainenglishdirectory.com';
 
 export async function GET(): Promise<Response> {
   try {
-    // Fetch all cities and categories
-    const [cities, categories, entries] = await Promise.all([
-      City.findAll({ attributes: ['slug', 'updatedAt'] }),
-      Category.findAll({ attributes: ['slug', 'updatedAt'] }),
-      DirectoryEntry.findAll({ attributes: ['id', 'updatedAt'] }),
-    ]);
-
     const sitemapEntries: MetadataRoute.Sitemap = [];
 
     // Home page
@@ -22,21 +16,21 @@ export async function GET(): Promise<Response> {
       priority: 1.0,
     });
 
-    // City pages (when they exist)
+    // City pages
     for (const city of cities) {
       sitemapEntries.push({
         url: `${BASE_URL}/${city.slug}`,
-        lastModified: city.updatedAt || new Date(),
+        lastModified: new Date(),
         changeFrequency: 'weekly',
         priority: 0.8,
       });
     }
 
-    // Category pages (when they exist)
+    // Category pages
     for (const category of categories) {
       sitemapEntries.push({
         url: `${BASE_URL}/categories/${category.slug}`,
-        lastModified: category.updatedAt || new Date(),
+        lastModified: new Date(),
         changeFrequency: 'weekly',
         priority: 0.8,
       });
@@ -52,16 +46,6 @@ export async function GET(): Promise<Response> {
           priority: 0.9,
         });
       }
-    }
-
-    // Individual entry pages
-    for (const entry of entries) {
-      sitemapEntries.push({
-        url: `${BASE_URL}/professionals/${entry.id}`,
-        lastModified: entry.updatedAt || new Date(),
-        changeFrequency: 'monthly',
-        priority: 0.6,
-      });
     }
 
     // Generate XML
@@ -93,7 +77,7 @@ export async function GET(): Promise<Response> {
 function generateSitemapXml(entries: MetadataRoute.Sitemap): string {
   const urlEntries = entries
     .map((entry) => {
-      const url = escapeXml(entry.url);
+      const url = escapeXml(entry.url!);
       const lastMod = entry.lastModified 
         ? new Date(entry.lastModified).toISOString()
         : new Date().toISOString();
