@@ -1,5 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Professional, Claim } from '@/models';
+import { DirectoryEntry, Claim } from '@/models';
+
+// Generate a random verification code
+function generateVerificationCode(length = 8): string {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let code = '';
+  for (let i = 0; i < length; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+}
 
 interface ClaimRequest {
   professionalId: number;
@@ -84,7 +94,7 @@ export async function POST(request: NextRequest) {
     const { professionalId, claimantName, claimantEmail, claimantPhone, relationship, message } = body as ClaimRequest;
     
     // Check if professional exists
-    const professional = await Professional.findByPk(professionalId);
+    const professional = await DirectoryEntry.findByPk(professionalId);
     if (!professional) {
       return NextResponse.json(
         {
@@ -96,6 +106,10 @@ export async function POST(request: NextRequest) {
       );
     }
     
+    // Generate verification code and expiration (24 hours from now)
+    const verificationCode = generateVerificationCode(8);
+    const verificationCodeExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
     // Store claim request in database
     const claim = await Claim.create({
       directoryEntryId: professionalId,
@@ -104,8 +118,8 @@ export async function POST(request: NextRequest) {
       claimantPhone,
       relationship,
       notes: message || null,
-      verificationCode: '',
-      verificationCodeExpiresAt: new Date(),
+      verificationCode,
+      verificationCodeExpiresAt,
       status: 'pending',
       isVerified: false,
     });
