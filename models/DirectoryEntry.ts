@@ -134,7 +134,6 @@ DirectoryEntry.init(
       { fields: ['category'] },
       { fields: ['isFeatured'] },
       { fields: ['isVerified'] },
-      { fields: ['name', 'description'] },
     ],
   }
 );
