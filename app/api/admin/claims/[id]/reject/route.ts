@@ -1,38 +1,90 @@
-import { NextResponse } from 'next/server';
-import { initDb, Claim } from '@/lib/initDb';
+import { NextRequest, NextResponse } from 'next/server';
+import { Claim, DirectoryEntry } from '@/models';
+import { sendClaimRejectedNotification } from '@/lib/email';
 
 export async function POST(
-  _request: Request,
-  context: { params: Promise<{ id: string }> }
-): Promise<NextResponse> {
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    await initDb();
+    const { id } = await params;
+    const claimId = parseInt(id);
 
-    const { id } = await context.params;
-    const claimId = Number(id);
-
-    if (!claimId) {
+    if (isNaN(claimId)) {
       return NextResponse.json(
-        { success: false, error: 'Invalid claim id.' },
+        { error: 'Invalid claim ID' },
         { status: 400 }
       );
     }
 
-    const claim = await Claim.findByPk(claimId);
+    const claim = await Claim.findByPk(claimId, {
+      include: [{
+        model: DirectoryEntry,
+        as: 'directoryEntry',
+      }],
+    });
+
     if (!claim) {
       return NextResponse.json(
-        { success: false, error: 'Claim not found.' },
+        { error: 'Claim not found' },
         { status: 404 }
       );
     }
 
-    await claim.update({ status: 'rejected' });
+    if (claim.status === 'rejected') {
+      return NextResponse.json(
+        { error: 'Claim is already rejected' },
+        { status: 400 }
+      );
+    }
 
-    return NextResponse.json({ success: true });
+    if (claim.status === 'approved') {
+      return NextResponse.json(
+        { error: 'Cannot reject an already approved claim' },
+        { status: 400 }
+      );
+    }
+
+    const body = await request.json();
+    const { adminId, reason, notes } = body;
+
+    if (!reason) {
+      return NextResponse.json(
+        { error: 'Rejection reason is required' },
+        { status: 400 }
+      );
+    }
+
+    await claim.update({
+      status: 'rejected',
+      rejectionReason: reason,
+      reviewedBy: adminId || null,
+      reviewedAt: new Date(),
+      notes: notes ? `${claim.notes || ''}\n[Admin Notes]: ${notes}` : claim.notes,
+    });
+
+    const entry = claim.directoryEntry;
+    await sendClaimRejectedNotification(
+      claim.claimantEmail,
+      entry?.name || 'your listing',
+      reason
+    );
+
+    return NextResponse.json({
+      success: true,
+      message: 'Claim rejected successfully',
+      claim: {
+        id: claim.id,
+        status: 'rejected',
+        reviewedAt: claim.reviewedAt,
+        rejectionReason: reason,
+      },
+    });
+
   } catch (error) {
-    console.error('Failed to reject claim:', error);
+    console.error('Error rejecting claim:', error);
     return NextResponse.json(
-      { success: false, error: 'Unable to reject claim.' },
+      { error: 'Failed to reject claim' },
       { status: 500 }
     );
   }

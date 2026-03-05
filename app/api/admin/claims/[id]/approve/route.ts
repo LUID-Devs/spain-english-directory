@@ -1,59 +1,87 @@
-import { NextResponse } from 'next/server';
-import { initDb, Claim, DirectoryEntry, sequelize } from '@/lib/initDb';
+import { NextRequest, NextResponse } from 'next/server';
+import { Claim, DirectoryEntry } from '@/models';
+import { sendClaimApprovedNotification } from '@/lib/email';
 
 export async function POST(
-  _request: Request,
-  context: { params: Promise<{ id: string }> }
-): Promise<NextResponse> {
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    await initDb();
+    const { id } = await params;
+    const claimId = parseInt(id);
 
-    const { id } = await context.params;
-    const claimId = Number(id);
-
-    if (!claimId) {
+    if (isNaN(claimId)) {
       return NextResponse.json(
-        { success: false, error: 'Invalid claim id.' },
+        { error: 'Invalid claim ID' },
         { status: 400 }
       );
     }
 
-    const claim = await Claim.findByPk(claimId);
+    const claim = await Claim.findByPk(claimId, {
+      include: [{
+        model: DirectoryEntry,
+        as: 'directoryEntry',
+      }],
+    });
+
     if (!claim) {
       return NextResponse.json(
-        { success: false, error: 'Claim not found.' },
+        { error: 'Claim not found' },
         { status: 404 }
       );
     }
 
-    if (claim.status !== 'verified' && claim.status !== 'approved') {
+    if (claim.status === 'approved') {
       return NextResponse.json(
-        { success: false, error: 'Claim must be verified before approval.' },
-        { status: 409 }
+        { error: 'Claim is already approved' },
+        { status: 400 }
       );
     }
 
-    await sequelize.transaction(async (transaction) => {
-      await claim.update({ status: 'approved' }, { transaction });
-
-      await DirectoryEntry.update(
-        {
-          claimedBy: claim.id,
-          claimedAt: new Date(),
-          isVerified: true,
-        },
-        {
-          where: { id: claim.directoryEntryId },
-          transaction,
-        }
+    if (!claim.isVerified) {
+      return NextResponse.json(
+        { error: 'Cannot approve unverified claim' },
+        { status: 400 }
       );
+    }
+
+    const body = await request.json();
+    const { adminId, notes } = body;
+
+    await claim.update({
+      status: 'approved',
+      reviewedBy: adminId || null,
+      reviewedAt: new Date(),
+      notes: notes ? `${claim.notes || ''}\n[Admin Notes]: ${notes}` : claim.notes,
     });
 
-    return NextResponse.json({ success: true });
+    const entry = claim.directoryEntry;
+    if (entry) {
+      await entry.update({
+        isClaimed: true,
+        claimedBy: claim.claimantEmail,
+        claimedAt: new Date(),
+        ...(claim.claimantPhone && !entry.phone ? { phone: claim.claimantPhone } : {}),
+        ...(claim.claimantEmail && !entry.email ? { email: claim.claimantEmail } : {}),
+      });
+    }
+
+    await sendClaimApprovedNotification(claim.claimantEmail, entry?.name || 'your listing');
+
+    return NextResponse.json({
+      success: true,
+      message: 'Claim approved successfully',
+      claim: {
+        id: claim.id,
+        status: 'approved',
+        reviewedAt: claim.reviewedAt,
+      },
+    });
+
   } catch (error) {
-    console.error('Failed to approve claim:', error);
+    console.error('Error approving claim:', error);
     return NextResponse.json(
-      { success: false, error: 'Unable to approve claim.' },
+      { error: 'Failed to approve claim' },
       { status: 500 }
     );
   }

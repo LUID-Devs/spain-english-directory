@@ -1,32 +1,20 @@
-import { NextResponse } from 'next/server';
-import { initDb, Claim, DirectoryEntry } from '@/lib/initDb';
-
-interface CreateClaimBody {
-  directoryEntryId?: number;
-  name?: string;
-  email?: string;
-  phone?: string;
-  documentUrl?: string;
-}
+import { NextRequest, NextResponse } from 'next/server';
+import { Claim, DirectoryEntry } from '@/models';
+import { sendVerificationCode } from '@/lib/email';
+import crypto from 'crypto';
 
 function generateVerificationCode(): string {
-  return Math.floor(100000 + Math.random() * 900000).toString();
+  return crypto.randomInt(100000, 999999).toString();
 }
 
-export async function POST(request: Request): Promise<NextResponse> {
+export async function POST(request: NextRequest) {
   try {
-    await initDb();
+    const body = await request.json();
+    const { directoryEntryId, claimantName, claimantEmail, claimantPhone, documentUrl } = body;
 
-    const body = (await request.json()) as CreateClaimBody;
-    const directoryEntryId = Number(body.directoryEntryId);
-    const name = body.name?.trim();
-    const email = body.email?.trim().toLowerCase();
-    const phone = body.phone?.trim();
-    const documentUrl = body.documentUrl?.trim() || null;
-
-    if (!directoryEntryId || !name || !email || !phone) {
+    if (!directoryEntryId || !claimantName || !claimantEmail) {
       return NextResponse.json(
-        { success: false, error: 'Missing required fields.' },
+        { error: 'Missing required fields: directoryEntryId, claimantName, claimantEmail' },
         { status: 400 }
       );
     }
@@ -34,33 +22,94 @@ export async function POST(request: Request): Promise<NextResponse> {
     const entry = await DirectoryEntry.findByPk(directoryEntryId);
     if (!entry) {
       return NextResponse.json(
-        { success: false, error: 'Directory entry not found.' },
+        { error: 'Directory entry not found' },
         { status: 404 }
       );
     }
 
-    if (entry.isVerified) {
+    if (entry.isClaimed) {
       return NextResponse.json(
-        { success: false, error: 'This listing has already been claimed.' },
+        { error: 'This listing has already been claimed' },
         { status: 409 }
       );
     }
 
-    const claim = await Claim.create({
-      directoryEntryId,
-      name,
-      email,
-      phone,
-      documentUrl,
-      verificationCode: generateVerificationCode(),
-      status: 'pending',
+    const existingClaim = await Claim.findOne({
+      where: {
+        directoryEntryId,
+        claimantEmail: claimantEmail.toLowerCase().trim(),
+        status: ['pending', 'verified'],
+      },
     });
 
-    return NextResponse.json({ success: true, claimId: claim.id });
+    if (existingClaim) {
+      return NextResponse.json(
+        { error: 'You already have a pending claim for this listing' },
+        { status: 409 }
+      );
+    }
+
+    const verificationCode = generateVerificationCode();
+    const verificationCodeExpiresAt = new Date(Date.now() + 30 * 60 * 1000);
+
+    const claim = await Claim.create({
+      directoryEntryId,
+      claimantName,
+      claimantEmail: claimantEmail.toLowerCase().trim(),
+      claimantPhone,
+      documentUrl,
+      verificationCode,
+      verificationCodeExpiresAt,
+      status: 'pending',
+      isVerified: false,
+    });
+
+    const emailSent = await sendVerificationCode(claimantEmail, verificationCode, entry.name);
+
+    return NextResponse.json({
+      success: true,
+      claimId: claim.id,
+      message: 'Claim created successfully. Please check your email for verification code.',
+      emailSent,
+    }, { status: 201 });
+
   } catch (error) {
-    console.error('Failed to create claim:', error);
+    console.error('Error creating claim:', error);
     return NextResponse.json(
-      { success: false, error: 'Unable to create claim.' },
+      { error: 'Failed to create claim' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const email = searchParams.get('email');
+
+    if (!email) {
+      return NextResponse.json(
+        { error: 'Email parameter is required' },
+        { status: 400 }
+      );
+    }
+
+    const claims = await Claim.findAll({
+      where: { claimantEmail: email.toLowerCase().trim() },
+      include: [{
+        model: DirectoryEntry,
+        as: 'directoryEntry',
+        attributes: ['id', 'name', 'category', 'city'],
+      }],
+      order: [['createdAt', 'DESC']],
+    });
+
+    return NextResponse.json({ claims });
+
+  } catch (error) {
+    console.error('Error fetching claims:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch claims' },
       { status: 500 }
     );
   }

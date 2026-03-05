@@ -13,9 +13,12 @@ interface DirectoryEntryAttributes {
   email?: string;
   website?: string;
   speaksEnglish: boolean;
-  claimedBy?: number | null;
-  claimedAt?: Date | null;
+  isFeatured: boolean;
   isVerified: boolean;
+  isClaimed: boolean;
+  claimedBy?: string;
+  claimedAt?: Date;
+  ownerUserId?: number;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -35,9 +38,12 @@ class DirectoryEntry extends Model<DirectoryEntryAttributes, DirectoryEntryCreat
   public email?: string;
   public website?: string;
   public speaksEnglish!: boolean;
-  public claimedBy?: number | null;
-  public claimedAt?: Date | null;
+  public isFeatured!: boolean;
   public isVerified!: boolean;
+  public isClaimed!: boolean;
+  public claimedBy?: string;
+  public claimedAt?: Date;
+  public ownerUserId?: number;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }
@@ -45,7 +51,7 @@ class DirectoryEntry extends Model<DirectoryEntryAttributes, DirectoryEntryCreat
 DirectoryEntry.init(
   {
     id: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },
@@ -90,17 +96,10 @@ DirectoryEntry.init(
       defaultValue: true,
       allowNull: false,
     },
-    claimedBy: {
-      type: DataTypes.INTEGER.UNSIGNED,
-      allowNull: true,
-      references: {
-        model: 'claims',
-        key: 'id',
-      },
-    },
-    claimedAt: {
-      type: DataTypes.DATE,
-      allowNull: true,
+    isFeatured: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: false,
     },
     isVerified: {
       type: DataTypes.BOOLEAN,
@@ -129,6 +128,14 @@ DirectoryEntry.init(
     tableName: 'directory_entries',
     sequelize,
     timestamps: true,
+    indexes: [
+      { fields: ['name'] },
+      { fields: ['city'] },
+      { fields: ['category'] },
+      { fields: ['isFeatured'] },
+      { fields: ['isVerified'] },
+      { fields: ['name', 'description'] },
+    ],
   }
 );
 

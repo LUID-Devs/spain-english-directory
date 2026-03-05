@@ -1,22 +1,14 @@
-import { NextResponse } from 'next/server';
-import { initDb, Claim } from '@/lib/initDb';
+import { NextRequest, NextResponse } from 'next/server';
+import { Claim } from '@/models';
 
-interface VerifyClaimBody {
-  claimId?: number;
-  code?: string;
-}
-
-export async function POST(request: Request): Promise<NextResponse> {
+export async function POST(request: NextRequest) {
   try {
-    await initDb();
-
-    const body = (await request.json()) as VerifyClaimBody;
-    const claimId = Number(body.claimId);
-    const code = body.code?.trim();
+    const body = await request.json();
+    const { claimId, code } = body;
 
     if (!claimId || !code) {
       return NextResponse.json(
-        { success: false, error: 'Claim ID and code are required.' },
+        { error: 'Missing required fields: claimId, code' },
         { status: 400 }
       );
     }
@@ -24,35 +16,113 @@ export async function POST(request: Request): Promise<NextResponse> {
     const claim = await Claim.findByPk(claimId);
     if (!claim) {
       return NextResponse.json(
-        { success: false, error: 'Claim not found.' },
+        { error: 'Claim not found' },
         { status: 404 }
       );
     }
 
-    if (claim.verificationCode !== code) {
+    if (claim.isVerified) {
+      return NextResponse.json({
+        success: true,
+        message: 'Email already verified',
+        claim: {
+          id: claim.id,
+          status: claim.status,
+        },
+      });
+    }
+
+    if (new Date() > claim.verificationCodeExpiresAt) {
       return NextResponse.json(
-        { success: false, error: 'Invalid verification code.' },
+        { error: 'Verification code has expired' },
+        { status: 410 }
+      );
+    }
+
+    if (claim.verificationCode !== code.trim()) {
+      return NextResponse.json(
+        { error: 'Invalid verification code' },
         { status: 400 }
       );
     }
 
-    if (claim.status === 'rejected') {
+    await claim.update({
+      isVerified: true,
+      verifiedAt: new Date(),
+      status: 'verified',
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: 'Email verified successfully. Your claim is now pending admin review.',
+      claim: {
+        id: claim.id,
+        status: 'verified',
+      },
+    });
+
+  } catch (error) {
+    console.error('Error verifying claim:', error);
+    return NextResponse.json(
+      { error: 'Failed to verify claim' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PATCH(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { claimId } = body;
+
+    if (!claimId) {
       return NextResponse.json(
-        { success: false, error: 'This claim has been rejected.' },
-        { status: 409 }
+        { error: 'Missing required field: claimId' },
+        { status: 400 }
       );
     }
 
-    if (claim.status !== 'approved') {
-      claim.status = 'verified';
-      await claim.save();
+    const claim = await Claim.findByPk(claimId);
+    if (!claim) {
+      return NextResponse.json(
+        { error: 'Claim not found' },
+        { status: 404 }
+      );
     }
 
-    return NextResponse.json({ success: true });
+    if (claim.isVerified) {
+      return NextResponse.json(
+        { error: 'Email already verified' },
+        { status: 400 }
+      );
+    }
+
+    const { sendVerificationCode } = await import('@/lib/email');
+    const { default: DirectoryEntry } = await import('@/models/DirectoryEntry');
+    const crypto = await import('crypto');
+
+    const newCode = crypto.randomInt(100000, 999999).toString();
+    const newExpiry = new Date(Date.now() + 30 * 60 * 1000);
+
+    await claim.update({
+      verificationCode: newCode,
+      verificationCodeExpiresAt: newExpiry,
+    });
+
+    const entry = await DirectoryEntry.findByPk(claim.directoryEntryId);
+    if (entry) {
+      await sendVerificationCode(claim.claimantEmail, newCode, entry.name);
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: 'New verification code sent',
+    });
+
   } catch (error) {
-    console.error('Failed to verify claim:', error);
+    console.error('Error resending verification code:', error);
     return NextResponse.json(
-      { success: false, error: 'Unable to verify claim.' },
+      { error: 'Failed to resend verification code' },
       { status: 500 }
     );
   }
