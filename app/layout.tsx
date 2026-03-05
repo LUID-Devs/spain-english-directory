@@ -13,8 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Spain English Directory",
-  description: "Directory of English-speaking services in Spain",
+  title: "España English Directory | Find English-Speaking Services in Spain",
+  description: "Connect with trusted English-speaking doctors, lawyers, and professionals across Spain. The comprehensive directory for expats and English speakers.",
+  keywords: ["English speaking services Spain", "expat services Spain", "English speaking doctors Madrid", "English lawyers Barcelona", "expat directory"],
 };
 
 export default function RootLayout({
@@ -25,7 +26,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased font-sans`}
       >
         {children}
       </body>
