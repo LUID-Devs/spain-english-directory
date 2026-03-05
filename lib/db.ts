@@ -27,4 +27,4 @@ function getSequelize(): Sequelize {
 }
 
 export { getSequelize };
-export default getSequelize;
+export default getSequelize();
