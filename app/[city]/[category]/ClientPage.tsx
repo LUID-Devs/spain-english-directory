@@ -4,7 +4,7 @@ import { useState, useCallback, useTransition, useEffect } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import Breadcrumb from '@/components/Breadcrumb';
 import FilterSidebar from '@/components/FilterSidebar';
-import ListingCard from '@/components/ListingCard';
+import ProfessionalList from '@/components/ProfessionalList';
 import Pagination from '@/components/Pagination';
 import FAQSection from '@/components/FAQSection';
 import { DirectoryListing, getListings } from '@/lib/data/listings';
@@ -179,11 +179,12 @@ export default function ClientPage({
               </p>
             </div>
 
-            <div className="grid gap-6">
-              {listings.map((listing) => (
-                <ListingCard key={listing.id} listing={listing} />
-              ))}
-            </div>
+            <ProfessionalList 
+              listings={listings}
+              total={total}
+              cityName={city.name}
+              categoryName={category.name}
+            />
 
             <Pagination
               currentPage={currentPage}
