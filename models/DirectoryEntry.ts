@@ -1,6 +1,8 @@
 import { DataTypes, Model, Optional } from 'sequelize';
 import sequelize from '../lib/db';
 
+export type ClaimStatus = 'unclaimed' | 'pending' | 'verified' | 'approved' | 'rejected';
+
 interface DirectoryEntryAttributes {
   id: number;
   name: string;
@@ -13,6 +15,15 @@ interface DirectoryEntryAttributes {
   email?: string;
   website?: string;
   speaksEnglish: boolean;
+  claimStatus: ClaimStatus;
+  claimedBy?: string;
+  claimEmail?: string;
+  claimPhone?: string;
+  claimVerificationCode?: string;
+  claimVerificationExpiry?: Date;
+  claimRequestedAt?: Date;
+  claimApprovedAt?: Date;
+  claimApprovedBy?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -32,6 +43,15 @@ class DirectoryEntry extends Model<DirectoryEntryAttributes, DirectoryEntryCreat
   public email?: string;
   public website?: string;
   public speaksEnglish!: boolean;
+  public claimStatus!: ClaimStatus;
+  public claimedBy?: string;
+  public claimEmail?: string;
+  public claimPhone?: string;
+  public claimVerificationCode?: string;
+  public claimVerificationExpiry?: Date;
+  public claimRequestedAt?: Date;
+  public claimApprovedAt?: Date;
+  public claimApprovedBy?: string;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }
@@ -83,6 +103,43 @@ DirectoryEntry.init(
       type: DataTypes.BOOLEAN,
       defaultValue: true,
       allowNull: false,
+    },
+    claimStatus: {
+      type: DataTypes.ENUM('unclaimed', 'pending', 'verified', 'approved', 'rejected'),
+      defaultValue: 'unclaimed',
+      allowNull: false,
+    },
+    claimedBy: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
+    claimEmail: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
+    claimPhone: {
+      type: DataTypes.STRING(50),
+      allowNull: true,
+    },
+    claimVerificationCode: {
+      type: DataTypes.STRING(10),
+      allowNull: true,
+    },
+    claimVerificationExpiry: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    claimRequestedAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    claimApprovedAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    claimApprovedBy: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
     },
   },
   {

@@ -120,7 +120,7 @@ export default function ListingCard({ listing }: ListingCardProps) {
           )}
         </div>
 
-        <div className="mt-4 pt-4 border-t border-gray-100">
+        <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
           <Link
             href={`/listing/${listing.id}`}
             className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 font-medium text-sm"
@@ -129,6 +129,16 @@ export default function ListingCard({ listing }: ListingCardProps) {
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
+          </Link>
+          
+          <Link
+            href={`/listing/${listing.id}`}
+            className="inline-flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-primary transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            Claim Listing
           </Link>
         </div>
       </article>

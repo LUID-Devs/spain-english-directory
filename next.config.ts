@@ -14,6 +14,19 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  // Handle Sequelize dynamic imports
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+        pg: false,
+      };
+    }
+    return config;
+  },
 };
 
 export default nextConfig;
