@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,8 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Spain English Directory",
-  description: "Directory of English-speaking services in Spain",
+  title: "España English Directory | Find English-Speaking Services in Spain",
+  description: "Connect with trusted English-speaking doctors, lawyers, and professionals across Spain. The comprehensive directory for expats and English speakers.",
+  keywords: ["English speaking services Spain", "expat services Spain", "English speaking doctors Madrid", "English lawyers Barcelona", "expat directory"],
 };
 
 export default function RootLayout({
@@ -27,11 +26,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased font-sans`}
       >
-        <Header />
-        <main className="flex-1">{children}</main>
-        <Footer />
+        {children}
       </body>
     </html>
   );

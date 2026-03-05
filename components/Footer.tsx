@@ -1,66 +1,104 @@
-import Link from 'next/link';
-import { Mail, MapPin } from 'lucide-react';
+import Link from "next/link";
 
 export default function Footer() {
+  const currentYear = new Date().getFullYear();
+
   return (
-    <footer className="bg-gray-900 text-gray-300">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Brand */}
-          <div>
-            <Link href="/" className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-spain-red rounded-md flex items-center justify-center">
-                <span className="text-white font-bold text-sm">ES</span>
-              </div>
-              <span className="font-bold text-xl text-white">
-                Spain<span className="text-spain-red">English</span>
-              </span>
+    <footer className="w-full border-t border-border bg-muted">
+      <div className="container mx-auto px-4 py-12 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
+          <div className="space-y-4">
+            <Link href="/" className="flex items-center gap-2">
+              <span className="text-xl font-bold text-primary">España</span>
+              <span className="text-base font-medium text-foreground">English</span>
             </Link>
-            <p className="text-sm text-gray-400">
-              Connecting expats with English-speaking professionals across Spain.
+            <p className="text-sm text-muted-foreground">
+              Connecting English speakers with trusted services across Spain.
             </p>
           </div>
-
-          {/* Quick Links */}
           <div>
-            <h3 className="text-white font-semibold mb-4">Quick Links</h3>
-            <ul className="space-y-2">
+            <h3 className="text-sm font-semibold text-foreground mb-4">Categories</h3>
+            <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/search" className="hover:text-spain-red transition-colors">
-                  Find Professionals
+                <Link href="/search?category=Healthcare" className="text-muted-foreground hover:text-primary transition-colors">
+                  Healthcare
                 </Link>
               </li>
               <li>
-                <Link href="/#categories" className="hover:text-spain-red transition-colors">
-                  Categories
+                <Link href="/search?category=Legal" className="text-muted-foreground hover:text-primary transition-colors">
+                  Legal Services
                 </Link>
               </li>
               <li>
-                <Link href="/#how-it-works" className="hover:text-spain-red transition-colors">
-                  How It Works
+                <Link href="/search?category=Living" className="text-muted-foreground hover:text-primary transition-colors">
+                  Living & Home
+                </Link>
+              </li>
+              <li>
+                <Link href="/search?category=Business" className="text-muted-foreground hover:text-primary transition-colors">
+                  Business
                 </Link>
               </li>
             </ul>
           </div>
-
-          {/* Contact */}
           <div>
-            <h3 className="text-white font-semibold mb-4">Contact</h3>
-            <ul className="space-y-2">
-              <li className="flex items-center gap-2">
-                <Mail size={16} className="text-spain-red" />
-                <span>hello@spainenglish.directory</span>
+            <h3 className="text-sm font-semibold text-foreground mb-4">Cities</h3>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <Link href="/search?city=Madrid" className="text-muted-foreground hover:text-primary transition-colors">
+                  Madrid
+                </Link>
               </li>
-              <li className="flex items-center gap-2">
-                <MapPin size={16} className="text-spain-red" />
-                <span>Spain</span>
+              <li>
+                <Link href="/search?city=Barcelona" className="text-muted-foreground hover:text-primary transition-colors">
+                  Barcelona
+                </Link>
+              </li>
+              <li>
+                <Link href="/search?city=Valencia" className="text-muted-foreground hover:text-primary transition-colors">
+                  Valencia
+                </Link>
+              </li>
+              <li>
+                <Link href="/search?city=Málaga" className="text-muted-foreground hover:text-primary transition-colors">
+                  Málaga
+                </Link>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold text-foreground mb-4">About</h3>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                  About Us
+                </Link>
+              </li>
+              <li>
+                <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                  Add Listing
+                </Link>
+              </li>
+              <li>
+                <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                  Contact
+                </Link>
               </li>
             </ul>
           </div>
         </div>
-
-        <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
-          <p>&copy; {new Date().getFullYear()} Spain English Directory. All rights reserved.</p>
+        <div className="mt-8 border-t border-border pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+          <p className="text-sm text-muted-foreground">
+            © {currentYear} España English Directory. All rights reserved.
+          </p>
+          <div className="flex gap-4">
+            <Link href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+              Privacy
+            </Link>
+            <Link href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+              Terms
+            </Link>
+          </div>
         </div>
       </div>
     </footer>

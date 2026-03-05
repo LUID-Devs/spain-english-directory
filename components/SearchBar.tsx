@@ -1,68 +1,47 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Search } from 'lucide-react';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 interface SearchBarProps {
-  variant?: 'hero' | 'compact';
   initialQuery?: string;
-  initialCity?: string;
+  large?: boolean;
 }
 
-export default function SearchBar({ variant = 'hero', initialQuery = '', initialCity = '' }: SearchBarProps) {
-  const router = useRouter();
+export default function SearchBar({ initialQuery = "", large = false }: SearchBarProps) {
   const [query, setQuery] = useState(initialQuery);
-  const [city, setCity] = useState(initialCity);
+  const router = useRouter();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const params = new URLSearchParams();
-    if (query) params.set('q', query);
-    if (city) params.set('city', city);
-    router.push(`/search?${params.toString()}`);
+    if (query.trim()) {
+      router.push(`/search?q=${encodeURIComponent(query.trim())}`);
+    } else {
+      router.push("/search");
+    }
   };
 
-  const isHero = variant === 'hero';
-
   return (
-    <form onSubmit={handleSubmit} className={`flex flex-col sm:flex-row gap-3 ${isHero ? 'w-full max-w-3xl' : 'w-full'}`}>
-      <div className="flex-1 relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+    <form onSubmit={handleSubmit} className="w-full">
+      <div className={`relative flex items-center ${large ? "max-w-2xl mx-auto" : ""}`}>
         <input
           type="text"
-          placeholder="Search for doctors, lawyers, services..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className={`w-full pl-12 pr-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-spain-red focus:border-transparent outline-none transition-all ${
-            isHero ? 'py-4 text-lg' : 'py-3'
+          placeholder="Search for doctors, lawyers, services..."
+          className={`w-full rounded-full border border-border bg-white px-5 pr-32 text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all ${
+            large ? "py-4 text-lg" : "py-3 text-base"
           }`}
         />
+        <button
+          type="submit"
+          className={`absolute right-2 rounded-full bg-primary px-6 font-medium text-white hover:bg-primary-dark transition-colors ${
+            large ? "py-2.5 text-base" : "py-1.5 text-sm"
+          }`}
+        >
+          Search
+        </button>
       </div>
-      <select
-        value={city}
-        onChange={(e) => setCity(e.target.value)}
-        className={`px-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-spain-red focus:border-transparent outline-none bg-white ${
-          isHero ? 'py-4 text-lg' : 'py-3'
-        }`}
-      >
-        <option value="">All Cities</option>
-        <option value="madrid">Madrid</option>
-        <option value="barcelona">Barcelona</option>
-        <option value="valencia">Valencia</option>
-        <option value="malaga">Málaga</option>
-        <option value="seville">Seville</option>
-        <option value="alicante">Alicante</option>
-      </select>
-      <button
-        type="submit"
-        className={`bg-spain-red hover:bg-spain-redLight text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2 ${
-          isHero ? 'px-8 py-4 text-lg' : 'px-6 py-3'
-        }`}
-      >
-        <Search size={20} />
-        <span className="hidden sm:inline">Search</span>
-      </button>
     </form>
   );
 }
