@@ -23,11 +23,10 @@ export default function ListingDetailPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    // For now, use mock data. In production, fetch from API
     const fetchListing = async () => {
       try {
         // Try to fetch from API first
-        const response = await fetch(`/api/listings/${listingId}`);
+        const response = await fetch(`/api/professionals/${listingId}`);
         if (response.ok) {
           const data = await response.json();
           setListing(data);
