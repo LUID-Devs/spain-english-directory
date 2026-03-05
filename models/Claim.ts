@@ -21,7 +21,7 @@ interface ClaimAttributes {
   reviewedBy?: number;
   reviewedAt?: Date;
   rejectionReason?: string;
-  notes?: string;
+  notes?: string | null;
   createdAt?: Date;
   updatedAt?: Date;
 }
