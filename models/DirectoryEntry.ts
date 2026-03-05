@@ -13,6 +13,12 @@ interface DirectoryEntryAttributes {
   email?: string;
   website?: string;
   speaksEnglish: boolean;
+  isFeatured: boolean;
+  isVerified: boolean;
+  isClaimed: boolean;
+  claimedBy?: string;
+  claimedAt?: Date;
+  ownerUserId?: number;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -32,6 +38,8 @@ class DirectoryEntry extends Model<DirectoryEntryAttributes, DirectoryEntryCreat
   public email?: string;
   public website?: string;
   public speaksEnglish!: boolean;
+  public isFeatured!: boolean;
+  public isVerified!: boolean;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }
@@ -84,11 +92,29 @@ DirectoryEntry.init(
       defaultValue: true,
       allowNull: false,
     },
+    isFeatured: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: false,
+    },
+    isVerified: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: false,
+    },
   },
   {
     tableName: 'directory_entries',
     sequelize,
     timestamps: true,
+    indexes: [
+      { fields: ['name'] },
+      { fields: ['city'] },
+      { fields: ['category'] },
+      { fields: ['isFeatured'] },
+      { fields: ['isVerified'] },
+      { fields: ['name', 'description'] },
+    ],
   }
 );
 
