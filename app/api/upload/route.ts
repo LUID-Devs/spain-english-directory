@@ -4,7 +4,6 @@ import { mkdir } from 'fs/promises';
 import path from 'path';
 import crypto from 'crypto';
 
-// POST /api/upload - Upload a file (document/image)
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
@@ -18,7 +17,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate file type
     const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
     if (!allowedTypes.includes(file.type)) {
       return NextResponse.json(
@@ -27,8 +25,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate file size (max 5MB)
-    const maxSize = 5 * 1024 * 1024; // 5MB
+    const maxSize = 5 * 1024 * 1024;
     if (file.size > maxSize) {
       return NextResponse.json(
         { error: 'File too large. Maximum size: 5MB' },
@@ -36,7 +33,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate unique filename
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
     
@@ -45,15 +41,12 @@ export async function POST(request: NextRequest) {
     const timestamp = Date.now();
     const filename = `${type}_${timestamp}_${hash}${ext}`;
 
-    // Ensure upload directory exists
     const uploadDir = path.join(process.cwd(), 'public', 'uploads', type);
     await mkdir(uploadDir, { recursive: true });
 
-    // Write file
     const filePath = path.join(uploadDir, filename);
     await writeFile(filePath, buffer);
 
-    // Return public URL
     const publicUrl = `/uploads/${type}/${filename}`;
 
     return NextResponse.json({
@@ -72,10 +65,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-
-// Configure route to handle large files
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};

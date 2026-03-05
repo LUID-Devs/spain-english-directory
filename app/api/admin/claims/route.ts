@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Claim, DirectoryEntry } from '@/models';
 
-// GET /api/admin/claims - List all claims for admin
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
