@@ -54,11 +54,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     // Full-text search across name, description, category (services)
     if (filters.query && filters.query.trim()) {
-      const searchTerm = `%${filters.query.trim()}%`;
+      const escapedQuery = filters.query.trim().replace(/[%_\\]/g, '\\$&');
+      const searchTerm = `%${escapedQuery}%`;
       searchConditions.push(
-        { name: { [Op.iLike]: searchTerm } },
-        { description: { [Op.iLike]: searchTerm } },
-        { category: { [Op.iLike]: searchTerm } }
+        { name: { [Op.iLike]: searchTerm, escape: '\\' } },
+        { description: { [Op.iLike]: searchTerm, escape: '\\' } },
+        { category: { [Op.iLike]: searchTerm, escape: '\\' } }
       );
     }
 
@@ -161,7 +162,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({
       success: false,
       error: 'Failed to perform search',
-      message: error instanceof Error ? error.message : 'Unknown error',
+      message: 'An unexpected error occurred. Please try again later.',
       data: [],
       pagination: {
         currentPage: 1,

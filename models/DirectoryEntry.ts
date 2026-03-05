@@ -40,6 +40,10 @@ class DirectoryEntry extends Model<DirectoryEntryAttributes, DirectoryEntryCreat
   public speaksEnglish!: boolean;
   public isFeatured!: boolean;
   public isVerified!: boolean;
+  public isClaimed!: boolean;
+  public claimedBy?: string;
+  public claimedAt?: Date;
+  public ownerUserId?: number;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }
@@ -101,6 +105,23 @@ DirectoryEntry.init(
       type: DataTypes.BOOLEAN,
       defaultValue: false,
       allowNull: false,
+    },
+    isClaimed: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: false,
+    },
+    claimedBy: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
+    claimedAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    ownerUserId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
     },
   },
   {
