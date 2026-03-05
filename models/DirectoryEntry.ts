@@ -128,7 +128,14 @@ DirectoryEntry.init(
     tableName: 'directory_entries',
     sequelize,
     timestamps: true,
-    underscored: true,
+    indexes: [
+      { fields: ['name'] },
+      { fields: ['city'] },
+      { fields: ['category'] },
+      { fields: ['isFeatured'] },
+      { fields: ['isVerified'] },
+      { fields: ['name', 'description'] },
+    ],
   }
 );
 
