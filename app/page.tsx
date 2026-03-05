@@ -1,3 +1,4 @@
+import Link from "next/link";
 import SearchBar from "@/components/SearchBar";
 import CategoryCard from "@/components/CategoryCard";
 import CityCard from "@/components/CityCard";
@@ -162,9 +163,9 @@ export default function Home() {
           <p className="text-white/90 text-lg mb-8">
             Join our directory and connect with expats looking for your services
           </p>
-          <button className="bg-white text-spain-red font-semibold px-8 py-4 rounded-lg hover:bg-gray-100 transition-colors">
+          <Link href="/list-your-business" className="bg-white text-spain-red font-semibold px-8 py-4 rounded-lg hover:bg-gray-100 transition-colors inline-block">
             List Your Business
-          </button>
+          </Link>
         </div>
       </section>
     </div>

@@ -107,6 +107,23 @@ DirectoryEntry.init(
       defaultValue: false,
       allowNull: false,
     },
+    isClaimed: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: false,
+    },
+    claimedBy: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
+    claimedAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    ownerUserId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
   },
   {
     tableName: 'directory_entries',

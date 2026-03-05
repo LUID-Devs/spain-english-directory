@@ -26,10 +26,10 @@ export default function Header() {
             <Link href="/search" className="text-gray-600 hover:text-spain-red transition-colors">
               Find Professionals
             </Link>
-            <Link href="#categories" className="text-gray-600 hover:text-spain-red transition-colors">
+            <Link href="/#categories" className="text-gray-600 hover:text-spain-red transition-colors">
               Categories
             </Link>
-            <Link href="#how-it-works" className="text-gray-600 hover:text-spain-red transition-colors">
+            <Link href="/#how-it-works" className="text-gray-600 hover:text-spain-red transition-colors">
               How It Works
             </Link>
           </nav>
@@ -55,14 +55,14 @@ export default function Header() {
                 Find Professionals
               </Link>
               <Link
-                href="#categories"
+                href="/#categories"
                 className="text-gray-600 hover:text-spain-red transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Categories
               </Link>
               <Link
-                href="#how-it-works"
+                href="/#how-it-works"
                 className="text-gray-600 hover:text-spain-red transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
