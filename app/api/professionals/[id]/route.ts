@@ -1,40 +1,73 @@
 import { NextRequest, NextResponse } from 'next/server';
-import DirectoryEntry from '@/models/DirectoryEntry';
+import { Professional, Category, City, Review } from '@/models';
 
-// Use Node.js runtime for database operations
-export const runtime = 'nodejs';
-
-// GET /api/professionals/[id] - Get a single listing by ID
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
-    const listingId = parseInt(id, 10);
-
-    if (isNaN(listingId)) {
+    const professionalId = parseInt(id, 10);
+    
+    if (isNaN(professionalId)) {
       return NextResponse.json(
-        { error: 'Invalid listing ID' },
+        {
+          success: false,
+          error: 'Invalid ID format',
+          message: 'ID must be a valid number',
+        },
         { status: 400 }
       );
     }
-
-    const listing = await DirectoryEntry.findByPk(listingId);
-
-    if (!listing) {
+    
+    const professional = await Professional.findByPk(professionalId, {
+      include: [
+        { model: Category, as: 'category' },
+        { model: City, as: 'city' },
+        { model: Review, as: 'reviews' },
+      ],
+    });
+    
+    if (!professional) {
       return NextResponse.json(
-        { error: 'Listing not found' },
+        {
+          success: false,
+          error: 'Not found',
+          message: `Professional with ID ${professionalId} not found`,
+        },
         { status: 404 }
       );
     }
-
-    return NextResponse.json(listing);
+    
+    return NextResponse.json({
+      success: true,
+      data: professional,
+    }, {
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+      },
+    });
   } catch (error) {
-    console.error('Error fetching listing:', error);
+    console.error('Error fetching professional:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      {
+        success: false,
+        error: 'Failed to fetch professional',
+        message: 'An internal error occurred. Please try again later.',
+      },
       { status: 500 }
     );
   }
+}
+
+export async function OPTIONS() {
+  return NextResponse.json({}, {
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+    },
+  });
 }

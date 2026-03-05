@@ -1,217 +1,284 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-
-interface Claim {
-  id: number;
-  name: string;
-  category: string;
-  city: string;
-  email: string;
-  phone: string;
-  claimStatus: string;
-  claimedBy: string;
-  claimEmail: string;
-  claimPhone: string;
-  claimRequestedAt: string;
-  claimApprovedAt: string;
-  claimApprovedBy: string;
-}
+import { Claim, ClaimStatus } from '@/types';
 
 export default function AdminClaimsPage() {
   const [claims, setClaims] = useState<Claim[]>([]);
-  const [filter, setFilter] = useState('all');
-  const [isLoading, setIsLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [processingId, setProcessingId] = useState<number | null>(null);
+  const [statusFilter, setStatusFilter] = useState<ClaimStatus | 'all'>('all');
+  const [selectedClaim, setSelectedClaim] = useState<Claim | null>(null);
+  const [rejectionReason, setRejectionReason] = useState('');
+  const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
     fetchClaims();
-  }, [filter]);
+  }, [statusFilter]);
 
   const fetchClaims = async () => {
-    setIsLoading(true);
+    setLoading(true);
     try {
-      const response = await fetch(`/api/admin/claims?status=${filter}`);
-      if (!response.ok) throw new Error('Failed to fetch claims');
+      const url = new URL('/api/admin/claims', window.location.origin);
+      if (statusFilter !== 'all') {
+        url.searchParams.set('status', statusFilter);
+      }
+
+      const response = await fetch(url);
       const data = await response.json();
-      setClaims(data.claims || []);
-    } catch (err) {
-      setError('Failed to load claims');
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to fetch claims');
+      }
+
+      setClaims(data.claims);
+    } catch (err: any) {
+      setError(err.message);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  const handleApprove = async (id: number) => {
-    setProcessingId(id);
+  const handleApprove = async (claimId: number) => {
+    setActionLoading(true);
     try {
-      const response = await fetch(`/api/admin/claims/${id}`, {
+      const response = await fetch(`/api/admin/claims/${claimId}/approve`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'approve', adminName: 'Admin' }),
+        body: JSON.stringify({ adminId: 1 }),
       });
-      
-      if (!response.ok) throw new Error('Failed to approve claim');
-      
-      // Refresh the list
-      fetchClaims();
-    } catch (err) {
-      setError('Failed to approve claim');
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to approve claim');
+      }
+
+      await fetchClaims();
+      setSelectedClaim(null);
+    } catch (err: any) {
+      setError(err.message);
     } finally {
-      setProcessingId(null);
+      setActionLoading(false);
     }
   };
 
-  const handleReject = async (id: number) => {
-    setProcessingId(id);
+  const handleReject = async (claimId: number) => {
+    if (!rejectionReason.trim()) {
+      setError('Please provide a rejection reason');
+      return;
+    }
+
+    setActionLoading(true);
     try {
-      const response = await fetch(`/api/admin/claims/${id}`, {
+      const response = await fetch(`/api/admin/claims/${claimId}/reject`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'reject', adminName: 'Admin' }),
+        body: JSON.stringify({
+          adminId: 1,
+          reason: rejectionReason,
+        }),
       });
-      
-      if (!response.ok) throw new Error('Failed to reject claim');
-      
-      fetchClaims();
-    } catch (err) {
-      setError('Failed to reject claim');
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to reject claim');
+      }
+
+      await fetchClaims();
+      setSelectedClaim(null);
+      setRejectionReason('');
+    } catch (err: any) {
+      setError(err.message);
     } finally {
-      setProcessingId(null);
+      setActionLoading(false);
     }
   };
 
-  const getStatusBadge = (status: string) => {
-    const styles = {
-      pending: 'bg-yellow-100 text-yellow-800',
-      verified: 'bg-blue-100 text-blue-800',
-      approved: 'bg-green-100 text-green-800',
-      rejected: 'bg-red-100 text-red-800',
+  const getStatusBadge = (status: ClaimStatus) => {
+    const colors = {
+      pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',
+      verified: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
+      approved: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
+      rejected: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
     };
+
     return (
-      <span className={`px-2 py-1 rounded-full text-xs font-medium ${styles[status as keyof typeof styles] || 'bg-gray-100'}`}>
+      <span className={`px-2 py-1 rounded-full text-xs font-medium ${colors[status]}`}>
         {status.charAt(0).toUpperCase() + status.slice(1)}
       </span>
     );
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-gray-900">Claims Dashboard</h1>
-            <a href="/" className="text-primary hover:text-primary-dark">← Back to Site</a>
+    <div className="p-6 max-w-7xl mx-auto">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Manage Claims</h1>
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value as ClaimStatus | 'all')}
+          className="px-4 py-2 border rounded-md dark:bg-gray-800 dark:border-gray-700"
+        >
+          <option value="all">All Status</option>
+          <option value="pending">Pending</option>
+          <option value="verified">Verified</option>
+          <option value="approved">Approved</option>
+          <option value="rejected">Rejected</option>
+        </select>
+      </div>
+
+      {error && (
+        <div className="mb-4 p-4 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-md">
+          {error}
+          <button onClick={() => setError('')} className="ml-2 font-bold">×</button>
+        </div>
+      )}
+
+      {loading ? (
+        <div className="text-center py-12">Loading claims...</div>
+      ) : claims.length === 0 ? (
+        <div className="text-center py-12 text-gray-500">No claims found</div>
+      ) : (
+        <div className="bg-white dark:bg-gray-900 rounded-lg shadow overflow-hidden">
+          <table className="min-w-full">
+            <thead className="bg-gray-50 dark:bg-gray-800">
+              <tr>
+                <th className="px-4 py-3 text-left text-sm font-medium">Listing</th>
+                <th className="px-4 py-3 text-left text-sm font-medium">Claimant</th>
+                <th className="px-4 py-3 text-left text-sm font-medium">Status</th>
+                <th className="px-4 py-3 text-left text-sm font-medium">Date</th>
+                <th className="px-4 py-3 text-left text-sm font-medium">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
+              {claims.map((claim) => (
+                <tr key={claim.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                  <td className="px-4 py-3">
+                    <div className="font-medium">{claim.directoryEntry?.name}</div>
+                    <div className="text-sm text-gray-500">
+                      {claim.directoryEntry?.category} • {claim.directoryEntry?.city}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div>{claim.claimantName}</div>
+                    <div className="text-sm text-gray-500">{claim.claimantEmail}</div>
+                    {claim.claimantPhone && (
+                      <div className="text-sm text-gray-500">{claim.claimantPhone}</div>
+                    )}
+                  </td>
+                  <td className="px-4 py-3">{getStatusBadge(claim.status)}</td>
+                  <td className="px-4 py-3 text-sm text-gray-500">
+                    {new Date(claim.createdAt).toLocaleDateString()}
+                  </td>
+                  <td className="px-4 py-3">
+                    <button
+                      onClick={() => setSelectedClaim(claim)}
+                      className="text-blue-600 hover:underline text-sm"
+                    >
+                      Review
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {selectedClaim && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-900 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-start mb-4">
+                <h2 className="text-xl font-bold">Review Claim</h2>
+                <button
+                  onClick={() => {
+                    setSelectedClaim(null);
+                    setRejectionReason('');
+                  }}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                  <h3 className="font-medium mb-2">Listing Details</h3>
+                  <p><strong>Name:</strong> {selectedClaim.directoryEntry?.name}</p>
+                  <p><strong>Category:</strong> {selectedClaim.directoryEntry?.category}</p>
+                  <p><strong>Location:</strong> {selectedClaim.directoryEntry?.city}</p>
+                </div>
+
+                <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                  <h3 className="font-medium mb-2">Claimant Information</h3>
+                  <p><strong>Name:</strong> {selectedClaim.claimantName}</p>
+                  <p><strong>Email:</strong> {selectedClaim.claimantEmail}</p>
+                  {selectedClaim.claimantPhone && (
+                    <p><strong>Phone:</strong> {selectedClaim.claimantPhone}</p>
+                  )}
+                  <p><strong>Verified:</strong> {selectedClaim.isVerified ? 'Yes' : 'No'}</p>
+                </div>
+
+                {selectedClaim.documentUrl && (
+                  <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                    <h3 className="font-medium mb-2">Verification Document</h3>
+                    <a
+                      href={selectedClaim.documentUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline"
+                    >
+                      View Document
+                    </a>
+                  </div>
+                )}
+
+                {selectedClaim.status !== 'approved' && selectedClaim.status !== 'rejected' && (
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Rejection Reason</label>
+                    <textarea
+                      value={rejectionReason}
+                      onChange={(e) => setRejectionReason(e.target.value)}
+                      className="w-full px-3 py-2 border rounded-md dark:bg-gray-800"
+                      rows={3}
+                      placeholder="Reason for rejection..."
+                    />
+                  </div>
+                )}
+
+                {selectedClaim.status !== 'approved' && selectedClaim.status !== 'rejected' ? (
+                  <div className="flex gap-3 pt-4">
+                    <button
+                      onClick={() => handleReject(selectedClaim.id)}
+                      disabled={actionLoading || !selectedClaim.isVerified}
+                      className="flex-1 px-4 py-2 border border-red-500 text-red-500 rounded-md hover:bg-red-50 disabled:opacity-50"
+                    >
+                      {actionLoading ? 'Processing...' : 'Reject'}
+                    </button>
+                    <button
+                      onClick={() => handleApprove(selectedClaim.id)}
+                      disabled={actionLoading || !selectedClaim.isVerified}
+                      className="flex-1 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
+                    >
+                      {actionLoading ? 'Processing...' : 'Approve'}
+                    </button>
+                  </div>
+                ) : (
+                  <div className="text-center py-4 text-gray-500">
+                    This claim has already been {selectedClaim.status}.
+                  </div>
+                )}
+
+                {!selectedClaim.isVerified && selectedClaim.status !== 'approved' && selectedClaim.status !== 'rejected' && (
+                  <div className="mt-4 p-3 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 rounded-md text-sm">
+                    ⚠️ Email verification required before approving or rejecting
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
-      </header>
-
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {error && (
-          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
-            {error}
-            <button onClick={() => setError('')} className="ml-2 text-sm underline">Dismiss</button>
-          </div>
-        )}
-
-        {/* Filters */}
-        <div className="mb-6 flex flex-wrap gap-2">
-          {['all', 'pending', 'verified', 'approved', 'rejected'].map((status) => (
-            <button
-              key={status}
-              onClick={() => setFilter(status)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                filter === status
-                  ? 'bg-primary text-white'
-                  : 'bg-white text-gray-700 hover:bg-gray-100 border'
-              }`}
-            >
-              {status.charAt(0).toUpperCase() + status.slice(1)}
-            </button>
-          ))}
-        </div>
-
-        {/* Claims Table */}
-        <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-          {isLoading ? (
-            <div className="p-8 text-center">
-              <div className="animate-spin h-8 w-8 border-b-2 border-primary rounded-full mx-auto"></div>
-            </div>
-          ) : claims.length === 0 ? (
-            <div className="p-8 text-center text-gray-500">
-              No claims found for this filter.
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50 border-b">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Business</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Location</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Claimed By</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {claims.map((claim) => (
-                    <tr key={claim.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-4">
-                        <div className="font-medium text-gray-900">{claim.name}</div>
-                        <div className="text-sm text-gray-500">{claim.category}</div>
-                      </td>
-                      <td className="px-4 py-4">
-                        <div className="text-sm text-gray-900">{claim.city}</div>
-                        <div className="text-sm text-gray-500">{claim.email}</div>
-                      </td>
-                      <td className="px-4 py-4">
-                        <div className="text-sm text-gray-900">{claim.claimedBy}</div>
-                        <div className="text-sm text-gray-500">{claim.claimEmail}</div>
-                        {claim.claimPhone && (
-                          <div className="text-sm text-gray-500">{claim.claimPhone}</div>
-                        )}
-                      </td>
-                      <td className="px-4 py-4">{getStatusBadge(claim.claimStatus)}</td>
-                      <td className="px-4 py-4">
-                        <div className="text-sm text-gray-900">
-                          {claim.claimRequestedAt && new Date(claim.claimRequestedAt).toLocaleDateString()}
-                        </div>
-                      </td>
-                      <td className="px-4 py-4">
-                        {claim.claimStatus === 'verified' && (
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() => handleApprove(claim.id)}
-                              disabled={processingId === claim.id}
-                              className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700 disabled:opacity-50"
-                            >
-                              {processingId === claim.id ? '...' : 'Approve'}
-                            </button>
-                            <button
-                              onClick={() => handleReject(claim.id)}
-                              disabled={processingId === claim.id}
-                              className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700 disabled:opacity-50"
-                            >
-                              {processingId === claim.id ? '...' : 'Reject'}
-                            </button>
-                          </div>
-                        )}
-                        {claim.claimStatus === 'approved' && claim.claimApprovedBy && (
-                          <div className="text-sm text-gray-500">
-                            By {claim.claimApprovedBy}
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      </main>
+      )}
     </div>
   );
 }

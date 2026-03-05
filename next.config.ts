@@ -1,10 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  serverExternalPackages: ['sequelize', 'pg', 'pg-hstore'],
   async headers() {
     return [
       {
-        // Apply these headers to all API routes
         source: '/api/:path*',
         headers: [
           { key: 'Access-Control-Allow-Origin', value: '*' },
@@ -13,19 +13,6 @@ const nextConfig: NextConfig = {
         ],
       },
     ];
-  },
-  // Handle Sequelize dynamic imports
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        fs: false,
-        net: false,
-        tls: false,
-        pg: false,
-      };
-    }
-    return config;
   },
 };
 

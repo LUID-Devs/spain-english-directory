@@ -1,9 +1,9 @@
 import { Sequelize } from 'sequelize';
-import pg from 'pg';
 
-let sequelize: Sequelize | null = null;
+// Lazy initialization to avoid build-time database connection
+let sequelize: Sequelize | undefined;
 
-export function getSequelize(): Sequelize {
+function getSequelize(): Sequelize {
   if (!sequelize) {
     sequelize = new Sequelize(
       process.env.DB_NAME || 'spain_english_directory',
@@ -13,7 +13,6 @@ export function getSequelize(): Sequelize {
         host: process.env.DB_HOST || 'localhost',
         port: parseInt(process.env.DB_PORT || '5432'),
         dialect: 'postgres',
-        dialectModule: pg,
         logging: process.env.NODE_ENV === 'development' ? console.log : false,
         pool: {
           max: 5,
@@ -27,5 +26,5 @@ export function getSequelize(): Sequelize {
   return sequelize;
 }
 
-// Default export for backward compatibility
+export { getSequelize };
 export default getSequelize();
