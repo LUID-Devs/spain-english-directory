@@ -26,4 +26,5 @@ function getSequelize(): Sequelize {
   return sequelize;
 }
 
+export { getSequelize };
 export default getSequelize();
