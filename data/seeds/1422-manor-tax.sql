@@ -1,0 +1,8 @@
+-- Task 1422: Add Manor Tax - Tax Advisor - Barcelona
+-- Data entry by subagent
+-- Tax & Relocation Experts for the international community in Spain
+
+INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
+
+-- Manor Tax - Tax advisors in Barcelona with over 40 years of experience
+('Manor Tax', 'Tax/Accounting', 'Tax & Relocation Experts for the international community in Spain, specializing in tax advisory for both individuals and professionals. Over 40 years of combined experience in Spanish and international taxation. Fully bilingual English-Spanish tax consultants providing personalized, tailor-made tax assessment and advice. Core services include international and domestic tax consulting, expatriation and relocation services, Beckham Law and 7P special tax regime applications, Form 720 foreign asset reporting, non-residents income tax returns, wealth tax planning, inheritance tax structuring, and tax litigation support. Business services include accounting outsourcing, bookkeeping, company formation, payroll services, and domiciliation. Also assists with NIE applications, property conveyancing, bank account opening, and social security registration. Dedicated team provides transparent communication, digital document submission, and strategic planning that protects clients financial interests. Serves expats, digital nomads, and international entrepreneurs throughout Spain.', 'Rambla Catalunya 57-59, 4º 1ª', 'Barcelona', 'Barcelona', '+34 93 595 90 80', 'admin@manortax.com', 'https://manortax.com', true, false, true, false, NOW(), NOW());
