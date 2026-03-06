@@ -48,7 +48,7 @@ This is an anecdotal claim and should not be treated as policy fact until valida
 | Add "English Level" filter to doctor listings | Medium |
 | Survey partner clinics on staff English proficiency | Medium |
 | Create content: "Understanding B1 vs. B2 English for Healthcare" | Low |
-| Target marketing to clinics opened 2018+ (post-B1 requirement) | Low |
+| Target marketing to clinics with explicitly documented English-language capability | Low |
 
 ---
 

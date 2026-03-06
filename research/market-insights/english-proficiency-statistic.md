@@ -17,6 +17,7 @@ More defensible benchmark range from commonly cited datasets:
 - **26.3%** population estimate speaking English (LanguageKnowledge.eu / EC data, 2024)
 
 Interpretation: national English ability is materially higher than 5%, but uneven by geography, age, and context of use.
+Note: the Eurobarometer figure is older (2012) and should be interpreted as historical baseline context, not current-year performance.
 
 ---
 
@@ -41,9 +42,9 @@ The language barrier is so significant that even native Spanish speakers frequen
 ## Supporting Evidence
 
 ### Quantitative Sources
-- Eurobarometer language survey (2012)
-- CIS language survey figures (2017)
-- European Commission dataset summarized by LanguageKnowledge.eu (2024)
+- Eurobarometer language survey (2012): https://europa.eu/eurobarometer/surveys/detail/1049
+- CIS language survey figures (2017): https://www.cis.es/
+- European Commission dataset summarized by LanguageKnowledge.eu (2024): https://languageknowledge.eu/
 
 ### Qualitative Context
 - Reddit discussions in r/GoingToSpain and r/askspain (anecdotal experience of practical language barriers)
