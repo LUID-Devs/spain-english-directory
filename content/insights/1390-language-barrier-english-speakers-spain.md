@@ -8,7 +8,7 @@
 
 If you've browsed expat forums or Reddit communities about living in Spain, you've likely encountered a sobering reality check: **English availability is uneven and often limited outside expat-heavy areas**. While official statistics vary, the lived experience of expats tells a consistent story that prospective English-speaking residents should understand.
 
-> *"Drive 20 minutes out of main cities in Spain and you will have very few English speakers."*
+> *"Drive 20 minutes out of main cities in Spain and you will have 0% English speakers."*
 > — r/europe, December 2024
 
 > *"English isn't widely spoken in Spain."*
