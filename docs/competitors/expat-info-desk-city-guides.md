@@ -1,7 +1,7 @@
 # Expat Info Desk City Guides Analysis
 
 > Competitor research report for Spain English Directory  
-> Issue: #1344 | Date: March 2026
+> Issue: #1337 | Date: March 2026
 
 ## Executive Summary
 
@@ -14,7 +14,7 @@ Expat Info Desk (expatinfodesk.com) is a long-standing expat relocation guide pl
 ### Business Model
 - **Type**: Paid relocation guides (premium content model)
 - **Positioning**: "Written by an expat, for an expat" - emphasizing real lived experience
-- **Coverage**: 30+ cities across 6 continents
+- **Coverage**: 40+ cities across 6 continents
 - **Content Promise**: Comprehensive, regularly updated, independent (no advertising)
 
 ### Spain Coverage

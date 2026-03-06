@@ -1,6 +1,6 @@
 # Barcelona English-Speaking Doctor Availability Research
 
-**Research Date:** March 6, 2025  
+**Research Date:** March 6, 2026  
 **Issue:** #1337 - Barcelona Has Limited English-Speaking Doctor Availability  
 **Sources:** Reddit (r/Barcelona, r/AskBarcelona, r/expats, r/GoingToSpain, r/TravelHacks), Expat forums, Academic sources
 
