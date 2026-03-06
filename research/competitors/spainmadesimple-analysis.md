@@ -60,6 +60,23 @@ What this report is not:
 
 ---
 
+## Preliminary Coverage Snapshot
+
+The PR summary includes directional count ranges from an initial manual scan. These are **working estimates** and must be revalidated before operational planning.
+
+| Category | Preliminary estimate in scan notes |
+|----------|------------------------------------|
+| Insurance Brokers | ~10+ |
+| Financial Advisors | Partner program present, no standalone advisor directory count validated |
+| Legal Services | Listed (exact count unverified) |
+| Real Estate | Featured category present |
+| Healthcare | Listed category present |
+| Job Board | Present |
+| Removal Companies | Listed |
+| Schools | Content present, directory depth limited |
+
+---
+
 ## Strategic Implications
 
 1. **Do not compete on generic breadth alone.**
@@ -99,4 +116,3 @@ What this report is not:
 ## Conclusion
 
 SpainMadeSimple validates continued demand for expat support discovery in Spain. The strategic win condition for Spain English Directory is not maximal content volume; it is **trusted, verifiable, city-specific service discovery** for English-speaking users making high-stakes decisions.
-

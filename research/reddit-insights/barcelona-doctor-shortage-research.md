@@ -2,7 +2,7 @@
 
 **Research Date:** March 2026  
 **Issue Reference:** #1337  
-**Sources:** Reddit (r/Barcelona, r/AskBarcelona, r/expats, r/askspain, r/GoingToSpain)
+**Sources:** Reddit (r/Barcelona, r/AskBarcelona)
 
 ---
 
@@ -16,8 +16,6 @@ This document summarizes anecdotal community evidence from public forum discussi
 
 ### 1. Public Healthcare Language Barriers
 The public healthcare system (CatSalut/CAP) presents the most significant language challenges:
-
-> *"Nobody spoke a lick of English. From my experience public doctors also did not speak any English."* — r/GoingToSpain, October 2024
 
 > *"You'll have a hard time navigating your way through the public health system if you don't speak any of the local languages."* — r/Barcelona, September 2023
 
@@ -35,8 +33,7 @@ Even expats with conversational Spanish struggle with medical terminology:
 
 ### 3. Insurance Provider Issues
 
-**Sanitas Criticisms:**
-> *"[SANITAS] Absolutely Terrible Customer Service - No Support for Non-Spanish Speakers... ironically have found more English speaking doctors with the public city hospitals than with the private Sanitas ones."* — r/askspain, October 2025
+Insurance experience varies substantially by provider, plan, and city coverage. In this Reddit sample, users report mixed outcomes for English-language support.
 
 ### 4. Specialist Availability
 Finding English-speaking specialists is particularly challenging:
@@ -84,11 +81,11 @@ Finding English-speaking specialists is particularly challenging:
 - Pricing and insurance details change frequently and should be revalidated before publication.
 
 ## Sources
-1. r/Barcelona - "English speaking doctor" (June 2020)
-2. r/Barcelona - "Hospitals with English-speaking doctors" (June 2022)
-3. r/AskBarcelona - "English speaking doctor?" (January 2024)
-4. r/GoingToSpain - "Spain healthcare" (October 2024)
-5. r/askspain - Sanitas complaints thread (October 2025)
+1. r/Barcelona - "English speaking doctor" (Dec 2021): https://www.reddit.com/r/Barcelona/comments/rflgyd/english_speaking_doctor/
+2. r/Barcelona - "Hospitals with English-speaking doctors" (Jun 2022): https://www.reddit.com/r/Barcelona/comments/vo2wf7/hospitals_with_englishspeaking_doctors/
+3. r/AskBarcelona - "English speaking doctor?" (Jan 2024): https://www.reddit.com/r/AskBarcelona/comments/194qkjf/english_speaking_doctor/
+4. r/Barcelona - "English Speaking Doctor Who Takes Private Insurance?" (Feb 2021): https://www.reddit.com/r/Barcelona/comments/l65ou2/english_speaking_doctor_who_takes_private/
+5. r/AskBarcelona - "Private Doctor in Barcelona" (Mar 2024): https://www.reddit.com/r/AskBarcelona/comments/1bbyixa/private_doctor_in_barcelona/
 
 ---
 *Research compiled for Spain English Directory - Issue #1337*
