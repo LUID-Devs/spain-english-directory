@@ -1,0 +1,8 @@
+-- Task 1493: Add Gestor Spain - Tax/Gestor - Nationwide
+-- Data entry by Cletus
+-- Source: gestorspain.com - English-speaking gestoria for expats
+
+INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
+
+-- Gestor Spain - English-speaking gestoria in Murcia, serving expats nationwide
+('Gestor Spain', 'Tax Advisors', 'English-speaking gestoria based in Murcia with over 20 years of experience helping expats navigate Spanish bureaucracy. Fully licensed and insured gestoria registered in Murcia. Offers completely free consultation service for new clients. Core services include annual tax returns (declaración de la renta), monthly accounting packages for small businesses from €50/month, car buying/selling paperwork and foreign car imports, digital certificate acquisition for online transactions with Spanish institutions, property rental contracts, and town hall paperwork including local tax payments and building permissions. Specialized in helping expats with NIE applications, social security registration, connecting utilities (water, electricity, telephone), and Padron registration. Expert assistance with tax office correspondence and responding to Hacienda requirements. Dedicated team provides clear communication in English, making Spanish bureaucracy manageable for international residents, digital nomads, and small business owners throughout Spain.', 'Calle Antonio Machado 14', 'Molina de Segura', 'Murcia', '+34 968 93 94 00', 'info@gestorspain.com', 'https://gestorspain.com/', true, false, true, false, NOW(), NOW());
