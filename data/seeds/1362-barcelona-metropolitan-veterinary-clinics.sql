@@ -6,11 +6,13 @@
 -- These are the 8 featured veterinary clinics from Barcelona Metropolitan's
 -- editorial content, representing their core veterinary coverage.
 -- This is a strategic seed to establish Spain Directory's veterinary category.
+-- Note: is_verified=false because these are sourced from editorial content,
+-- not independently verified by Spain English Directory.
 
 INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
 
 -- ============================================
--- BARCELONA CITY CLINICS
+-- BARCELONA CITY CLINICS (Featured)
 -- ============================================
 
 -- 1. Borrell Clínica Veterinària - Eixample
@@ -25,7 +27,7 @@ INSERT INTO directory_entries (name, category, description, address, city, provi
  'https://www.clinicaveterinariaborrell.com/',
  true, 
  true, 
- true, 
+ false, 
  false, 
  NOW(), 
  NOW()),
@@ -42,7 +44,7 @@ INSERT INTO directory_entries (name, category, description, address, city, provi
  'https://veterinariadelmar.com/',
  true, 
  true, 
- true, 
+ false, 
  false, 
  NOW(), 
  NOW()),
@@ -59,7 +61,7 @@ INSERT INTO directory_entries (name, category, description, address, city, provi
  'http://www.animalari.com/en/',
  true, 
  true, 
- true, 
+ false, 
  false, 
  NOW(), 
  NOW()),
@@ -76,7 +78,7 @@ INSERT INTO directory_entries (name, category, description, address, city, provi
  'https://www.hospitalveterinariglories.com/',
  true, 
  true, 
- true, 
+ false, 
  false, 
  NOW(), 
  NOW()),
@@ -93,13 +95,13 @@ INSERT INTO directory_entries (name, category, description, address, city, provi
  'https://hvmontjuic.com/',
  true, 
  true, 
- true, 
+ false, 
  false, 
  NOW(), 
  NOW()),
 
 -- ============================================
--- SURROUNDING AREAS
+-- SURROUNDING AREAS (Not featured)
 -- ============================================
 
 -- 6. Clínica Veterinària Mirasol - Sant Cugat
@@ -114,7 +116,7 @@ INSERT INTO directory_entries (name, category, description, address, city, provi
  'http://www.clinicaveterinariamirasol.com/',
  true, 
  false, 
- true, 
+ false, 
  false, 
  NOW(), 
  NOW()),
@@ -131,7 +133,7 @@ INSERT INTO directory_entries (name, category, description, address, city, provi
  'https://www.veteralia.com/hospital-veterinari-sala-goron-es/',
  true, 
  false, 
- true, 
+ false, 
  false, 
  NOW(), 
  NOW()),
@@ -148,7 +150,7 @@ INSERT INTO directory_entries (name, category, description, address, city, provi
  'https://www.veterinari-desvern.es/',
  true, 
  false, 
- true, 
+ false, 
  false, 
  NOW(), 
  NOW());
