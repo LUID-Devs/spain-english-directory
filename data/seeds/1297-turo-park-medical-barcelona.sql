@@ -1,0 +1,8 @@
+-- Task 1297: Add Turo Park Medical - Healthcare/Dental - Barcelona
+-- Data entry by Cletus
+-- English-speaking medical and dental clinic in Barcelona
+
+INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
+
+-- Turo Park Medical - English-speaking medical and dental clinic in Barcelona
+('Turo Park Medical', 'Healthcare', 'English-speaking medical and dental clinic in Barcelona''s Sarrià-Sant Gervasi district. Comprehensive healthcare services with fully English-speaking doctors, dentists, nurses and administrative staff. Two locations: Medical clinic at Plaça de Sant Gregori Taumaturg offering general medicine, pediatrics, gynecology, cardiology, dermatology, ENT, physiotherapy, nutrition, and specialist consultations; Dental clinic on Carrer Francesc Pérez Cabrero providing general dentistry, implants, orthodontics, and cosmetic dentistry. 7/7 emergency services available. Offers daily appointments at the clinic, online consultations, and hotel/office/home visits for convenience. All staff speaks fluent English with multilingual capabilities in Spanish, French and other languages. Works with major international insurance providers. Specialized in caring for expats, tourists, and international residents in Barcelona.', 'Plaça de Sant Gregori Taumaturg, 5, 08021 Barcelona (Medical) / Carrer Francesc Pérez Cabrero, 19, 08021 Barcelona (Dental)', 'Barcelona', 'Barcelona', '+34 932 529 729', 'contact@turoparkmedical.com', 'https://turoparkmedical.com', true, true, true, false, NOW(), NOW());
