@@ -1,0 +1,86 @@
+# Reddit Research: Barcelona English-Speaking Doctor Availability
+
+**Research Date:** March 2025  
+**Issue Reference:** #1337  
+**Sources:** Reddit (r/Barcelona, r/AskBarcelona, r/expats, r/askspain, r/GoingToSpain)
+
+---
+
+## Executive Summary
+
+Reddit discussions consistently highlight a **significant challenge** for expats in Barcelona seeking English-speaking medical care. While private healthcare options exist, the availability of English-speaking doctors varies greatly between public and private systems.
+
+## Key Pain Points
+
+### 1. Public Healthcare Language Barriers
+The public healthcare system (CatSalut/CAP) presents the most significant language challenges:
+
+> *"Nobody spoke a lick of English. From my experience public doctors also did not speak any English."* — r/GoingToSpain, October 2024
+
+> *"You'll have a hard time navigating your way through the public health system if you don't speak any of the local languages."* — r/Barcelona, September 2023
+
+**Specific CAP Challenges:**
+- Appointment scheduling requires Spanish/Catalan proficiency
+- Reception staff rarely speak English
+- Administrative processes are language-dependent
+
+### 2. Medical Vocabulary Anxiety
+Even expats with conversational Spanish struggle with medical terminology:
+
+> *"I'm learning Spanish but don't feel comfortable enough with vocabulary about certain issues."* — r/AskBarcelona, January 2024
+
+> *"Doctor appointments are the biggest fear for me."* — r/askspain, June 2023
+
+### 3. Insurance Provider Issues
+
+**Sanitas Criticisms:**
+> *"[SANITAS] Absolutely Terrible Customer Service - No Support for Non-Spanish Speakers... ironically have found more English speaking doctors with the public city hospitals than with the private Sanitas ones."* — r/askspain, October 2025
+
+### 4. Specialist Availability
+Finding English-speaking specialists is particularly challenging:
+
+> *"I'm really struggling with finding good specialists here and receiving timely medical help."* — r/Barcelona, June 2022
+
+**Difficult specialties:** Endocrinologists, Dermatologists, Gynecologists, Mental health professionals
+
+## Locations & Facilities Mentioned
+
+| Facility | Location | Notes |
+|----------|----------|-------|
+| **Teknon Medical Center** | Zona Alta | Premium private, international program |
+| **Quironsalud** | Multiple | Mixed reviews |
+| **HLA International Clinic** | Sarrià | Expat-friendly |
+| **English Doctor Barcelona** | Central | Positive reviews |
+| **Eixample area** | Central | Higher concentration of English-speaking doctors |
+
+## Expat Recommendations
+
+### Insurance Rankings (Reddit consensus)
+| Provider | Pros | Cons |
+|----------|------|------|
+| **Adeslas** | Good network, ~€49/month | Varies by plan |
+| **Sanitas** | Large network | Poor English support |
+| **Agrupació Mútua** | Great Barcelona network | Less known |
+
+### Tips for Finding English-Speaking Doctors
+1. Use insurance search tools with language filters
+2. Look for doctors with international surnames
+3. Use brokers like healthplanspain.com for initial setup
+4. Consider Teknon for comprehensive care
+
+## Market Implications
+
+- **High recurring demand** - Multiple posts across years
+- **Emotional language** - "struggling," "biggest fear" indicate significant pain
+- **Willingness to pay** - Expats consistently choose private over public
+- **No centralized directory** exists for English-speaking doctors
+
+## Sources
+1. r/Barcelona - "English Speaking Doctor" (June 2020)
+2. r/Barcelona - "Hospitals with English-speaking doctors" (June 2022)
+3. r/AskBarcelona - "English speaking doctor?" (January 2024)
+4. r/GoingToSpain - "Spain healthcare" (October 2024)
+5. r/askspain - Sanitas complaints (October 2025)
+
+---
+*Research compiled for Spain English Directory - Issue #1337*
