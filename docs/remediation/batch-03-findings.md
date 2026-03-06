@@ -17,7 +17,7 @@ Date: 2026-03-06
 
 ## Confirmed fixes in this batch
 
-- Corrected MedinAction seed phone country code from `+39` to `+34`:
+- Corrected MedinAction seed phone to valid Spain format (`+34` country code + 9-digit local number):
   - `data/seeds/1238-medinaction-healthcare.sql`
 - Normalized Dr Ruben Borras category from non-standard `General Practice` to `Healthcare`:
   - `data/seeds/1280-dr-ruben-borras.sql`
