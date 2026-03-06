@@ -32,7 +32,7 @@ Another user confirmed the gap:
 
 > *"Haha really? Because the vast majority of doctors, nurses etc I've spoken to barely speaks a word of English"*
 > 
-> — r/Barcelona reply, December 2021
+> — r/Barcelona reply, December 2021 ([source](https://www.reddit.com/r/Barcelona/comments/rflgyd/english_speaking_doctor/))
 
 ### The Insurance Maze
 
@@ -44,7 +44,7 @@ But this optimism is contrasted with practical struggles:
 
 > *"I've been struggling with some issues and was wondering if anyone can recommend a good (english speaking) doctor in Barcelona? I'm learning spanish..."*
 > 
-> — r/AskBarcelona, January 2024
+> — r/AskBarcelona, January 2024 ([source](https://www.reddit.com/r/AskBarcelona/comments/194qkjf/english_speaking_doctor/))
 
 ### Using Doctoralia with Caution
 
