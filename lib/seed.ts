@@ -116,6 +116,23 @@ async function seed() {
         isFeatured: false,
         listingType: ListingType.FREE,
       },
+      {
+        name: 'Valencia Property (Graham Hunt)',
+        email: 'information@valencia-property.com',
+        phone: '+34 657 994 311',
+        website: 'https://www.valencia-property.com',
+        categoryId: 3, // Living
+        cityId: 3, // Valencia
+        address: 'Avenida Jose Garrigo Farga 33, Bajo Dcha',
+        postalCode: '46185',
+        description: "Premier buyer's agent serving English-speaking expats in Valencia for over 20 years. Offers property search, mortgage support, currency transfers, legal advice, and connections to local contractors. Based in La Pobla de Vallbona, serving all of Valencia.",
+        speaksEnglish: true,
+        englishLevel: 'native',
+        specialties: ['Sales', 'Investment', 'Relocation', 'Property Management'],
+        isVerified: true,
+        isFeatured: true,
+        listingType: ListingType.PREMIUM,
+      },
     ]);
     console.log(`✅ Created ${professionals.length} professionals`);
 
