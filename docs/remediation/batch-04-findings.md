@@ -15,6 +15,9 @@ Date: 2026-03-06
 - Replaced non-standard `city/province` values for nationwide/online seeds with indexable city values:
   - `data/seeds/1328-my-lawyer-spain.sql` (`Nationwide` -> `Madrid/Madrid`, address notes nationwide service)
   - `data/seeds/1325-english-speaking-doctor-online.sql` (`Online/Spain` -> `Madrid/Madrid`)
+- Clarified index-scope explicitly in addresses to avoid ambiguity:
+  - `data/seeds/1328-my-lawyer-spain.sql` address -> `Madrid-indexed listing (nationwide service coverage)`
+  - `data/seeds/1325-english-speaking-doctor-online.sql` address -> `Online service (Madrid-indexed listing; serves all Spain)`
 - Corrected stale research dates from 2025 to 2026:
   - `docs/research/valencia-doctor-shortage.md`
   - `docs/research/valencia-healthcare-strategy.md`
