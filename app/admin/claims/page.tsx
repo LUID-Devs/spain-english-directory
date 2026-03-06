@@ -46,13 +46,14 @@ export default function AdminClaimsPage() {
           [ADMIN_KEY_HEADER]: adminKey,
         },
       });
-      const data = await response.json();
 
       if (response.status === 401) {
         setIsAuthorized(false);
         window.sessionStorage.removeItem(ADMIN_KEY_STORAGE);
         throw new Error('Invalid admin key');
       }
+
+      const data = await response.json();
 
       if (!response.ok) {
         throw new Error(data.error || 'Failed to fetch claims');
