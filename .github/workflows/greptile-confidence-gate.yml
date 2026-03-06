@@ -70,7 +70,7 @@ jobs:
             for (const c of issueComments) {
               const body = c.body || "";
               if (!confidenceRegex.test(body)) continue;
-              if (!/greptile/i.test(body) && !/greptile/i.test(c.user?.login || "")) continue;
+              if (!/greptile/i.test(c.user?.login || "")) continue;
               candidates.push({
                 source: "comment",
                 body,
@@ -81,7 +81,7 @@ jobs:
             for (const r of reviews) {
               const body = r.body || "";
               if (!confidenceRegex.test(body)) continue;
-              if (!/greptile/i.test(body) && !/greptile/i.test(r.user?.login || "")) continue;
+              if (!/greptile/i.test(r.user?.login || "")) continue;
               candidates.push({
                 source: "review",
                 body,
