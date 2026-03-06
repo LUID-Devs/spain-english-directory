@@ -86,7 +86,7 @@ Based on observed listings in Spain:
 | **Real Estate** | Agencies, property finders, rentals | Strong |
 | **Legal Services** | Immigration lawyers, tax advisors | Moderate |
 | **Financial Services** | Financial advisors, insurance, banking | Moderate |
-| **Healthcare** | Clinics, doctors, dentists, therapists | Moderate |
+| **Healthcare** | Clinics, doctors, dentists, therapists | Limited |
 | **Education** | Language schools, international schools | Limited |
 | **Home Services** | Cleaning, maintenance, renovations | Limited |
 | **Professional Services** | Accountants, consultants, IT | Moderate |
