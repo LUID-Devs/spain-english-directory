@@ -3,20 +3,37 @@
 import { useState, useEffect } from 'react';
 import { Claim, ClaimStatus } from '@/types';
 
+const ADMIN_KEY_STORAGE = 'admin_api_key';
+const ADMIN_KEY_HEADER = 'x-admin-key';
+
 export default function AdminClaimsPage() {
   const [claims, setClaims] = useState<Claim[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [adminKey, setAdminKey] = useState('');
+  const [isAuthorized, setIsAuthorized] = useState(false);
   const [statusFilter, setStatusFilter] = useState<ClaimStatus | 'all'>('all');
   const [selectedClaim, setSelectedClaim] = useState<Claim | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
+    const storedKey = window.sessionStorage.getItem(ADMIN_KEY_STORAGE);
+    if (storedKey) {
+      setAdminKey(storedKey);
+      setIsAuthorized(true);
+    } else {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isAuthorized || !adminKey) return;
     fetchClaims();
-  }, [statusFilter]);
+  }, [statusFilter, isAuthorized, adminKey]);
 
   const fetchClaims = async () => {
+    if (!adminKey) return;
     setLoading(true);
     try {
       const url = new URL('/api/admin/claims', window.location.origin);
@@ -24,8 +41,18 @@ export default function AdminClaimsPage() {
         url.searchParams.set('status', statusFilter);
       }
 
-      const response = await fetch(url);
+      const response = await fetch(url, {
+        headers: {
+          [ADMIN_KEY_HEADER]: adminKey,
+        },
+      });
       const data = await response.json();
+
+      if (response.status === 401) {
+        setIsAuthorized(false);
+        window.sessionStorage.removeItem(ADMIN_KEY_STORAGE);
+        throw new Error('Invalid admin key');
+      }
 
       if (!response.ok) {
         throw new Error(data.error || 'Failed to fetch claims');
@@ -40,12 +67,16 @@ export default function AdminClaimsPage() {
   };
 
   const handleApprove = async (claimId: number) => {
+    if (!adminKey) return;
     setActionLoading(true);
     try {
       const response = await fetch(`/api/admin/claims/${claimId}/approve`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ adminId: 1 }),
+        headers: {
+          'Content-Type': 'application/json',
+          [ADMIN_KEY_HEADER]: adminKey,
+        },
+        body: JSON.stringify({}),
       });
 
       if (!response.ok) {
@@ -63,6 +94,7 @@ export default function AdminClaimsPage() {
   };
 
   const handleReject = async (claimId: number) => {
+    if (!adminKey) return;
     if (!rejectionReason.trim()) {
       setError('Please provide a rejection reason');
       return;
@@ -72,9 +104,11 @@ export default function AdminClaimsPage() {
     try {
       const response = await fetch(`/api/admin/claims/${claimId}/reject`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          [ADMIN_KEY_HEADER]: adminKey,
+        },
         body: JSON.stringify({
-          adminId: 1,
           reason: rejectionReason,
         }),
       });
@@ -108,6 +142,52 @@ export default function AdminClaimsPage() {
       </span>
     );
   };
+
+  const handleUnlock = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setError('');
+
+    if (!adminKey.trim()) {
+      setError('Admin key is required');
+      return;
+    }
+
+    window.sessionStorage.setItem(ADMIN_KEY_STORAGE, adminKey.trim());
+    setIsAuthorized(true);
+    setLoading(true);
+  };
+
+  if (!isAuthorized) {
+    return (
+      <div className="p-6 max-w-lg mx-auto">
+        <h1 className="text-2xl font-bold mb-4">Admin Claims Access</h1>
+        <p className="text-gray-600 dark:text-gray-400 mb-4">
+          Enter the admin API key to view and manage claim requests.
+        </p>
+        {error && (
+          <div className="mb-4 p-4 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-md">
+            {error}
+          </div>
+        )}
+        <form onSubmit={handleUnlock} className="space-y-3">
+          <input
+            type="password"
+            value={adminKey}
+            onChange={(e) => setAdminKey(e.target.value)}
+            placeholder="Admin API Key"
+            className="w-full px-4 py-2 border rounded-md dark:bg-gray-800 dark:border-gray-700"
+            autoComplete="off"
+          />
+          <button
+            type="submit"
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          >
+            Unlock
+          </button>
+        </form>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
