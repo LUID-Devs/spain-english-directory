@@ -20,9 +20,9 @@ INSERT INTO directory_entries (
     updated_at
 ) VALUES (
     'Exit Legal Advice',
-    'Legal/Tax',
+    'Legal',
     'Law firm created by lawyers with more than 20 years of national and international legal practice. Committed to quality, honesty, professionalism and efficiency for all clients. Specialized services for expats in Spain including: Spanish tax residency and associated taxes, house rental, acquiring real estate, setting up a business, and other legal issues. Main services focus on legal and tax advice to individuals and entities, including correct fulfilment of tax obligations, adequate planning to minimize tax cost, double tax issues, assistance with tax audits/appeals, and tax residence issues. Also assists with legal aspects of starting new businesses, reviewing contracts, data protection, restructurings, real estate transactions and litigation.',
-    NULL,
+    'Vía Augusta 29, 6ª, 08006 Barcelona',
     'Barcelona',
     'Barcelona',
     '+34 935 95 04 96',
