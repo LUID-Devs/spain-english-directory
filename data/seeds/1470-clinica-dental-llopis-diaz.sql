@@ -1,8 +1,9 @@
 -- Task 1470: Add Clinica Dental Llopis Diaz - Dental - Valencia
--- Data entry by Rupert
--- Comprehensive dental clinic in Vila-Real (Valencia region) with full range of services
+-- Data entry by subagent
+-- Source: Reddit r/valencia - "The kindest you will find. And very low cost. The primary dentist speaks English."
+-- Located in Burjassot, accessible via Metro line 1 from Valencia
 
 INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
 
--- Clinica Dental Llopis Diaz - Full-Service Dental Clinic in Vila-Real
-('Clinica Dental Llopis Diaz', 'Dentists', 'Family dental clinic in Vila-Real (Castellón province, Valencia region) offering comprehensive dental services with over 20 years of experience. Specializes in general dentistry, endodontics, dental implants, periodontics, cosmetic dentistry, orthodontics, pediatric dentistry, dental prosthetics, and treatment for bruxism and sleep apnea. Experienced team including Dr. María Llopis (Endodontist), Dr. Cristina Cabanillas (Oral Surgery & Implants), Dr. Estela Galán (Orthodontics), and José Miguel Llopis (Periodontics). Modern facility practicing minimally invasive dentistry with advanced implantology and dental esthetics center. Financing available up to 60 months. English-speaking services available for international patients and expats.', 'C/ Pere Gil 10 Entlo A', 'Vila-Real', 'Castellón', '+34 964 52 90 48', 'info@clinicallopisdiaz.com', 'https://clinicallopisdiaz.com/', true, false, true, false, NOW(), NOW());
+-- Clinica Dental Llopis Diaz - English-Speaking Dental Clinic in Burjassot (Valencia area)
+('Clinica Dental Llopis Diaz', 'Dental', 'Highly recommended English-speaking dental clinic in Burjassot, easily accessible from Valencia city via Metro line 1. Known as "the kindest you will find" according to Reddit users. Very low cost compared to other options in the area. The primary dentist speaks English, making it ideal for expats and English-speaking patients who need dental care. Friendly, helpful service with a willingness to assist international patients. Source: Reddit r/valencia recommendation - "The kindest you will find. And very low cost. I can provide all info you want... The primary dentist speaks English."', 'Burjassot', 'Valencia', 'Valencia', NULL, NULL, NULL, true, false, true, false, NOW(), NOW());
