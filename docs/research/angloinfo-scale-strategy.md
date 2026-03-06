@@ -8,10 +8,10 @@
 
 ## Executive Summary
 
-Angloinfo is the world's largest expat directory network with **90+ local sites** serving **20+ million pageviews monthly** to **3.5 million users**. They achieve scale through a **franchise model** that empowers local managers to build listings while a central team provides standardized content and technology.
+Angloinfo is the world's largest expat directory network with **108 sites** (74 regional + 34 national) serving **20+ million pageviews monthly** to **3.5 million users**. They achieve scale through a **franchise model** that empowers local managers to build listings while a central team provides standardized content and technology.
 
 **Key Scale Achievement:**
-- 74 regional websites + 34 national sites
+- 108 total websites (74 regional + 34 national)
 - 360+ listings per major city
 - 20M+ monthly pageviews
 - Present in 34+ countries
@@ -229,10 +229,26 @@ While Angloinfo has scale, gaps exist:
 
 ## Sources
 
-1. Angloinfo Franchising Information - franchising.com
-2. Angloinfo Company Profile - rocketreach.co
-3. Expat Resource Directory Analysis - taxsamaritan.com
-4. Web search data on directory business models
+1. **Angloinfo Franchising Information**  
+   URL: https://www.franchising.com/angloinfo  
+   Retrieved: March 6, 2026
+
+2. **Angloinfo Company Profile - RocketReach**  
+   URL: https://rocketreach.co/angloinfo  
+   Retrieved: March 6, 2026  
+   Key Stats: $17.6M revenue (estimated), 72 employees
+
+3. **Expat Resource Directory Analysis - Tax Samaritan**  
+   URL: https://www.taxsamaritan.com/expat-resource-directory/  
+   Retrieved: March 6, 2026
+
+4. **Angloinfo About Page**  
+   URL: https://www.angloinfo.com/about  
+   Retrieved: March 6, 2026  
+   Key Stats: 20M+ monthly pageviews, 3.5M users, Founded 1999
+
+5. **Web search data on directory business models**  
+   Multiple sources analyzed March 2026
 
 ---
 
