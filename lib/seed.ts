@@ -6,7 +6,8 @@ import {
   Review, 
   Lead,
   ListingType,
-  LeadStatus 
+  LeadStatus,
+  ProfessionalEnglishLevel 
 } from '../models';
 
 async function seed() {
@@ -125,13 +126,13 @@ async function seed() {
         cityId: 3, // Valencia
         address: 'Avenida Jose Garrigo Farga 33, Bajo Dcha',
         postalCode: '46185',
-        description: "Premier buyer's agent serving English-speaking expats in Valencia for over 20 years. Offers property search, mortgage support, currency transfers, legal advice, and connections to local contractors. Based in La Pobla de Vallbona, serving all of Valencia.",
+        description: 'English-speaking real estate agency in Valencia specializing in apartment and villa sales for expats. Founded by Graham Hunt after his own frustrating experience with local agents. Offers a buyer-focused approach with end-to-end support including property search, viewings, price negotiation, mortgage assistance, legal due diligence, and NIE coordination. Highly recommended on Reddit r/valencia for honest, transparent service and deep market knowledge.',
         speaksEnglish: true,
-        englishLevel: 'native',
+        englishLevel: ProfessionalEnglishLevel.NATIVE,
         specialties: ['Sales', 'Investment', 'Relocation', 'Property Management'],
         isVerified: true,
-        isFeatured: true,
-        listingType: ListingType.PREMIUM,
+        isFeatured: false,
+        listingType: ListingType.FREE,
       },
     ]);
     console.log(`✅ Created ${professionals.length} professionals`);
