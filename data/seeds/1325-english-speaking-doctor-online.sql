@@ -1,4 +1,4 @@
--- Task 1325: Add English-Speaking-Doctor.es - Healthcare - Online/Spain
+-- Task 1325: Add English-Speaking-Doctor.es - Healthcare - Madrid-indexed online service
 -- Data entry for doug
 -- Online English doctor consultations and prescriptions service
 

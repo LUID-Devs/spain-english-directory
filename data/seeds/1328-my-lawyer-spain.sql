@@ -1,4 +1,4 @@
--- Task 1328: Add My Lawyer in Spain - Legal - Nationwide
+-- Task 1328: Add My Lawyer in Spain - Legal - Madrid-indexed nationwide service
 -- Data entry for Spain English Directory
 -- Independent firm of English-speaking Spanish lawyers, Honorary Consuls, Irish and English solicitors
 
