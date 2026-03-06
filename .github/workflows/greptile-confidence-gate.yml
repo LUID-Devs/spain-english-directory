@@ -13,7 +13,6 @@ jobs:
     permissions:
       checks: read
       pull-requests: read
-      issues: read
     steps:
       - name: Wait for checks then validate Greptile confidence
         uses: actions/github-script@v7
@@ -49,63 +48,20 @@ jobs:
               return;
             }
 
-            const confidenceRegex = /Confidence Score:\s*([0-5](?:\.\d+)?)\s*\/\s*5/i;
-
-            const issueComments = await github.paginate(github.rest.issues.listComments, {
+            const { data: prData } = await github.rest.pulls.get({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: pullNumber,
-              per_page: 100,
+              pull_number: pullNumber
             });
 
-            const reviews = await github.paginate(github.rest.pulls.listReviews, {
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: pullNumber,
-              per_page: 100,
-            });
-
-            const candidates = [];
-
-            for (const c of issueComments) {
-              const body = c.body || "";
-              if (!confidenceRegex.test(body)) continue;
-              if (!/greptile/i.test(c.user?.login || "")) continue;
-              candidates.push({
-                source: "comment",
-                body,
-                createdAt: c.created_at || c.updated_at,
-              });
-            }
-
-            for (const r of reviews) {
-              const body = r.body || "";
-              if (!confidenceRegex.test(body)) continue;
-              if (!/greptile/i.test(r.user?.login || "")) continue;
-              candidates.push({
-                source: "review",
-                body,
-                createdAt: r.submitted_at || r.updated_at || r.created_at,
-              });
-            }
-
-            if (candidates.length === 0) {
-              core.setFailed("Greptile confidence score not found in Greptile comments/reviews");
-              return;
-            }
-
-            candidates.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-            const latest = candidates[candidates.length - 1];
-            const m = latest.body.match(confidenceRegex);
+            const text = (prData.body || "").replace(/<[^>]+>/g, "");
+            const m = text.match(/Confidence Score:\s*([0-5](?:\.\d+)?)\s*\/\s*5/i);
 
             if (!m) {
-              core.setFailed("Latest Greptile comment/review does not contain a valid confidence score");
+              core.setFailed("Greptile confidence score not found in PR body");
               return;
             }
 
             const score = parseFloat(m[1]);
-            if (score < 4) {
-              core.setFailed(`Greptile confidence ${score}/5 < 4/5`);
-            } else {
-              console.log(`Greptile confidence ${score}/5 from latest ${latest.source} ✅`);
-            }
+            if (score < 4) core.setFailed(`Greptile confidence ${score}/5 < 4/5`);
+            else console.log(`Greptile confidence ${score}/5 ✅`);
