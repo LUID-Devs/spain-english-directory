@@ -1,0 +1,10 @@
+-- Task 1398: Add Strong Abogados - Legal - Barcelona/Madrid
+-- Data entry by Cletus
+
+INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
+
+-- Strong Abogados - Barcelona
+('Strong Abogados', 'Legal', 'English-speaking law firm in Spain specializing in company formation, accounting, payroll, and legal services for international clients. Expertise in corporate law, property transactions, immigration (Wealth Visa, Skilled Worker Visa), VAT registration, trademark registration, and government compliance. Long-term client relationships with personalized account managers. Developed Tempo, proprietary online software for managing Spanish business operations. Multilingual team speaks English and Spanish. Free company formation when using corporate tax filing services for 6 months. Non-resident VAT numbers obtained in 72 hours. Leverages digital government initiatives for maximum efficiency and faster turnaround.', 'Rosselló 132, 3ª', 'Barcelona', 'Barcelona', '+34 932 155 393', 'info@strongabogados.com', 'https://www.strongabogados.com/', true, false, false, false, NOW(), NOW()),
+
+-- Strong Abogados - Madrid
+('Strong Abogados', 'Legal', 'English-speaking law firm in Spain specializing in company formation, accounting, payroll, and legal services for international clients. Expertise in corporate law, property transactions, immigration (Wealth Visa, Skilled Worker Visa), VAT registration, trademark registration, and government compliance. Long-term client relationships with personalized account managers. Developed Tempo, proprietary online software for managing Spanish business operations. Multilingual team speaks English and Spanish. Free company formation when using corporate tax filing services for 6 months. Non-resident VAT numbers obtained in 72 hours. Leverages digital government initiatives for maximum efficiency and faster turnaround.', 'Gran Vía 6, 4ª', 'Madrid', 'Madrid', '+34 932 155 393', 'info@strongabogados.com', 'https://www.strongabogados.com/', true, false, false, false, NOW(), NOW());
