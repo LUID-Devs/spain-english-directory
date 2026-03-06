@@ -8,9 +8,10 @@ export function requireAdminAuth(request: NextRequest): NextResponse | null {
 
   if (!configuredKey) {
     return NextResponse.json(
-      { error: 'Admin authentication is not configured' },
-      { status: 503 }
+      { error: 'Unauthorized' },
+      { status: 401 }
     );
+  }
   }
 
   const providedKey = request.headers.get(ADMIN_KEY_HEADER);
