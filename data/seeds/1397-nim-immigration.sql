@@ -1,0 +1,6 @@
+-- Task 1397: Add NIM Immigration Lawyers - Legal - Barcelona
+-- Data entry by agent
+
+INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
+
+('NIM Immigration Lawyers', 'Legal', 'Digital-first immigration law firm based in Barcelona specializing in Spanish visas for expats, digital nomads, and international entrepreneurs. Fully online service model with free initial consultations, secure document upload, and digital case tracking. Expertise in Digital Nomad Visa, Non-Lucrative Visa, Golden Visa, Family Reunification, Student Visa, and work permits. Also provides tax registration, social security setup, NIE applications, residency renewals, and Beckham Law compliance guidance. English-speaking team led by CEO Irene Marti Gispert offers transparent pricing with no hidden fees and clear communication throughout the entire process. Modern, client-first approach eliminates traditional scheduling and language barriers.', 'Carrer de Lope de Vega, Barcelona', 'Barcelona', 'Barcelona', '+34 664 727 672', 'info@nimextranjeria.com', 'https://nimextranjeria.com', true, false, true, false, NOW(), NOW());
