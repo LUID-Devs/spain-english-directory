@@ -3,7 +3,7 @@
 **Source:** [r/GoingToSpain - Spain Healthcare Discussion](https://www.reddit.com/r/GoingToSpain/comments/1gfz2op/spain_healthcare/)  
 **Date:** October 2024  
 **Issue:** #1401  
-**Priority:** P1 - Market Intelligence
+**Priority:** P3 - Hypothesis Pending Verification
 
 ---
 
@@ -12,6 +12,8 @@
 > *"To get a bachelor degree in medicine in Spain, you must have a B1 in a foreign language (usually English). This means the newest and younger doctors might know enough English to get them by, especially in bigger cities like Madrid or Barcelona."*
 
 **— Reddit user, r/GoingToSpain**
+
+This is an anecdotal claim and should not be treated as policy fact until validated against official Spanish medical education requirements.
 
 ---
 
@@ -42,6 +44,7 @@
 
 | Action | Priority |
 |--------|----------|
+| Verify medical degree language requirements via official sources (ANECA/Ministry/university curricula) | High |
 | Add "English Level" filter to doctor listings | Medium |
 | Survey partner clinics on staff English proficiency | Medium |
 | Create content: "Understanding B1 vs. B2 English for Healthcare" | Low |

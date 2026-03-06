@@ -53,9 +53,9 @@ ESHA has chosen to specialize exclusively in healthcare. This is both their stre
 - ✅ **Strength:** Deep healthcare coverage, perceived authority
 - ❌ **Weakness:** No coverage of legal, tax, real estate, or lifestyle services
 
-### 2. Established Traffic Indicators
+### 2. Platform Indicators
 
-- **Cloudflare Protection:** Their site uses Cloudflare bot protection, indicating established traffic volumes significant enough to warrant DDoS protection
+- **Cloudflare Protection:** Their site uses Cloudflare for CDN/bot protection. This indicates a baseline security setup, but Cloudflare alone is not a reliable traffic-volume signal.
 - **SEO Presence:** Likely ranks well for healthcare-related English searches in Spain
 
 ### 3. Category Gaps We Can Exploit
