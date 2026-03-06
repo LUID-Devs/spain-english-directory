@@ -112,9 +112,9 @@ When dozens of independent Reddit users over multiple years all point to the sam
 ---
 
 **Related Reading:**
-- [Finding English-Speaking Healthcare in Madrid](../guides/madrid-healthcare-guide.md)
-- [Understanding Spain's Public vs. Private Healthcare System](../guides/spain-healthcare-system.md)
-- [BEDA Program Survival Guide](../guides/beda-program-guide.md)
+- Finding English-Speaking Healthcare in Madrid *(coming soon)*
+- Understanding Spain's Public vs. Private Healthcare System *(coming soon)*
+- BEDA Program Survival Guide *(coming soon)*
 
 ---
 
