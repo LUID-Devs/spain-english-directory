@@ -30,10 +30,10 @@ The ESHA Directory domain (`esha.es`) could not be resolved during research, sug
 | Hospitals & Clinics | 10+ | 2 | 8+ | Good |
 | Dentists | 1+ | 1 (Turó Park) | Minimal | Poor |
 | Mental Health Services | 12+ | 1 | 11+ | Good |
-| Health Insurance | Unknown | Unknown | Unknown | Unknown |
-| Healthcare Services | Unknown | Unknown | Unknown | Unknown |
-| Maternity Services | Unknown | Unknown | Unknown | Unknown |
-| Alternative Medicine | Unknown | Unknown | Unknown | Unknown |
+| Health Insurance | 15 | 6 | 9 | Good |
+| Healthcare Services | 7 | 1 | 6 | Moderate |
+| Maternity Services | 7 | 0 | 7 | Moderate |
+| Alternative Medicine | 1 | 0 | 1 | Poor |
 
 **Total Estimated Healthcare Listings:** 100+
 
@@ -262,15 +262,20 @@ Underrepresented category
 
 ## Market Size Estimation
 
-### Expat Population in Spain (2024 estimates)
-- **Total expats:** 5.5+ million
-- **English-speaking expats:** ~800,000+
+### Expat Population in Spain (2025–2026 estimates)
+- **Total population:** 49.57 million (January 2026, per INE)
+- **Foreign-born residents:** 10+ million (exceeds 20% of population for first time)
+- **Foreign nationals:** ~6.95 million (Q1 2025, per INE)
+- **Estimated English-speaking expats:** ~800,000–1,000,000
 - **Primary healthcare seekers:** 400,000+ annually
 
 ### Directory Market Value
+- **Spain medical tourism market:** $1.83B (2025), growing at 17.89% CAGR
 - **Expat healthcare market:** €2.5B+ annually
 - **Lead value per patient:** €150-500 acquisition cost
 - **Directory monetization potential:** €500K-2M annually at scale
+
+*Data sources: INE Continuous Population Statistics (Jan 2026), Mordor Intelligence (Oct 2024)*
 
 ---
 
