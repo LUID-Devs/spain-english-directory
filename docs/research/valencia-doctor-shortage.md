@@ -1,6 +1,6 @@
 # Valencia English-Speaking Doctor Shortage: Reddit Research Insights
 
-**Issue #1329** | Research Date: March 2025
+**Issue #1329** | Research Date: March 2026
 
 ---
 

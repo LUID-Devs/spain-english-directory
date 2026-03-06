@@ -2,7 +2,7 @@
 
 ## Strategic Insight from Reddit Research (r/GoingToSpain)
 
-**Issue #1329** | March 2025
+**Issue #1329** | March 2026
 
 ---
 
