@@ -11,7 +11,7 @@ INSERT INTO directory_entries (name, category, description, address, city, provi
  'Pozuelo de Alarcón',
  'Madrid',
  '+34 913 574 496',
- 'aahvetservices@gmail.com',
+ 'aahvetdr.nave@gmail.com',
  'https://aahvet.com/',
  true, 
  false, 
