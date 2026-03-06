@@ -40,7 +40,7 @@ INSERT INTO directory_entries (
 )
 SELECT 
   'Dr Ruben Borras', 
-  'General Practice', 
+  'Healthcare', 
   'Highly recommended English-speaking GP in Madrid with 20+ years experience serving the expat community. US-trained general practitioner with perfect English fluency. Popular with BEDA program participants, English teachers, and international residents. Known for understanding US/Spanish pharmaceutical differences and coordinating with international insurance. House calls available in Madrid city center. Frequently recommended on Reddit for quality care and excellent communication.', 
   'Calle Padilla 20, Bajo Derecha', 
   'Madrid', 
