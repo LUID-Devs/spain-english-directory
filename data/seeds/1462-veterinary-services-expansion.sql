@@ -2,6 +2,12 @@
 -- Keyword Gap: Veterinarian Services Underrepresented
 -- Adds 5 new high-priority veterinary clinics identified in strategy research
 -- Created: March 2026
+-- Source references (to be verified before production):
+-- - Animal Salut: https://www.animalsalut.com/
+-- - VetEnCasa: https://www.vetencasa.es/
+-- - International Vet Barcelona: https://www.internationalvetbcn.com/
+-- - Clínica Felina Barcelona: https://www.clinicafelinabcn.com/
+-- - AAH Veterinary: https://www.aahveterinary.es/
 
 INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
 
@@ -21,7 +27,7 @@ INSERT INTO directory_entries (name, category, description, address, city, provi
  'https://www.animalsalut.com/',
  true, 
  true, 
- true, 
+ false, 
  false, 
  NOW(), 
  NOW()),
@@ -30,7 +36,7 @@ INSERT INTO directory_entries (name, category, description, address, city, provi
 ('VetEnCasa', 
  'Veterinary', 
  'Mobile veterinary service providing at-home consultations across Barcelona and surrounding areas. Specializes in reducing pet stress by treating animals in their familiar environment. Services include routine checkups, vaccinations, blood draws, minor procedures, and palliative care. Particularly popular with elderly pet owners and anxious pets. English-speaking veterinarians provide personalized attention without the stress of clinic visits. Appointment booking available online or by phone. Weekend and evening appointments offered for working pet owners.',
- 'Mobile Service - Covers Barcelona Metropolitan Area',
+ 'Home visit service - Barcelona Metropolitan Area',
  'Barcelona',
  'Barcelona',
  '+34 93 215 67 89',
@@ -38,7 +44,7 @@ INSERT INTO directory_entries (name, category, description, address, city, provi
  'https://www.vetencasa.es/',
  true, 
  true, 
- true, 
+ false, 
  false, 
  NOW(), 
  NOW()),
@@ -55,7 +61,7 @@ INSERT INTO directory_entries (name, category, description, address, city, provi
  'https://www.internationalvetbcn.com/',
  true, 
  true, 
- true, 
+ false, 
  false, 
  NOW(), 
  NOW()),
@@ -72,7 +78,7 @@ INSERT INTO directory_entries (name, category, description, address, city, provi
  'https://www.clinicafelinabcn.com/',
  true, 
  true, 
- true, 
+ false, 
  false, 
  NOW(), 
  NOW()),
@@ -93,7 +99,7 @@ INSERT INTO directory_entries (name, category, description, address, city, provi
  'https://www.aahveterinary.es/',
  true, 
  true, 
- true, 
+ false, 
  false, 
  NOW(), 
  NOW());

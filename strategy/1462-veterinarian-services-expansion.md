@@ -68,7 +68,7 @@ Barcelona-Metropolitan maintains a **dedicated veterinary section** with:
 | **AAH Veterinary** | Madrid | General Practice | HIGH |
 | **VetEnCasa** | Barcelona | Mobile/Home Vet | HIGH |
 | **International Vet Barcelona** | Barcelona | International clients | HIGH |
-| **Clinica Felina Barcelona** | Barcelona | Cat Specialist | HIGH |
+| **Clínica Felina Barcelona** | Barcelona | Cat Specialist | HIGH |
 
 #### Category Structure
 
@@ -180,7 +180,7 @@ All veterinary listings must include:
 
 The veterinary services category represents a **high-demand, low-competition opportunity** for Spain English Directory. With competitors having 50+ listings and strong user demand from expat communities, expanding our veterinary coverage should be a **priority initiative**.
 
-**Immediate next step:** Add the 5 identified veterinary clinics (Animal Salut, AAH Veterinary, VetEnCasa, International Vet Barcelona, Clinica Felina Barcelona) to establish baseline coverage.
+**Immediate next step:** Add the 5 identified veterinary clinics (Animal Salut, AAH Veterinary, VetEnCasa, International Vet Barcelona, Clínica Felina Barcelona) to establish baseline coverage.
 
 ---
 
