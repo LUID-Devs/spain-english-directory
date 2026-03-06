@@ -12,7 +12,7 @@ export function requireAdminAuth(request: NextRequest): NextResponse | null {
       { status: 401 }
     );
   }
-  }
+  
 
   const providedKey = request.headers.get(ADMIN_KEY_HEADER);
   if (!providedKey) {
