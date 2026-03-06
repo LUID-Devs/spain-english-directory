@@ -42,6 +42,20 @@ async function seed() {
     // Create Professionals
     const professionals = await Professional.bulkCreate([
       {
+        name: 'Dr. Enrique Puerta Scott',
+        email: 'contact@drpuertascott.es',
+        phone: '+34 915 343 251',
+        categoryId: 1, // Healthcare
+        cityId: 1, // Madrid
+        address: 'Calle Guzman el Bueno 133, 9º D',
+        postalCode: '28001',
+        description: 'English-speaking General Practitioner (GP) serving the expat community in Madrid. Experienced in primary care with personalized attention. Accepts Asisa insurance.',
+        speaksEnglish: true,
+        isVerified: true,
+        isFeatured: false,
+        listingType: ListingType.FREE,
+      },
+      {
         name: 'Dr. Sarah Johnson',
         email: 'dr.johnson@medicamadrid.es',
         phone: '+34 912 345 678',
