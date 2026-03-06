@@ -6,7 +6,7 @@
 INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
 
 ('Dr. Niko Mihic', 
- 'General Practice', 
+ 'Doctors', 
  'English-speaking general practitioner in central Madrid. Dr. Niko Mihic provides primary care services for the international community and accepts international patients. Located in the heart of Madrid, easily accessible for expats and visitors seeking English-speaking medical care in the city center.',
  'C/ de Sagasta, 31, 28004 Madrid',
  'Madrid',
