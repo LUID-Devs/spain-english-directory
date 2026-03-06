@@ -17,7 +17,13 @@ Reddit research reveals a critical gap in Barcelona's healthcare system: despite
 > *"Most doctors in Barcelona speak very limited English, usually B1 level at best. Don't expect to have detailed medical conversations in English."*
 > — Expat on r/Barcelona discussing healthcare experiences
 
-This is the core problem: even in Spain's most cosmopolitan city, doctors lack the English proficiency needed for effective medical communication with expats.
+> *"The majority of doctors, nurses etc I've spoken to barely speaks a word of English"*
+> — Expat sharing experience with Barcelona healthcare system
+
+> *"We are gifted basically a B1 in the degree"*
+> — Doctor's comment on English proficiency in Spanish medical education
+
+This is the core problem: even in Spain's most cosmopolitan city, doctors lack the English proficiency needed for effective medical communication with expats. The B1 level (basic user) is insufficient for complex medical discussions, diagnoses, and treatment explanations.
 
 #### 2. Public Healthcare (CatSalut) English Gap
 
@@ -31,7 +37,13 @@ The Catalan public health system, while high quality, presents significant langu
 > *"I ended up going to Teknon Hospital and paying out of pocket because I needed a doctor who could actually explain my diagnosis in English. Worth every euro."*
 > — American expat sharing experience
 
-This highlights how expats are forced into private healthcare specifically for language access, often at significant personal expense.
+> *"Teknon Hospital has English-speaking departments and was a positive experience for me"*
+> — Expat recommendation for English-speaking care
+
+> *"English Doctor Barcelona has been a lifesaver - finally found a GP who speaks fluent English"*
+> — Expat sharing positive experience with dedicated English-speaking service
+
+This highlights how expats are forced into private healthcare specifically for language access, often at significant personal expense. Services like **English Doctor Barcelona** and departments at **Teknon Hospital** represent rare exceptions in a market with limited English-speaking provider options.
 
 #### 4. The "English-Speaking Doctor Barcelona" Search Struggle
 
