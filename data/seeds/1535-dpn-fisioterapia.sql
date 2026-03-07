@@ -1,0 +1,8 @@
+-- Task 1535: Add DPN Fisioterapia - Physiotherapy - Barcelona
+-- Data entry by subagent
+-- English-speaking physiotherapy clinic serving expats in Barcelona
+
+INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
+
+-- DPN Fisioterapia - English-speaking physiotherapy clinic in Barcelona
+('DPN Fisioterapia', 'Physiotherapy', 'English-speaking physiotherapy practice led by Daniel Paulino Nogueira, specializing in neuromusculoskeletal conditions and pain education. Offers care in three languages: English, Spanish, and Portuguese. Science-based treatment approach combining manual therapy, exercise therapy, pain education, and dissuasive techniques. Treats upper limb conditions (tennis elbow, frozen shoulder, tendinopathy), spine issues (neck pain, back pain, herniated disc, headaches), and lower limb problems (ACL rehabilitation, hip pain, plantar fasciitis, sciatica). Services include personalized treatment programs with videos and photos, virtual appointments, and home visits. Empathetic care with extended consultation times and focus on patient autonomy and confidence for physical-functional recovery.', 'Carrer de Muntaner, 87 (Inside Pura Vida Centro Quiropráctico)', 'Barcelona', 'Barcelona', '+34 662 278 536', NULL, 'https://dpnfisioterapia.com', true, false, true, false, NOW(), NOW());
