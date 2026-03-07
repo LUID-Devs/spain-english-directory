@@ -57,7 +57,7 @@ For those unable to visit the clinic, Dr. Borrás offers **house calls in Madrid
 | **Hours** | Monday–Friday, 12:00–18:30 |
 | **House Calls** | Available in Madrid center |
 | **Staff** | English-speaking secretary |
-| **Phone** | 674 216 899 |
+| **Phone** | +34 915 759 834 (primary), +34 674 216 899 (mobile) |
 | **Address** | C/ Padilla, 20, Bajo Derecha, Madrid |
 
 ---
