@@ -27,7 +27,7 @@ export const metadata: Metadata = {
 
 const healthcareCategories = [
   {
-    slug: 'doctors',
+    query: 'doctor',
     name: 'Doctors',
     description: 'General practitioners and family doctors who speak English',
     icon: Stethoscope,
@@ -35,7 +35,7 @@ const healthcareCategories = [
     specialties: ['General Practice', 'Pediatrics', 'Internal Medicine'],
   },
   {
-    slug: 'dentists',
+    query: 'dentist',
     name: 'Dentists',
     description: 'Dental care with English-speaking staff and modern facilities',
     icon: HeartPulse,
@@ -43,7 +43,7 @@ const healthcareCategories = [
     specialties: ['General Dentistry', 'Orthodontics', 'Cosmetic'],
   },
   {
-    slug: 'therapists',
+    query: 'therapist',
     name: 'Mental Health',
     description: 'Psychologists and therapists for mental wellness support',
     icon: Brain,
@@ -174,7 +174,7 @@ export default function ValenciaPage() {
             {healthcareCategories.map((category) => (
               <Link
                 key={category.slug}
-                href={`/search?city=valencia&category=${encodeURIComponent(category.slug)}`}
+                href={`/search?city=Valencia&category=Healthcare&q=${encodeURIComponent(category.query)}`}
                 className="group block bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md hover:border-blue-300 transition"
               >
                 <div className="flex items-start justify-between mb-4">
@@ -204,7 +204,7 @@ export default function ValenciaPage() {
           </div>
           <div className="text-center mt-10">
             <Link
-              href="/search?city=valencia"
+              href="/search?city=Valencia&category=Healthcare"
               className="inline-flex items-center gap-2 text-blue-600 font-medium hover:text-blue-700"
             >
               View all healthcare categories in Valencia
@@ -229,7 +229,7 @@ export default function ValenciaPage() {
             {neighborhoods.map((neighborhood) => (
               <Link
                 key={neighborhood.name}
-                href={`/search?city=valencia&neighborhood=${encodeURIComponent(neighborhood.name)}`}
+                href={`/search?city=Valencia&category=Healthcare&q=${encodeURIComponent(neighborhood.name)}`}
                 className="bg-white rounded-xl p-5 shadow-sm border border-gray-200 hover:border-blue-300 hover:shadow-md transition block"
               >
                 <MapPin className="w-5 h-5 text-blue-600 mb-3" />
@@ -354,7 +354,7 @@ export default function ValenciaPage() {
                     '@type': 'Thing',
                     name: cat.name,
                     description: cat.description,
-                    url: `https://spainenglishdirectory.com/search?city=valencia&category=${encodeURIComponent(cat.slug)}`,
+                    url: `https://spainenglishdirectory.com/search?city=Valencia&category=Healthcare&q=${encodeURIComponent(cat.query)}`,
                   },
                 })),
               },
