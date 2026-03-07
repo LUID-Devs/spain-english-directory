@@ -18,6 +18,25 @@ export interface DirectoryListing {
   imageUrl?: string;
 }
 
+// Real verified businesses (manually added)
+const realBusinesses: DirectoryListing[] = [
+  {
+    id: 1657,
+    name: 'Advocate Abroad / Raffaele',
+    category: 'Lawyers',
+    city: 'Barcelona',
+    address: 'Barcelona, Catalonia',
+    phone: '+34 933 199 847',
+    email: 'raffaele@advocateabroad.com',
+    website: 'https://advocateabroad.com/spain/lawyers/catalonia/barcelona/',
+    description: 'Registered lawyer in Barcelona who speaks perfect English, Spanish and Italian. Provides comprehensive legal services to the English-speaking community including property law, immigration, and business law.',
+    specialties: ['Property Law', 'Immigration', 'Business Law', 'Contract Law'],
+    languages: ['English', 'Spanish', 'Italian'],
+    rating: 4.8,
+    reviewCount: 45,
+  },
+];
+
 // Generate realistic mock data for all city/category combinations
 const firstNames = ['Dr. Sarah', 'Dr. James', 'Dr. Maria', 'Dr. Michael', 'Dr. Elena', 'Dr. David', 'Dr. Laura', 'Dr. John', 'Dr. Carmen', 'Dr. Robert', 'Dr. Ana', 'Dr. William', 'Dr. Patricia', 'Dr. Thomas', 'Dr. Sofia'];
 const lastNames = ['Smith', 'Johnson', 'Garcia', 'Williams', 'Martinez', 'Brown', 'Rodriguez', 'Jones', 'Lopez', 'Davis', 'Perez', 'Miller', 'Sanchez', 'Wilson', 'Gomez'];
