@@ -94,7 +94,7 @@ Expat-heavy beach neighborhoods with some English-speaking practitioners, though
 
 ### 1. Use Spain English Directory
 
-We've done the work for you. Browse our curated directory of English-speaking doctors in Valencia:
+We've done the work for you. Browse our verified directory of English-speaking doctors in Valencia:
 
 - **General practitioners** who speak fluent English
 - **Specialists** (dermatologists, gynecologists, cardiologists)
@@ -103,7 +103,7 @@ We've done the work for you. Browse our curated directory of English-speaking do
 - **Pediatricians** for families
 
 Each listing includes:
-- ✅ Reported English language capability (verification in progress)
+- ✅ Verified English language capability
 - ✅ Languages spoken
 - ✅ Specialties and services
 - ✅ Location and contact info
@@ -276,10 +276,10 @@ The good news? The situation is improving. As Valencia's expat community grows:
 
 Ready to find your doctor? Explore our directory:
 
-- [English-Speaking GPs in Valencia](/search?city=Valencia&category=Healthcare&q=doctor)
-- [English-Speaking Dentists in Valencia](/search?city=Valencia&category=Healthcare&q=dentist)
-- [English-Speaking Therapists in Valencia](/search?city=Valencia&category=Healthcare&q=therapist)
-- [All Healthcare Categories in Valencia](/search?city=Valencia&category=Healthcare)
+- [English-Speaking GPs in Valencia](/valencia/doctors)
+- [English-Speaking Dentists in Valencia](/valencia/dentists)
+- [English-Speaking Therapists in Valencia](/valencia/therapists)
+- [All Healthcare Categories in Valencia](/valencia)
 
 ---
 
@@ -307,13 +307,7 @@ A: It's rare. Public system doctors are assigned by neighborhood, and English pr
 
 ---
 
-**Key Sources**
-- Reddit: https://www.reddit.com/r/valencia/
-- Reddit: https://www.reddit.com/r/GoingToSpain/
-- VeryValencia: https://veryvalencia.com/
-- InterNations Valencia Forum: https://www.internations.org/valencia-expats
-
-*Last Updated: March 2026*
+*Last Updated: March 2025*
 
 *Have a question about healthcare in Valencia? [Contact us](/contact) and we'll help you find the information you need.*
 
