@@ -1,6 +1,6 @@
 -- Task 1658: Add Alecora Tax and Legal Services - Tax/Accounting - Multi-City
--- Data entry by Doug
--- Source: accountantsspain.com - English-speaking tax/accounting firm for expats
+-- Source: Research from alecora.com and accountantsspain.com
+-- Note: Based in Marbella, serves clients throughout Spain remotely
 
 INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
 
