@@ -135,6 +135,7 @@ async function seed() {
         listingType: ListingType.FREE,
       },
       {
+<<<<<<< Updated upstream
         name: 'Lexidy Law Firm',
         email: 'info@lexidy.com',
         phone: '+34 938 07 40 56',
@@ -164,6 +165,20 @@ async function seed() {
         speaksEnglish: true,
         englishLevel: ProfessionalEnglishLevel.NATIVE,
         specialties: ['Immigration', 'Property Law', 'Business Law', 'Visa Applications', 'Tax Planning'],
+=======
+        name: "Women's Barcelona",
+        email: 'info@womensbarcelona.com',
+        phone: '+34 932 123 456',
+        website: 'https://www.womensbarcelona.com',
+        categoryId: 1, // Healthcare
+        cityId: 2, // Barcelona
+        address: 'Carrer de Balmes 123',
+        postalCode: '08008',
+        description: 'English-speaking gynecology clinic in Barcelona providing comprehensive women\'s health services. Experienced international team offering routine check-ups, prenatal care, fertility consultations, and specialized gynecological treatments in a comfortable, welcoming environment for expat women.',
+        speaksEnglish: true,
+        englishLevel: ProfessionalEnglishLevel.C1,
+        specialties: ['Gynecology', 'Prenatal Care', 'Fertility', 'Women\'s Health'],
+>>>>>>> Stashed changes
         isVerified: true,
         isFeatured: false,
         listingType: ListingType.FREE,
