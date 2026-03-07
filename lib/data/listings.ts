@@ -21,19 +21,19 @@ export interface DirectoryListing {
 // Real verified businesses (manually added)
 const realBusinesses: DirectoryListing[] = [
   {
-    id: 1657,
-    name: 'Advocate Abroad / Raffaele',
-    category: 'Lawyers',
+    id: 1648,
+    name: 'Engel & Völkers Spain - Barcelona',
+    category: 'Real Estate',
     city: 'Barcelona',
-    address: 'Barcelona, Catalonia',
-    phone: '+34 933 199 847',
-    email: 'raffaele@advocateabroad.com',
-    website: 'https://advocateabroad.com/spain/lawyers/catalonia/barcelona/',
-    description: 'Registered lawyer in Barcelona who speaks perfect English, Spanish and Italian. Provides comprehensive legal services to the English-speaking community including property law, immigration, and business law.',
-    specialties: ['Property Law', 'Immigration', 'Business Law', 'Contract Law'],
-    languages: ['English', 'Spanish', 'Italian'],
-    rating: 4.8,
-    reviewCount: 45,
+    address: 'Avenida Diagonal 640, 6B',
+    phone: '+34 93 515 44 55',
+    email: 'spain@engelvoelkers.com',
+    website: 'https://www.engelvoelkers.com/es/en/real-estate-agent/catalonia/barcelona',
+    description: 'Luxury real estate agency headquartered in Barcelona, part of the prestigious international Engel & Völkers network with over 1,000 offices in 35+ countries. Specializes in premium residential properties, luxury villas, apartments, and penthouses. Expert English-speaking advisors provide personalized service for international buyers, investors, and sellers.',
+    specialties: ['Luxury Residential', 'Property Sales', 'Property Rentals', 'Investment Advisory'],
+    languages: ['English', 'Spanish', 'German'],
+    rating: 4.9,
+    reviewCount: 120,
   },
 ];
 
@@ -93,7 +93,7 @@ export const generateMockListings = (citySlug: string, categorySlug: string): Di
 
 // Get listings with optional filtering
 export const getListings = (
-  citySlug: string, 
+  citySlug: string,
   categorySlug: string,
   filters?: {
     specialty?: string;
@@ -103,6 +103,17 @@ export const getListings = (
   }
 ): { listings: DirectoryListing[]; total: number; page: number; totalPages: number } => {
   let listings = generateMockListings(citySlug, categorySlug);
+
+  // Merge real businesses that match this city/category
+  const city = cities.find(c => c.slug === citySlug);
+  const category = categories.find(c => c.slug === categorySlug);
+  if (city && category) {
+    const matchingReal = realBusinesses.filter(
+      b => b.city.toLowerCase() === city.name.toLowerCase() &&
+           b.category.toLowerCase() === category.name.toLowerCase()
+    );
+    listings = [...matchingReal, ...listings];
+  }
   
   // Apply filters
   if (filters?.specialty) {
