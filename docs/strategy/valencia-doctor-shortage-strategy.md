@@ -62,7 +62,7 @@ Valencia faces a **critical shortage of English-speaking doctors** that creates 
 ### Key Objectives
 
 1. **Provider Coverage**
-   - List 40 verified English-speaking healthcare providers in Valencia within 6 months
+   - List 50 total providers and 40 verified English-speaking healthcare providers in Valencia within 6 months
    - Cover 80% of high-demand specialties (GP, Cardiology, Dermatology, OB/GYN, Pediatrics)
 
 2. **User Engagement**
@@ -134,7 +134,7 @@ interface HealthcareProvider {
   acceptsSipCard: boolean;      // Public healthcare
   englishSupportLevel: 'native' | 'fluent' | 'conversational' | 'basic';
   supportedLanguages: Array<'en' | 'es' | 'ca' | 'fr' | 'de' | 'it' | 'nl'>;
-  specialties: string[];        // Medical specialties
+  specialties: Array<'general-practice' | 'cardiology' | 'dermatology' | 'ob-gyn' | 'pediatrics' | 'dentistry' | 'mental-health' | 'physiotherapy' | 'other'>;
   waitTimeDaysMin: number;      // shortest expected wait time in days
   waitTimeDaysMax: number;      // longest expected wait time in days
   telemedicine: boolean;        // Online consultations
@@ -415,16 +415,18 @@ The Valencia doctor shortage represents a **validated market opportunity** with:
 
 ## Appendix A: Provider Contact List
 
-Contact details below are preliminary research leads and must be manually verified before outreach or publication.
+Contact details below are preliminary research leads. Do not publish phone/email details until manually verified.
 
 ### Immediate Outreach (This Week)
 
-| Provider | Address | Phone | Email | Priority |
-|----------|---------|-------|-------|----------|
-| My Medica Valencia | Plaza Ayuntamiento | - | info@mymedica.es | High |
-| Centro Medico Maria | Near Nuevo Center | - | info@centromedicomaria.com | High |
-| Medicality | Pintor Sorolla, 19 | - | info@medicality.es | High |
-| Clínica Caro | Valencia | - | info@clinicacaro.es | Medium |
+| Provider | Address | Phone Status | Email Status | Priority |
+|----------|---------|--------------|--------------|----------|
+| My Medica Valencia | Plaza Ayuntamiento | Needs manual verification | Needs manual verification | High |
+| Centro Medico Maria | Near Nuevo Center | Needs manual verification | Needs manual verification | High |
+| Medicality | Pintor Sorolla, 19 | Needs manual verification | Needs manual verification | High |
+| Clínica Caro | Valencia | Needs manual verification | Needs manual verification | Medium |
+| IMED Valencia Hospital | Valencia | Needs manual verification | Needs manual verification | High |
+| Hospital Quirón | Valencia | Needs manual verification | Needs manual verification | Medium |
 
 ### Costa Blanca Targets (Week 5+)
 
