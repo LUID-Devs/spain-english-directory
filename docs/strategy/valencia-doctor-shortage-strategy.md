@@ -142,7 +142,7 @@ interface HealthcareProvider {
   
   // Expat-specific
   expatFriendly: boolean;       // Known for serving expats
-  internationalInsurance: string[]; // Accepted insurers
+  internationalInsurance: Array<'sanitas' | 'adeslas' | 'dkv' | 'axa' | 'cigna' | 'allianz' | 'other'>;
 }
 ```
 
@@ -415,6 +415,8 @@ The Valencia doctor shortage represents a **validated market opportunity** with:
 
 ## Appendix A: Provider Contact List
 
+Contact details below are preliminary research leads and must be manually verified before outreach or publication.
+
 ### Immediate Outreach (This Week)
 
 | Provider | Address | Phone | Email | Priority |
@@ -424,7 +426,7 @@ The Valencia doctor shortage represents a **validated market opportunity** with:
 | Medicality | Pintor Sorolla, 19 | - | info@medicality.es | High |
 | Clínica Caro | Valencia | - | info@clinicacaro.es | Medium |
 
-### Costa Blanca Targets (Week 4+)
+### Costa Blanca Targets (Week 5+)
 
 | Provider | Location | Specialties |
 |----------|----------|-------------|
