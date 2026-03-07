@@ -1,0 +1,8 @@
+-- Task 1632: Add Sanz Pancko Dental Clinic - Dental - Barcelona
+-- Data entry by subagent
+-- English-speaking dental clinic for expats in Barcelona
+
+INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
+
+-- Sanz Pancko Dental Clinic - English-speaking dental care for expats in Barcelona
+('Sanz Pancko Dental Clinic', 'Dental', 'English-speaking dental clinic in Barcelona specializing in expat dental care. Founded by Dr. Sanz and Dr. Pancko, with Dr. Pancko being from the USA, the clinic serves as a reference point for English-speaking patients seeking quality dental care in Barcelona. Offers comprehensive dental services including general dentistry, periodontics (gum disease treatment), endodontics (root canals), prosthodontics (crowns, bridges, dentures), maxillofacial surgery, implantology (dental implants), and teeth whitening. All treatments are personally planned and supervised by Dr. Sanz and Dr. Pancko, ensuring patient needs and dental health are prioritized. Provides conscious sedation administered by specialized anesthesiologists for patients with dental anxiety or those requiring complex treatments. Features a team of dentists dedicated exclusively to their specialties for personalized and efficient care. Conveniently located near Clot metro station (L1, L2) with Monday to Friday hours: 9:00 AM - 8:30 PM.', 'C/ Rogent 40-42 local 2, 08026 Barcelona', 'Barcelona', 'Barcelona', '+34 932 469 043', 'info@clinicadentalsyp.com', 'https://www.clinicadentalsyp.com', true, false, true, false, NOW(), NOW());
