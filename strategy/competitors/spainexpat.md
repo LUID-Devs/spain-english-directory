@@ -271,7 +271,7 @@ Based on content analysis, SpainExpat.com likely ranks for:
    - No competitor offers this
 
 4. **Established Community**
-   - 15,000+ forum topics
+   - 6,925 topics across sampled core sections
    - Years of user-generated content
    - Social proof and peer support
 
