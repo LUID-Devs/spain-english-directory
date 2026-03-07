@@ -13,8 +13,8 @@ Expat Info Desk (expatinfodesk.com) is a well-established expat relocation guide
 
 ### Key Findings
 
-- **Total EID Listings Analyzed:** 40+ businesses across multiple categories
-- **Spain-Specific Listings:** Very limited - only 1 Spain-based business (Turó Park Medical) was found in their directory
+- **Directory Dataset Sampled:** 40+ businesses across multiple categories
+- **Spain-Specific Listings in sampled directory dataset:** Very limited - Turó Park Dental & Medical Center was the clearest Spain-based listing identified
 - **US/UK-Focused:** Most EID listings are US tax preparation services or UK-based services
 - **Gap Opportunity:** HIGH - EID has minimal Spain coverage, leaving significant opportunity for our directory
 
@@ -42,7 +42,7 @@ Expat Info Desk (expatinfodesk.com) is a well-established expat relocation guide
 |----------|----------|------------|-------|
 | Turó Park Dental & Medical Center | Barcelona, Spain | ✅ YES | Already added (1297, 1145) |
 
-**Analysis:** EID only lists ONE Spain medical facility. We have comprehensive coverage.
+**Analysis:** In the sampled directory dataset, only one clear Spain medical facility was identified. We have broader Spain-focused coverage.
 
 ### Tax Services (US-Based)
 
@@ -223,7 +223,7 @@ data/seeds/1344-madrid-tax-advisors-expat-info-desk.sql      (5 providers)
 competitor-analysis/expatinfodesk-gap.md                     (This report)
 ```
 
-**Total New Providers Added:** 35
+**Total New Providers Added in this task batch:** 35
 
 ---
 

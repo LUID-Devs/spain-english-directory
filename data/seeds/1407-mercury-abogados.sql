@@ -1,4 +1,5 @@
 -- Task 1407: Add Mercury Abogados - Legal - Málaga (Marbella)
+-- Also referenced in Task 1502 (duplicate)
 -- Data entry for English-speaking legal services
 
 INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
