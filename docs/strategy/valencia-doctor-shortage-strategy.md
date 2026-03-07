@@ -106,7 +106,7 @@ verify your services and list your practice.
 
 Benefits of listing:
 - Direct exposure to expat community
-- Verified badge increases trust
+- Claimed profile badge on submission; Verified badge after validation checks
 - Free listing with optional premium features
 
 Please confirm:
@@ -291,7 +291,7 @@ Good luck with your search!
 
 | Risk | Likelihood | Impact | Mitigation |
 |------|------------|--------|------------|
-| Provider verification delays | Medium | Medium | Start with self-reported data, verify iteratively |
+| Provider verification delays | Medium | Medium | Start with self-reported data as `Claimed`, then promote to `Verified` only after manual validation |
 | Low initial user engagement | Medium | High | Partner with expat communities for launch |
 | Competitor response | Low | Medium | Focus on verification and user experience |
 | Data accuracy issues | Medium | High | Implement user feedback system |
