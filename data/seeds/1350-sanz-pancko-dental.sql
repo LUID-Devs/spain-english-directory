@@ -1,4 +1,4 @@
--- Task 1632: Add Sanz Pancko Dental Clinic - Dental - Barcelona
+-- Task 1350: Add Sanz Pancko Dental Clinic - Dental - Barcelona
 -- Data entry by subagent
 -- English-speaking dental clinic in Barcelona
 
