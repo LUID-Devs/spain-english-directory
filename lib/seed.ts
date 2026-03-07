@@ -186,6 +186,40 @@ async function seed() {
         isFeatured: true,
         listingType: ListingType.FEATURED,
       },
+      {
+        name: 'AAH Veterinary Services (Dr. Elizabeth A. Nave)',
+        email: 'aahvetdr.nave@gmail.com',
+        phone: '+34 913 574 496',
+        website: 'https://aahvet.com/',
+        categoryId: 1, // Healthcare
+        cityId: 1, // Madrid (Pozuelo de Alarcón area)
+        address: 'Av. de Europa, 4, 28224 Pozuelo de Alarcón',
+        postalCode: '28224',
+        description: 'American veterinarian serving Madrid area since 1989. Dr. Elizabeth A. Nave is a graduate of Oklahoma State University College of Veterinary Medicine (1989) and was born in Oklahoma City, USA. Quality Certified by the College of Veterinarians of Madrid in 2014. Services include general medicine and surgery, grooming for dogs and cats, house calls, boarding, and worldwide animal transport. Located just ten minutes outside Madrid with easy access on exit 4 of the M-503 toward Majadahonda. Conveniently located 20 minutes from La Moraleja and Las Rozas, and 5 minutes from the American School of Madrid. Native English-speaking staff providing care, quality and compassion for expat pets in Spain.',
+        speaksEnglish: true,
+        englishLevel: ProfessionalEnglishLevel.NATIVE,
+        specialties: ['Small Animals', 'Surgery', 'Grooming', 'House Calls', 'Pet Boarding', 'Animal Transport'],
+        isVerified: true,
+        isFeatured: false,
+        listingType: ListingType.FREE,
+      },
+      {
+        name: 'Dr. Carlos Morales',
+        email: 'contacto@doctorcarlosmorales.com',
+        phone: '+34 951 66 59 69',
+        website: 'https://doctorcarlosmorales.com',
+        categoryId: 1, // Healthcare
+        cityId: 4, // Málaga
+        address: 'Av. de Manuel Fraga Iribarne, 15, local 4, Torremolinos',
+        postalCode: '29620',
+        description: 'English-speaking pain specialist in Malaga. Specialized in pain management and treatment for international patients and expats. Offers advanced pain treatments including radiofrequency, ozone therapy, regenerative medicine, and minimally invasive procedures. Treats herniated discs, arthritis, chronic pain, neuralgia, and back pain. Consultations at Hospital Santa Elena and Clínica Élite in Torremolinos.',
+        speaksEnglish: true,
+        englishLevel: ProfessionalEnglishLevel.C1,
+        specialties: ['Pain Management', 'Radiofrequency', 'Ozone Therapy', 'Regenerative Medicine', 'Herniated Discs', 'Arthritis', 'Chronic Pain', 'Neuralgia', 'Back Pain'],
+        isVerified: true,
+        isFeatured: false,
+        listingType: ListingType.FREE,
+      },
     ]);
     console.log(`✅ Created ${professionals.length} professionals`);
 
