@@ -1,0 +1,7 @@
+-- Task 1596: Add Finance-Spain.com - Financial Advisors - Nationwide
+-- Data entry by agent
+-- Independent financial advisers specializing in cross-border planning for expatriates in Spain
+
+INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
+
+('Finance-Spain.com', 'Financial Advisors', 'Independent financial advisory firm specializing in regulated cross-border planning for expatriates living in Spain. Led by Patrick Macdonald ACSI, a qualified international financial adviser with over 14 years of experience helping British expats navigate Spain''s financial system. Core services include: International pensions (International SIPP and QROPS transfers), Spanish-compliant investment structures, tax-efficient retirement planning, wealth management, estate and succession planning, Modelo 720 compliance assistance, and Brexit-related financial protection. Expertise in UK-Spain cross-border issues including UK ISA taxation, pension lump sum treatment, and Spanish inheritance laws. Consultations delivered online nationwide via WhatsApp, phone, or video call. Regulated by the Financial Services Commission with full administrative and compliance support. No-obligation initial meetings with in-depth recommendation reports provided at no cost.', 'Nationwide • Online consultations', 'Madrid', 'Madrid', '+34 633 750 044', NULL, 'https://www.finance-spain.com/', true, false, true, false, NOW(), NOW());
