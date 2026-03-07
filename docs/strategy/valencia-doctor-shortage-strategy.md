@@ -114,7 +114,8 @@ Please confirm:
 2. Specialties offered
 3. Public (SIP) or private only
 4. Typical wait times
-5. Contact information
+5. Whether you are currently accepting new patients
+6. Contact information
 
 [Verification Link]
 
@@ -132,9 +133,10 @@ interface HealthcareProvider {
   
   // New fields for healthcare
   acceptsSipCard: boolean;      // Public healthcare
+  acceptingNewPatients: boolean;
   englishSupportLevel: 'native' | 'fluent' | 'conversational' | 'basic';
   supportedLanguages: Array<'en' | 'es' | 'ca' | 'fr' | 'de' | 'it' | 'nl'>;
-  specialties: Array<'general-practice' | 'cardiology' | 'dermatology' | 'ob-gyn' | 'pediatrics' | 'dentistry' | 'mental-health' | 'physiotherapy' | 'other'>;
+  specialties: Array<'general-practice' | 'cardiology' | 'dermatology' | 'ob-gyn' | 'pediatrics' | 'dentistry' | 'mental-health' | 'physiotherapy' | 'orthopedics' | 'ophthalmology' | 'endocrinology' | 'neurology' | 'other'>;
   waitTimeDaysMin: number;      // shortest expected wait time in days
   waitTimeDaysMax: number;      // longest expected wait time in days
   telemedicine: boolean;        // Online consultations
@@ -142,7 +144,7 @@ interface HealthcareProvider {
   
   // Expat-specific
   expatFriendly: boolean;       // Known for serving expats
-  internationalInsurance: Array<'sanitas' | 'adeslas' | 'dkv' | 'axa' | 'cigna' | 'allianz' | 'other'>;
+  internationalInsurance: Array<'sanitas' | 'adeslas' | 'dkv' | 'axa' | 'cigna' | 'allianz' | 'bupa' | 'other'>;
 }
 ```
 
