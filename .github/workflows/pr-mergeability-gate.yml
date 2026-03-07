@@ -49,4 +49,9 @@ jobs:
               return;
             }
 
+            if (state === "unknown") {
+              core.setFailed("Could not determine mergeability state after retries. Please re-trigger the workflow once GitHub has finished computing the merge status.");
+              return;
+            }
+
             core.info("PR is not dirty. Mergeability gate passed.");
