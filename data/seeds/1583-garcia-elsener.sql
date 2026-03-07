@@ -1,0 +1,8 @@
+-- Task 1583: Add Garcia Elsener Tax Advisors - Tax/Accounting - Barcelona
+-- Data entry by subagent
+-- Tax advisory services for international clients in Barcelona
+
+INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
+
+-- Garcia Elsener - Tax advisors in Barcelona specializing in international clients
+('Garcia Elsener', 'Tax/Accounting', 'International tax advisory firm founded by Julian Garcia-Lavernia Elsener, a Spanish-Swiss dual citizen with extensive experience in both national and international tax advisory. Previously worked with major firms including PricewaterhouseCoopers (PwC) and ETL Global. Specializes in serving foreign residents and investors from all over the world with interests in Spain. Core services include tax declarations, wealth management, business consulting, international tax consulting, income tax declarations for foreigners, NIE application and registration support, and filing appeals with the Spanish Tax Agency. The firm\'s distinguishing feature is collaboration with clients\' home country tax advisors to provide tailored cross-border advice, ensuring a seamless and comprehensive approach to tax planning. Offers services in English and understands the unique challenges that foreigners face in Spain. Serves clients from both Barcelona and Mallorca offices.', 'C/ de París, 174 Bis, Piso 2, Puerta 1', 'Barcelona', 'Barcelona', '+34 93 694 01 83', 'info@garciaelsener.com', 'https://www.garciaelsener.com', true, false, true, false, NOW(), NOW());
