@@ -1,7 +1,7 @@
 -- Task 1345: Add HTJ.tax - US Tax Accounting - Spain
--- Data entry by Chip
+-- Data entry by Larry
 
 INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
 
--- HTJ.tax - Barcelona
-('HTJ.tax', 'Accountants', 'US tax accounting firm specializing in expat tax services for Americans living in Spain. The firm provides US federal and state tax returns, FBAR reporting, FATCA compliance, foreign tax credit optimization, foreign earned income exclusion, tax treaty analysis, Streamlined Filing Compliance Procedures, and tax planning for US shareholders of foreign corporations. Member of Moores Rowland International with offices worldwide. Multilingual team provides year-round support with offices in multiple time zones. Free initial consultation available.', 'Diputació 301, Pral. 1ª, 08009 Barcelona', 'Barcelona', 'Barcelona', NULL, 'info@htj.tax', 'https://htj.tax', true, false, true, false, NOW(), NOW());
+-- HTJ.tax - US Tax Accountant in Spain
+('HTJ.tax', 'Accountants', 'US tax accounting firm specializing in expat tax services for American citizens and green card holders living in Spain. With over a decade of experience serving Americans abroad, HTJ provides comprehensive US tax compliance, consulting, and preparation services. Expertise includes foreign earned income exclusions, foreign tax credits, FBAR reporting, and complex multi-jurisdiction tax issues. The team includes US tax accountants based in Spain who understand the intricacies of both US and Spanish tax systems. Primarily an online service with an office in Barcelona for in-person consultations when needed. Member of Moores Rowland International network. Also assists freelancers, remote workers, and entrepreneurs with US tax obligations.', 'Diputació 301, Pral. 1ª', 'Barcelona', 'Barcelona', NULL, 'info@htj.tax', 'https://htj.tax/us-expat-tax-spain/', true, false, true, false, NOW(), NOW());

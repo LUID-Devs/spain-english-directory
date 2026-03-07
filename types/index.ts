@@ -19,6 +19,7 @@ export interface DirectoryEntry {
 }
 
 export type ClaimStatus = 'pending' | 'verified' | 'approved' | 'rejected';
+export type ClaimRelationship = 'owner' | 'employee' | 'authorized';
 
 export interface Claim {
   id: number;
@@ -26,6 +27,7 @@ export interface Claim {
   claimantName: string;
   claimantEmail: string;
   claimantPhone?: string;
+  relationship?: ClaimRelationship;
   documentUrl?: string;
   verificationCode: string;
   verificationCodeExpiresAt: string;
@@ -45,5 +47,6 @@ export interface ClaimFormData {
   claimantName: string;
   claimantEmail: string;
   claimantPhone?: string;
+  relationship?: ClaimRelationship;
   documentUrl?: string;
 }
