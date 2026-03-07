@@ -1,0 +1,8 @@
+-- Task 1653: Add Dr. De Boer / InternationalDoctor.eu - Healthcare - Madrid
+-- Data entry by subagent
+-- English-speaking doctor in Madrid providing healthcare services for expats. House calls and clinic visits available.
+
+INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
+
+-- Dr. De Boer / InternationalDoctor.eu - English-speaking healthcare for expats in Madrid
+('Dr. De Boer - InternationalDoctor.eu', 'Healthcare', 'English-speaking doctor in Madrid providing comprehensive healthcare services for expats, students, and international families. Dr. Johanna de Boer is a family medicine physician with a multicultural background - born in the Netherlands and raised in Sweden, she studied medicine in Prague and completed her Family Medicine residency in Madrid. Fluent in English, Spanish, Dutch, and Swedish. Offers three consultation options: online video consultations available worldwide, in-person clinic visits in Alcobendas, and home visits throughout the Madrid area. Specializes in primary care, pediatric illnesses, infections, chronic disease management including hypertension and diabetes, and trauma-related issues. Highly rated with 5.0/5 stars from nearly 400 verified patient reviews. Issues Spanish electronic prescriptions (REMPe) valid at all pharmacies in Spain. Patient-centered approach with clear communication and culturally sensitive care tailored to the international community.', 'Calle del Marqués de la Valdavia, Alcobendas', 'Madrid', 'Madrid', '+34 603 932 472', 'info@internationaldoctor.eu', 'https://internationaldoctor.eu/', true, false, true, false, NOW(), NOW());
