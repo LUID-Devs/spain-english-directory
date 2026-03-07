@@ -135,50 +135,18 @@ async function seed() {
         listingType: ListingType.FREE,
       },
       {
-<<<<<<< Updated upstream
-        name: 'Lexidy Law Firm',
-        email: 'info@lexidy.com',
-        phone: '+34 938 07 40 56',
-        website: 'https://www.lexidy.com',
-        categoryId: 2, // Legal
-        cityId: 2, // Barcelona
-        address: 'Avinguda Diagonal, 442, 1º 1ª',
-        postalCode: '08037',
-        description: 'English-speaking international law firm specializing in immigration, property, and business law for expats in Spain. Part of a European-wide legal network with offices across the continent. Services include visa applications (Digital Nomad, Non-Lucrative, Golden Visa), property conveyancing, company formation, contract review, and tax planning. Fixed-fee pricing model with no hourly billing. Multilingual team provides clear, straightforward legal guidance with personalized attention. Video consultations available. Located on Avinguda Diagonal in the heart of Barcelona\'s business district.',
-        speaksEnglish: true,
-        englishLevel: ProfessionalEnglishLevel.NATIVE,
-        specialties: ['Immigration', 'Property Law', 'Business Law', 'Visa Applications', 'Tax Planning'],
-        isVerified: true,
-        isFeatured: false,
-        listingType: ListingType.FREE,
-      },
-      {
-        name: 'Lexidy Law Firm',
-        email: 'info@lexidy.com',
-        phone: '+34 915 367 806',
-        website: 'https://www.lexidy.com',
-        categoryId: 2, // Legal
-        cityId: 1, // Madrid
-        address: 'Calle Villalar 7, Bajo Izquierda',
-        postalCode: '28001',
-        description: 'English-speaking international law firm specializing in immigration, property, and business law for expats in Spain. Part of a European-wide legal network with offices across the continent. Services include visa applications (Digital Nomad, Non-Lucrative, Golden Visa), property conveyancing, company formation, contract review, and tax planning. Fixed-fee pricing model with no hourly billing. Multilingual team provides clear, straightforward legal guidance with personalized attention. Video consultations available. Located in the Recoletos neighborhood near Puerta de Alcalá.',
-        speaksEnglish: true,
-        englishLevel: ProfessionalEnglishLevel.NATIVE,
-        specialties: ['Immigration', 'Property Law', 'Business Law', 'Visa Applications', 'Tax Planning'],
-=======
-        name: "Women's Barcelona",
-        email: 'info@womensbarcelona.com',
-        phone: '+34 932 123 456',
-        website: 'https://www.womensbarcelona.com',
+        name: 'James Wellington Physiotherapy',
+        email: 'info@jwphysiotherapybarcelona.com',
+        phone: '+34 633 52 05 02',
+        website: 'https://www.jwphysiotherapybarcelona.com',
         categoryId: 1, // Healthcare
         cityId: 2, // Barcelona
-        address: 'Carrer de Balmes 123',
-        postalCode: '08008',
-        description: 'English-speaking gynecology clinic in Barcelona providing comprehensive women\'s health services. Experienced international team offering routine check-ups, prenatal care, fertility consultations, and specialized gynecological treatments in a comfortable, welcoming environment for expat women.',
+        address: 'C/ de Pau Claris, 153, Bajo Local',
+        postalCode: '08009',
+        description: 'English-speaking physiotherapist with 20 years experience treating patients in Barcelona and remotely. Former physiotherapist for London 2012 Olympics, European Athletics Championships, National Centre for Circus Arts, and Cirque du Soleil. Offers a holistic approach combining hands-on manual therapy, rehabilitation, re-education and personalized home exercise programs. Treats neck and back pain, joint injuries, muscle and tendon injuries, repetitive strain injuries, and post-accident recovery. Available for in-person consultations in Eixample and remote appointments.',
         speaksEnglish: true,
-        englishLevel: ProfessionalEnglishLevel.C1,
-        specialties: ['Gynecology', 'Prenatal Care', 'Fertility', 'Women\'s Health'],
->>>>>>> Stashed changes
+        englishLevel: ProfessionalEnglishLevel.NATIVE,
+        specialties: ['Physiotherapy', 'Manual Therapy', 'Sports Medicine', 'Performing Arts Medicine', 'Rehabilitation'],
         isVerified: true,
         isFeatured: false,
         listingType: ListingType.FREE,
