@@ -134,6 +134,23 @@ async function seed() {
         isFeatured: false,
         listingType: ListingType.FREE,
       },
+      {
+        name: 'International Doctor 24h',
+        email: 'info@internationaldoctor24h.com',
+        phone: '+34 678 752 098',
+        website: 'https://internationaldoctor24h.com',
+        categoryId: 1, // Healthcare
+        cityId: 1, // Madrid
+        address: 'Available across Madrid city center and surrounding areas',
+        postalCode: '28001',
+        description: '24/7 English-speaking urgent care service for tourists and residents in Madrid. Specializes in home and hotel doctor visits, walk-in clinic access, emergency medical services, pediatric care, and ambulance coordination. No appointment needed. Covers all major areas including Gran Vía, Sol, Chamberí, Salamanca, La Latina, Moncloa, and Barajas. Fluent English-speaking doctors with experience treating international patients. Accepts private medical insurance.',
+        speaksEnglish: true,
+        englishLevel: ProfessionalEnglishLevel.NATIVE,
+        specialties: ['Urgent Care', 'Home Doctor Visits', 'Pediatrics', 'Emergency Medicine', 'Tourist Healthcare'],
+        isVerified: true,
+        isFeatured: true,
+        listingType: ListingType.FEATURED,
+      },
     ]);
     console.log(`✅ Created ${professionals.length} professionals`);
 
