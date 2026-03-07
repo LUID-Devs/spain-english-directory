@@ -1,0 +1,8 @@
+-- Task 1612: Add Clínica Dental Raslan - Dental - Barcelona
+-- Data entry by subagent
+-- English-speaking dental clinic in Barcelona
+
+INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
+
+-- Clínica Dental Raslan - English-Speaking Dental Clinic Barcelona
+('Clínica Dental Raslan', 'Dental', 'English-speaking dental clinic in Barcelona providing comprehensive dental care for international patients and expats. The clinic offers a full range of dental services including general dentistry, dental implants, orthodontics (Invisalign certified), cosmetic dentistry, endodontics, periodontics, and pediatric dentistry. The team includes dentists with international training and accreditation, ensuring high-quality care with English-speaking staff. The clinic features modern facilities with state-of-the-art dental technology and a patient-centered approach. Services include routine check-ups, professional cleanings, teeth whitening, veneers, crowns, bridges, root canal treatment, gum disease management, and emergency dental care. The clinic caters specifically to English-speaking residents and visitors in Barcelona, providing clear communication and personalized treatment plans. Flexible appointment scheduling and assistance with international dental insurance claims available.', 'Carrer de Ganduxer, 59 Bis', 'Barcelona', 'Barcelona', '+34 937 656 788', 'info@clinicaraslan.com', 'https://clinicaraslan.com/en/', true, false, true, false, NOW(), NOW());
