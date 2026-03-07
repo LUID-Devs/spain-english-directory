@@ -1,7 +1,7 @@
 # Barcelona English-Speaking Doctors: Reddit Research Report
 
 **Issue:** #1337  
-**Research Date:** March 2025  
+**Research Date:** March 2026  
 **Sources:** Reddit (r/Barcelona, r/AskBarcelona), expat forums, Barcelona-life.com, Medical Care Barcelona
 
 ---
@@ -326,6 +326,6 @@ Create detailed breakdown showing:
 
 ---
 
-**Research Completed:** March 2025  
-**Next Review:** June 2025  
+**Research Completed:** March 2026  
+**Next Review:** June 2026  
 **Document Owner:** Spain English Directory Team

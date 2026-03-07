@@ -1,4 +1,4 @@
-# The 5% Reality: Why English Proficiency Is Spain's Hidden Expat Challenge
+# Spain's Language Barrier Reality: What English-Speaking Expats Should Expect
 
 **Understanding the Language Gap That Shapes Daily Life for English-Speaking Residents**
 
@@ -6,7 +6,7 @@
 
 ## The Reddit Verdict
 
-If you've browsed expat forums or Reddit communities about living in Spain, you've likely encountered a sobering reality check: **most Spanish citizens don't speak English**. While official statistics vary, the lived experience of expats tells a consistent story—one that every prospective English-speaking resident needs to understand.
+If you've browsed expat forums or Reddit communities about living in Spain, you've likely encountered a sobering reality check: **English availability is uneven and often limited outside expat-heavy areas**. While official statistics vary, the lived experience of expats tells a consistent story that prospective English-speaking residents should understand.
 
 > *"Drive 20 minutes out of main cities in Spain and you will have 0% English speakers."*
 > — r/europe, December 2024
@@ -123,7 +123,7 @@ This language gap represents a significant market opportunity:
 
 ## The Bottom Line
 
-The Reddit insight about Spain's low English proficiency—variously cited as "5%" in some contexts or "0% outside cities"—reflects a fundamental truth: **English-speaking expats in Spain cannot rely on their native language for daily life.**
+The Reddit insight about Spain's low English proficiency reflects a fundamental truth: **English-speaking expats in Spain cannot rely on their native language for daily life.**
 
 While younger, urban, and professionally-oriented Spaniards increasingly speak English, the majority of the population—particularly in older demographics and outside major cities—does not. This isn't a temporary situation; it's a structural feature of Spanish society rooted in history, economics, and geography.
 
@@ -142,7 +142,7 @@ The message from Spanish citizens is clear: learning Spanish isn't just helpful�
 |---------|------------------|
 | 60% of Spaniards don't speak English | Expect Spanish-only interactions in daily life |
 | Only 10% of 55+ Spaniards speak English | Older service providers often don't speak English |
-| 0% English speakers outside cities | Rural and small-town living requires Spanish |
+| English availability drops sharply outside major cities | Rural and small-town living requires Spanish |
 | Language gap is structural, not temporary | Learning Spanish is a long-term investment |
 | Younger generations are improving | Future decades may see gradual improvement |
 
@@ -160,5 +160,5 @@ The message from Spanish citizens is clear: learning Spanish isn't just helpful�
 
 ---
 
-*Last Updated: March 2025*
+*Last Updated: March 2026*
 *Sources: Reddit (r/askspain, r/europe, r/GoingToSpain), El País, CIS State Research Institute, Eurostat, EF English Proficiency Index, European Commission, languageknowledge.eu*

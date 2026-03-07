@@ -1,0 +1,7 @@
+-- Task 1617: Add Sanchez Solicitors - Legal - Malaga/Marbella/Nerja
+-- English-speaking law firm serving Costa del Sol
+
+INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
+
+-- Sanchez Solicitors - Nerja (main office), serving Malaga/Marbella
+('Sánchez Solicitors', 'Legal', 'English-speaking law firm based in Nerja providing comprehensive legal services throughout the Costa del Sol and province of Málaga. Multinational team offers services in up to 8 different languages including English, reflecting the multicultural nature of the region. Specializes in real estate law and property conveyancing for foreign buyers, banking claims and mortgage disputes, traffic accident compensation, medical malpractice cases, corporate tax advice, Spanish residency and NIE number applications, wills and inheritance law. Personalized service with a client-focused philosophy - their cases become the firm\'s issues. Multiple offices across Costa del Sol including Nerja, Fuengirola, and Marbella. Serves clients throughout Málaga province including Nerja, Marbella, Mijas, Fuengirola, Benalmádena, Torremolinos, and surrounding areas.', 'Calle Diputación Provincial, 13', 'Nerja', 'Málaga', '+34 951 21 46 36', 'info@sanchezsolicitors.com', 'https://www.sanchezsolicitors.com', true, false, false, false, NOW(), NOW());

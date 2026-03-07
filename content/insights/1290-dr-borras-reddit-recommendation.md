@@ -31,7 +31,7 @@ This is consistently the #1 reason expats mention. Unlike many Spanish doctors w
 
 ### 2. **Familiarity with the Expat Experience**
 
-With **20+ years of experience working with the English-speaking community**, Dr. Borrás understands the unique challenges expats face:
+Dr. Borrás is frequently recommended in expat discussions and appears repeatedly in community referrals. He understands the unique challenges expats face:
 - Navigating Spain's healthcare system
 - Understanding the differences between US and Spanish pharmaceuticals
 - Coordinating with international insurance providers
@@ -52,12 +52,12 @@ For those unable to visit the clinic, Dr. Borrás offers **house calls in Madrid
 | Attribute | Detail |
 |-----------|--------|
 | **Specialty** | General Practice / Family Medicine |
-| **Experience** | 20+ years with English-speaking patients |
+| **Experience** | Repeatedly recommended by expat communities (2018-2024 sample) |
 | **Languages** | English, Spanish |
 | **Hours** | Monday–Friday, 12:00–18:30 |
 | **House Calls** | Available in Madrid center |
 | **Staff** | English-speaking secretary |
-| **Phone** | 674 216 899 |
+| **Phone** | +34 915 759 834 (primary), +34 674 216 899 (mobile) |
 | **Address** | C/ Padilla, 20, Bajo Derecha, Madrid |
 
 ---
@@ -76,7 +76,6 @@ Mentions appear not just on Reddit but also on:
 - SmartExpat
 - Angloinfo
 - American Club of Madrid
-- NYU Madrid Hub (officially recommended)
 
 ### Specific Praise Points
 Redditors consistently highlight:
@@ -101,7 +100,7 @@ If you're moving to Madrid and worried about healthcare access, Dr. Borrás repr
 
 ## The Bottom Line
 
-Dr. Rubén Borrás has earned his reputation as Madrid's most recommended English-speaking doctor through two decades of consistent service to the expat community. For English teachers, BEDA auxiliares, and international residents, he represents a bridge between Spanish healthcare and English-speaking patient needs.
+Dr. Rubén Borrás has earned his reputation as one of Madrid's most recommended English-speaking doctors in expat communities. For English teachers, BEDA auxiliares, and international residents, he represents a bridge between Spanish healthcare and English-speaking patient needs.
 
 When dozens of independent Reddit users over multiple years all point to the same physician, it's not coincidence—it's a track record.
 
@@ -118,5 +117,5 @@ When dozens of independent Reddit users over multiple years all point to the sam
 
 ---
 
-*Last Updated: March 2025*
+*Last Updated: March 2026*
 *Sources: Reddit (r/SpainAuxiliares, r/Madrid), Yelp, ESHA Spain, SmartExpat, Angloinfo*

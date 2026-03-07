@@ -52,10 +52,10 @@ Based on their detailed article "English Speaking Vet in Barcelona, Sitges, Sant
 - Quote from clinic staff demonstrating English proficiency
 
 **Specialization Trends:**
-- 5/8 clinics offer 24-hour emergency services
-- 3/8 offer stem cell / regenerative medicine
+- 6/8 clinics offer 24-hour emergency services
+- 2/8 offer stem cell / regenerative medicine
 - 4/8 treat exotic pets (not just cats/dogs)
-- 3/8 have "Cat-Friendly" accreditation or dedicated feline facilities
+- 4/8 have "Cat-Friendly" accreditation or dedicated feline facilities
 
 ---
 
@@ -231,26 +231,29 @@ Use the research above to create directory entries for all 8 featured clinics.
 ```sql
 -- Barcelona Metropolitan Featured Veterinary Clinics
 -- Source: barcelona-metropolitan.com/living/reader-recommendations-english-speaking-vets/
+-- Note: is_verified=false and is_featured=false for all entries because these
+-- are sourced from BM editorial content, not independently verified or curated
+-- by Spain English Directory. Update both flags after internal review.
 
-INSERT INTO directory_entries (name, category, description, address, city, province, phone, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
+INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
 
--- Barcelona City
-('Borrell Clínica Veterinària', 'Veterinary', 'Friendly neighborhood clinic with in-house lab, diagnostic equipment, surgery and hospital facilities. Separate cat areas to minimize feline stress. Specialties include oncology, dentistry and dermatology. Grooming service and sustainable pet product shop available. General consultations €40. Accepts multiple insurance policies.', 'Carrer del Comte Borrell, 157', 'Barcelona', 'Barcelona', '+34 93 188 26 79', 'https://www.clinicaveterinariaborrell.com/', true, true, true, false, NOW(), NOW()),
+-- Barcelona City (featured by source only; not featured in our directory)
+('Borrell Clínica Veterinària', 'Veterinary', 'Friendly neighborhood clinic with in-house lab, diagnostic equipment, surgery and hospital facilities. Separate cat areas to minimize feline stress. Specialties include oncology, dentistry and dermatology. Grooming service and sustainable pet product shop available. General consultations €40. Accepts multiple insurance policies.', 'Carrer del Comte Borrell, 157', 'Barcelona', 'Barcelona', '+34 93 188 26 79', NULL, 'https://www.clinicaveterinariaborrell.com/', true, false, false, false, NOW(), NOW()),
 
-('Hospital Veterinari del Mar', 'Veterinary', 'Specialist veterinary hospital with state-of-the-art diagnostic imaging. Treats dogs, cats and exotic pets. Separate feline facilities. Offers physiotherapy, rehabilitation and animal behaviorist services. 24-hour emergency service year-round. General consultations €30 (€45 exotic). Accepts SantéVet insurance.', 'Carrer de la Marina, 69', 'Barcelona', 'Barcelona', '+34 93 021 78 12', 'https://veterinariadelmar.com/', true, true, true, false, NOW(), NOW()),
+('Hospital Veterinari del Mar', 'Veterinary', 'Specialist veterinary hospital with state-of-the-art diagnostic imaging. Treats dogs, cats and exotic pets. Separate feline facilities. Offers physiotherapy, rehabilitation and animal behaviorist services. 24-hour emergency service year-round. General consultations €30 (€45 exotic). Accepts SantéVet insurance.', 'Carrer de la Marina, 69', 'Barcelona', 'Barcelona', '+34 93 021 78 12', NULL, 'https://veterinariadelmar.com/', true, false, false, false, NOW(), NOW()),
 
-('L''Animalari', 'Veterinary', 'Small friendly clinic in the Born district with in-house diagnostics, lab, surgery and hospitalization. Head vet Jesús speaks perfect English and German. Highly recommended by expats for 12+ years. Grooming service available. Home visits offered. Does not accept insurance directly but can recommend providers.', 'Carrer de Sant Pere Més Baix, 73', 'Barcelona', 'Barcelona', '+34 93 310 23 59', 'http://www.animalari.com/en/', true, true, true, false, NOW(), NOW()),
+('L''Animalari', 'Veterinary', 'Small friendly clinic in the Born district with in-house diagnostics, lab, surgery and hospitalization. Head vet Jesús speaks perfect English and German. Highly recommended by expats for 12+ years. Grooming service available. Home visits offered. Does not accept insurance directly but can recommend providers.', 'Carrer de Sant Pere Més Baix, 73', 'Barcelona', 'Barcelona', '+34 93 310 23 59', NULL, 'http://www.animalari.com/en/', true, false, false, false, NOW(), NOW()),
 
-('Hospital Veterinari Glòries', 'Veterinary', 'Large hospital with 20+ team including specialists in internal medicine, neurology and oncology. ISFM Cat-Friendly accredited with dedicated feline facilities. Also treats exotic pets. 24/7 emergency service year-round. Consultations from €41. Accepts Mussap, Mapfre, Agrupació and Allianz insurance.', 'Avinguda Diagonal, 237', 'Barcelona', 'Barcelona', '+34 93 246 08 05', 'https://www.hospitalveterinariglories.com/', true, true, true, false, NOW(), NOW()),
+('Hospital Veterinari Glòries', 'Veterinary', 'Large hospital with 20+ team including specialists in internal medicine, neurology and oncology. ISFM Cat-Friendly accredited with dedicated feline facilities. Also treats exotic pets. 24/7 emergency service year-round. Consultations from €41. Accepts Mussap, Mapfre, Agrupació and Allianz insurance.', 'Avinguda Diagonal, 237', 'Barcelona', 'Barcelona', '+34 93 246 08 05', NULL, 'https://www.hospitalveterinariglories.com/', true, false, false, false, NOW(), NOW()),
 
-('Hospital Veterinari Montjuïc', 'Veterinary', 'Specialized in neurology and ophthalmology with brand-new MRI machine and full diagnostic equipment. Treats everyday and exotic pets. Features grooming service, shop, canine café and physio/rehab pool. 24/7 emergency service. Accepts Asegurança Salut Veterinaria insurance.', 'Carrer de Mèxic, 30', 'Barcelona', 'Barcelona', '+34 93 423 77 11', 'https://hvmontjuic.com/', true, true, true, false, NOW(), NOW()),
+('Hospital Veterinari Montjuïc', 'Veterinary', 'Specialized in neurology and ophthalmology with brand-new MRI machine and full diagnostic equipment. Treats everyday and exotic pets. Features grooming service, shop, canine café and physio/rehab pool. 24/7 emergency service. Accepts Asegurança Salut Veterinaria insurance.', 'Carrer de Mèxic, 30', 'Barcelona', 'Barcelona', '+34 93 423 77 11', NULL, 'https://hvmontjuic.com/', true, false, false, false, NOW(), NOW()),
 
--- Surrounding Areas
-('Clínica Veterinària Mirasol', 'Veterinary', 'Full-service clinic near Mirasol train station. Specializes in traumatology and ophthalmology. Offers innovative stem cell therapy and regenerative medicine. 24-hour emergency service (rare in Sant Cugat). Home visits available. General consultations €35.80. Accepts SegurVet insurance.', 'Carrer de Vallseca, 140, local 2', 'Sant Cugat del Vallès', 'Barcelona', '+34 93 589 49 78', 'http://www.clinicaveterinariamirasol.com/', true, true, true, false, NOW(), NOW()),
+-- Surrounding Areas (Not featured)
+('Clínica Veterinària Mirasol', 'Veterinary', 'Full-service clinic near Mirasol train station. Specializes in traumatology and ophthalmology. Offers innovative stem cell therapy and regenerative medicine. 24-hour emergency service (rare in Sant Cugat). Home visits available. General consultations €35.80. Accepts SegurVet insurance.', 'Carrer de Vallseca, 140, local 2', 'Sant Cugat del Vallès', 'Barcelona', '+34 93 589 49 78', NULL, 'http://www.clinicaveterinariamirasol.com/', true, false, false, false, NOW(), NOW()),
 
-('Hospital Veterinari Sala Gorön', 'Veterinary', 'Serves expat community and tourists in Sitges. Large team with expertise in cardiology, traumatology, dermatology, neurology, internal medicine and surgery. Treats exotic animals. Separate cat and infectious patient hospitalization. 24-hour emergency year-round. General consultations €40 (€77 emergency). Part of Veteralia group.', 'Carrer d''Espalter, 22', 'Sitges', 'Barcelona', '+34 93 894 01 08', 'https://www.veteralia.com/hospital-veterinari-sala-goron-es/', true, true, true, false, NOW(), NOW()),
+('Hospital Veterinari Sala Gorön', 'Veterinary', 'Serves expat community and tourists in Sitges. Large team with expertise in cardiology, traumatology, dermatology, neurology, internal medicine and surgery. Treats exotic animals. Separate cat and infectious patient hospitalization. 24-hour emergency year-round. General consultations €40 (€77 emergency). Part of Veteralia group.', 'Carrer d''Espalter, 22', 'Sitges', 'Barcelona', '+34 93 894 01 08', NULL, 'https://www.veteralia.com/hospital-veterinari-sala-goron-es/', true, false, false, false, NOW(), NOW()),
 
-('Hospital Veterinari Desvern', 'Veterinary', 'Experts in traumatology, orthopedics and neurosurgery with complex surgical capabilities. Offers stem cell therapy, physiotherapy, rehabilitation, behavioral and nutritional advice. 24-hour emergency service. General consultations €49. Accepts multiple insurance policies.', 'Carrer Roquetes, 6 b', 'Sant Just Desvern', 'Barcelona', '+34 93 499 06 48', 'https://www.veterinari-desvern.es/', true, true, true, false, NOW(), NOW());
+('Hospital Veterinari Desvern', 'Veterinary', 'Experts in traumatology, orthopedics and neurosurgery with complex surgical capabilities. Offers stem cell therapy, physiotherapy, rehabilitation, behavioral and nutritional advice. 24-hour emergency service. General consultations €49. Accepts multiple insurance policies.', 'Carrer Roquetes, 6 b', 'Sant Just Desvern', 'Barcelona', '+34 93 499 06 48', NULL, 'https://www.veterinari-desvern.es/', true, false, false, false, NOW(), NOW());
 ```
 
 ---

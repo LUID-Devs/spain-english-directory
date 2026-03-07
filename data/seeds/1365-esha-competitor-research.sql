@@ -15,9 +15,6 @@ INSERT INTO directory_entries (name, category, description, address, city, provi
 -- Dental Clinic Odental Madrid
 ('Odental Madrid', 'Healthcare', 'Family-run dental clinic in Madrid offering dentistry work for adults and children. English-speaking staff available to assist international patients with their dental care needs.', 'Calle de Fernando el Santo, 22, 28010', 'Madrid', 'Madrid', '+34 913 080 808', 'info@odental.es', 'https://www.odental.es', true, false, true, false, NOW(), NOW()),
 
--- Unidad Médica Angloamericana Madrid
-('Unidad Médica Angloamericana', 'Healthcare', 'International hospital and medical clinic in the center of Madrid where all professional staff are English-speaking. Doctors, nurses and administration experts in treating international patients. Multilingual medical clinic providing comprehensive healthcare services following international standards.', 'Calle del Conde de Aranda, 1, 28001', 'Madrid', 'Madrid', '+34 914 351 823', 'um@unidadmedica.com', 'https://www.unidadmedica.com', true, false, true, false, NOW(), NOW()),
-
 -- Medical Clinic Santamarta Madrid
 ('Medical Clinic Santamarta', 'Healthcare', 'Founded in Madrid in 1954 by a team of English-speaking doctors, nurses, and administrative staff. Faithfully offering emergency medical services in Madrid and surrounding communities for over 65 years. Specializes in emergency medical services for the English-speaking community.', 'Calle de Sagasta, 21, 28004', 'Madrid', 'Madrid', '+34 915 217 351', 'info@medicalsantamarta.com', 'https://www.medicalsantamarta.com', true, false, true, false, NOW(), NOW()),
 
@@ -115,8 +112,8 @@ INSERT INTO directory_entries (name, category, description, address, city, provi
 -- Dental Clinic Puyuelo Barcelona
 ('Dental Clinic Puyuelo', 'Healthcare', 'Dental clinic in Barcelona offering dental treatment for over 30 years. English-speaking dental team providing comprehensive dental care including general dentistry, orthodontics, and cosmetic treatments.', 'Carrer de Balmes, 225, 08006', 'Barcelona', 'Barcelona', '+34 932 000 000', 'info@puyuelo.com', 'https://www.puyuelo.com', true, false, true, false, NOW(), NOW()),
 
--- Dental Clinic Bonanova Barcelona
-('Dental Clinic Bonanova', 'Healthcare', 'English-speaking dental clinic in Barcelona following the concept of minimally invasive dentistry. Provides gentle dental care with modern techniques for the international community.', 'Carrer de Sant Gervasi de Cassoles, 74, 08022', 'Barcelona', 'Barcelona', '+34 932 121 212', 'info@bonanovadental.com', 'https://www.bonanovadental.com', true, false, true, false, NOW(), NOW()),
+-- Dental Clinic Bonanova Barcelona (Updated for task #1553 - Dental category)
+('Dental Clinic Bonanova', 'Dental', 'English-speaking dental clinic in Barcelona following the concept of minimally invasive dentistry. Provides gentle dental care with modern techniques for the international community. Located in the Sarrià-Sant Gervasi district, the clinic offers a comprehensive range of dental services including general dentistry, preventive care, cosmetic dentistry, dental implants, orthodontics, and periodontal treatments. The team is committed to providing personalized care with a focus on patient comfort and the latest dental technology. Full English-speaking staff ensures clear communication with international patients.', 'Carrer de Sant Gervasi de Cassoles, 74, 08022 Barcelona', 'Barcelona', 'Barcelona', '+34 932 121 212', 'info@bonanovadental.com', 'https://www.bonanovadental.com', true, false, true, false, NOW(), NOW()),
 
 -- Propdental Dental Clinics Barcelona
 ('Propdental Dental Clinics', 'Healthcare', 'Highly specialised English-speaking dental clinics in Barcelona providing top-quality treatments. Specialists in dental implants, orthodontics, and cosmetic dentistry with multiple locations.', 'Carrer de Aribau, 71, 08036', 'Barcelona', 'Barcelona', '+34 931 123 123', 'info@propdental.es', 'https://www.propdental.es', true, false, true, false, NOW(), NOW()),
