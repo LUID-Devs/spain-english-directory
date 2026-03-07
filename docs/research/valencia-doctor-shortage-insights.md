@@ -93,7 +93,7 @@ This validates market demand — a business opened specifically because of this 
 ## STRATEGIC IMPLICATIONS
 
 ### 1. FIRST-MOVER ADVANTAGE
-No comprehensive, verified English-speaking doctor directory exists specifically for Valencia.
+There is a clear gap for a dedicated, verification-first English-speaking healthcare directory focused specifically on Valencia.
 
 ### 2. GEOGRAPHIC EXPANSION OPPORTUNITY
 Costa Blanca (Benidorm, Jávea, Albir) has large British expat communities underserved by current solutions.

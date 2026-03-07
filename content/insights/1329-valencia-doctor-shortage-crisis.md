@@ -94,7 +94,7 @@ Yet even here, comprehensive directories are lacking.
 
 Based on Reddit discussions and market research, expats in Valencia need:
 
-1. **Verified English-speaking providers** — Not self-reported, but verified proficiency
+1. **English-speaking provider listings** — Reported language support, with verification badges as verification coverage expands
 2. **Geographic coverage** — City center AND Costa Blanca towns
 3. **Specialty access** — Pediatrics, geriatrics, mental health
 4. **Insurance navigation** — Clear information on what's covered
@@ -104,7 +104,7 @@ Based on Reddit discussions and market research, expats in Valencia need:
 
 ## The Opportunity
 
-Valencia represents a **first-mover opportunity** for an English-speaking healthcare directory. Unlike Madrid or Barcelona, no comprehensive solution exists. The combination of:
+Valencia represents a strong opportunity for a **dedicated, verification-first English-speaking healthcare directory**. Existing resources are fragmented, and the combination of:
 
 - Growing demand
 - Limited supply
@@ -155,5 +155,5 @@ The crisis is real. The demand is growing. The solution is needed now.
 
 ---
 
-*Sources: Reddit (r/valencia, r/GoingToSpain), Olive Press News, VeryValencia, healthcare-in-europe.com, Euro Weekly News*  
+*Sources: [Reddit r/valencia](https://www.reddit.com/r/valencia/), [Reddit r/GoingToSpain](https://www.reddit.com/r/GoingToSpain/), [Olive Press News](https://www.theolivepress.es/), [VeryValencia](https://veryvalencia.com/), [healthcare-in-europe.com](https://healthcare-in-europe.com/), [Euro Weekly News](https://euroweeklynews.com/)*  
 *Last Updated: March 2026*
