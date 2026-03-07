@@ -73,7 +73,7 @@ Some expats mentioned paying around **€100/month** for private health insuranc
 
 Expats with specific medical conditions face additional hurdles:
 
-**From r/expats (May 2025):**
+**From r/expats (Sep 2024):**
 > "Would love to hear from people's experiences who are currently living in or have recently moved to Barcelona - specifically around finding housing, and healthcare (I have an eating disorder and need English based specialists)."
 
 **Specialist Search:**

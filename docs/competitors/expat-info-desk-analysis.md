@@ -85,7 +85,7 @@ Each relocation guide follows a standardized structure covering:
 | **Education & Childcare** | Schools, nurseries, kindergartens, colleges, universities, educational standards, childcare requirements |
 | **Transport** | Public transport (offerings, tickets, timetables), taxi usage, driving license requirements, car purchasing |
 | **Keeping in Touch** | Mobile phone, fixed telephone, Internet providers, pricing expectations, TV/radio/newspaper access |
-| **Shopping** | Supermarkets, clothes, beauty products, furniture, stationary, antiques - contact details and addresses |
+| **Shopping** | Supermarkets, clothes, beauty products, furniture, stationery, antiques - contact details and addresses |
 | **Entertainment & Leisure** | Restaurants, bars, clubs, nightlife, trails, parks, beaches, sporting venues, expat networking opportunities, business organizations, private clubs |
 | **Health & Beauty** | Fitness centers, sports clubs, beauty salons, hairdressers |
 | **Culture & Customs** | Languages, religions, traditions, cultural customs, cultural traps to avoid |
