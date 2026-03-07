@@ -6,7 +6,8 @@ import {
   Review, 
   Lead,
   ListingType,
-  LeadStatus 
+  LeadStatus,
+  ProfessionalEnglishLevel 
 } from '../models';
 
 async function seed() {
@@ -112,6 +113,23 @@ async function seed() {
         postalCode: '41004',
         description: 'Spanish classes for English speakers. Intensive and regular courses available.',
         speaksEnglish: true,
+        isVerified: true,
+        isFeatured: false,
+        listingType: ListingType.FREE,
+      },
+      {
+        name: 'Valencia Property (Graham Hunt)',
+        email: 'information@valencia-property.com',
+        phone: '+34 657 994 311',
+        website: 'https://www.valencia-property.com',
+        categoryId: 3, // Living
+        cityId: 3, // Valencia
+        address: 'Avenida Jose Garrigo Farga 33, Bajo Dcha',
+        postalCode: '46185',
+        description: 'English-speaking real estate agency in Valencia specializing in apartment and villa sales for expats. Founded by Graham Hunt after his own frustrating experience with local agents. Offers a buyer-focused approach with end-to-end support including property search, viewings, price negotiation, mortgage assistance, legal due diligence, and NIE coordination. Highly recommended on Reddit r/valencia for honest, transparent service and deep market knowledge.',
+        speaksEnglish: true,
+        englishLevel: ProfessionalEnglishLevel.NATIVE,
+        specialties: ['Sales', 'Investment', 'Relocation', 'Property Management'],
         isVerified: true,
         isFeatured: false,
         listingType: ListingType.FREE,

@@ -9,6 +9,14 @@ export enum ListingType {
   PREMIUM = 'premium',
 }
 
+export enum EnglishLevel {
+  B1 = 'B1',
+  B2 = 'B2',
+  C1 = 'C1',
+  C2 = 'C2',
+  NATIVE = 'native',
+}
+
 interface ProfessionalAttributes {
   id: number;
   name: string;
@@ -21,6 +29,9 @@ interface ProfessionalAttributes {
   postalCode?: string;
   description?: string;
   speaksEnglish: boolean;
+  englishLevel?: EnglishLevel;
+  insuranceAccepted?: string[];
+  specialties?: string[];
   isVerified: boolean;
   isFeatured: boolean;
   listingType: ListingType;
@@ -43,6 +54,9 @@ class Professional extends Model<ProfessionalAttributes, ProfessionalCreationAtt
   public postalCode?: string;
   public description?: string;
   public speaksEnglish!: boolean;
+  public englishLevel?: EnglishLevel;
+  public insuranceAccepted?: string[];
+  public specialties?: string[];
   public isVerified!: boolean;
   public isFeatured!: boolean;
   public listingType!: ListingType;
@@ -112,6 +126,18 @@ Professional.init(
       type: DataTypes.BOOLEAN,
       defaultValue: true,
       allowNull: false,
+    },
+    englishLevel: {
+      type: DataTypes.ENUM(...Object.values(EnglishLevel)),
+      allowNull: true,
+    },
+    insuranceAccepted: {
+      type: DataTypes.JSON,
+      allowNull: true,
+    },
+    specialties: {
+      type: DataTypes.JSON,
+      allowNull: true,
     },
     isVerified: {
       type: DataTypes.BOOLEAN,
