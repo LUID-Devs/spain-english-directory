@@ -173,7 +173,7 @@ export default function ValenciaPage() {
           <div className="grid md:grid-cols-3 gap-8">
             {healthcareCategories.map((category) => (
               <Link
-                key={category.slug}
+                key={category.query}
                 href={`/search?city=Valencia&category=Healthcare&q=${encodeURIComponent(category.query)}`}
                 className="group block bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md hover:border-blue-300 transition"
               >
