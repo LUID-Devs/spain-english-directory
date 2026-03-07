@@ -1,0 +1,7 @@
+-- Task 1517: Add Sara Nicol Psychology - Mental Health - Barcelona
+-- English-speaking psychologist and therapist specializing in CBT, ACT, and coaching
+
+INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
+
+-- Sara Nicol Psychology - English-speaking psychologist in Barcelona
+('Sara Nicol Psychology', 'Mental Health', 'UK Chartered Psychologist and Executive Coach with 15+ years of experience offering psychological therapy and coaching in English for adults. Specializes in Cognitive Behavioural Therapy (CBT), Acceptance and Commitment Therapy (ACT), Mindfulness Based Stress Reduction, Somatic Therapy, Breathwork, and Autogenic Training. Helps clients navigate anxiety, stress, burnout, relationships, career transitions, and life challenges with a compassionate, solution-focused approach. As an expat herself (half German, half Iranian, born and raised in the UK) and mother of 4 children living in Barcelona for 7+ years, she understands the unique challenges of expat life. Offers both in-person sessions at her Sant Gervasi practice and online therapy worldwide via secure telemedicine platform. Free 20-minute no-obligation consultation call available. Registered with the Health Professions Council UK (HCPC) and Associate Fellow of the British Psychological Society (BPS).', 'Sant Gervasi', 'Barcelona', 'Barcelona', NULL, NULL, 'https://www.saranicolpsychology.com', true, false, true, false, NOW(), NOW());
