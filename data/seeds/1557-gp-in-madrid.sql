@@ -5,7 +5,7 @@
 
 UPDATE directory_entries
 SET
-  category = 'Medical Clinics',
+  category = 'Doctors',
   description = 'English-speaking telemedicine service providing same-day private GP video consultations for tourists and expats in Madrid. Connect with NHS-trained English-speaking doctors via smartphone, tablet, or computer from the comfort of your accommodation. Consultation costs €149 including free prescription if needed (medication costs extra at pharmacy). Simple 3-step process: book online, see GP on video, receive prescription in your inbox. All doctors are English or speak excellent English, ensuring clear communication. Prescriptions are valid at ANY Spanish pharmacy. Led by Dr Adam Abbs (MBBS, mRCGP), a leader in digital health and former Clinical Director at Medicspot, and Dr Huber Cubillos (MD), a GP with global telemedicine experience. No insurance required - pay a one-off fee by credit/debit card. Ideal for UK tourists and international visitors needing urgent medical care, prescription renewals, or medical advice while in Madrid.',
   address = 'Online Service (Madrid coverage)',
   province = 'Madrid',
@@ -38,7 +38,7 @@ INSERT INTO directory_entries (
 )
 SELECT
   'GP in Madrid',
-  'Medical Clinics',
+  'Doctors',
   'English-speaking telemedicine service providing same-day private GP video consultations for tourists and expats in Madrid. Connect with NHS-trained English-speaking doctors via smartphone, tablet, or computer from the comfort of your accommodation. Consultation costs €149 including free prescription if needed (medication costs extra at pharmacy). Simple 3-step process: book online, see GP on video, receive prescription in your inbox. All doctors are English or speak excellent English, ensuring clear communication. Prescriptions are valid at ANY Spanish pharmacy. Led by Dr Adam Abbs (MBBS, mRCGP), a leader in digital health and former Clinical Director at Medicspot, and Dr Huber Cubillos (MD), a GP with global telemedicine experience. No insurance required - pay a one-off fee by credit/debit card. Ideal for UK tourists and international visitors needing urgent medical care, prescription renewals, or medical advice while in Madrid.',
   'Online Service (Madrid coverage)',
   'Madrid',
