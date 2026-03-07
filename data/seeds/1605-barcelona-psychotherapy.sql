@@ -1,0 +1,7 @@
+-- Task 1605: Add Barcelona Psychotherapy - Psychotherapy - Barcelona
+-- Data entry by Squidward
+
+INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
+
+-- Claudia Ros - Barcelona Psychotherapy
+('Claudia Ros - Barcelona Psychotherapy', 'Therapists', 'Licensed psychologist and psychotherapist with 25+ years experience providing psychotherapy services in Barcelona for English and Spanish speaking adults, couples, and expats. Specializes in psychodynamic therapy combined with Non-violent Communication (NVC). Offers individual therapy for relationship issues, family concerns, stress, anxiety, depression, grief, self-esteem, and addictions. Provides couples therapy and marriage counseling using neutral, non-judgmental approaches to identify behavioral patterns and improve communication. Particularly experienced with expat therapy, helping international clients adapt to new cultures and navigate life abroad. Also offers online therapy sessions. Trained at UC Santa Cruz and Ramon LLull University. Founding member of NEST (Network of English Speaking Therapists). Individual sessions: 80€ (first session 1 hour, subsequent sessions 50 mins). Couples sessions: 90€ (first session 1 hour 10 mins, subsequent sessions 1 hour).', 'Sants area, Barcelona', 'Barcelona', 'Barcelona', '+34 657 570 692', NULL, 'https://barcelona-psychotherapy.com', true, false, true, false, NOW(), NOW());
