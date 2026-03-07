@@ -1,0 +1,8 @@
+-- Task 1591: Add Clínica Dental Bratos - Dental - Madrid
+-- Data entry for Spain English Directory
+-- English-speaking dental clinic in Madrid with board-certified specialists
+
+INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
+
+-- Clínica Dental Bratos - English-Speaking Dental Clinic in Madrid
+('Clínica Dental Bratos', 'Dental', 'English-speaking dental clinic located in the north of Madrid, close to Plaza de Castilla and the financial district. Board-certified clinic with over 40 years of experience across three generations of dentists. Dr. Manuel Bratos is a Certified Dental Technician (CDT) who resided in Seattle as an adjunct assistant professor and researcher at Washington University, with published articles in the international scientific journal «Journal of Prosthetic Dentistry». The clinic has received research awards from the American Academy of Fixed Prosthodontics (AAFP), The Academy of Prosthodontics (AP), and Washington University. Full English-speaking staff able to explain every step of procedures in English. Services include dental implants, prosthodontics, orthodontics, pediatric dentistry (odontopediatría), conservative dentistry, cosmetic dentistry, and comprehensive dental treatments. Pioneers in treating patients with special needs and multiple health issues. Modern facilities equipped with latest dental technology including intraoral scanners and digital radiography.', 'Av. el Ferrol, 18, 1º4, 28029 Madrid', 'Madrid', 'Madrid', '+34 913 233 380', 'info@clinicadentalbratos.com', 'https://clinicadentalbratos.es/', true, false, true, false, NOW(), NOW());
