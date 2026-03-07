@@ -1,7 +1,7 @@
 ---
 title: "Barcelona's English-Speaking Doctor Shortage: What Expats Need to Know"
 description: "Research reveals a significant gap between expat demand and English-speaking healthcare availability in Barcelona"
-date: 2025-03-06
+date: 2026-03-06
 category: "Healthcare"
 city: "Barcelona"
 source: "Reddit Community Research"

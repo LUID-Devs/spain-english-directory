@@ -1,7 +1,7 @@
 # Strategy: Barcelona English-Speaking Doctor Shortage
 
 **Issue:** #1337  
-**Research Date:** March 2025  
+**Research Date:** March 2026  
 **Source:** Reddit Expat Communities & Healthcare Analysis
 
 ---
