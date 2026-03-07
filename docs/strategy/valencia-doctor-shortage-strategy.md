@@ -144,7 +144,7 @@ interface HealthcareProvider {
 }
 ```
 
-### Phase 2: Content Development (Weeks 2-4)
+### Phase 2: Content Development (Weeks 3-4)
 
 #### 3.2.1 SIP Card Guide
 **Priority: High**
@@ -187,7 +187,7 @@ interface HealthcareProvider {
 - Private urgent care options
 - Pharmacy after-hours (guardia)
 
-### Phase 3: Regional Expansion (Weeks 4-8)
+### Phase 3: Regional Expansion (Weeks 5-8)
 
 #### 3.3.1 Costa Blanca Coverage
 
@@ -221,9 +221,10 @@ interface HealthcareProvider {
 
 **Engagement Protocol:**
 1. **Listen:** Monitor for healthcare questions (weekly)
-2. **Help:** Provide genuine assistance without promotion
-3. **Share:** When relevant, mention directory as resource
-4. **Verify:** Use community feedback to validate providers
+2. **Help:** Provide genuine assistance before any link-sharing
+3. **Disclose:** If sharing our directory, state affiliation explicitly
+4. **Share:** Only include links when directly relevant to the user's request
+5. **Verify:** Use community feedback to validate providers
 
 **Response Template:**
 ```
@@ -233,8 +234,9 @@ A few options that other expats have recommended:
 - [Provider 1] - [brief detail]
 - [Provider 2] - [brief detail]
 
-We maintain a verified directory of English-speaking healthcare providers 
-in Valencia if you need more options: [link]
+Disclosure: I help run Spain English Directory.
+If useful, we maintain a verified directory of English-speaking healthcare providers 
+in Valencia: [link]
 
 Good luck with your search!
 ```
