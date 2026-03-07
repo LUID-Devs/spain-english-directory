@@ -174,7 +174,7 @@ export default function ValenciaPage() {
             {healthcareCategories.map((category) => (
               <Link
                 key={category.slug}
-                href={`/valencia/${category.slug}`}
+                href={`/search?city=valencia&category=${encodeURIComponent(category.slug)}`}
                 className="group block bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md hover:border-blue-300 transition"
               >
                 <div className="flex items-start justify-between mb-4">
@@ -354,7 +354,7 @@ export default function ValenciaPage() {
                     '@type': 'Thing',
                     name: cat.name,
                     description: cat.description,
-                    url: `https://spainenglishdirectory.com/valencia/${cat.slug}`,
+                    url: `https://spainenglishdirectory.com/search?city=valencia&category=${encodeURIComponent(cat.slug)}`,
                   },
                 })),
               },
@@ -370,7 +370,7 @@ export default function ValenciaPage() {
                 })),
               },
             ],
-          }),
+          }).replace(/</g, '\\u003c'),
         }}
       />
     </div>
