@@ -37,7 +37,6 @@ async function seed() {
       { name: 'Alicante', slug: 'alicante', province: 'Alicante', region: 'Valencian Community' },
       { name: 'Bilbao', slug: 'bilbao', province: 'Biscay', region: 'Basque Country' },
       { name: 'Palma de Mallorca', slug: 'palma-de-mallorca', province: 'Balearic Islands', region: 'Balearic Islands' },
-      { name: 'Almería', slug: 'almeria', province: 'Almería', region: 'Andalusia' },
     ]);
     console.log(`✅ Created ${cities.length} cities`);
 
@@ -148,23 +147,6 @@ async function seed() {
         speaksEnglish: true,
         englishLevel: ProfessionalEnglishLevel.NATIVE,
         specialties: ['Urgent Care', 'Home Doctor Visits', 'Pediatrics', 'Emergency Medicine', 'Tourist Healthcare'],
-        isVerified: true,
-        isFeatured: true,
-        listingType: ListingType.FEATURED,
-      },
-      {
-        name: 'Scudamore Law',
-        email: 'mail@scudamorelaw.com',
-        phone: '+34 915 939 126',
-        website: 'https://www.scudamorelaw.com',
-        categoryId: 2, // Legal
-        cityId: 1, // Madrid (also has Almería office)
-        address: 'Madrid Office (also serving Almería)',
-        postalCode: '28001',
-        description: 'English-speaking law firm with offices in Madrid, Almería and London. Over 20 years of Spanish and English legal experience specializing in property law, visas (including Digital Nomad Visas), probate & inheritance, family law, and business law. Bilingual English-Spanish lawyers providing clear, practical advice delivered to British standards of professionalism. Expert in cross-border legal issues and supporting expats with property transactions, residency matters, and legal protection in Spain.',
-        speaksEnglish: true,
-        englishLevel: ProfessionalEnglishLevel.NATIVE,
-        specialties: ['Property Law', 'Visas & Immigration', 'Probate & Inheritance', 'Family Law', 'Business Law'],
         isVerified: true,
         isFeatured: true,
         listingType: ListingType.FEATURED,
