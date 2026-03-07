@@ -54,7 +54,7 @@ This severe shortage affects all residents but disproportionately impacts expats
 ### National Crisis
 
 According to healthcare-in-europe.com:
-- **Spain faced an estimated shortfall of approximately 25,000 doctors by 2025**
+- **By 2025, Spain was estimated to face a shortfall of approximately 25,000 doctors**
 - Spanish doctors and nurses are emigrating for better wages and working conditions
 - The shortage is particularly acute in primary care
 
@@ -427,7 +427,7 @@ For streamlined appointment booking and claims in Valencia.
 
 ### Why Spain English Directory Wins in Valencia
 
-1. **First-Mover Advantage**: No comprehensive, verified English-speaking doctor directory exists specifically for Valencia
+1. **Positioning Opportunity**: There is still room for a dedicated, verification-first English-speaking healthcare directory focused specifically on Valencia
 
 2. **Verification**: Unlike Google Maps or general directories, we verify actual English proficiency
 
@@ -445,7 +445,7 @@ For streamlined appointment booking and claims in Valencia.
 
 The research clearly demonstrates an underserved and growing market in Valencia. The combination of:
 - A rapidly expanding expat population
-- Severe doctor shortages (estimated 25,000 nationally by 2025)
+- Severe doctor shortages (estimated at 25,000 nationally by 2025)
 - Limited English-speaking infrastructure
 - Emerging expat-focused clinics validating demand
 
@@ -463,4 +463,4 @@ The key is rapid execution on the P1 features combined with aggressive recruitme
 ---
 
 *Document created based on Reddit research findings, news analysis, and market research.*
-*Issue: #1337*
+*Issue: #1329*
