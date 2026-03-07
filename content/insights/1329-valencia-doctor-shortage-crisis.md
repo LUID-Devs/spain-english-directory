@@ -6,7 +6,7 @@
 
 ## The Problem in Numbers
 
-Valencia is experiencing a perfect storm: a **rapidly growing expat population** colliding with a **severe national doctor shortage**. By 2025, Spain was projected to face a shortfall of approximately **25,000 doctors**, and Valencia's public health system shows the strain with an average ratio of **1,300 residents per GP**.
+Valencia is experiencing a perfect storm: a **rapidly growing expat population** colliding with a **severe national doctor shortage**. By 2025, Spain was estimated to face a shortfall of approximately **25,000 doctors**, and Valencia's public health system shows the strain with an average ratio of **1,300 residents per GP**.
 
 But for expats, the numbers tell only part of the story. The real crisis is communication.
 
@@ -41,7 +41,7 @@ When you can't discuss your healthcare needs in your native language, even basic
 
 ## The Business Case: Expat Clinic Valencia
 
-In 2022, **Centro Medico Maria / Expat Clinic Valencia** opened specifically to fill this gap. Their marketing consultant stated:
+In 2022, **Centro Medico Maria / Expat Clinic Valencia** opened specifically to fill this gap. **Razvan Nicolescu**, medical marketing expert, stated:
 
 > *"The appearance of a clinic dedicated to expats in the community, with English-speaking doctors was a NECESSITY... to take over this whole area of patients who want to take care of their health taking contact with English speaking staff."*
 

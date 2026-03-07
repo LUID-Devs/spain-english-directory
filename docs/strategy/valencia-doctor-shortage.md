@@ -54,7 +54,7 @@ This severe shortage affects all residents but disproportionately impacts expats
 ### National Crisis
 
 According to healthcare-in-europe.com:
-- **By 2025, Spain was projected to face a shortfall of approximately 25,000 doctors**
+- **By 2025, Spain was estimated to face a shortfall of approximately 25,000 doctors**
 - Spanish doctors and nurses are emigrating for better wages and working conditions
 - The shortage is particularly acute in primary care
 
@@ -445,7 +445,7 @@ For streamlined appointment booking and claims in Valencia.
 
 The research clearly demonstrates an underserved and growing market in Valencia. The combination of:
 - A rapidly expanding expat population
-- Severe doctor shortages (projected at 25,000 nationally by 2025)
+- Severe doctor shortages (estimated at 25,000 nationally by 2025)
 - Limited English-speaking infrastructure
 - Emerging expat-focused clinics validating demand
 
