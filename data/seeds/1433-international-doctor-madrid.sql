@@ -1,4 +1,4 @@
--- Task 1433/1586: Add International Doctor 24h - Medical Clinics - Madrid
+-- Task 1433: Add International Doctor 24h - Medical Clinics - Madrid
 -- Data entry by subagent
 -- 24/7 English-speaking doctors in Madrid for tourists. Urgent care and medical services with walk-in clinics and home doctor visits.
 

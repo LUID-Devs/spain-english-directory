@@ -29,7 +29,7 @@ INSERT INTO directory_entries (
     NULL,
     true,
     false,
-    true,
+    false,
     false,
     NOW(),
     NOW()
