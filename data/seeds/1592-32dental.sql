@@ -1,0 +1,8 @@
+-- Task 1592: Add 32Dental - Dental - Madrid
+-- Data entry by subagent
+-- English-speaking dental clinic in Madrid specializing in Oral Surgery and Implantology
+
+INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
+
+-- 32Dental - English-speaking international dental clinic in Madrid
+('32Dental', 'Dental', 'International dental clinic in Madrid located in the Prosperidad neighborhood. 32Dental is an independent, non-franchise dental practice with a long history serving international patients and expats in Madrid. The clinic specializes in Oral Surgery and Implantology, Aesthetic Dentistry, and provides comprehensive dental care across all specialties. The team is fully English-speaking, making it ideal for international patients who prefer discussing their dental treatment in English. Services include: Oral Surgery, Dental Implants, Implantology, Aesthetic Dentistry, Orthodontics, Invisalign, Endodontics (root canals), Periodontics (gum disease treatment), Pediatric Dentistry, Prosthetics, Dental Crowns, Veneers, Tooth Whitening, and Dental Emergencies. The clinic offers personalized care with detailed treatment plans and payment plan options. Available for video consultations for patients unable to travel. Office hours: Monday-Friday 9:00-14:00 and 15:00-19:00, Saturdays by appointment.', 'Calle Marcenado 32, 28002 Madrid', 'Madrid', 'Madrid', '+34 911 38 59 28', 'info@32dental.es', 'https://32dental.es', true, false, true, false, NOW(), NOW());
