@@ -162,6 +162,8 @@ Angloinfo listings typically include:
 4. **Partner with expat groups** - Mutual promotion
 5. **User submission workflow** - Let the community contribute
 
+Compliance note: any public-data seeding or submission flow in Spain/EU must include GDPR + LOPDGDD controls (lawful basis, notice, consent where required, retention and correction/deletion paths).
+
 ### 4.3 Category Prioritization
 
 **Phase 1 (Target: 50-100 listings):**
@@ -214,6 +216,7 @@ While Angloinfo has scale, gaps exist:
 - [ ] Build partnerships with 3-5 expat organizations
 - [ ] Seed database with 100+ listings from public sources
 - [ ] Launch user submission workflow
+- [ ] Add GDPR/LOPDGDD checklist to both workflows before launch
 
 ### Medium-term (Next Quarter)
 - [ ] Reach 200 listings across top 3 cities
