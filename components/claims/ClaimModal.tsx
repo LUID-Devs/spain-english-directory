@@ -328,7 +328,7 @@ export default function ClaimModal({
         {step === 'verify' && (
           <form onSubmit={handleVerifySubmit} className="p-4 space-y-4">
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              We've sent a 6-digit verification code to{' '}
+              We&apos;ve sent a 6-digit verification code to{' '}
               <strong>{formData.claimantEmail}</strong>
             </p>
             <div>
@@ -368,7 +368,7 @@ export default function ClaimModal({
             </div>
             <h3 className="text-xl font-semibold">Claim Submitted!</h3>
             <p className="text-gray-600 dark:text-gray-400">
-              Your claim is now pending review. We'll notify you once it's approved.
+              Your claim is now pending review. We&apos;ll notify you once it&apos;s approved.
             </p>
             <button
               onClick={handleClose}
