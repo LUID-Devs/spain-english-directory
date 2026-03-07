@@ -296,6 +296,6 @@ Expat Info Desk presents a **major competitive opportunity** for Spain English D
 
 ---
 
-*Analysis Date: March 2025*  
+*Analysis Date: March 2026*  
 *Source: expatinfodesk.com, InterNations Expat City Ranking 2024*  
 *Issue: #1344*
