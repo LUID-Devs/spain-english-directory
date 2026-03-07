@@ -6,7 +6,7 @@
 
 ## The Problem in Numbers
 
-Valencia is experiencing a perfect storm: a **rapidly growing expat population** colliding with a **severe national doctor shortage**. By 2025, Spain faces a shortfall of approximately **25,000 doctors**, and Valencia's public health system shows the strain with an average ratio of **1,300 residents per GP**.
+Valencia is experiencing a perfect storm: a **rapidly growing expat population** colliding with a **severe national doctor shortage**. By 2025, Spain was projected to face a shortfall of approximately **25,000 doctors**, and Valencia's public health system shows the strain with an average ratio of **1,300 residents per GP**.
 
 But for expats, the numbers tell only part of the story. The real crisis is communication.
 
