@@ -22,7 +22,7 @@ INSERT INTO directory_entries (
 ) VALUES (
     'Clinica Dental Bonanova',
     'Dentists',
-    'Established dental clinic in Barcelona''s Sarrià-Sant Gervasi district offering comprehensive dental care services. Located on Passeig de la Bonanova in the les Tres Torres neighborhood, the clinic provides general dentistry, dental aesthetics, orthodontics, implantology, endodontics, periodontics, and prosthodontics. The experienced team includes Dr. Jordi Harster, Dr. Francesc Harster, and Dr. Eduardo Plaz. The clinic offers modern treatments including teeth whitening, dental implants, CAD/CAM dental restorations, bone grafting, sinus lifts, and sedation for dental treatments. Serving patients in the Barcelona area with professional dental care for the whole family.',
+    'Established dental clinic in Barcelona''s Sarrià-Sant Gervasi district offering comprehensive dental care services with English-speaking staff. Located on Passeig de la Bonanova in the les Tres Torres neighborhood, the clinic provides general dentistry, dental aesthetics, orthodontics, implantology, endodontics, periodontics, and prosthodontics. The experienced English-speaking team includes Dr. Jordi Harster, Dr. Francesc Harster, and Dr. Eduardo Plaz. The clinic offers modern treatments including teeth whitening, dental implants, CAD/CAM dental restorations, bone grafting, sinus lifts, and sedation for dental treatments. Serving patients in the Barcelona area with professional dental care for the whole family in English, Spanish, and Catalan.',
     'Pg Bonanova, 71, entresuelo',
     'Barcelona',
     'Barcelona',
