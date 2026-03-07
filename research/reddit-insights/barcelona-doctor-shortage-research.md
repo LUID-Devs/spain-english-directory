@@ -17,7 +17,7 @@ This document summarizes anecdotal community evidence from public forum discussi
 ### 1. Public Healthcare Language Barriers
 The public healthcare system (CatSalut/CAP) presents the most significant language challenges:
 
-> *"You'll have a hard time navigating your way through the public health system if you don't speak any of the local languages."* — r/Barcelona, September 2023
+> *"English speaking doctor?"* — r/AskBarcelona, January 2024
 
 **Specific CAP Challenges:**
 - Appointment scheduling requires Spanish/Catalan proficiency
@@ -28,8 +28,6 @@ The public healthcare system (CatSalut/CAP) presents the most significant langua
 Even expats with conversational Spanish struggle with medical terminology:
 
 > *"I'm learning Spanish but don't feel comfortable enough with vocabulary about certain issues."* — r/AskBarcelona, January 2024
-
-> *"Doctor appointments are the biggest fear for me."* — r/askspain, June 2023
 
 ### 3. Insurance Provider Issues
 

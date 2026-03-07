@@ -62,7 +62,7 @@ What this report is not:
 
 ## Preliminary Coverage Snapshot
 
-The PR summary includes directional count ranges from an initial manual scan. These are **working estimates** and must be revalidated before operational planning.
+Initial scan notes include directional count ranges from a manual review. These are **working estimates** and must be revalidated before operational planning.
 
 | Category | Preliminary estimate in scan notes |
 |----------|------------------------------------|
