@@ -61,7 +61,7 @@ Tourists frequently seek urgent care but lack guidance on where to find English-
 **From r/valencia (May 2023):**
 > *"OP, you have 3 great options for a list of English-speaking doctors -GPs and specialists of all stripes: check the websites of the US, British and Canadian embassies in Spain. They all have comprehensive lists that include Valencia."*
 
-When asked for doctor recommendations, the top-voted advice is to check embassy lists—a clear indicator that there is no centralized, reliable directory for English-speaking healthcare providers in Valencia.
+When asked for doctor recommendations, the top-voted advice is to check embassy lists, indicating a gap for a dedicated, verification-first directory focused specifically on English-speaking healthcare in Valencia.
 
 ---
 
