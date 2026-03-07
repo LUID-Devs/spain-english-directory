@@ -1,0 +1,8 @@
+-- Task 1604: Add Mike Lemon Consulting - Accountancy/Tax - Marbella/Malaga
+-- Data entry by Chip
+-- UK accountancy firm serving British expats in Marbella and Malaga area
+
+INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
+
+-- Mike Lemon Consulting - UK Accountants in Marbella
+('Mike Lemon Consulting', 'Tax/Accounting', 'English-speaking accountancy and tax advisory firm with over 50 years of continuous UK public practice experience and 22+ years in Spanish public practice. Founded by Mike Lemon, a Chartered Accountant since 1972, who established the firm in Spain in 2000 after emigrating from the UK. Specializes in serving British expatriates with both UK and Spanish tax obligations. Comprehensive services include Spanish income tax returns (Modelo 100), overseas assets reporting (Modelo 720), wealth tax returns (Modelo 714), non-resident tax returns (Modelo 210), and holiday lettings registration. UK services include UK tax returns for rental income and self-employed businesses, Companies House filings, and UK corporate compliance. Additional services include conveyancing support, Spanish wills, insurance brokering, translation services, and house maintenance coordination. Registered HMRC agents in the UK with multilingual staff providing personalized, long-term client relationships. Serves clients throughout the Costa del Sol region including Marbella, Malaga, and surrounding areas.', 'Los Faroles, 285A Calle Cordoba, Urb. Guadalmina Alta', 'Marbella', 'Málaga', '+34 952 199 007', 'lemonsinspain@gmail.com', 'https://www.lemon.consulting', true, false, true, false, NOW(), NOW());
