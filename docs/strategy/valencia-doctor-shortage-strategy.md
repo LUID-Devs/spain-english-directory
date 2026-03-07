@@ -405,7 +405,7 @@ The Valencia doctor shortage represents a **validated market opportunity** with:
 
 **Document Owner:** Strategy Team  
 **Review Date:** Monthly  
-**Related Issues:** #1329, #[future: content creation issues]
+**Related Issues:** #1329
 
 ---
 
