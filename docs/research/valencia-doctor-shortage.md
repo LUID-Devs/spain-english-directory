@@ -161,7 +161,7 @@ Strong expat communities in:
 ## SIP Card (Public Healthcare Access)
 
 ### Key Information
-- **SIP Card** = Tarjeta Sanitaria Individual
+- **SIP Card** = Sistema de Informacion Poblacional card (Valencian health card)
 - Required for public healthcare access
 - Language barriers during application process
 - English-speaking staff NOT universally available in public centers
@@ -215,6 +215,7 @@ Strong expat communities in:
 - Reddit: r/valencia, r/GoingToSpain, r/expats, r/askspain
 - The Olive Press (Spain expat newspaper)
 - VeryValencia.com (expat guide)
+- Suitcase in Spain (Valencia healthcare/SIP guidance)
 - InterNations forums
 - Individual clinic websites
 
