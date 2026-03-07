@@ -1,8 +1,0 @@
--- Task 1551: Add Perfect Spain - Real Estate - Valencia
--- Data entry by subagent
--- English-speaking real estate agency serving expats in Valencia
-
-INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
-
--- Perfect Spain - Personal real estate firm for English-speaking clients
-('Perfect Spain', 'Real Estate', 'Small personal real estate firm based in the Old City (Casco Antiguo) of Valencia with 25 years experience on three continents. Specializes in serving English-speaking clients looking for a safe, pleasurable stay in Valencia, whether for two nights or permanent relocation. Offers personalized service for rentals, property sales, and relocation assistance. Their multilingual agents speak Spanish, English, Swedish, French, Italian, Russian, and Estonian. Property range includes modern apartments in the historic city center, new developments near the City of Arts and Sciences, and quiet suburban and rural houses with gardens and pools. All properties carefully selected for short getaways, holiday homes, or permanent moves. Additional services include concierge service, holiday packages, full service event packages, deluxe Formula 1 packages, airport pickup service, flight and car rental discounts, guided tours, and bicycle tours. The Mediterranean sea, beach, America''s Cup Port, and Formula 1 Circuit are all within easy access.', 'Calle Alta 70', 'Valencia', 'Valencia', '+34 628 293 163', 'info@perfectspain.com', 'https://perfectspain.com', true, false, true, false, NOW(), NOW());
