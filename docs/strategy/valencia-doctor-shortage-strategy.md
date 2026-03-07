@@ -132,9 +132,11 @@ interface HealthcareProvider {
   
   // New fields for healthcare
   acceptsSipCard: boolean;      // Public healthcare
-  languages: string[];          // ['English', 'Spanish', 'French']
+  englishSupportLevel: 'native' | 'fluent' | 'conversational' | 'basic';
+  supportedLanguages: Array<'en' | 'es' | 'ca' | 'fr' | 'de' | 'it' | 'nl'>;
   specialties: string[];        // Medical specialties
-  waitTimeEstimate: string;     // "Same day", "1-3 days", "1-2 weeks"
+  waitTimeDaysMin: number;      // shortest expected wait time in days
+  waitTimeDaysMax: number;      // longest expected wait time in days
   telemedicine: boolean;        // Online consultations
   emergencyServices: boolean;   // 24/7 or urgent care
   
