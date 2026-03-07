@@ -114,13 +114,13 @@ Coverage Radius: ~40km from Barcelona center
 
 | Specialty | # of Clinics | Clinics |
 |-----------|--------------|---------|
-| **24/7 Emergency** | 5 | del Mar, Glòries, Montjuïc, Mirasol, Sala Gorön, Desvern |
+| **24/7 Emergency** | 6 | del Mar, Glòries, Montjuïc, Mirasol, Sala Gorön, Desvern |
 | **Exotic Pets** | 3 | del Mar, Glòries, Sala Gorön |
 | **Surgery/Orthopedics** | 4 | Borrell, Mirasol, Sala Gorön, Desvern |
 | **Internal Medicine** | 3 | Glòries, Sala Gorön, del Mar |
 | **Neurology** | 3 | Glòries, Montjuïc, Sala Gorön |
 | **Ophthalmology** | 2 | Montjuïc, Mirasol |
-| **Dermatology** | 3 | Borrell, Sala Gorön |
+| **Dermatology** | 2 | Borrell, Sala Gorön |
 | **Cardiology** | 1 | Sala Gorön |
 | **Oncology** | 2 | Borrell, Glòries |
 | **Physio/Rehab** | 3 | del Mar, Montjuïc, Desvern |
@@ -130,7 +130,7 @@ Coverage Radius: ~40km from Barcelona center
 | **Home Visits** | 2 | L'Animalari, Mirasol |
 
 ### Ancillary Services
-- Grooming (Borrell, Montjuïc, Desvern)
+- Grooming (Borrell, Montjuïc)
 - Pet shop/products (Borrell, Montjuïc, Desvern)
 - Canine café (Montjuïc)
 - Rehabilitation pool (Montjuïc)

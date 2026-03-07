@@ -52,7 +52,7 @@ Based on their detailed article "English Speaking Vet in Barcelona, Sitges, Sant
 - Quote from clinic staff demonstrating English proficiency
 
 **Specialization Trends:**
-- 5/8 clinics offer 24-hour emergency services
+- 6/8 clinics offer 24-hour emergency services
 - 3/8 offer stem cell / regenerative medicine
 - 4/8 treat exotic pets (not just cats/dogs)
 - 3/8 have "Cat-Friendly" accreditation or dedicated feline facilities
