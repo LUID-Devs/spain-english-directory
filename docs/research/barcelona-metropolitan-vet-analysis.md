@@ -164,7 +164,7 @@
 
 | Feature | Barcelona-Metropolitan | Priority for Our Directory |
 |---------|------------------------|---------------------------|
-| **24/7 Emergency Services** | Documented for 4 providers | High - critical for pet owners |
+| **24/7 Emergency Services** | Documented for 6 providers | High - critical for pet owners |
 | **Exotic Pet Care** | 3 providers specialize | Medium - niche but valuable |
 | **Home Visits** | 2 providers offer | High - convenience factor |
 | **Stem Cell Therapy** | 2 providers | Medium - advanced care |
@@ -233,6 +233,8 @@ Our directory should match or exceed this level of detail.
 ## Keyword Opportunities
 
 Based on Barcelona-Metropolitan's coverage, high-value keywords:
+
+Competition/value ratings are qualitative estimates from a manual SERP snapshot (March 2026).
 
 | Keyword | Competition | Value |
 |---------|-------------|-------|
