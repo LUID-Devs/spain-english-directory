@@ -24,6 +24,7 @@ async function seed() {
       { name: 'Business', slug: 'business', description: 'Accountants, consultants, and business services', icon: 'business' },
       { name: 'Education', slug: 'education', description: 'Schools, tutors, and language learning', icon: 'school' },
       { name: 'Services', slug: 'services', description: 'General services and trades', icon: 'build' },
+      { name: 'Veterinary', slug: 'veterinary', description: 'Veterinary clinics and pet healthcare services', icon: 'pets' },
     ]);
     console.log(`✅ Created ${categories.length} categories`);
 
@@ -38,6 +39,7 @@ async function seed() {
       { name: 'Bilbao', slug: 'bilbao', province: 'Biscay', region: 'Basque Country' },
       { name: 'Palma de Mallorca', slug: 'palma-de-mallorca', province: 'Balearic Islands', region: 'Balearic Islands' },
       { name: 'Almería', slug: 'almeria', province: 'Almería', region: 'Andalusia' },
+      { name: 'Marbella', slug: 'marbella', province: 'Málaga', region: 'Andalusia' },
     ]);
     console.log(`✅ Created ${cities.length} cities`);
 
@@ -199,6 +201,108 @@ async function seed() {
         speaksEnglish: true,
         englishLevel: ProfessionalEnglishLevel.NATIVE,
         specialties: ['Psychology', 'Psychiatry', 'Speech Therapy', 'Coaching', 'Psycho-educational Assessments'],
+        isVerified: true,
+        isFeatured: false,
+        listingType: ListingType.FREE,
+      },
+      {
+        name: 'Upendi Clínica Veterinaria',
+        email: 'info@upendiclinicaveterinaria.com',
+        phone: '+34 960 660 513',
+        website: 'https://upendiclinicaveterinaria.com/',
+        categoryId: 7, // Veterinary
+        cityId: 3, // Valencia
+        address: 'Carrer de l\'Església del Patraix, 11',
+        postalCode: '46005',
+        description: 'Veterinary clinic in Valencia Eixample offering preventive, diagnostic, and hospitalization services.',
+        speaksEnglish: true,
+        englishLevel: ProfessionalEnglishLevel.C1,
+        specialties: ['General Practice', 'Diagnostics', 'Hospitalization'],
+        isVerified: true,
+        isFeatured: false,
+        listingType: ListingType.FREE,
+      },
+      {
+        name: 'Clínica Veterinaria El Palau',
+        email: 'info@clinicaelpalau.es',
+        phone: '+34 963 744 302',
+        website: 'https://clinicaelpalau.es/',
+        categoryId: 7, // Veterinary
+        cityId: 3, // Valencia
+        address: 'Carrer del Doctor Sanchis Bergón, 20',
+        postalCode: '46005',
+        description: 'Valencia veterinary center focused on surgery, traumatology, and companion-animal care.',
+        speaksEnglish: true,
+        englishLevel: ProfessionalEnglishLevel.C1,
+        specialties: ['Surgery', 'Traumatology', 'General Practice'],
+        isVerified: true,
+        isFeatured: false,
+        listingType: ListingType.FREE,
+      },
+      {
+        name: 'Hospital Veterinario Alberto Alcocer',
+        email: 'info@hospitalveterinarioalbertoalcocer.com',
+        phone: '+34 913 452 515',
+        website: 'https://www.hospitalveterinarioalbertoalcocer.com/',
+        categoryId: 7, // Veterinary
+        cityId: 1, // Madrid
+        address: 'Av. Alberto Alcocer, 45',
+        postalCode: '28016',
+        description: '24-hour veterinary hospital in Madrid with emergency, surgery, and diagnostic services.',
+        speaksEnglish: true,
+        englishLevel: ProfessionalEnglishLevel.C1,
+        specialties: ['Emergency', 'Surgery', 'Diagnostics'],
+        isVerified: true,
+        isFeatured: true,
+        listingType: ListingType.FREE,
+      },
+      {
+        name: 'Medivet Los Sauces - Hospital Veterinario 24h',
+        email: 'cvsauces@cvsauces.com',
+        phone: '+34 914 454 305',
+        website: 'https://cvsauces.com/',
+        categoryId: 7, // Veterinary
+        cityId: 1, // Madrid
+        address: 'Calle de Santa Engracia, 63',
+        postalCode: '28010',
+        description: '24/7 veterinary hospital in Madrid with strong exotic-animal and emergency coverage.',
+        speaksEnglish: true,
+        englishLevel: ProfessionalEnglishLevel.C1,
+        specialties: ['Emergency', 'Exotic Animals', 'Internal Medicine'],
+        isVerified: true,
+        isFeatured: true,
+        listingType: ListingType.FREE,
+      },
+      {
+        name: 'Pointer Veterinary Marbella',
+        email: 'info@pointermarbella.com',
+        phone: '+34 952 770 033',
+        website: 'https://www.pointermarbella.com/',
+        categoryId: 7, // Veterinary
+        cityId: 10, // Marbella
+        address: 'Calle Láncara, 2, Local 4',
+        postalCode: '29660',
+        description: 'Marbella veterinary clinic providing preventive plans and emergency support for expat pet owners.',
+        speaksEnglish: true,
+        englishLevel: ProfessionalEnglishLevel.C1,
+        specialties: ['Preventive Care', 'Emergency', 'Internal Medicine'],
+        isVerified: true,
+        isFeatured: false,
+        listingType: ListingType.FREE,
+      },
+      {
+        name: 'Clínica Veterinaria Marbella mediVET',
+        email: 'info@clinicaveterinariamedivet.com',
+        phone: '+34 952 829 511',
+        website: 'https://www.clinicaveterinariamedivet.com/en/',
+        categoryId: 7, // Veterinary
+        cityId: 10, // Marbella
+        address: 'Calle Lagasca, 8',
+        postalCode: '29660',
+        description: 'Marbella clinic for international clients focused on preventive and general veterinary care.',
+        speaksEnglish: true,
+        englishLevel: ProfessionalEnglishLevel.C1,
+        specialties: ['Preventive Care', 'General Practice', 'Surgery'],
         isVerified: true,
         isFeatured: false,
         listingType: ListingType.FREE,
