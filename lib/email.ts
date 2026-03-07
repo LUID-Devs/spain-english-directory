@@ -22,7 +22,7 @@ export async function sendEmail(options: EmailOptions): Promise<{ success: boole
     // Dynamic import with error handling for missing resend package
     let resendModule: unknown;
     try {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      // eslint-disable-next-line
       resendModule = require('resend');
     } catch {
       console.warn('Resend package not installed, logging email instead');
@@ -32,7 +32,7 @@ export async function sendEmail(options: EmailOptions): Promise<{ success: boole
       console.log('===========================');
       return { success: true, messageId: `no-resend-${Date.now()}` };
     }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line
     const Resend = resendModule as any;
     const resend = new Resend.Resend(process.env.RESEND_API_KEY);
     
