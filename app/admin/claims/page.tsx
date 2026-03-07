@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Claim, ClaimStatus } from '@/types';
 
 const ADMIN_KEY_STORAGE = 'admin_api_key';
@@ -16,12 +16,14 @@ export default function AdminClaimsPage() {
   const [selectedClaim, setSelectedClaim] = useState<Claim | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
+  const skipNextAutoFetch = useRef(false);
 
   useEffect(() => {
     const storedKey = window.sessionStorage.getItem(ADMIN_KEY_STORAGE);
     if (storedKey) {
-      setAdminKey(storedKey);
-      setIsAuthorized(true);
+      const restoredKey = storedKey.trim();
+      setAdminKey(restoredKey);
+      void validateAndLoadClaims(restoredKey, { persist: false, skipNextFetch: true });
     } else {
       setLoading(false);
     }
@@ -29,38 +31,75 @@ export default function AdminClaimsPage() {
 
   useEffect(() => {
     if (!isAuthorized || !adminKey) return;
+    if (skipNextAutoFetch.current) {
+      skipNextAutoFetch.current = false;
+      return;
+    }
     fetchClaims();
   }, [statusFilter, isAuthorized, adminKey]);
+
+  const fetchClaimsForKey = async (key: string): Promise<Claim[]> => {
+    const url = new URL('/api/admin/claims', window.location.origin);
+    if (statusFilter !== 'all') {
+      url.searchParams.set('status', statusFilter);
+    }
+
+    const response = await fetch(url, {
+      headers: {
+        [ADMIN_KEY_HEADER]: key,
+      },
+    });
+
+    if (response.status === 401) {
+      throw new Error('Invalid admin key');
+    }
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error || 'Failed to fetch claims');
+    }
+
+    return data.claims;
+  };
+
+  const validateAndLoadClaims = async (
+    key: string,
+    options: { persist: boolean; skipNextFetch: boolean }
+  ) => {
+    setLoading(true);
+    setError('');
+    try {
+      const claimsData = await fetchClaimsForKey(key);
+      setClaims(claimsData);
+      setAdminKey(key);
+      setIsAuthorized(true);
+      if (options.persist) {
+        window.sessionStorage.setItem(ADMIN_KEY_STORAGE, key);
+      }
+      if (options.skipNextFetch) {
+        skipNextAutoFetch.current = true;
+      }
+    } catch (err: any) {
+      setClaims([]);
+      setIsAuthorized(false);
+      window.sessionStorage.removeItem(ADMIN_KEY_STORAGE);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchClaims = async () => {
     if (!adminKey) return;
     setLoading(true);
     try {
-      const url = new URL('/api/admin/claims', window.location.origin);
-      if (statusFilter !== 'all') {
-        url.searchParams.set('status', statusFilter);
-      }
-
-      const response = await fetch(url, {
-        headers: {
-          [ADMIN_KEY_HEADER]: adminKey,
-        },
-      });
-
-      if (response.status === 401) {
+      const claimsData = await fetchClaimsForKey(adminKey);
+      setClaims(claimsData);
+    } catch (err: any) {
+      if (err.message === 'Invalid admin key') {
         setIsAuthorized(false);
         window.sessionStorage.removeItem(ADMIN_KEY_STORAGE);
-        throw new Error('Invalid admin key');
       }
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to fetch claims');
-      }
-
-      setClaims(data.claims);
-    } catch (err: any) {
       setError(err.message);
     } finally {
       setLoading(false);
@@ -146,16 +185,13 @@ export default function AdminClaimsPage() {
 
   const handleUnlock = async (event: React.FormEvent) => {
     event.preventDefault();
-    setError('');
 
     if (!adminKey.trim()) {
       setError('Admin key is required');
       return;
     }
 
-    window.sessionStorage.setItem(ADMIN_KEY_STORAGE, adminKey.trim());
-    setIsAuthorized(true);
-    setLoading(true);
+    await validateAndLoadClaims(adminKey.trim(), { persist: true, skipNextFetch: true });
   };
 
   if (!isAuthorized) {
