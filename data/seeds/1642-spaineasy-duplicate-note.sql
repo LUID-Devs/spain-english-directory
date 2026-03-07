@@ -1,0 +1,23 @@
+-- Task 1642: Add SpainEasy - Real Estate - Valencia
+-- STATUS: DUPLICATE - Already exists in task 1379
+-- 
+-- SpainEasy was previously added in:
+--   File: data/seeds/1379-spaineasy-realestate-valencia.sql
+--   PR: #87 (feature/1379-spaineasy-realestate)
+--   Merged: Yes
+--
+-- The entry is complete with:
+--   - Name: SpainEasy
+--   - Category: Real Estate
+--   - Location: Valencia, Valencia
+--   - Address: Carrer dels Transits, 2 Planta 2 – local 6
+--   - Phone: +34 960 13 65 67
+--   - Email: contact@spaineasy.com
+--   - Website: https://spaineasy.com
+--   - Description: Personal real estate agency for US citizens buying in Spain
+--
+-- No additional action needed. Closing #1642 as duplicate of #1379.
+
+-- Reference to existing entry:
+-- INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at)
+-- VALUES ('SpainEasy', 'Real Estate', '...', 'Carrer dels Transits, 2 Planta 2 – local 6', 'Valencia', 'Valencia', '+34 960 13 65 67', 'contact@spaineasy.com', 'https://spaineasy.com', true, false, true, false, NOW(), NOW());
