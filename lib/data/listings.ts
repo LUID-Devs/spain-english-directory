@@ -18,6 +18,25 @@ export interface DirectoryListing {
   imageUrl?: string;
 }
 
+// Real verified businesses (manually added)
+const realBusinesses: DirectoryListing[] = [
+  {
+    id: 1648,
+    name: 'Engel & Völkers Spain',
+    category: 'Realtors',
+    city: 'Madrid',
+    address: 'Calle de Serrano, 92',
+    phone: '+34 900 878 888',
+    email: 'spain@engelvoelkers.com',
+    website: 'https://www.engelvoelkers.com/en-es/spain/',
+    description: 'Global luxury real estate brand with 1,000+ locations across 35+ countries. Premium segment focus specializing in high-end residential and commercial properties throughout Spain including Madrid, Barcelona, Valencia, Costa del Sol, Costa Blanca, Ibiza, Mallorca, and the Canary Islands. International client base with English-speaking agents providing local market expertise backed by a worldwide network.',
+    specialties: ['Luxury Residential', 'Property Sales', 'Property Rentals', 'Investment Advisory'],
+    languages: ['English', 'Spanish', 'German'],
+    rating: 4.9,
+    reviewCount: 120,
+  },
+];
+
 // Generate realistic mock data for all city/category combinations
 const firstNames = ['Dr. Sarah', 'Dr. James', 'Dr. Maria', 'Dr. Michael', 'Dr. Elena', 'Dr. David', 'Dr. Laura', 'Dr. John', 'Dr. Carmen', 'Dr. Robert', 'Dr. Ana', 'Dr. William', 'Dr. Patricia', 'Dr. Thomas', 'Dr. Sofia'];
 const lastNames = ['Smith', 'Johnson', 'Garcia', 'Williams', 'Martinez', 'Brown', 'Rodriguez', 'Jones', 'Lopez', 'Davis', 'Perez', 'Miller', 'Sanchez', 'Wilson', 'Gomez'];
@@ -74,7 +93,7 @@ export const generateMockListings = (citySlug: string, categorySlug: string): Di
 
 // Get listings with optional filtering
 export const getListings = (
-  citySlug: string, 
+  citySlug: string,
   categorySlug: string,
   filters?: {
     specialty?: string;
@@ -84,6 +103,17 @@ export const getListings = (
   }
 ): { listings: DirectoryListing[]; total: number; page: number; totalPages: number } => {
   let listings = generateMockListings(citySlug, categorySlug);
+
+  // Merge real businesses that match this city/category
+  const city = cities.find(c => c.slug === citySlug);
+  const category = categories.find(c => c.slug === categorySlug);
+  if (city && category) {
+    const matchingReal = realBusinesses.filter(
+      b => b.city.toLowerCase() === city.name.toLowerCase() &&
+           b.category.toLowerCase() === category.name.toLowerCase()
+    );
+    listings = [...matchingReal, ...listings];
+  }
   
   // Apply filters
   if (filters?.specialty) {
