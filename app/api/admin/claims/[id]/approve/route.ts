@@ -1,11 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Claim, DirectoryEntry } from '@/models';
 import { sendClaimApprovedNotification } from '@/lib/email';
+import { requireAdminAuth } from '@/lib/admin-auth';
 
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const unauthorized = requireAdminAuth(request);
+  if (unauthorized) {
+    return unauthorized;
+  }
+
   try {
     const { id } = await params;
     const claimId = parseInt(id);
