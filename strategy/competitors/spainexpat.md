@@ -26,7 +26,7 @@
 | **Target Audience** | All English-speaking expats (US, UK, AU, CA, IE, etc.) |
 | **Geographic Coverage** | **All of Spain** - nationwide coverage |
 | **Language** | English |
-| **Community Size** | Active forum with 15,000+ topics, 25,000+ replies |
+| **Community Size** | Active forum (sampled sections show 6,925 topics, 14,649 replies) |
 
 ---
 
@@ -132,10 +132,11 @@
 
 ### Community Engagement
 
-- **Total Topics:** 15,000+
-- **Total Replies:** 25,000+
+- **Sampled Topics (7 sections):** 6,925
+- **Sampled Replies (7 sections):** 14,649
 - **Most Popular Thread:** "People from the US in Spain" (120 replies, 127K views)
 - **Active Moderation:** Multiple moderators (jurdyr, foxbat, cazzy)
+- **Note:** These counts are from the listed sections above and should be treated as a directional sample, not a full-forum aggregate.
 
 **Critical Observation:** The forum contains **significant spam** (based on thread titles observed), suggesting reduced moderation activity.
 
@@ -541,7 +542,7 @@ SpainExpat.com represents the **established, legacy competitor** with strong SEO
 7. **Mobile-first** - Where modern users live
 
 **Immediate priorities:**
-- Cross-reference and add SpainExpat.com's known providers to SED
+- Use SpainExpat.com's provider listings as discovery signals, then independently verify before adding to SED
 - Emphasize modern UX in all marketing
 - Launch review system (major differentiator)
 - Consider creating immigration office directory (unique value)
