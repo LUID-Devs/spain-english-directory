@@ -207,7 +207,7 @@ Barcelona Metropolitan complements vet listings with:
 | **Quality over Quantity** | 8 carefully vetted, English-speaking clinics |
 | **Rich Information** | Detailed service descriptions and pricing |
 | **Testimonials** | Real expat owner recommendations |
-| **Emergency Coverage** | 5 of 8 clinics offer 24/7 emergency services |
+| **Emergency Coverage** | 6 of 8 clinics offer 24/7 emergency services |
 | **Geographic Spread** | Coverage extends beyond Barcelona city |
 | **Specialization Detail** | Clear indication of exotic pet capabilities |
 | **Insurance Info** | Specific accepted providers listed |
