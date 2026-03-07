@@ -1,0 +1,9 @@
+-- Task 1631: Add The British Dental Clinic - Dental - Barcelona
+-- Data entry for Spain English Directory
+-- Category: Dental / Dentists
+-- Source: thebritishdentalclinic.com
+
+INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
+
+-- The British Dental Clinic - English-Speaking Dental Clinic in Barcelona
+('The British Dental Clinic', 'Dentists', 'English-speaking dental clinic in Barcelona''s El Born district, founded by Dr. Alistair Gallagher following a distinguished career in the UK. Over a decade of experience serving the international community with personalized and transparent dental care. The multilingual team speaks English, Spanish, Catalan, Portuguese, and Arabic, ensuring seamless communication for expats and international patients. Comprehensive services include routine dental care, implants, periodontal surgery, veneers, invisible aligners, endodontics, prosthodontics, and general dentistry. The clinic empowers patients with detailed explanations of every treatment option, including transparent information about procedures, outcomes, and costs. Principal dentist Dr. Alistair Gallagher brings over 15 years of experience, supported by Dr. Aina Bosch (specialist in prosthodontics, implantology and endodontics) and Dr. Marcelo Lopes (specialist in periodontics and implant surgery). Flexible financial plans available to fit different budgets. Same-day appointments available for urgent cases. Opening hours: Monday-Friday 10:00-20:00, Saturday by prior arrangement. Centrally located near Barceloneta metro (L4).', 'Carrer Antic de Sant Joan 13, 08003', 'Barcelona', 'Barcelona', '+34 607 332 335', 'info@thebritishdentalclinic.com', 'https://thebritishdentalclinic.com', true, false, true, false, NOW(), NOW());
