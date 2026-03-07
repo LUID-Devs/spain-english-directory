@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "check:seed-integrity": "node scripts/check-seed-integrity.js"
   },
   "dependencies": {
     "clsx": "^2.1.1",
@@ -21,13 +22,13 @@
     "tailwind-merge": "^3.5.0"
   },
   "devDependencies": {
-    "@types/node": "^18",
+    "@types/node": "18.19.130",
     "@types/pg": "^8.11.10",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
     "eslint": "^8",
     "eslint-config-next": "15.2.1",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "5.9.3"
   }
 }
