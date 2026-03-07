@@ -1,8 +1,0 @@
--- Task 1364: Add Simple English Advice - Gestor - Málaga
--- Data entry by subagent
--- English-speaking gestor/expat services in Málaga
-
-INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
-
--- Simple English Advice - English-speaking gestor services in Málaga
-('Simple English Advice', 'Gestor', 'English-speaking expat agency in Málaga offering support with Spanish bureaucracy and administrative procedures. Founded by British expats Delroy and Christina with over 15 years of experience helping foreigners navigate Spanish red tape. Services include car ownership transfers (transferencia de vehículos), UK to Spanish driving licence exchanges, NRA rental registration numbers for short-term rentals, EU vehicle imports and matriculations, DGT vehicle reports, nota simple vehículo, ITV services, notification of sale, property lawyer services, mortgage fees refund, property management agreements, Digital Nomad Visa assistance, autónomo registration, and non-resident tax filings. Winner of the SME News Award for Best Expat Relocation Support Service for 4 consecutive years. Transparent fixed fees with no hidden charges. Same-day online vehicle ownership transfers available for €60 plus official taxes and fees. Remote services available via email without need for office visits. Over 100 five-star Google reviews.', 'Málaga', 'Málaga', 'Málaga', '+34 951 74 51 68', 'info@simpleenglishadvice.com', 'https://simpleenglishadvice.com', true, false, true, false, NOW(), NOW());
