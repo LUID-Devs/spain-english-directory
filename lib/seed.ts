@@ -153,40 +153,6 @@ async function seed() {
       },
 
       {
-        name: 'Scudamore Law',
-        email: 'mail@scudamorelaw.com',
-        phone: '+34 915 939 126',
-        website: 'https://www.scudamorelaw.com',
-        categoryId: 2, // Legal
-        cityId: 1, // Madrid
-        address: 'Plaza de Castilla, 3 – 15º E2, 28046 Madrid',
-        postalCode: '28046',
-        description: 'English-speaking law firm with offices in Madrid, Almería and London. Over 20 years of Spanish and English legal experience specializing in property law, visas (including Digital Nomad Visas), probate & inheritance, family law, and business law. Bilingual English-Spanish lawyers providing clear, practical advice delivered to British standards of professionalism. Expert in cross-border legal issues and supporting expats with property transactions, residency matters, and legal protection in Spain.',
-        speaksEnglish: true,
-        englishLevel: ProfessionalEnglishLevel.NATIVE,
-        specialties: ['Property Law', 'Visas & Immigration', 'Probate & Inheritance', 'Family Law', 'Business Law'],
-        isVerified: true,
-        isFeatured: true,
-        listingType: ListingType.FEATURED,
-      },
-      {
-        name: 'Scudamore Law',
-        email: 'mail@scudamorelaw.com',
-        phone: '+34 950 900 001',
-        website: 'https://www.scudamorelaw.com',
-        categoryId: 2, // Legal
-        cityId: 9, // Almería
-        address: 'By appointment - contact office',
-        postalCode: '04001',
-        description: 'English-speaking law firm with offices in Madrid, Almería and London. Over 20 years of Spanish and English legal experience specializing in property law, visas (including Digital Nomad Visas), probate & inheritance, family law, and business law. Bilingual English-Spanish lawyers providing clear, practical advice delivered to British standards of professionalism. Expert in cross-border legal issues and supporting expats with property transactions, residency matters, and legal protection in Spain. Almería office operates by appointment.',
-        speaksEnglish: true,
-        englishLevel: ProfessionalEnglishLevel.NATIVE,
-        specialties: ['Property Law', 'Visas & Immigration', 'Probate & Inheritance', 'Family Law', 'Business Law'],
-        isVerified: true,
-        isFeatured: true,
-        listingType: ListingType.FEATURED,
-      },
-      {
         name: 'Unidad Médica',
         email: 'um@unidadmedica.com',
         phone: '+34 914 351 823',
