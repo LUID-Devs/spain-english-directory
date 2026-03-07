@@ -2,6 +2,9 @@
 -- Data entry for Spain English Directory
 -- Leading provider of legal assistance for English-speaking individuals and businesses in Spain
 
+-- Clean up any existing entries to prevent duplicates
+DELETE FROM directory_entries WHERE name = 'Spain Lawyer' OR website = 'https://www.spainlawyer.com/';
+
 INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
 
 -- Spain Lawyer - Madrid-based law firm serving English-speaking clients throughout Spain
