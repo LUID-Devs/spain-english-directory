@@ -1,0 +1,152 @@
+{
+  "competitor": "SpainMadeSimple",
+  "url": "https://www.spainmadesimple.com/",
+  "research_date": "2026-03-06",
+  "category": "dental",
+  "businesses": [
+    {
+      "priority": "high",
+      "city": "Madrid",
+      "businesses": [
+        {
+          "name": "[Research Required]",
+          "address": "Calle Marcenado 32, 28002 Madrid",
+          "services": ["Implantology", "Oral Surgery", "Aesthetics", "Dental Veneers", "Complex Reconstructions", "Root Canals", "Invisalign", "Braces"],
+          "languages": ["English", "Spanish"],
+          "features": ["Native English dentist", "Online booking"],
+          "source": "SpainMadeSimple",
+          "status": "lead",
+          "notes": "Search result snippet indicates English-speaking staff, implantology specialty"
+        },
+        {
+          "name": "[Research Required]",
+          "address": "Plaza Prosperidad #3, 2B, 28002 Madrid",
+          "services": ["General Dentistry", "High Quality Dental Treatments"],
+          "languages": ["English", "Spanish"],
+          "features": ["English speaking staff"],
+          "source": "SpainMadeSimple",
+          "status": "lead",
+          "notes": "Full service dental clinic"
+        },
+        {
+          "name": "[Research Required]",
+          "address": "Calle de Diego de León, 52, 28006 Madrid",
+          "services": ["Odontología general", "Periodoncia", "Implantes", "Estética dental", "Fisioterapia ATM", "Dolor Orofacial", "Cirugía Oral", "Maxilofacial"],
+          "languages": ["English", "Spanish"],
+          "source": "SpainMadeSimple",
+          "status": "lead",
+          "notes": "Comprehensive dental and maxillofacial services"
+        }
+      ]
+    },
+    {
+      "priority": "high",
+      "city": "Barcelona",
+      "businesses": [
+        {
+          "name": "[Research Required]",
+          "address": "Ronda del General Mitre, 136, Barcelona",
+          "services": ["General Dentistry"],
+          "languages": ["English", "Spanish"],
+          "source": "SpainMadeSimple",
+          "status": "lead",
+          "notes": "Listed as English-speaking dentist in Barcelona"
+        },
+        {
+          "name": "Duran & Burgos Clinica Dental",
+          "address": "Pg Vilanova 32, 08870 Sitges, Barcelona, Spain",
+          "phone": "+34938944479",
+          "emergency_phone": "+34668894479",
+          "services": ["General Dentistry"],
+          "languages": ["English", "Spanish"],
+          "source": "SpainMadeSimple",
+          "status": "lead",
+          "notes": "Located in Sitges, serves as closest beach resort option to Barcelona"
+        }
+      ]
+    },
+    {
+      "priority": "high",
+      "city": "Estepona (Marbella area)",
+      "region": "Costa del Sol",
+      "businesses": [
+        {
+          "name": "Dental Care Marbella",
+          "address": "C.C. Laguna Village, A-7, Km 159, 29680 Estepona (Málaga), Spain",
+          "phone": "+34 952 936 552",
+          "mobile": "+34 615 071 563",
+          "email": "info@dentalcaremarbella.com",
+          "services": ["General Dentistry", "Emergency Dental"],
+          "languages": ["English", "Spanish"],
+          "source": "SpainMadeSimple",
+          "status": "lead",
+          "notes": "Located in Laguna Village Shopping Center"
+        }
+      ]
+    },
+    {
+      "priority": "medium",
+      "city": "Benalmadena",
+      "region": "Costa del Sol",
+      "businesses": [
+        {
+          "name": "Crooke & Laguna - Benalmadena",
+          "address": "Avenida Blas Infante 17, 29631, Benalmádena, Málaga",
+          "services": ["Dental Implants", "Cosmetic Dentistry"],
+          "languages": ["English", "Spanish"],
+          "source": "SpainMadeSimple",
+          "status": "lead",
+          "chain": "Crooke & Laguna",
+          "other_locations": ["Malaga", "Marbella", "Churriana"],
+          "notes": "Multi-location dental chain specializing in implants and cosmetic dentistry"
+        },
+        {
+          "name": "[Research Required]",
+          "address": "C/Ciudad de Melilla, s/n, Urb. Plaza Mayor Blq.2 – planta baja – local 14, E-29631, Arroyo de la Miel, Malaga",
+          "phone": "+34 952 57 51 73",
+          "emergency_phone": "+34 609 58 02 68",
+          "services": ["General Dentistry", "Emergency Dental"],
+          "languages": ["English", "Spanish"],
+          "source": "SpainMadeSimple",
+          "status": "lead",
+          "notes": "Arroyo de la Miel area"
+        }
+      ]
+    },
+    {
+      "priority": "medium",
+      "city": "Malaga",
+      "region": "Costa del Sol",
+      "businesses": [
+        {
+          "name": "Crooke & Laguna - Malaga",
+          "address": "[Address to be confirmed]",
+          "services": ["Dental Implants", "Cosmetic Dentistry"],
+          "languages": ["English", "Spanish"],
+          "source": "SpainMadeSimple",
+          "status": "lead",
+          "chain": "Crooke & Laguna",
+          "other_locations": ["Benalmadena", "Marbella", "Churriana"],
+          "notes": "Malaga location of the multi-location chain"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "total_leads": 9,
+    "by_city": {
+      "Madrid": 3,
+      "Barcelona": 2,
+      "Estepona (Marbella area)": 1,
+      "Benalmadena": 2,
+      "Malaga": 1
+    },
+    "named_businesses": 4,
+    "research_required": 5
+  },
+  "competitor_insights": {
+    "coverage_areas": ["Madrid", "Barcelona", "Marbella", "Malaga", "Benalmadena", "Calahonda", "Sitges", "Tenerife", "Lanzarote", "San Fulgencio"],
+    "listing_model": "Free submissions",
+    "content_approach": "City-specific landing pages with practical guides"
+  }
+}
