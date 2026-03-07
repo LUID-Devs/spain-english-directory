@@ -191,7 +191,7 @@ async function seed() {
         email: 'aahvetdr.nave@gmail.com',
         phone: '+34 913 574 496',
         website: 'https://aahvet.com/',
-        categoryId: 1, // Healthcare
+        categoryId: 6, // Services
         cityId: 1, // Madrid (Pozuelo de Alarcón area)
         address: 'Av. de Europa, 4, 28224 Pozuelo de Alarcón',
         postalCode: '28224',
@@ -199,23 +199,6 @@ async function seed() {
         speaksEnglish: true,
         englishLevel: ProfessionalEnglishLevel.NATIVE,
         specialties: ['Small Animals', 'Surgery', 'Grooming', 'House Calls', 'Pet Boarding', 'Animal Transport'],
-        isVerified: true,
-        isFeatured: false,
-        listingType: ListingType.FREE,
-      },
-      {
-        name: 'Dr. Carlos Morales',
-        email: 'contacto@doctorcarlosmorales.com',
-        phone: '+34 951 66 59 69',
-        website: 'https://doctorcarlosmorales.com',
-        categoryId: 1, // Healthcare
-        cityId: 4, // Málaga
-        address: 'Av. de Manuel Fraga Iribarne, 15, local 4, Torremolinos',
-        postalCode: '29620',
-        description: 'English-speaking pain specialist in Malaga. Specialized in pain management and treatment for international patients and expats. Offers advanced pain treatments including radiofrequency, ozone therapy, regenerative medicine, and minimally invasive procedures. Treats herniated discs, arthritis, chronic pain, neuralgia, and back pain. Consultations at Hospital Santa Elena and Clínica Élite in Torremolinos.',
-        speaksEnglish: true,
-        englishLevel: ProfessionalEnglishLevel.C1,
-        specialties: ['Pain Management', 'Radiofrequency', 'Ozone Therapy', 'Regenerative Medicine', 'Herniated Discs', 'Arthritis', 'Chronic Pain', 'Neuralgia', 'Back Pain'],
         isVerified: true,
         isFeatured: false,
         listingType: ListingType.FREE,
