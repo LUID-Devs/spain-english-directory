@@ -1,8 +1,0 @@
--- Task 1614: Add Exactly Accountancy - Tax/Accounting - Nationwide #1614
--- Data entry for Exactly Accountancy - Online tax and accounting services for expats throughout Spain
--- Source: https://www.exactly.es/
-
-INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
-
--- Exactly Accountancy - Nationwide online tax and accounting services
-('Exactly Accountancy', 'Tax/Accounting', 'Five-star online tax and accounting firm specializing in comprehensive services for expats and freelancers throughout Spain. AECE-certified accountants providing bookkeeping, tax returns, business formation (SL company setup within 1 month), autónomo registration (within hours), insurance services, and personal income tax management. Offers dedicated multilingual support in English, Dutch, and Spanish with a modern, proactive approach. All services delivered online through a digital platform with mobile document submission and online financial dashboard for business clients. Accredited member of the Association of Accountants and Tax Advisors in Spain (AECE) and affiliated with the Spanish Tax Agency (Agencia Tributaria). G2 Financial Services Verified and recognized as an Odoo Gold Accounting & Finance Partner. Serves clients across all of Spain remotely with packages tailored for both freelancers (autónomos) and SL companies.', 'Calle Punta Albir s/n, 03590 Altea', 'Altea', 'Alicante', '+34 965 020 262', 'support@exactly.es', 'https://www.exactly.es', true, false, true, false, NOW(), NOW());
