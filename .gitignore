@@ -48,3 +48,12 @@ next-env.d.ts
 
 # Uploaded files
 public/uploads/
+
+# OpenClaw AI workspace files
+AGENTS.md
+HEARTBEAT.md
+IDENTITY.md
+SOUL.md
+TOOLS.md
+USER.md
+.openclaw/
