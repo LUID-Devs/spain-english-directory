@@ -50,11 +50,11 @@ What this report is not:
 | Category | SpainMadeSimple presence | Opportunity for Spain English Directory |
 |----------|--------------------------|-----------------------------------------|
 | Insurance | Present | Differentiate with verified English support and clearer policy-type filters |
-| Financial/Tax | Present | Differentiate with expat-specific tax scenarios and credential visibility |
-| Legal | Present | Differentiate with immigration/NIE/TIE specialization filters |
+| Financial/Tax | Unverified in this pass | Differentiate with expat-specific tax scenarios and credential visibility |
+| Legal | Unverified in this pass | Differentiate with immigration/NIE/TIE specialization filters |
 | Real Estate | Present | Differentiate with neighborhood-level and transaction-stage filters |
-| Healthcare | Present | Differentiate with verified language level and consultation modality |
-| Removal/Relocation | Present | Differentiate with route-specific and city-pair guidance |
+| Healthcare | Unverified in this pass | Differentiate with verified language level and consultation modality |
+| Removal/Relocation | Unverified in this pass | Differentiate with route-specific and city-pair guidance |
 | Education | Limited/fragmented | Expand international school and admissions support coverage |
 | Job/Work resources | Present | Differentiate with English-support confidence indicators |
 
@@ -67,13 +67,28 @@ Initial scan notes include directional count ranges from a manual review. These 
 | Category | Preliminary estimate in scan notes |
 |----------|------------------------------------|
 | Insurance Brokers | ~10+ |
-| Financial Advisors | Partner program present, no standalone advisor directory count validated |
-| Legal Services | Listed (exact count unverified) |
+| Financial Advisors | Partner program observed; no standalone advisor directory count validated |
+| Legal Services | Category indication observed, exact listing count not validated |
 | Real Estate | Featured category present |
-| Healthcare | Listed category present |
+| Healthcare | Category indication observed, exact listing count not validated |
 | Job Board | Present |
-| Removal Companies | Listed |
+| Removal Companies | Category indication observed, exact listing count not validated |
 | Schools | Content present, directory depth limited |
+
+---
+
+## Internal Directory Baseline (Context for Gap Priorities)
+
+The PR discussion references current-directory coverage counts. To keep those references auditable, this baseline is captured here as a planning snapshot (March 2026):
+
+- Insurance Brokers: 2 known listings in current internal snapshot
+- Financial Advisors: no dedicated advisor category confirmed in current internal snapshot
+- Legal Services: low-count coverage (roughly 2-3 listings in initial scan)
+- Real Estate: existing multi-listing coverage
+- Healthcare: existing category coverage
+- Job Board: no equivalent standalone feature in current internal snapshot
+- Removal Companies: no dedicated coverage confirmed in current internal snapshot
+- Schools: no dedicated international-schools directory depth confirmed
 
 ---
 
