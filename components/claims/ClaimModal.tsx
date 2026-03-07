@@ -23,6 +23,7 @@ export default function ClaimModal({
     claimantName: '',
     claimantEmail: '',
     claimantPhone: '',
+    relationship: 'owner',
     documentUrl: '',
   });
   const [verificationCode, setVerificationCode] = useState('');
@@ -166,7 +167,7 @@ export default function ClaimModal({
 
   const handleClose = () => {
     setStep('info');
-    setFormData({ claimantName: '', claimantEmail: '', claimantPhone: '', documentUrl: '' });
+    setFormData({ claimantName: '', claimantEmail: '', claimantPhone: '', relationship: 'owner', documentUrl: '' });
     setVerificationCode('');
     setClaimId(null);
     setError('');
@@ -245,6 +246,19 @@ export default function ClaimModal({
                 className="w-full px-3 py-2 border rounded-md dark:bg-gray-800 dark:border-gray-700"
                 placeholder="+34 612 345 678"
               />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Relationship to Listing *</label>
+              <select
+                value={formData.relationship}
+                onChange={(e) => setFormData(prev => ({ ...prev, relationship: e.target.value as ClaimFormData['relationship'] }))}
+                className="w-full px-3 py-2 border rounded-md dark:bg-gray-800 dark:border-gray-700"
+                required
+              >
+                <option value="owner">Owner</option>
+                <option value="employee">Employee</option>
+                <option value="authorized">Authorized Representative</option>
+              </select>
             </div>
             <button
               type="submit"
