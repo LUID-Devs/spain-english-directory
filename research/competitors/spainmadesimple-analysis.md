@@ -17,7 +17,7 @@ For Spain English Directory, the key opportunity is to compete on **quality of p
 
 ## Scope and Method
 
-This document captures directional competitor insights from publicly visible site sections and category structure at analysis time.
+This document captures directional competitor insights from publicly visible site sections and category structure at analysis time (captured March 7, 2026).
 
 What this report is for:
 - identifying category-level gaps and opportunities
@@ -110,6 +110,15 @@ Initial scan notes include directional count ranges from a manual review. These 
 - Competitor structures can change quickly; revalidation should happen before major strategic commitments.
 - Any numeric claims (listing count, traffic, conversion) require fresh measurement before decision use.
 - This analysis should be paired with user interviews and search-demand data for roadmap decisions.
+
+## Sources Reviewed (March 7, 2026)
+
+1. https://www.spainmadesimple.com/
+2. https://www.spainmadesimple.com/moving-to-spain/
+3. https://www.spainmadesimple.com/property/
+4. https://www.spainmadesimple.com/work-jobs/
+5. https://www.spainmadesimple.com/insurance/
+6. https://www.spainmadesimple.com/about/
 
 ---
 

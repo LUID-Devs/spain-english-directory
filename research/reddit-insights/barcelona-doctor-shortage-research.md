@@ -55,7 +55,7 @@ Finding English-speaking specialists is particularly challenging:
 ### Insurance Mentions (Anecdotal, Reddit sample)
 | Provider | Pros | Cons |
 |----------|------|------|
-| **Adeslas** | Good network, ~€49/month | Varies by plan |
+| **Adeslas** | Commonly mentioned as a broad private network | Varies by plan and language support |
 | **Sanitas** | Large network | Poor English support |
 | **Agrupació Mútua** | Great Barcelona network | Less known |
 
@@ -68,7 +68,7 @@ Finding English-speaking specialists is particularly challenging:
 ## Market Implications
 
 - **High recurring demand** - Multiple posts across years
-- **Emotional language** - "struggling," "biggest fear" indicate significant pain
+- **Emotional language** - terms like "struggling" indicate significant pain
 - **Willingness to pay** - Expats consistently choose private over public
 - **No centralized directory** exists for English-speaking doctors
 
