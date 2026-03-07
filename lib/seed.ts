@@ -134,6 +134,40 @@ async function seed() {
         isFeatured: false,
         listingType: ListingType.FREE,
       },
+      {
+        name: 'Lexidy Law Firm',
+        email: 'info@lexidy.com',
+        phone: '+34 938 07 40 56',
+        website: 'https://www.lexidy.com',
+        categoryId: 2, // Legal
+        cityId: 2, // Barcelona
+        address: 'Avinguda Diagonal, 442, 1º 1ª',
+        postalCode: '08037',
+        description: 'English-speaking international law firm specializing in immigration, property, and business law for expats in Spain. Part of a European-wide legal network with offices across the continent. Services include visa applications (Digital Nomad, Non-Lucrative, Golden Visa), property conveyancing, company formation, contract review, and tax planning. Fixed-fee pricing model with no hourly billing. Multilingual team provides clear, straightforward legal guidance with personalized attention. Video consultations available. Located on Avinguda Diagonal in the heart of Barcelona\'s business district.',
+        speaksEnglish: true,
+        englishLevel: ProfessionalEnglishLevel.NATIVE,
+        specialties: ['Immigration', 'Property Law', 'Business Law', 'Visa Applications', 'Tax Planning'],
+        isVerified: true,
+        isFeatured: false,
+        listingType: ListingType.FREE,
+      },
+      {
+        name: 'Lexidy Law Firm',
+        email: 'info@lexidy.com',
+        phone: '+34 915 367 806',
+        website: 'https://www.lexidy.com',
+        categoryId: 2, // Legal
+        cityId: 1, // Madrid
+        address: 'Calle Villalar 7, Bajo Izquierda',
+        postalCode: '28001',
+        description: 'English-speaking international law firm specializing in immigration, property, and business law for expats in Spain. Part of a European-wide legal network with offices across the continent. Services include visa applications (Digital Nomad, Non-Lucrative, Golden Visa), property conveyancing, company formation, contract review, and tax planning. Fixed-fee pricing model with no hourly billing. Multilingual team provides clear, straightforward legal guidance with personalized attention. Video consultations available. Located in the Recoletos neighborhood near Puerta de Alcalá.',
+        speaksEnglish: true,
+        englishLevel: ProfessionalEnglishLevel.NATIVE,
+        specialties: ['Immigration', 'Property Law', 'Business Law', 'Visa Applications', 'Tax Planning'],
+        isVerified: true,
+        isFeatured: false,
+        listingType: ListingType.FREE,
+      },
     ]);
     console.log(`✅ Created ${professionals.length} professionals`);
 
