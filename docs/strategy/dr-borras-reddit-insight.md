@@ -146,7 +146,7 @@ All reviews are consistently positive (5/5 average).
 
 ## Related Files
 
-- SQL Seed: `data/seeds/1290-dr-borras-reddit-insight.sql`
+- SQL Seed: `data/seeds/1280-dr-ruben-borras.sql`
 - Content Insight: `content/insights/1290-dr-borras-reddit-recommendation.md`
 
 ---
