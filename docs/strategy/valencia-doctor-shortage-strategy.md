@@ -62,11 +62,11 @@ Valencia faces a **critical shortage of English-speaking doctors** that creates 
 ### Key Objectives
 
 1. **Provider Coverage**
-   - List 50+ verified English-speaking healthcare providers in Valencia
+   - List 40 verified English-speaking healthcare providers in Valencia within 6 months
    - Cover 80% of high-demand specialties (GP, Cardiology, Dermatology, OB/GYN, Pediatrics)
 
 2. **User Engagement**
-   - Achieve 1,000+ monthly searches for Valencia healthcare
+   - Achieve 500 monthly searches by month 3 and 1,500 monthly searches by month 6
    - 25% conversion rate from search to provider contact
 
 3. **Content Authority**
