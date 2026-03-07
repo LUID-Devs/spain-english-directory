@@ -1,6 +1,6 @@
 # Valencia English-Speaking Services Shortage Research
 
-**Research Date:** January 2025  
+**Research Date:** September 2025  
 **Focus Area:** #1374 - Critical shortage of English-speaking services in Valencia  
 **Sources:** Reddit (r/valencia, r/GoingToSpain, r/expats), Expat Forums, News Articles
 
@@ -185,7 +185,7 @@ One detailed Reddit post (August 2025) from expats leaving after 2 years cited:
 3. **Immigration lawyers** (fair pricing, responsive)
 4. **Tax accountants/gestors** for autónomo
 5. **Specialized healthcare** (beyond basic GP visits)
-6. **Veterinary services** (not heavily researched but implied gap)
+6. **Dental practices** with native/bilingual English support
 
 ### Emerging Solutions:
 - Online therapy services (Apricity, It's Complicated)
@@ -197,10 +197,7 @@ One detailed Reddit post (August 2025) from expats leaving after 2 years cited:
 
 ## Key Statistics & Context
 
-- **85% of British citizens** in Spain reported difficulties navigating bureaucratic processes post-Brexit (Migration Policy Institute)
 - **Immigration appointment backlogs** in Valencia can extend to weeks or months, up to 3+ months in high-demand areas
-- Valencia ranks **3rd out of 49** in Expat City Ranking 2023
-- **1st globally** in Quality of Life Index
 - But: Language barriers consistently cited as major pain point
 
 ---
