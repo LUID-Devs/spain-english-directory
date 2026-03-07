@@ -2,10 +2,10 @@
 -- Competitor Gap: Barcelona-Metropolitan Has 50+ Vet Listings
 -- Source: barcelona-metropolitan.com/living/reader-recommendations-english-speaking-vets/
 -- Analysis conducted: March 6, 2026
-
--- These are the 8 featured veterinary clinics from Barcelona Metropolitan's
--- editorial content, representing their core veterinary coverage.
--- This is a strategic seed to establish Spain Directory's veterinary category.
+--
+-- Note: is_verified=false and is_featured=false for all entries because these
+-- are sourced from BM editorial content, not independently verified or curated
+-- by Spain English Directory. Update both flags after internal review.
 
 INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
 

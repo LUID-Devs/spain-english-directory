@@ -55,7 +55,7 @@ Based on their detailed article "English Speaking Vet in Barcelona, Sitges, Sant
 - 6/8 clinics offer 24-hour emergency services
 - 2/8 offer stem cell / regenerative medicine
 - 4/8 treat exotic pets (not just cats/dogs)
-- 3/8 have "Cat-Friendly" accreditation or dedicated feline facilities
+- 4/8 have "Cat-Friendly" accreditation or dedicated feline facilities
 
 ---
 
@@ -231,8 +231,9 @@ Use the research above to create directory entries for all 8 featured clinics.
 ```sql
 -- Barcelona Metropolitan Featured Veterinary Clinics
 -- Source: barcelona-metropolitan.com/living/reader-recommendations-english-speaking-vets/
--- Note: is_verified=false and is_featured=false because these are sourced from
--- external editorial content and are not internally verified/featured by Spain English Directory.
+-- Note: is_verified=false and is_featured=false for all entries because these
+-- are sourced from BM editorial content, not independently verified or curated
+-- by Spain English Directory. Update both flags after internal review.
 
 INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
 
