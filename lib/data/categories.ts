@@ -6,6 +6,12 @@ export const categories = [
     specialties: ['General Practice', 'Pediatrics', 'Cardiology', 'Dermatology', 'Orthopedics', 'Internal Medicine', 'Gynecology', 'ENT', 'Ophthalmology', 'Psychiatry']
   },
   { 
+    slug: 'translators', 
+    name: 'Translators', 
+    singular: 'Translator',
+    specialties: ['Legal Translation', 'Medical Translation', 'Technical Translation', 'Sworn Translation', 'Business Translation', 'Marketing Translation', 'Interpreter Services', 'Document Translation', 'Website Localization', 'Certified Translation']
+  },
+  { 
     slug: 'lawyers', 
     name: 'Lawyers', 
     singular: 'Lawyer',

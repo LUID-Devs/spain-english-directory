@@ -1,0 +1,7 @@
+-- Task 1603: Add Jaime Segura & Associates - Tax/Accounting - Nationwide
+-- Data entry for Spain English Directory
+
+INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
+
+-- Jaime Segura & Associates - Tax & Accounting (nationwide service, Granada-based with Madrid office)
+('Jaime Segura & Associates', 'Tax/Accounting', 'Full-service tax, accounting and legal firm with over 15 years of experience serving English-speaking individuals and businesses across Spain. Specializing in tax advisory, accounting services, business setup, payroll, VAT filings, personal income tax, and comprehensive financial compliance for sole traders, freelancers, and international companies establishing branches in Spain. Offers nationwide coverage with offices in Granada (HQ) and Madrid. Provides personalized service with clear communication in English, including online tax return handling and multilingual support via phone, email, Skype, and WhatsApp. Also offers legal services including conveyancing, property law, business law, immigration, wills and inheritance, labor relations, and civil law. Serves all of Spain including Costa del Sol, Costa Blanca, Madrid, Barcelona, and the islands.', 'Av. de Andalucía 5, Bajo', 'Granada', 'Granada', '+34 958 993 804', 'info@jaimesegura-associates.com', 'https://jaimesegura-associates.com', true, false, true, false, NOW(), NOW());

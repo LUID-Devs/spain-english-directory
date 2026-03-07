@@ -3,19 +3,27 @@
 **Task:** #1374 - Reddit Insight: Valencia Has Critical Shortage  
 **Research Date:** March 2026  
 **Focus Area:** Valencia, Spain  
-**Status:** 🔴 CRITICAL SHORTAGE
+**Status:** 🟠 HIGH-SIGNAL OPPORTUNITY (qualitative evidence)
 
 ---
 
 ## Executive Summary
 
-**Valencia has a critical shortage of English-speaking healthcare providers**, creating a significant gap for the city's rapidly growing expat community. Unlike Madrid, which has established "go-to" English-speaking doctors, and Barcelona, which has premium international clinics, Valencia's English-speaking healthcare landscape is **severely underdeveloped**.
+Available community evidence indicates recurring difficulty finding English-speaking healthcare providers in Valencia, creating a meaningful service gap for expats and international residents. Unlike Madrid, which has more established recommendations for English-speaking providers, Valencia appears less structured and more dependent on scattered community referrals.
 
 Key findings:
-- **Direct community acknowledgment**: Reddit users explicitly state "Valencia needs English-speaking doctors"
+- **Direct community signal**: Reddit users explicitly report difficulty finding English-speaking doctors
 - **Growing expat population**: Valencia is increasingly popular with retirees and remote workers
-- **Limited infrastructure**: Few dedicated international clinics compared to Madrid/Barcelona
+- **Limited discoverability**: fewer clearly discoverable, expat-focused options than Madrid/Barcelona
 - **Language barrier anxiety**: Expats report anxiety about medical issues in Spanish
+
+---
+
+## Evidence Quality and Limits
+
+- Current evidence is primarily qualitative (Reddit/forum conversations and anecdotal reports).
+- This document should guide prioritization and validation, not be treated as a quantified population estimate.
+- Stronger confidence should come from follow-up metrics: provider verification rate, search demand trend data, and lead conversion.
 
 ---
 
@@ -26,7 +34,7 @@ Key findings:
 **From r/GoingToSpain (December 2025):**
 > *"Valencia needs English-speaking doctors. There's a growing expat community there but not a lot of English-speaking services are keeping up. Yes, most of us are actively learning Spanish, but especially with respect to medical issues, it's much easier to explain issues and understand answers in our native language."*
 
-This is a **smoking gun** - direct acknowledgment from the expat community that Valencia specifically lacks English-speaking healthcare providers.
+This is a strong qualitative indicator that Valencia has unmet English-speaking healthcare demand.
 
 ### 📊 Search Pattern Analysis
 
@@ -139,7 +147,7 @@ Based on Reddit discussions, Valencia attracts:
 | Private international hospitals | Many options | Several | Few |
 | Reddit mentions | High | Moderate | Growing but frustrated |
 
-**Valencia is 3-5 years behind Madrid and Barcelona** in English-speaking healthcare infrastructure.
+Valencia appears behind Madrid and Barcelona in discoverability of English-speaking healthcare options, based on available community references.
 
 ---
 

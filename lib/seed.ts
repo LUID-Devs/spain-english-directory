@@ -37,6 +37,7 @@ async function seed() {
       { name: 'Alicante', slug: 'alicante', province: 'Alicante', region: 'Valencian Community' },
       { name: 'Bilbao', slug: 'bilbao', province: 'Biscay', region: 'Basque Country' },
       { name: 'Palma de Mallorca', slug: 'palma-de-mallorca', province: 'Balearic Islands', region: 'Balearic Islands' },
+      { name: 'Almería', slug: 'almeria', province: 'Almería', region: 'Andalusia' },
     ]);
     console.log(`✅ Created ${cities.length} cities`);
 
@@ -130,6 +131,74 @@ async function seed() {
         speaksEnglish: true,
         englishLevel: ProfessionalEnglishLevel.NATIVE,
         specialties: ['Sales', 'Investment', 'Relocation', 'Property Management'],
+        isVerified: true,
+        isFeatured: false,
+        listingType: ListingType.FREE,
+      },
+      {
+        name: 'International Doctor 24h',
+        email: 'info@internationaldoctor24h.com',
+        phone: '+34 678 752 098',
+        website: 'https://internationaldoctor24h.com',
+        categoryId: 1, // Healthcare
+        cityId: 1, // Madrid
+        address: 'Available across Madrid city center and surrounding areas',
+        postalCode: '28001',
+        description: '24/7 English-speaking urgent care service for tourists and residents in Madrid. Specializes in home and hotel doctor visits, walk-in clinic access, emergency medical services, pediatric care, and ambulance coordination. No appointment needed. Covers all major areas including Gran Vía, Sol, Chamberí, Salamanca, La Latina, Moncloa, and Barajas. Fluent English-speaking doctors with experience treating international patients. Accepts private medical insurance.',
+        speaksEnglish: true,
+        englishLevel: ProfessionalEnglishLevel.NATIVE,
+        specialties: ['Urgent Care', 'Home Doctor Visits', 'Pediatrics', 'Emergency Medicine', 'Tourist Healthcare'],
+        isVerified: true,
+        isFeatured: true,
+        listingType: ListingType.FEATURED,
+      },
+      {
+        name: 'Scudamore Law',
+        email: 'mail@scudamorelaw.com',
+        phone: '+34 915 939 126',
+        website: 'https://www.scudamorelaw.com',
+        categoryId: 2, // Legal
+        cityId: 1, // Madrid
+        address: 'Plaza de Castilla, 3 – 15º E2, 28046 Madrid',
+        postalCode: '28046',
+        description: 'English-speaking law firm with offices in Madrid, Almería and London. Over 20 years of Spanish and English legal experience specializing in property law, visas (including Digital Nomad Visas), probate & inheritance, family law, and business law. Bilingual English-Spanish lawyers providing clear, practical advice delivered to British standards of professionalism. Expert in cross-border legal issues and supporting expats with property transactions, residency matters, and legal protection in Spain.',
+        speaksEnglish: true,
+        englishLevel: ProfessionalEnglishLevel.NATIVE,
+        specialties: ['Property Law', 'Visas & Immigration', 'Probate & Inheritance', 'Family Law', 'Business Law'],
+        isVerified: true,
+        isFeatured: true,
+        listingType: ListingType.FEATURED,
+      },
+      {
+        name: 'Scudamore Law',
+        email: 'mail@scudamorelaw.com',
+        phone: '+34 950 900 001',
+        website: 'https://www.scudamorelaw.com',
+        categoryId: 2, // Legal
+        cityId: 9, // Almería
+        address: 'By appointment - contact office',
+        postalCode: '04001',
+        description: 'English-speaking law firm with offices in Madrid, Almería and London. Over 20 years of Spanish and English legal experience specializing in property law, visas (including Digital Nomad Visas), probate & inheritance, family law, and business law. Bilingual English-Spanish lawyers providing clear, practical advice delivered to British standards of professionalism. Expert in cross-border legal issues and supporting expats with property transactions, residency matters, and legal protection in Spain. Almería office operates by appointment.',
+        speaksEnglish: true,
+        englishLevel: ProfessionalEnglishLevel.NATIVE,
+        specialties: ['Property Law', 'Visas & Immigration', 'Probate & Inheritance', 'Family Law', 'Business Law'],
+        isVerified: true,
+        isFeatured: true,
+        listingType: ListingType.FEATURED,
+      },
+      {
+        name: 'Sinews Multilingual Therapy Institute',
+        email: 'info@sinews.es',
+        phone: '+34 917 00 19 79',
+        website: 'https://www.sinews.es',
+        categoryId: 1, // Healthcare
+        cityId: 1, // Madrid
+        address: 'Calle Sagasta 16, Bajo Derecha, 28004 Madrid',
+        postalCode: '28004',
+        description: 'Multilingual therapy centre in Madrid offering comprehensive mental health services for expats and international families. Team of native professionals providing psychology (individual, couples, and family), psychiatry, speech therapy, and coaching services in over 12 languages including English, Spanish, German, Italian, Portuguese, Hebrew, and Polish. Specializes in psycho-educational assessments for ADHD, dyslexia, and giftedness. Offers both in-person therapy at their Chamberí office and online sessions. Services include diagnostic assessments, ongoing therapeutic intervention, and prescription refills recognized in most EU countries. Friendly English-speaking reception team available via phone, WhatsApp, and email.',
+        speaksEnglish: true,
+        englishLevel: ProfessionalEnglishLevel.NATIVE,
+        specialties: ['Psychology', 'Psychiatry', 'Speech Therapy', 'Coaching', 'Psycho-educational Assessments'],
         isVerified: true,
         isFeatured: false,
         listingType: ListingType.FREE,
