@@ -55,6 +55,13 @@ jobs:
             });
 
             const text = (prData.body || "").replace(/<[^>]+>/g, "");
+
+            // Handle skipped PRs (data-only changes with no reviewable files)
+            if (text.includes("no reviewable files") || text.includes("Greptile skipped")) {
+              core.notice("Greptile skipped this PR (no reviewable files); passing confidence gate");
+              return;
+            }
+
             const m = text.match(/Confidence Score:\s*([0-5](?:\.\d+)?)\s*\/\s*5/i);
 
             if (!m) {
