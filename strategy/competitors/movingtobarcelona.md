@@ -378,7 +378,7 @@ Their success demonstrates demand for:
 
 ## Sources
 
-- <https://www.movingtobarcelona.com> — Main website (via Wayback Machine)
+- <https://www.movingtobarcelona.com> — Main website (live review, March 2026)
 - <https://www.movingtobarcelona.com/directory/> — Business directory
 - <https://www.movingtobarcelona.com/barcelona-property-finding-service/> — Core service offering
-- Archive snapshots from 2023-09-26 via web.archive.org
+- Archive snapshots from 2023-09-26 via web.archive.org (historical cross-check only)
