@@ -1,7 +1,0 @@
--- Task 1620: Add Blacktower Financial Management - Financial Advisors - Malaga
--- Data entry for Spain English Directory
-
-INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
-
--- Blacktower Financial Management - Mijas, Malaga (Costa del Sol)
-('Blacktower Financial Management', 'Financial Advisors', 'Independent wealth management firm providing comprehensive financial advice to expatriates in Spain since 1986. Over 40 years of experience specializing in cross-border financial planning for UK and international clients living in Spain. Services include pension transfers (QROPS, QNUPS, SIPPs), retirement planning, tax-efficient investing, estate planning, wealth management, regular savings plans, and insurance protection. Expertise in navigating the interaction between UK and Spanish tax systems, helping clients minimize tax liabilities through compliant, tax-efficient strategies. Personalized face-to-face advice from experienced financial advisers who understand the unique challenges of expat life. Part of the Blacktower Group with offices across Europe, the US, and the Caribbean. FCA-regulated advice with a long-standing reputation for professional, client-focused service.', 'Centro Idea, Carretera de Mijas KM3.6 Local A44', 'Mijas', 'Málaga', '+34 952 816 443', 'julia.mitchell@blacktowerfm.com', 'https://www.blacktowerfm.com', true, false, true, false, NOW(), NOW());
