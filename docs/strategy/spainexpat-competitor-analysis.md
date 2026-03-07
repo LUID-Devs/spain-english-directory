@@ -74,17 +74,17 @@ SpainExpat.com has **NO**:
 
 ### 3.1 EyeOnSpain Directory Structure
 
-**16 Main Categories:**
+**15 Main Categories:**
 1. Accommodation (18 listings) — Long lets, Holiday lets, Hotels
 2. Business Services (5) — Graphics, Videos, Translation
 3. Community (2) — Charities, Local websites
 4. Computers and Internet (7)
 5. Education and Employment (6)
 6. Entertainment (3)
-7. Financial and Legal (37) — **HIGHEST**
+7. Financial and Legal (37) — **2ND HIGHEST**
 8. Food and Drink (10)
 9. Health and Beauty (15)
-10. Home and Family (41) — **2ND HIGHEST**
+10. Home and Family (41) — **HIGHEST**
 11. Real Estate (33)
 12. Reference (4)
 13. Shopping (15)
@@ -163,7 +163,7 @@ SpainExpat.com doesn't rank for:
 | No searchable directory | Build location-based search |
 | No business profiles | Rich profiles with photos, services |
 | No reviews | Verified review system |
-| No verification | "Verified Expat-Friendly" badge |
+| No verification | "Verified English-Speaking" badge |
 | City-focused missing | Multi-city coverage (Madrid, Barcelona, Valencia, Malaga) |
 
 ### 5.2 Content Gaps (Medium-term)
