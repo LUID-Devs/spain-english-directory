@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
+import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ClaimButton from '@/components/ClaimButton';
@@ -98,11 +99,11 @@ export default function ListingDetailPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Breadcrumb */}
           <nav className="mb-6 text-sm text-gray-500">
-            <a href="/" className="hover:text-primary">Home</a>
+            <Link href="/" className="hover:text-primary">Home</Link>
             <span className="mx-2">/</span>
-            <a href={`/search?city=${listing.city}`} className="hover:text-primary">{listing.city}</a>
+            <Link href={`/search?city=${listing.city}`} className="hover:text-primary">{listing.city}</Link>
             <span className="mx-2">/</span>
-            <a href={`/search?category=${listing.category}`} className="hover:text-primary">{listing.category}</a>
+            <Link href={`/search?category=${listing.category}`} className="hover:text-primary">{listing.category}</Link>
             <span className="mx-2">/</span>
             <span className="text-gray-900">{listing.name}</span>
           </nav>

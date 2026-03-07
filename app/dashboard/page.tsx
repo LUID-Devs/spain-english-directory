@@ -115,7 +115,7 @@ export default function DashboardPage() {
     <div className="p-6 lg:p-8">
       <div className="mb-8">
         <h2 className="text-2xl font-bold text-gray-900">Dashboard Overview</h2>
-        <p className="text-gray-600 mt-1">Welcome back! Here's what's happening with your profile.</p>
+        <p className="text-gray-600 mt-1">Welcome back! Here&apos;s what&apos;s happening with your profile.</p>
       </div>
 
       {/* Stats Grid */}

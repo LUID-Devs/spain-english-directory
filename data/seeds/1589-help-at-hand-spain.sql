@@ -1,0 +1,8 @@
+-- Task 1589: Add Help At Hand Spain - Gestor/Immigration - Nationwide
+-- Data entry for Spain English Directory
+-- Immigration, Visa and Residency Experts - Administrative services for moving to or living in Spain
+
+INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
+
+-- Help At Hand Spain - Immigration and gestor services nationwide (based in Málaga)
+('Help At Hand Spain', 'Gestor', 'Immigration, visa and residency experts providing administrative services for individuals and families moving to or living in Spain. Specializes in helping expats overcome language barriers and navigate complex Spanish bureaucracy. Services include Non-Lucrative Visa (NLV), Digital Nomad Visa (DNV), Student Visa, Golden Visa applications, Spanish residency for EU citizens, non-EU family/partner residency for EU and Spanish citizens, visa and residency renewals, permanent residency applications, driving licence exchanges, healthcare registration, property assistance, legal referrals, and tax/accounting guidance. Offers free 20-minute consultations and 60-minute paid consultation options for relocation planning and Spanish personal tax advice. Services available throughout Spanish territory, often helping clients remotely with Spanish interpretation over the phone. Based in Málaga, Andalucía with the ability to accompany clients or represent clients with Power of Attorney. Clear, transparent pricing with step-by-step guidance to take the stress out of Spanish bureaucracy.', 'Málaga-based (nationwide service coverage)', 'Málaga', 'Málaga', NULL, NULL, 'https://helpathandspain.com', true, false, false, false, NOW(), NOW());
