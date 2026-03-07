@@ -65,6 +65,12 @@ export const categories = [
     singular: 'Fitness Trainer',
     specialties: ['Personal Training', 'Yoga', 'Pilates', 'CrossFit', 'Strength', 'Weight Loss', 'Rehabilitation', 'Sports Specific', 'Group Classes', 'Nutrition']
   },
+  { 
+    slug: 'translators', 
+    name: 'Translators', 
+    singular: 'Translator',
+    specialties: ['Document Translation', 'Interpretation', 'Sworn Translation', 'Localization', 'Legal Translation', 'Medical Translation', 'Business Translation', 'Technical Translation', 'Certified Translation', 'Proofreading']
+  },
 ] as const;
 
 export type CategorySlug = typeof categories[number]['slug'];
