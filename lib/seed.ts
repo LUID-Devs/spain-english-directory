@@ -186,23 +186,6 @@ async function seed() {
         isFeatured: true,
         listingType: ListingType.FEATURED,
       },
-      {
-        name: 'Sinews Multilingual Therapy Institute',
-        email: 'info@sinews.es',
-        phone: '+34 917 00 19 79',
-        website: 'https://www.sinews.es',
-        categoryId: 1, // Healthcare
-        cityId: 1, // Madrid
-        address: 'Calle Sagasta 16, Bajo Derecha, 28004 Madrid',
-        postalCode: '28004',
-        description: 'Multilingual therapy centre in Madrid offering comprehensive mental health services for expats and international families. Team of native professionals providing psychology (individual, couples, and family), psychiatry, speech therapy, and coaching services in over 12 languages including English, Spanish, German, Italian, Portuguese, Hebrew, and Polish. Specializes in psycho-educational assessments for ADHD, dyslexia, and giftedness. Offers both in-person therapy at their Chamberí office and online sessions. Services include diagnostic assessments, ongoing therapeutic intervention, and prescription refills recognized in most EU countries. Friendly English-speaking reception team available via phone, WhatsApp, and email.',
-        speaksEnglish: true,
-        englishLevel: ProfessionalEnglishLevel.NATIVE,
-        specialties: ['Psychology', 'Psychiatry', 'Speech Therapy', 'Coaching', 'Psycho-educational Assessments'],
-        isVerified: true,
-        isFeatured: false,
-        listingType: ListingType.FREE,
-      },
     ]);
     console.log(`✅ Created ${professionals.length} professionals`);
 
