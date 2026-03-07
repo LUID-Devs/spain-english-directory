@@ -31,7 +31,7 @@ const healthcareCategories = [
     name: 'Doctors',
     description: 'General practitioners and family doctors who speak English',
     icon: Stethoscope,
-    count: 12,
+    countLabel: 'Updated weekly',
     specialties: ['General Practice', 'Pediatrics', 'Internal Medicine'],
   },
   {
@@ -39,7 +39,7 @@ const healthcareCategories = [
     name: 'Dentists',
     description: 'Dental care with English-speaking staff and modern facilities',
     icon: HeartPulse,
-    count: 8,
+    countLabel: 'Updated weekly',
     specialties: ['General Dentistry', 'Orthodontics', 'Cosmetic'],
   },
   {
@@ -47,7 +47,7 @@ const healthcareCategories = [
     name: 'Mental Health',
     description: 'Psychologists and therapists for mental wellness support',
     icon: Brain,
-    count: 5,
+    countLabel: 'Updated weekly',
     specialties: ['Psychology', 'Counseling', 'Family Therapy'],
   },
 ];
@@ -102,7 +102,7 @@ export default function ValenciaPage() {
                 <ArrowRight className="w-5 h-5" />
               </Link>
               <Link
-                href="/admin/claims"
+                href="mailto:hello@spainenglishdirectory.com?subject=List%20Your%20Practice"
                 className="inline-flex items-center justify-center gap-2 bg-blue-600/30 backdrop-blur-sm text-white border border-white/30 px-8 py-4 rounded-lg font-semibold hover:bg-blue-600/50 transition"
               >
                 List Your Practice
@@ -182,7 +182,7 @@ export default function ValenciaPage() {
                     <category.icon className="w-6 h-6 text-blue-600 group-hover:text-white transition" />
                   </div>
                   <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm font-medium">
-                    {category.count} listings
+                    {category.countLabel}
                   </span>
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition">
@@ -227,14 +227,15 @@ export default function ValenciaPage() {
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {neighborhoods.map((neighborhood) => (
-              <div
+              <Link
                 key={neighborhood.name}
-                className="bg-white rounded-xl p-5 shadow-sm border border-gray-200"
+                href={`/search?city=valencia&neighborhood=${encodeURIComponent(neighborhood.name)}`}
+                className="bg-white rounded-xl p-5 shadow-sm border border-gray-200 hover:border-blue-300 hover:shadow-md transition block"
               >
                 <MapPin className="w-5 h-5 text-blue-600 mb-3" />
                 <h3 className="font-semibold text-gray-900 mb-1">{neighborhood.name}</h3>
                 <p className="text-sm text-gray-600">{neighborhood.description}</p>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
@@ -254,7 +255,7 @@ export default function ValenciaPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
-                href="/admin/claims"
+                href="mailto:hello@spainenglishdirectory.com?subject=List%20Your%20Practice"
                 className="inline-flex items-center justify-center gap-2 bg-white text-blue-700 px-8 py-4 rounded-lg font-semibold hover:bg-blue-50 transition"
               >
                 List Your Practice
