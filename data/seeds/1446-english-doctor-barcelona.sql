@@ -5,7 +5,7 @@ UPDATE directory_entries
 SET
   category = 'Healthcare',
   description = 'Private medical clinic in Barcelona providing quality healthcare services in English. Founded by Dr. Victoria Howe, offering comprehensive medical care for expats, tourists, and English-speaking residents in Barcelona. Services include general practice consultations, health check-ups, prescriptions, medical certificates, vaccinations, and referral services. Same-day appointments available with online booking system. Designed specifically for the English-speaking community seeking professional medical care without language barriers in Barcelona.',
-  address = 'Carrer de Catalunya, 08005, Barcelona',
+  address = 'Carrer de Catalunya 1, 08005, Barcelona',
   province = 'Barcelona',
   phone = '+34 662 29 11 91',
   email = 'info@englishdoctorbarcelona.com',
@@ -37,7 +37,7 @@ SELECT
   'English Doctor Barcelona',
   'Healthcare',
   'Private medical clinic in Barcelona providing quality healthcare services in English. Founded by Dr. Victoria Howe, offering comprehensive medical care for expats, tourists, and English-speaking residents in Barcelona. Services include general practice consultations, health check-ups, prescriptions, medical certificates, vaccinations, and referral services. Same-day appointments available with online booking system. Designed specifically for the English-speaking community seeking professional medical care without language barriers in Barcelona.',
-  'Carrer de Catalunya, 08005, Barcelona',
+  'Carrer de Catalunya 1, 08005, Barcelona',
   'Barcelona',
   'Barcelona',
   '+34 662 29 11 91',
