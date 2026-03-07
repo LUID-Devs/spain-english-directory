@@ -1,0 +1,8 @@
+-- Task 1559: Add Valencia Lawyers (VL Abogados) - Legal - Valencia
+-- Data entry for Spain English Directory
+-- English-speaking legal firm established in 2002
+
+INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
+
+-- Valencia Lawyers VL Abogados - Valencia City Center
+('Valencia Lawyers VL Abogados', 'Legal', 'Legal firm established in 2002 specializing in offering legal advice fully in English. Located in the center of Valencia, serving the entire Valencian Community (Valencia, Castellón and Alicante) and the rest of Spain. Team of English-speaking Spanish lawyers, attorneys and solicitors specially trained to provide the best legal solutions for expats and international clients. Comprehensive services include property law and conveyancing, rental contracts, property sales, inheritance law and Spanish wills, immigration law (NIE numbers, residency permits, work visas, Digital Nomad visas), family law, business and corporate law, contract law, administrative law, and litigation and arbitration. Experienced in guiding foreign clients through Spanish legal processes with clear English communication throughout. Deep understanding of the complexities of Spanish bureaucracy and the specific needs of English-speaking clients purchasing property, relocating, or doing business in Spain.', 'Calle Salvá, 10, 3º, puerta 6', 'Valencia', 'Valencia', '+34 601 023 725', 'info@valencialawyers.com', 'https://www.valencialawyers.com/', true, false, false, false, NOW(), NOW());
