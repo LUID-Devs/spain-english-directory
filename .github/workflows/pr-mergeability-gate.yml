@@ -1,0 +1,57 @@
+name: PR Mergeability Gate
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+concurrency:
+  group: pr-mergeability-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  mergeability_gate:
+    runs-on: ${{ vars.GREPTILE_CONFIDENCE_RUNNER || 'self-hosted' }}
+    permissions:
+      pull-requests: read
+    steps:
+      - name: Fail when PR is dirty (has merge conflicts)
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const pullNumber = pr?.number;
+            if (!pullNumber) {
+              core.notice("No PR context available; skipping mergeability gate");
+              return;
+            }
+
+            const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+            let prData;
+
+            // GitHub can report mergeable_state as "unknown" right after an update.
+            // Poll briefly to avoid false negatives.
+            for (let i = 0; i < 8; i++) {
+              const { data } = await github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pullNumber
+              });
+              prData = data;
+
+              if (data.mergeable_state && data.mergeable_state !== "unknown") break;
+              await sleep(2000);
+            }
+
+            const state = prData?.mergeable_state || "unknown";
+            core.info(`PR #${pullNumber} mergeable_state: ${state}`);
+
+            if (state === "dirty") {
+              core.setFailed("PR is dirty (merge conflicts detected). Rebase/merge main and resolve conflicts.");
+              return;
+            }
+
+            if (state === "unknown") {
+              core.setFailed("Could not determine mergeability state after retries. Please re-trigger the workflow once GitHub has finished computing the merge status.");
+              return;
+            }
+
+            core.info("PR is not dirty. Mergeability gate passed.");
