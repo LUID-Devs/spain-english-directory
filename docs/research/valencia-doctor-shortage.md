@@ -41,7 +41,7 @@ Valencia has a **critical shortage of English-speaking doctors** relative to its
 |---------|-----------|
 | GP Appointment | 2-4 days to 3 weeks |
 | Specialist Referral | 1-3 months (up to 6 months for non-urgent) |
-| Neurologist | Average 113 days |
+| Neurologist | Reports of multi-month waits in public system |
 | ER (non-critical) | 10+ hours |
 
 **From r/GoingToSpain (Jan 2026):**
@@ -69,7 +69,7 @@ Expats increasingly rely on private healthcare:
 **From InterNations Forum (Jan 2015):**
 > "I had a medical emergency in Valencia. I left the hospital because the Spanish doctors and I were not agreeing on my treatment so I need an English speaking doctor - ideally expat - that I can see ASAP."
 
-This illustrates the critical need for English-speaking doctors, especially in emergency/urgent situations where language barriers can lead to misunderstandings about treatment.
+This is included as historical context only (2015) and should not be treated as a current service-level metric.
 
 ---
 
@@ -79,7 +79,7 @@ This illustrates the critical need for English-speaking doctors, especially in e
 
 | Clinic | Specialties | Notes |
 |--------|-------------|-------|
-| **My Medica Valencia** | 12+ specialities | Plaza Ayuntamiento location |
+| **My Medica Valencia** | 12+ specialties | Plaza Ayuntamiento location |
 | **Centro Medico Maria (Expat Clinic)** | General medicine, lab tests, ultrasound | Near Nuevo Center Mall, Turia Park |
 | **Medicality** | Multi-language (EN, FR, DE) | Pintor Sorolla st, 19 |
 | **Clínica Caro** | Family medicine | Expat-focused |
@@ -135,7 +135,7 @@ Expats searching for:
    - Same-day appointments
 
 4. **Telemedicine Services**
-   - Mobidoctor (€29 consultations)
+   - MobiDoctor (€29 consultations, source: https://www.mobidoctor.eu/pricing, checked March 2026)
    - Online English-speaking doctors
 
 5. **Dental Care**
