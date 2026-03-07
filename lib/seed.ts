@@ -151,6 +151,59 @@ async function seed() {
         isFeatured: true,
         listingType: ListingType.FEATURED,
       },
+
+      {
+        name: 'Scudamore Law',
+        email: 'mail@scudamorelaw.com',
+        phone: '+34 915 939 126',
+        website: 'https://www.scudamorelaw.com',
+        categoryId: 2, // Legal
+        cityId: 1, // Madrid
+        address: 'Plaza de Castilla, 3 – 15º E2, 28046 Madrid',
+        postalCode: '28046',
+        description: 'English-speaking law firm with offices in Madrid, Almería and London. Over 20 years of Spanish and English legal experience specializing in property law, visas (including Digital Nomad Visas), probate & inheritance, family law, and business law. Bilingual English-Spanish lawyers providing clear, practical advice delivered to British standards of professionalism. Expert in cross-border legal issues and supporting expats with property transactions, residency matters, and legal protection in Spain.',
+        speaksEnglish: true,
+        englishLevel: ProfessionalEnglishLevel.NATIVE,
+        specialties: ['Property Law', 'Visas & Immigration', 'Probate & Inheritance', 'Family Law', 'Business Law'],
+        isVerified: true,
+        isFeatured: true,
+        listingType: ListingType.FEATURED,
+      },
+      {
+        name: 'Scudamore Law',
+        email: 'mail@scudamorelaw.com',
+        phone: '+34 950 900 001',
+        website: 'https://www.scudamorelaw.com',
+        categoryId: 2, // Legal
+        cityId: 9, // Almería
+        address: 'By appointment - contact office',
+        postalCode: '04001',
+        description: 'English-speaking law firm with offices in Madrid, Almería and London. Over 20 years of Spanish and English legal experience specializing in property law, visas (including Digital Nomad Visas), probate & inheritance, family law, and business law. Bilingual English-Spanish lawyers providing clear, practical advice delivered to British standards of professionalism. Expert in cross-border legal issues and supporting expats with property transactions, residency matters, and legal protection in Spain. Almería office operates by appointment.',
+        speaksEnglish: true,
+        englishLevel: ProfessionalEnglishLevel.NATIVE,
+        specialties: ['Property Law', 'Visas & Immigration', 'Probate & Inheritance', 'Family Law', 'Business Law'],
+        isVerified: true,
+        isFeatured: true,
+        listingType: ListingType.FEATURED,
+      },
+      {
+        name: 'Unidad Médica',
+        email: 'um@unidadmedica.com',
+        phone: '+34 914 351 823',
+        website: 'https://www.unidadmedica.com/en/',
+        categoryId: 1, // Healthcare
+        cityId: 1, // Madrid
+        address: 'C/ Conde Aranda 1',
+        postalCode: '28001',
+        description: 'Private medical center in Madrid with 20+ specialties. Fully bilingual English-speaking doctors, nurses and administrative staff. Authorized center by the U.S. Embassy for US visa medical exams. Also authorized by Australian and New Zealand authorities for visa medical examinations. Comprehensive healthcare for expats, international students and families. Offers structured medical guidance, short waiting times and personalized attention. Services include Cardiology, Dermatology, Gynecology, Pediatrics, General Medicine and many more specialties. Visa medical exams available Monday to Friday mornings only. Located in the heart of Madrid, two blocks from Plaza de la Independencia (Puerta de Alcalá) with easy access via Metro Serrano (Line 4) and Retiro (Line 2).',
+        speaksEnglish: true,
+        englishLevel: ProfessionalEnglishLevel.NATIVE,
+        specialties: ['General Medicine', 'Cardiology', 'Dermatology', 'Gynecology', 'Pediatrics', 'Visa Medical Exams', 'Expat Healthcare'],
+        isVerified: true,
+        isFeatured: false,
+        listingType: ListingType.FREE,
+      },
+
     ]);
     console.log(`✅ Created ${professionals.length} professionals`);
 
