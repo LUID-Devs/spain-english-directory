@@ -10,13 +10,23 @@ function generateVerificationCode(): string {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { directoryEntryId, claimantName, claimantEmail, claimantPhone, documentUrl } = body;
+    const { directoryEntryId, claimantName, claimantEmail, claimantPhone, relationship, documentUrl } = body;
 
     if (!directoryEntryId || !claimantName || !claimantEmail) {
       return NextResponse.json(
         { error: 'Missing required fields: directoryEntryId, claimantName, claimantEmail' },
         { status: 400 }
       );
+    }
+
+    if (relationship) {
+      const validRelationships = ['owner', 'employee', 'authorized'];
+      if (!validRelationships.includes(relationship)) {
+        return NextResponse.json(
+          { error: `Invalid relationship. Must be one of: ${validRelationships.join(', ')}` },
+          { status: 400 }
+        );
+      }
     }
 
     const entry = await DirectoryEntry.findByPk(directoryEntryId);
@@ -57,6 +67,7 @@ export async function POST(request: NextRequest) {
       claimantName,
       claimantEmail: claimantEmail.toLowerCase().trim(),
       claimantPhone,
+      relationship: relationship || null,
       documentUrl,
       verificationCode,
       verificationCodeExpiresAt,

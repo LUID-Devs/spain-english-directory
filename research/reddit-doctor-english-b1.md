@@ -1,6 +1,6 @@
 # Reddit Insight: English Proficiency Among Spanish Doctors
 
-**Research Date:** March 6, 2025  
+**Research Date:** March 6, 2026  
 **Issue Reference:** #1401  
 **Focus:** Generational differences in English language skills among Spanish healthcare professionals
 

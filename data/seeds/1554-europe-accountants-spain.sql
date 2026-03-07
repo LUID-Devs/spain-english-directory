@@ -1,0 +1,8 @@
+-- Task 1554: Add Europe Accountants Spain - Accounting - Nationwide
+-- Data entry by subagent
+-- Tax and accounting services for expats throughout Spain
+
+INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
+
+-- Europe Accountants (Spain Accountants) - Barcelona-based accounting firm serving nationwide
+('Europe Accountants Spain', 'Tax/Accounting', 'Established in 2002 by UK Chartered Accountant Paul Greene, Europe Accountants (also known as Spain Accountants) provides comprehensive tax and accounting services to the international community in Spain. Paul qualified as a UK Chartered Accountant in 2000 and has been a member of the Asociación Profesional de Expertos Contables y Tributarios de España (AECE) since 2003. Services include company formation, tax and social security registration for companies and individuals, tax returns for residents and non-residents, company accounts, and tax advice/consultancy. While physically based in Barcelona, they serve clients throughout Spain through collaboration with a network of local gestorias across multiple cities and provinces. The firm operates primarily online with responsive email-based support in English. Experienced team with three staff members handling administrative, regular tax compliance and ad-hoc tasks. CIF: B64394158.', 'Avenida Diagonal, 468 - PLT 6', 'Barcelona', 'Barcelona', NULL, 'info@spainaccountants.com', 'https://europeaccountants.com/spain/', true, false, true, false, NOW(), NOW());

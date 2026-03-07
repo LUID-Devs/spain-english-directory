@@ -11,7 +11,7 @@
 
 Expat Info Desk is a major competitor in the expat city guide space, offering comprehensive relocation guides for Barcelona and Madrid. **Notably, they do NOT have a dedicated Valencia city guide**, representing a significant opportunity for our directory to capture that market.
 
-This analysis identifies **87 providers** listed on Expat Info Desk that are not currently in our Spain English Directory, broken down by category and city.
+This analysis compiles a large set of potential providers and organizations referenced across Expat Info Desk city-guide content, broken down by category and city.
 
 ---
 
@@ -21,8 +21,8 @@ This analysis identifies **87 providers** listed on Expat Info Desk that are not
 
 | City | Expat Info Desk | Spain English Directory | Gap Opportunity |
 |------|-----------------|------------------------|-----------------|
-| Barcelona | Comprehensive guide | Partial coverage | 45+ providers to add |
-| Madrid | Comprehensive guide | Partial coverage | 35+ providers to add |
+| Barcelona | Comprehensive guide | Partial coverage | Large candidate set to add |
+| Madrid | Comprehensive guide | Partial coverage | Large candidate set to add |
 | Valencia | **NO GUIDE EXISTS** | Opportunity | First-mover advantage |
 
 ### 2. High-Priority Categories for Addition

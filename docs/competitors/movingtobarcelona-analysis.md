@@ -382,5 +382,15 @@ MovingToBarcelona's biggest limitation is its single-city focus. Spain English D
 
 ---
 
+## Related Competitor Context
+
+- **Barcelona Metropolitan**: Media-first with broad directory (more comprehensive than MovingToBarcelona)
+- **Angloinfo**: National network with 360+ listings per city (our main scale competitor)
+- **JustLanded**: Similar relocation-focused model in Barcelona
+
+MovingToBarcelona represents the "boutique relocation agency" approach - Spain English Directory should position as the "comprehensive national directory" alternative.
+
+---
+
 *Analysis conducted: March 2026*
 *Sources: movingtobarcelona.com website, Companies House UK (#10352195), public directory listings, search index data*
