@@ -454,7 +454,7 @@ Consider adding SpainExpat.com's unique offerings:
 
 ### Unique Value Proposition
 
-> "While SpainExpat.com gives you static information from 2004, Spain English Directory connects you with verified, English-speaking professionals you can actually contact—with real reviews from verified patients."
+> "SpainExpat.com is a long-standing expat resource, while Spain English Directory focuses on verified, searchable provider profiles with modern discovery and review workflows."
 
 ---
 
@@ -475,10 +475,11 @@ Consider adding SpainExpat.com's unique offerings:
 
 ### Phase 2: Content Matching (Sprint 3-4)
 
-#### Cross-Reference SpainExpat.com Listings
-- [ ] Add doctors from SpainExpat.com Madrid list
-- [ ] Add doctors from SpainExpat.com Barcelona list
-- [ ] Add doctors from SpainExpat.com Málaga list
+#### Cross-Reference SpainExpat.com Coverage
+- [ ] Use SpainExpat city pages as discovery signals only
+- [ ] Independently verify providers for Madrid before adding
+- [ ] Independently verify providers for Barcelona before adding
+- [ ] Independently verify providers for Málaga before adding
 - [ ] Research and add church listings
 
 #### Launch Missing Categories
