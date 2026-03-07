@@ -9,7 +9,7 @@
 
 ## Executive Summary
 
-ESHA (English Speaking Healthcare Association) is a major competitor in the Spain expat directory space, with a laser focus on healthcare services. This analysis identifies their strengths, coverage gaps, and strategic opportunities for our full-service directory.
+ESHA (English Speaking Healthcare Association) is a healthcare-focused competitor in the Spain expat directory space. This analysis identifies observable strengths, coverage gaps, and strategic opportunities for our full-service directory.
 
 ---
 
@@ -56,7 +56,7 @@ ESHA has chosen to specialize exclusively in healthcare. This is both their stre
 ### 2. Platform Indicators
 
 - **Cloudflare Protection:** Their site uses Cloudflare for CDN/bot protection. This indicates a baseline security setup, but Cloudflare alone is not a reliable traffic-volume signal.
-- **SEO Presence:** Likely ranks well for healthcare-related English searches in Spain
+- **SEO Presence:** Healthcare-focused positioning suggests relevant search visibility, but this should be validated with keyword ranking data before making SEO-priority decisions.
 
 ### 3. Category Gaps We Can Exploit
 
@@ -113,13 +113,13 @@ ESHA's healthcare focus leaves these topics wide open:
 
 ### From ESHA
 
-- **SEO Competition:** They likely dominate healthcare keyword rankings
+- **SEO Competition:** They are healthcare-specialized; relative keyword performance is currently unverified in this analysis
 - **Trust/Authority:** Established presence in healthcare space
 - **Professional Network:** May have exclusive relationships with providers
 
 ### Mitigation
 
-1. Don't compete head-to-head on healthcare-only searches
+1. Validate healthcare keyword rankings before choosing to avoid head-to-head search terms
 2. Own the "full service" narrative
 3. Build superior UX with reviews, verification, and filters
 4. Create comprehensive content ESHA can't match (cross-category guides)
