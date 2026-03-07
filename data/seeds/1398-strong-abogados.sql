@@ -1,0 +1,10 @@
+-- Task 1398: Add Strong Abogados - Legal - Barcelona/Madrid
+-- Data entry by Cletus
+
+INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
+
+-- Strong Abogados - Barcelona
+('Strong Abogados', 'Legal', 'English-speaking law firm founded in 2000 by Pura Strong, specializing in business and real estate services for international clients. Team of 50+ professionals with main office in Madrid and associated offices across Spain. Services include company formation, accounting, payroll, VAT registration, branch registration, telecom registration, real estate transactions, immigration law, business law, and intellectual property. Multilingual team speaks English, Spanish, French, Italian, and Russian. Fixed-fee pricing model with personalized account managers. Developed proprietary Tempo software for client business management.', 'Rosselló 132, 3ª', 'Barcelona', 'Barcelona', '+34 932 155 393', 'info@strongabogados.com', 'https://www.strongabogados.com/', true, false, false, false, NOW(), NOW()),
+
+-- Strong Abogados - Madrid (Main Office)
+('Strong Abogados', 'Legal', 'English-speaking law firm founded in 2000 by Pura Strong, specializing in business and real estate services for international clients. Team of 50+ professionals with main office in Madrid and associated offices across Spain. Services include company formation, accounting, payroll, VAT registration, branch registration, telecom registration, real estate transactions, immigration law, business law, and intellectual property. Multilingual team speaks English, Spanish, French, Italian, and Russian. Fixed-fee pricing model with personalized account managers. Developed proprietary Tempo software for client business management.', 'Gran Vía 6, 4ª', 'Madrid', 'Madrid', '+34 932 155 393', 'info@strongabogados.com', 'https://www.strongabogados.com/', true, false, false, false, NOW(), NOW());
