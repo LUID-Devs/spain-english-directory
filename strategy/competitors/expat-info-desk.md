@@ -1,7 +1,7 @@
 # Expat Info Desk Competitor Analysis
 
 **Issue:** #1344  
-**Research Date:** March 2025  
+**Research Date:** March 2026  
 **Website:** <https://www.expatinfodesk.com>  
 **Type:** Paid Digital City Guides for Expats
 
