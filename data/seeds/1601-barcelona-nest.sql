@@ -1,8 +1,0 @@
--- Task 1601: Add Barcelona NEST - Mental Health Network - Barcelona
--- Data entry by Zeke
--- Network of English-speaking therapists in Barcelona
-
-INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
-
--- Barcelona NEST - Network of English-Speaking Therapists
-('Barcelona NEST (Network of English-Speaking Therapists)', 'Mental Health', 'Barcelona NEST is a multidisciplinary network of qualified, chartered psychologists, psychotherapists, and psychiatrists dedicated to providing high-quality mental health services for the English-speaking community in Barcelona and surrounding areas. Founded and led by Dr. Jill Jenkins, NEST offers services that are otherwise not available locally in English. The network includes professionals trained in various countries, institutions, and universities who offer individual therapy, couples counseling, family therapy, child and adolescent psychology, psychoanalysis, CBT, EMDR, dance movement therapy, sport psychology, addiction counseling, and mediation services. Some members also provide services in Catalan, Spanish, German, Greek, Dutch, and Italian. Both in-person and online therapy sessions are available. NEST maintains rigorous professional standards through peer supervision, networking, collaboration, and continuous professional development for its members.', 'Barcelona and surrounding areas (various member locations)', 'Barcelona', 'Barcelona', '+34 935 041 690', 'jjenkins.psy@gmail.com', 'https://barcelonanest.com', true, false, true, false, NOW(), NOW());
