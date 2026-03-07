@@ -2,7 +2,7 @@
 
 **Issue:** #1336  
 **Research Date:** January 2026  
-**Status:** P1 - Volume is key competitive advantage  
+**Status:** P1 - Balanced strategy: trust/verification first, then scaled volume  
 
 ---
 
