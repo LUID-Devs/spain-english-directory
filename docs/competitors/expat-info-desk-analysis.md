@@ -237,7 +237,7 @@ Expand beyond Barcelona and Madrid to capture markets Expat Info Desk ignores:
 
 ### 2. Content Strategy Gaps
 
-Expat Info Desk has comprehensive relocation guides - but ** Spain English Directory can win on service discovery**:
+Expat Info Desk has comprehensive relocation guides - but **Spain English Directory can win on service discovery**:
 
 | Content Type | Opportunity |
 |--------------|-------------|
