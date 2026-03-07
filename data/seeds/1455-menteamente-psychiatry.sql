@@ -1,0 +1,6 @@
+-- Task 1455: Add menteAmente Psychiatry - Mental Health - Madrid
+-- Data entry by Cletus
+
+INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
+
+('menteAmente Psychiatry and Psychology', 'Mental Health', 'Private multidisciplinary mental health center in Madrid''s Retiro neighborhood, authorized by the Consejería de Sanidad de la Comunidad de Madrid. Team of over 40 professionals including psychiatrists, clinical psychologists, doctors in psychology, neuropsychologists, and nutritionists. Offers comprehensive mental health services for adults, children, and adolescents with both in-person and online consultations. Services include psychiatry, psychotherapy, neuropsychology, couples therapy, addiction treatment, child/adolescent mental health, and nutrition counseling for eating disorders. Founded by Dr. David López in 2018 with a focus on professional qualification, specialization, and providing a judgment-free environment. English-speaking services available for expats and international patients.', 'Calle Máiquez 36, 28009 Madrid', 'Madrid', 'Madrid', '+34 918 26 63 66', 'administracion@menteamente.com', 'https://www.menteamente.com', true, false, true, false, NOW(), NOW());

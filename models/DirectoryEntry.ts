@@ -1,6 +1,14 @@
 import { DataTypes, Model, Optional } from 'sequelize';
 import sequelize from '../lib/db';
 
+export enum EnglishLevel {
+  B1 = 'B1',
+  B2 = 'B2',
+  C1 = 'C1',
+  C2 = 'C2',
+  NATIVE = 'native',
+}
+
 interface DirectoryEntryAttributes {
   id: number;
   name: string;
@@ -13,6 +21,9 @@ interface DirectoryEntryAttributes {
   email?: string;
   website?: string;
   speaksEnglish: boolean;
+  englishLevel?: EnglishLevel;
+  insuranceAccepted?: string[];
+  specialties?: string[];
   isFeatured: boolean;
   isVerified: boolean;
   isClaimed: boolean;
@@ -46,6 +57,9 @@ class DirectoryEntry extends Model<DirectoryEntryAttributes, DirectoryEntryCreat
   public email?: string;
   public website?: string;
   public speaksEnglish!: boolean;
+  public englishLevel?: EnglishLevel;
+  public insuranceAccepted?: string[];
+  public specialties?: string[];
   public isFeatured!: boolean;
   public isVerified!: boolean;
   public isClaimed!: boolean;
@@ -111,6 +125,18 @@ DirectoryEntry.init(
       type: DataTypes.BOOLEAN,
       defaultValue: true,
       allowNull: false,
+    },
+    englishLevel: {
+      type: DataTypes.ENUM(...Object.values(EnglishLevel)),
+      allowNull: true,
+    },
+    insuranceAccepted: {
+      type: DataTypes.JSON,
+      allowNull: true,
+    },
+    specialties: {
+      type: DataTypes.JSON,
+      allowNull: true,
     },
     isFeatured: {
       type: DataTypes.BOOLEAN,

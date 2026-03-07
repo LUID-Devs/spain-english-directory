@@ -5,7 +5,8 @@ import Category from './Category';
 import City from './City';
 import Lead, { LeadStatus } from './Lead';
 import Review from './Review';
-import Professional, { ListingType } from './Professional';
+import Professional, { ListingType, EnglishLevel as ProfessionalEnglishLevel } from './Professional';
+import { EnglishLevel as DirectoryEntryEnglishLevel } from './DirectoryEntry';
 
 // Define associations
 DirectoryEntry.hasMany(Claim, {
@@ -41,6 +42,7 @@ Review.belongsTo(DirectoryEntry, {
 export {
   sequelize,
   DirectoryEntry,
+  DirectoryEntryEnglishLevel,
   Claim,
   Category,
   City,
@@ -49,6 +51,7 @@ export {
   Review,
   Professional,
   ListingType,
+  ProfessionalEnglishLevel,
 };
 
 export default {
