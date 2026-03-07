@@ -1,7 +1,0 @@
--- Task 1573: Add InEnglishGestoria - Gestor - Nationwide
--- Data entry task: Add English-speaking gestor service to directory
-
-INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
-
--- In English Gestoría - Nationwide tax and accounting services for expats
-('In English Gestoría', 'Tax Advisors', 'English-speaking gestoría (tax and accounting firm) providing remote-friendly services for expats, freelancers, digital nomads and international clients across Spain. Founded by former KPMG consultants with over 10 years of experience each, the firm specializes in helping foreign residents navigate Spanish tax obligations with clear, professional communication in English. Services include accounting for foreign residents, tax advice and compliance, business registration, payroll management, and ERP implementation. The firm brings digital innovation to the traditionally offline sector, offering centralized real-time access to financial information through modern ERP systems. Expertise includes ZEC (Canary Islands Special Zone) and RIC regimes for companies seeking tax advantages. Fully remote service model supporting clients from Tenerife to Madrid and throughout Spain.', 'Av. Hernando Fernández Perdigón, 6, Piso 7, Apto. 718', 'Puerto de la Cruz', 'Santa Cruz de Tenerife', '+34 642 723 277', 'hola@inenglishgestoria.es', 'https://www.inenglishgestoria.es', true, false, true, false, NOW(), NOW());
