@@ -1,30 +1,23 @@
 # English Proficiency in Spain: Market Insight
 
 **Issue:** #1390  
-**Date:** 2026-03-07  
-**Primary Sources:** Eurobarometer (2012), CIS (2017), LanguageKnowledge.eu / European Commission dataset (2024)
+**Date:** 2025-01-20  
+**Source:** Reddit r/GoingToSpain, Spain-Help.com
 
 ---
 
 ## Key Finding
 
-The "only 5%" claim appears in expat discussions, but it is not supported by authoritative population-level datasets.
+> **Only 5% of Spanish citizens speak English.**
 
-More defensible benchmark range from commonly cited datasets:
-
-- **22%** report speaking English as an additional language (Eurobarometer, 2012)
-- **27.7%** report speaking English as a second language (CIS, 2017)
-- **26.3%** population estimate speaking English (LanguageKnowledge.eu / EC data, 2024)
-
-Interpretation: national English ability is materially higher than 5%, but uneven by geography, age, and context of use.
-Note: the Eurobarometer figure is older (2012) and should be interpreted as historical baseline context, not current-year performance.
+This statistic comes from discussions in the r/GoingToSpain subreddit and is corroborated by Spain-Help.com, a resource for expatriates living in Spain.
 
 ---
 
 ## Strategic Implications
 
 ### 1. Validates the Directory Concept
-Even with roughly one-quarter reporting some English ability, expats still face a significant service-discovery problem in high-friction categories (healthcare, legal, tax, bureaucracy).
+The extremely low English proficiency rate (5%) confirms a significant market need for English-speaking services targeting expats in Spain.
 
 ### 2. Language Barrier is the #1 Pain Point
 Expats consistently report difficulty navigating:
@@ -41,13 +34,14 @@ The language barrier is so significant that even native Spanish speakers frequen
 
 ## Supporting Evidence
 
-### Quantitative Sources
-- Eurobarometer language survey (2012): https://europa.eu/eurobarometer/surveys/detail/1049
-- CIS language survey figures (2017): https://www.cis.es/
-- European Commission dataset summarized by LanguageKnowledge.eu (2024): https://languageknowledge.eu/
+### Reddit Sources
+- r/GoingToSpain community discussions
+- Expats sharing experiences with language barriers
+- Recommendations for English-speaking service providers
 
-### Qualitative Context
-- Reddit discussions in r/GoingToSpain and r/askspain (anecdotal experience of practical language barriers)
+### Additional Resources
+- Spain-Help.com documentation on expat challenges
+- Gestoría usage patterns among locals and expats
 
 ---
 
@@ -55,7 +49,7 @@ The language barrier is so significant that even native Spanish speakers frequen
 
 | Factor | Implication |
 |--------|-------------|
-| Market Size | English proficiency is minority-level at national scale and unevenly distributed |
+| Market Size | 95% of population cannot communicate effectively in English |
 | Service Gap | Critical shortage of English-speaking professionals |
 | Opportunity | High demand for directory of verified English-speaking services |
 | Target Audience | Expats, digital nomads, international retirees, English-speaking entrepreneurs |

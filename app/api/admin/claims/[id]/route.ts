@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import DirectoryEntry from '@/models/DirectoryEntry';
+import { requireAdminAuth } from '@/lib/admin-auth';
 
 // Use Node.js runtime for database operations
 export const runtime = 'nodejs';
@@ -9,6 +10,11 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const unauthorized = requireAdminAuth(request);
+  if (unauthorized) {
+    return unauthorized;
+  }
+
   try {
     const { id } = await params;
     const listingId = parseInt(id, 10);
