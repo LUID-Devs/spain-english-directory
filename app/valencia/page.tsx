@@ -1,6 +1,8 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { MapPin, Stethoscope, HeartPulse, Brain, Phone, Users, CheckCircle, ArrowRight } from 'lucide-react';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 
 export const metadata: Metadata = {
   title: 'English-Speaking Doctors in Valencia | Spain English Directory',
@@ -76,7 +78,9 @@ const faqs = [
 
 export default function ValenciaPage() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen flex flex-col bg-white">
+      <Header />
+      <main className="flex-1">
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
@@ -373,6 +377,8 @@ export default function ValenciaPage() {
           }).replace(/</g, '\\u003c'),
         }}
       />
+      </main>
+      <Footer />
     </div>
   );
 }
