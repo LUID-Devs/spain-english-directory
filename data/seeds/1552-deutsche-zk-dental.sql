@@ -2,6 +2,9 @@
 -- Source: Web research - deutsche-zk.com
 -- Category: Dental / Dentists
 
+-- Delete existing entry to ensure updates propagate
+DELETE FROM directory_entries WHERE name LIKE 'Deutsche ZK%' AND city = 'Barcelona';
+
 INSERT INTO directory_entries (
     name, 
     category, 
