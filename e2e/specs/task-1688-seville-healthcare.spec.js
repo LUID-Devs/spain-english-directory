@@ -11,34 +11,26 @@ test.describe('TASK-1688: Seville English-Speaking Healthcare Providers', () => 
     await expect(page.locator('text=Seville')).toBeVisible();
   });
 
-  test('should find Hospital Quirónsalud Sevilla', async ({ page }) => {
-    await page.goto('/seville/doctors');
+  test('should find Hospital Quirónsalud Sevilla in hospitals category', async ({ page }) => {
+    await page.goto('/seville/hospitals');
     await page.waitForLoadState('networkidle');
-    
-    // Search for Quirónsalud
-    await page.fill('[data-testid="search-input"]', 'Quirónsalud');
-    await page.press('[data-testid="search-input"]', 'Enter');
     
     // Verify Quirónsalud appears in results
     await expect(page.locator('text=Hospital Quirónsalud Sevilla')).toBeVisible();
     await expect(page.locator('text=Hospital')).toBeVisible();
   });
 
-  test('should find Hospital Vithas Sevilla', async ({ page }) => {
-    await page.goto('/seville/doctors');
+  test('should find Hospital Vithas Sevilla in hospitals category', async ({ page }) => {
+    await page.goto('/seville/hospitals');
     await page.waitForLoadState('networkidle');
-    
-    // Search for Vithas
-    await page.fill('[data-testid="search-input"]', 'Vithas');
-    await page.press('[data-testid="search-input"]', 'Enter');
     
     // Verify Vithas appears in results
     await expect(page.locator('text=Hospital Vithas Sevilla')).toBeVisible();
     await expect(page.locator('text=Private hospital')).toBeVisible();
   });
 
-  test('should find all 10 Seville healthcare providers', async ({ page }) => {
-    await page.goto('/seville/doctors');
+  test('should find all 10 Seville healthcare providers via search', async ({ page }) => {
+    await page.goto('/seville');
     await page.waitForLoadState('networkidle');
     
     const expectedProviders = [
@@ -54,9 +46,18 @@ test.describe('TASK-1688: Seville English-Speaking Healthcare Providers', () => 
       'International Doctor Sevilla'
     ];
     
-    // Check each provider is listed
+    // Check each provider can be found via search
     for (const provider of expectedProviders) {
+      // Clear search and search for provider
+      await page.fill('[data-testid="search-input"]', provider);
+      await page.press('[data-testid="search-input"]', 'Enter');
+      await page.waitForTimeout(500);
+      
+      // Verify provider appears in search results
       await expect(page.locator(`text=${provider}`)).toBeVisible();
+      
+      // Clear search for next iteration
+      await page.fill('[data-testid="search-input"]', '');
     }
   });
 
@@ -81,7 +82,7 @@ test.describe('TASK-1688: Seville English-Speaking Healthcare Providers', () => 
   });
 
   test('should display healthcare provider details with English-speaking flag', async ({ page }) => {
-    await page.goto('/seville/doctors');
+    await page.goto('/seville/hospitals');
     await page.waitForLoadState('networkidle');
     
     // Click on first provider
@@ -94,7 +95,7 @@ test.describe('TASK-1688: Seville English-Speaking Healthcare Providers', () => 
   });
 
   test('should show contact information for Seville healthcare providers', async ({ page }) => {
-    await page.goto('/seville/doctors');
+    await page.goto('/seville/hospitals');
     await page.waitForLoadState('networkidle');
     
     // Click on a provider
@@ -107,7 +108,7 @@ test.describe('TASK-1688: Seville English-Speaking Healthcare Providers', () => 
   });
 
   test('should verify hospital entries have comprehensive descriptions', async ({ page }) => {
-    await page.goto('/seville/doctors');
+    await page.goto('/seville/hospitals');
     await page.waitForLoadState('networkidle');
     
     // Click on hospital
@@ -144,7 +145,7 @@ test.describe('TASK-1688: Seville English-Speaking Healthcare Providers', () => 
     await page.waitForLoadState('networkidle');
     
     // Click through several providers
-    await page.click('text=Hospital Quirónsalud Sevilla');
+    await page.click('text=International Doctor Sevilla');
     await page.waitForLoadState('networkidle');
     
     await page.goto('/seville/dentists');
@@ -153,31 +154,35 @@ test.describe('TASK-1688: Seville English-Speaking Healthcare Providers', () => 
     await page.goto('/seville/therapists');
     await page.waitForLoadState('networkidle');
     
+    await page.goto('/seville/hospitals');
+    await page.waitForLoadState('networkidle');
+    
     // Assert no console errors
     expect(consoleErrors).toHaveLength(0);
   });
 
   test('should verify all Seville healthcare entries have required fields', async ({ page }) => {
     const providers = [
-      { name: 'Hospital Quirónsalud Sevilla', phone: '+34 954 918 000', category: 'Hospitals' },
-      { name: 'Hospital Vithas Sevilla', phone: '+34 954 571 400', category: 'Hospitals' },
-      { name: 'Hospital Universitario HM Sevilla', phone: '+34 954 591 000', category: 'Hospitals' },
-      { name: 'Clínica Santa Isabel', phone: '+34 954 221 200', category: 'Medical Clinics' },
-      { name: 'Centro Médico Maestranza', phone: '+34 954 561 800', category: 'Medical Clinics' },
-      { name: 'Dental Care Sevilla', phone: '+34 954 224 700', category: 'Dentists' },
-      { name: 'Clínica Dental Sevilla', phone: '+34 954 501 200', category: 'Dentists' },
-      { name: 'Psicología Sevilla', phone: '+34 954 277 300', category: 'Therapists' },
-      { name: 'Therapy in Spain - Seville', phone: '+34 954 090 800', category: 'Therapists' },
-      { name: 'International Doctor Sevilla', phone: '+34 900 909 500', category: 'Doctors' }
+      { name: 'Hospital Quirónsalud Sevilla', phone: '+34 954 918 000', category: 'Hospitals', url: '/seville/hospitals' },
+      { name: 'Hospital Vithas Sevilla', phone: '+34 954 571 400', category: 'Hospitals', url: '/seville/hospitals' },
+      { name: 'Hospital Universitario HM Sevilla', phone: '+34 954 591 000', category: 'Hospitals', url: '/seville/hospitals' },
+      { name: 'Clínica Santa Isabel', phone: '+34 954 221 200', category: 'Medical Clinics', url: '/seville/medical-clinics' },
+      { name: 'Centro Médico Maestranza', phone: '+34 954 561 800', category: 'Medical Clinics', url: '/seville/medical-clinics' },
+      { name: 'Dental Care Sevilla', phone: '+34 954 224 700', category: 'Dentists', url: '/seville/dentists' },
+      { name: 'Clínica Dental Sevilla', phone: '+34 954 501 200', category: 'Dentists', url: '/seville/dentists' },
+      { name: 'Psicología Sevilla', phone: '+34 954 277 300', category: 'Therapists', url: '/seville/therapists' },
+      { name: 'Therapy in Spain - Seville', phone: '+34 954 090 800', category: 'Therapists', url: '/seville/therapists' },
+      { name: 'International Doctor Sevilla', phone: '+34 900 909 500', category: 'Doctors', url: '/seville/doctors' }
     ];
     
     for (const provider of providers) {
-      await page.goto('/seville/doctors');
+      await page.goto(provider.url);
       await page.waitForLoadState('networkidle');
       
       // Search for provider
       await page.fill('[data-testid="search-input"]', provider.name);
       await page.press('[data-testid="search-input"]', 'Enter');
+      await page.waitForTimeout(500);
       
       // Click on provider
       await page.click(`text=${provider.name}`);
