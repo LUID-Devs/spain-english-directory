@@ -104,15 +104,15 @@ const realBusinesses: DirectoryListing[] = [
     name: 'Clinica Cloe',
     category: 'Dentists',
     city: 'Madrid',
-    address: 'Calle de Fuencarral 123, 28010 Madrid',
-    phone: '+34 915 55 12 34',
-    email: 'info@clinicacloe.es',
-    website: 'https://www.clinicacloe.es/en',
-    description: 'Modern English-speaking dental clinic in Madrid providing comprehensive dental care for the international community and expats. Experienced multilingual team fluent in English and Spanish. Services include general dentistry, dental implants, cosmetic dentistry, teeth whitening, orthodontics (including invisible aligners), root canal treatment (endodontics), dental crowns and bridges, veneers, pediatric dentistry, periodontal care (gum disease treatment), oral surgery, and emergency dental services. State-of-the-art facilities with digital X-rays, intraoral scanners, and advanced sterilization protocols. Patient-centered approach with detailed explanations in English about treatment options, procedures, and costs. Flexible appointment scheduling including evenings and Saturdays. Financing options available for extensive treatments. Located in central Madrid with easy access by public transport.',
+    address: 'Avenida de los Prunos nº 5-7, 28042 Madrid',
+    phone: '+34 91 371 7919',
+    email: 'clinica@clinicacloe.com',
+    website: 'https://www.clinicacloe.com',
+    description: 'English-speaking dental clinic in Madrid led by a US-trained dentist with a Doctorate of Dental Surgery (D.D.S) from New York University College of Dentistry and General Practice Residency at Mount Sinai Hospital. Specialized in advanced implantology, luxury orthodontics including Invisalign and premium braces, cosmetic dentistry with natural results, conservative dentistry focused on preserving natural teeth, periodontics, endodontics, and pediatric dentistry for children and adolescents. Offers Digital Smile Design technology allowing patients to visualize their results before treatment begins. The clinic emphasizes personalized care, efficient appointment scheduling with WhatsApp/SMS reminders 24 hours in advance, and works with maximum efficiency to ensure patients are seen on time. Located near El Corte Inglés de Campo de las Naciones. Hours: Monday-Thursday 8:00 AM - 7:00 PM (Wednesday until 8:00 PM), Friday 8:00 AM - 5:00 PM.',
     specialties: ['General Dentistry', 'Implants', 'Cosmetic Dentistry', 'Orthodontics', 'Endodontics', 'Pediatric Dentistry'],
     languages: ['English', 'Spanish'],
-    rating: 4.7,
-    reviewCount: 56,
+    rating: 4.8,
+    reviewCount: 95,
   },
 
 // TASK-1689: Costa del Sol Dental Tourism Clinics
@@ -160,22 +160,6 @@ const realBusinesses: DirectoryListing[] = [
     languages: ['English', 'Spanish', 'German', 'French'],
     rating: 4.7,
     reviewCount: 120,
-  },
-  // TASK-1654: Dental Clinic Navarro - Madrid
-  {
-    id: 1654,
-    name: 'Dental Clinic Navarro',
-    category: 'Dentists',
-    city: 'Madrid',
-    address: 'C/ Duque de Alba 12, 1.º Derecha, 28012 Madrid',
-    phone: '+34 913 642 872',
-    email: '',
-    website: 'https://www.dentalnavarro.com/en/',
-    description: 'English-speaking dental clinic in Madrid city center founded by dentists from the first promotion of Dentistry at U.C.M. University. Specializes in dental implants, orthodontics, periodontics, endodontics, and dental aesthetics. Offers conscious sedation treatments for anxious patients and digital smile design using the latest technology. Equipped with cutting-edge dental technology and staffed by highly reputed specialists with postgraduate training at prestigious international universities. Personalized treatment plans with detailed studies and customized budgets. Belongs to the Círculo de Odontólogos y Estomatólogos (COE). Two locations: Madrid Capital center (near La Latina, Puerta del Sol, Opera) and Becerril de la Sierra. Offers 5% discount on dental aesthetic treatments when requested through website, free dental study, and comfortable financing options.',
-    specialties: ['Dental Implants', 'Orthodontics', 'Periodontics', 'Endodontics', 'Cosmetic Dentistry', 'Sedation Dentistry'],
-    languages: ['English', 'Spanish'],
-    rating: 4.8,
-    reviewCount: 95,
   },
   {
     id: 16894,
@@ -266,7 +250,7 @@ const realBusinesses: DirectoryListing[] = [
     reviewCount: 65,
   },
 
-  // TASK-1692: Insurance Brokers - Madrid
+// TASK-1692: Insurance Brokers - Madrid
   {
     id: 1692,
     name: 'Sanitas International',
@@ -848,7 +832,6 @@ export const generateMockListings = (citySlug: string, categorySlug: string): Di
   const category = categories.find(c => c.slug === categorySlug);
   
   if (!city || !category) return [];
-  
   const listings: DirectoryListing[] = [];
   const count = 8 + Math.floor(Math.random() * 5); // 8-12 listings
   const streets = streetNames[citySlug] || ['Main Street'];

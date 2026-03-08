@@ -39,8 +39,8 @@ test.describe('TASK-1670: Clinica Cloe Dental Madrid', () => {
     await page.waitForLoadState('networkidle');
 
     // Verify contact details are visible
-    await expect(page.locator('text=+34 915 55 12 34')).toBeVisible();
-    await expect(page.locator('text=Fuencarral')).toBeVisible();
+    await expect(page.locator('text=+34 91 371 7919')).toBeVisible();
+    await expect(page.locator('text=Avenida de los Prunos')).toBeVisible();
   });
 
   test('should verify Clinica Cloe has English-speaking indication', async ({ page }) => {
@@ -115,7 +115,7 @@ test.describe('TASK-1670: Clinica Cloe Dental Madrid', () => {
 
     // Verify required fields on detail page
     await expect(page.locator('h1')).toContainText('Clinica Cloe');
-    await expect(page.locator('text=+34 915 55 12 34')).toBeVisible();
+    await expect(page.locator('text=+34 91 371 7919')).toBeVisible();
     await expect(page.locator('text=Dentists')).toBeVisible();
 
     // Verify description contains key services
