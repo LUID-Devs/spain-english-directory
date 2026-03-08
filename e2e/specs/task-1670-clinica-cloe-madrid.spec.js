@@ -15,8 +15,9 @@ test.describe('TASK-1670: Clinica Cloe Dental Madrid', () => {
     await page.waitForLoadState('networkidle');
 
     // Verify Clinica Cloe appears in results
-    await expect(page.locator('text=Clinica Cloe')).toBeVisible();
-    await expect(page.locator('text=English')).toBeVisible();
+    const card = page.locator('article:has-text("Clinica Cloe")');
+    await expect(card).toBeVisible();
+    await expect(card.locator('text=English')).toBeVisible();
   });
 
   test('should display Clinica Cloe details on listing card', async ({ page }) => {
@@ -98,10 +99,11 @@ test.describe('TASK-1670: Clinica Cloe Dental Madrid', () => {
     await page.waitForLoadState('networkidle');
 
     // Verify required fields are present
-    await expect(page.locator('text=Clinica Cloe')).toBeVisible();
-    await expect(page.locator('text=+34 915 55 12 34')).toBeVisible();
-    await expect(page.locator('text=English')).toBeVisible();
-    await expect(page.locator('text=Spanish')).toBeVisible();
+    const card = page.locator('article:has-text("Clinica Cloe")');
+    await expect(card).toBeVisible();
+    await expect(card.locator('text=+34 915 55 12 34')).toBeVisible();
+    await expect(card.locator('text=English')).toBeVisible();
+    await expect(card.locator('text=Spanish')).toBeVisible();
 
     // Verify description contains key services
     await expect(page.locator('text=Implants')).toBeVisible();
