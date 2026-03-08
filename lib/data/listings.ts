@@ -35,6 +35,22 @@ const realBusinesses: DirectoryListing[] = [
     rating: 4.9,
     reviewCount: 120,
   },
+  // TASK-1652: Simple English Advice - Gestor Malaga
+  {
+    id: 1652,
+    name: 'Simple English Advice',
+    category: 'Gestors',
+    city: 'Malaga',
+    address: 'Málaga',
+    phone: '+34 951 74 51 68',
+    email: 'info@simpleenglishadvice.com',
+    website: 'https://simpleenglishadvice.com',
+    description: 'English-speaking expat agency in Malaga offering support with Spanish bureaucracy and administrative procedures. Services include vehicle ownership transfers, UK-to-Spanish driving licence exchanges, NRA rental registration numbers, EU vehicle imports, DGT vehicle reports, digital certificates, digital nomad visa assistance, autónomo registration, non-resident tax filings, and property registration support. Winner of the SME News Award for Best Expat Relocation Support Service.',
+    specialties: ['Vehicle Transfers', 'Driving Licence Exchange', 'NRA Registration', 'Vehicle Import', 'Autónomo Registration', 'Tax Filing', 'Digital Certificates', 'Visa Applications', 'Property Registration', 'Bureaucracy Support'],
+    languages: ['English', 'Spanish'],
+    rating: 4.9,
+    reviewCount: 100,
+  },
   // TASK-1668: My Medica Medical Clinic - Valencia
   {
     id: 1668,
