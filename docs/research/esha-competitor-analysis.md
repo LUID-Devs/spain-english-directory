@@ -1,16 +1,23 @@
-# ESHA Directory Competitor Analysis
+# ESHA Competitor Benchmark (ESHA site unavailable)
 
 **Research Date:** March 2026  
-**Task:** #1239 - Competitor Gap Analysis  
-**Researcher:** Rupert (Subagent)
+**Task:** #1667 - ESHA Competitor Analysis  
+**Researcher:** Rupert (Subagent)  
+**Status:** ESHA site was unreachable during research — this is a **competitor-only benchmark** (primarily **Expatica**).
 
 ---
 
 ## Executive Summary
 
-The ESHA Directory domain (`esha.es`) could not be resolved during research, suggesting the site may be inactive, rebranded, or the domain information may need verification. However, this report analyzes the competitive landscape of English-speaking healthcare directories in Spain, with **Expatica** emerging as the dominant player.
+The ESHA directory site was unavailable during research. As a result, **no ESHA services, pricing, or geographic coverage were verified**. This document serves as a **competitor benchmark** (primarily **Expatica**) plus a gap analysis to guide future ESHA positioning once the ESHA site becomes available.
 
-**Key Finding:** Expatica's Spain healthcare directory contains 100+ structured listings across 8 healthcare subcategories, with a mix of featured (paid) and organic listings.
+**Key Finding:** Expatica's Spain healthcare directory shows ~50+ structured listings across 8 healthcare subcategories, with a mix of featured (paid) and organic listings. Counts below reflect only the visible listings we captured (directional, not exhaustive).
+
+## Scope & Limitations
+
+- **ESHA site unavailable:** no first‑party ESHA data captured.
+- **Focus:** competitor benchmarking + market gap analysis.
+- **Action needed:** update this document with ESHA-specific details when access is restored.
 
 ---
 
@@ -35,7 +42,7 @@ The ESHA Directory domain (`esha.es`) could not be resolved during research, sug
 | Maternity Services | 7 | 0 | 7 | Moderate |
 | Alternative Medicine | 1 | 0 | 1 | Poor |
 
-**Total Estimated Healthcare Listings:** 100+
+**Total Visible Healthcare Listings (captured):** 50+ (directional)
 
 ---
 
@@ -145,7 +152,7 @@ The ESHA Directory domain (`esha.es`) could not be resolved during research, sug
 ### Current Gaps
 1. **Geographic concentration** - Heavy Madrid focus, limited Barcelona
 2. **Category coverage** - Missing: Alternative medicine, maternity, health insurance
-3. **Listing volume** - ~27 vs Expatica's 100+
+3. **Listing volume** - ~27 vs Expatica's 50+ visible listings (directional)
 4. **Fertility/Reproductive health** - No listings (Expatica has 5+)
 5. **Online/Telehealth** - Minimal coverage
 
@@ -281,7 +288,7 @@ Underrepresented category
 
 ## Conclusion
 
-While ESHA Directory could not be accessed for direct comparison, **Expatica represents the primary competitive threat** with 100+ healthcare listings and strong brand recognition.
+While ESHA Directory could not be accessed for direct comparison, **Expatica represents the primary competitive threat** with 50+ visible healthcare listings in the reviewed categories and strong brand recognition.
 
 **Our path to competitive advantage:**
 1. **Quality differentiation** - Verified, detailed listings

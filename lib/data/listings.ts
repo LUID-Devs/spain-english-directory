@@ -50,6 +50,23 @@ const realBusinesses: DirectoryListing[] = [
     reviewCount: 92,
   },
 
+  // TASK-1654: Dental Clinic Navarro - Madrid
+  {
+    id: 1654,
+    name: 'Dental Clinic Navarro',
+    category: 'Dentists',
+    city: 'Madrid',
+    address: 'C/ Duque de Alba 12, 1.º Derecha, 28012 Madrid',
+    phone: '+34 913 642 872',
+    email: 'info@dentalnavarro.com',
+    website: 'https://www.dentalnavarro.com/en/',
+    description: 'English-speaking dental clinic in Madrid city center founded by dentists from the first promotion of Dentistry at U.C.M. University. Specializes in dental implants, orthodontics, periodontics, endodontics, and dental aesthetics. Offers conscious sedation treatments for anxious patients and digital smile design using the latest technology. The clinic is equipped with cutting-edge dental technology and staffed by highly reputed specialists with postgraduate training at prestigious international universities. Personalized treatment plans with detailed studies and customized budgets. Belongs to the Círculo de Odontólogos y Estomatólogos (COE). Two locations: Madrid Capital center (near La Latina, Puerta del Sol, Opera) and Becerril de la Sierra. Offers 5% discount on dental aesthetic treatments when requested through website, free dental study, and comfortable financing options.',
+    specialties: ['Dental Implants', 'Orthodontics', 'Periodontics', 'Endodontics', 'Dental Aesthetics'],
+    languages: ['English', 'Spanish'],
+    rating: 4.8,
+    reviewCount: 0,
+  },
+
   // TASK-1668: My Medica Medical Clinic - Valencia
   {
     id: 1668,
@@ -76,7 +93,7 @@ const realBusinesses: DirectoryListing[] = [
     phone: '+34 644 522 369',
     email: 'info@therapyinbarcelona.com',
     website: 'https://www.therapyinbarcelona.com',
-    description: 'Award-winning therapy practice specializing in counseling and therapy services in English for international adults, couples, adolescents, and families. Over 10 years of experience helping expats deal with stress, depression, anxiety, relationships, grief, and the challenges of expat life. Winner of multiple awards including Most Compassionate Expat Therapy Practice 2026 - Spain, Best International Community Mental Health Service 2026 - Spain, and Virtual Counselling Service of the Year 2025. Multilingual team of therapists offers services in English, French, German, Spanish, Portuguese, Afrikaans, Swiss German, Austrian-German, and Catalan. Free 15-minute discovery calls available. Offers both in-office sessions and online therapy across Spain and Europe.',
+    description: 'Award-winning therapy practice specializing in Counseling, Psychology, and Family Therapy services in English for international adults, couples, adolescents, and families. Over 10 years of experience helping expats deal with stress, depression, anxiety, relationships, grief, and the challenges of expat life. Winner of multiple awards including Most Compassionate Expat Therapy Practice 2026 - Spain, Best International Community Mental Health Service 2026 - Spain, and Virtual Counselling Service of the Year 2025. Multilingual team of therapists offers services in English, French, German, Spanish, Portuguese, Afrikaans, Swiss German, Austrian-German, and Catalan. Free 15-minute discovery calls available. Offers both in-office sessions and online therapy across Spain and Europe.',
     specialties: ['Psychology', 'Counseling', 'Family Therapy', 'Cognitive Behavioral', 'Anxiety & Depression', 'Relationship'],
     languages: ['English', 'French', 'German', 'Spanish', 'Portuguese', 'Catalan'],
     rating: 4.9,
@@ -92,7 +109,7 @@ const realBusinesses: DirectoryListing[] = [
     phone: '+34 644 522 369',
     email: 'info@therapyinbarcelona.com',
     website: 'https://www.therapyinbarcelona.com',
-    description: 'Award-winning therapy practice specializing in counseling and therapy services in English for international adults, couples, adolescents, and families. Over 10 years of experience helping expats deal with stress, depression, anxiety, relationships, grief, and the challenges of expat life. Winner of multiple awards including Most Compassionate Expat Therapy Practice 2026 - Spain, Best International Community Mental Health Service 2026 - Spain, and Virtual Counselling Service of the Year 2025. Multilingual team of therapists offers services in English, French, German, Spanish, Portuguese, Afrikaans, Swiss German, Austrian-German, and Catalan. Free 15-minute discovery calls available. Offers both in-office sessions and online therapy across Spain and Europe.',
+    description: 'Award-winning therapy practice specializing in Counseling, Psychology, and Family Therapy services in English for international adults, couples, adolescents, and families. Over 10 years of experience helping expats deal with stress, depression, anxiety, relationships, grief, and the challenges of expat life. Winner of multiple awards including Most Compassionate Expat Therapy Practice 2026 - Spain, Best International Community Mental Health Service 2026 - Spain, and Virtual Counselling Service of the Year 2025. Multilingual team of therapists offers services in English, French, German, Spanish, Portuguese, Afrikaans, Swiss German, Austrian-German, and Catalan. Free 15-minute discovery calls available. Offers both in-office sessions and online therapy across Spain and Europe.',
     specialties: ['Psychology', 'Counseling', 'Family Therapy', 'Cognitive Behavioral', 'Anxiety & Depression', 'Relationship'],
     languages: ['English', 'French', 'German', 'Spanish', 'Portuguese', 'Catalan'],
     rating: 4.9,
