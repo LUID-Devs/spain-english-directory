@@ -1,11 +1,15 @@
 // @ts-check
 const { defineConfig, devices } = require('@playwright/test');
 
+const devPort = process.env.E2E_PORT || process.env.PORT || 3000;
+const baseUrl = process.env.BASE_URL || `http://localhost:${devPort}`;
+
 /**
  * @see https://playwright.dev/docs/test-configuration
  */
 module.exports = defineConfig({
   testDir: './e2e/specs',
+  testMatch: ['**/task-1666-*.spec.js'],
   
   /* Run tests in files in parallel */
   fullyParallel: true,
@@ -28,7 +32,7 @@ module.exports = defineConfig({
   /* Shared settings for all the projects below */
   use: {
     /* Base URL to use in actions like `await page.goto('/')` */
-    baseURL: process.env.BASE_URL || 'http://localhost:3000',
+    baseURL: baseUrl,
     
     /* Collect trace when retrying the failed test */
     trace: 'on-first-retry',
@@ -59,8 +63,8 @@ module.exports = defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:3000',
+    command: `PORT=${devPort} npm run dev`,
+    url: baseUrl,
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
   },

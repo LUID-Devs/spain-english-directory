@@ -103,14 +103,26 @@ jobs:
               return clean.match(/Confidence Score:\s*([0-5](?:\.\d+)?)\s*\/\s*5/i);
             };
 
-            const matchedEntry = entries.find((entry) => scoreMatch(entry.body));
+            let matchedEntry = entries.find((entry) => scoreMatch(entry.body));
+            let matchedBody = matchedEntry?.body;
 
             if (!matchedEntry) {
-              core.setFailed("Greptile confidence score not found in Greptile comments/reviews");
-              return;
+              const prBody = pr?.body || "";
+              const hasGreptileBlock = prBody.includes("<!-- greptile_comment -->");
+              const bodyMatch = hasGreptileBlock ? scoreMatch(prBody) : null;
+              const lastReviewedMatch = prBody.match(/Last reviewed commit:\s*([a-f0-9]{7,40})/i);
+              const reviewedSha = lastReviewedMatch?.[1] || "";
+              const reviewedMatchesHead = reviewedSha && headSha.startsWith(reviewedSha);
+
+              if (bodyMatch && reviewedMatchesHead) {
+                matchedBody = prBody;
+              } else {
+                core.setFailed("Greptile confidence score not found in Greptile comments/reviews");
+                return;
+              }
             }
 
-            const m = scoreMatch(matchedEntry.body);
+            const m = scoreMatch(matchedBody);
             const score = parseFloat(m[1]);
             if (score < 4) core.setFailed(`Greptile confidence ${score}/5 < 4/5`);
             else console.log(`Greptile confidence ${score}/5 ✅`);

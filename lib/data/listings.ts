@@ -7,8 +7,8 @@ export interface DirectoryListing {
   category: string;
   city: string;
   address: string;
-  phone: string;
-  email: string;
+  phone?: string;
+  email?: string;
   website?: string;
   description: string;
   specialties: string[];
@@ -35,6 +35,20 @@ const realBusinesses: DirectoryListing[] = [
     rating: 4.9,
     reviewCount: 120,
   },
+  // TASK-1666: Clinica Dental Barcelona
+  {
+    id: 1666,
+    name: 'Clinica Dental Barcelona',
+    category: 'Dentists',
+    city: 'Barcelona',
+    address: 'Carrer de Balmes, 152, 08008 Barcelona',
+    website: 'https://clinicadentalbarcelona.es',
+    description: 'English-speaking dental clinic in Barcelona offering comprehensive dental care for international patients. Services include general dentistry, cosmetic treatments, dental implants, orthodontics, and preventive care with modern facilities and patient-focused communication.',
+    specialties: ['General Dentistry', 'Cosmetic Dentistry', 'Dental Implants', 'Orthodontics', 'Preventive Care'],
+    languages: ['English', 'Spanish'],
+    rating: 4.7,
+    reviewCount: 92,
+  },
 
   // TASK-1668: My Medica Medical Clinic - Valencia
   {
@@ -52,7 +66,6 @@ const realBusinesses: DirectoryListing[] = [
     rating: 5.0,
     reviewCount: 0,
   },
-
   // TASK-1669: Therapy in Barcelona - Mental Health
   {
     id: 1669,
@@ -900,4 +913,19 @@ export const getListings = (
     page,
     totalPages,
   };
+};
+
+export const getListingById = (listingId: number): DirectoryListing | null => {
+  const realMatch = realBusinesses.find(listing => listing.id === listingId);
+  if (realMatch) return realMatch;
+
+  for (const city of cities) {
+    for (const category of categories) {
+      const listing = generateMockListings(city.slug, category.slug)
+        .find(entry => entry.id === listingId);
+      if (listing) return listing;
+    }
+  }
+
+  return null;
 };
