@@ -1,0 +1,41 @@
+#!/bin/sh
+# Pre-commit hook to ensure tests pass before committing
+# Install: cp scripts/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+
+echo "🧪 Running pre-commit checks..."
+
+# Check if we're in the right directory
+if [ ! -f "package.json" ]; then
+    echo "❌ Error: package.json not found. Are you in the right directory?"
+    exit 1
+fi
+
+# Run lint
+echo "📋 Running linter..."
+npm run lint
+if [ $? -ne 0 ]; then
+    echo "❌ Lint failed. Fix errors before committing."
+    exit 1
+fi
+
+# Run build
+echo "🔨 Running build..."
+npm run build
+if [ $? -ne 0 ]; then
+    echo "❌ Build failed. Fix errors before committing."
+    exit 1
+fi
+
+# Check if there are e2e changes
+if git diff --cached --name-only | grep -q "e2e/"; then
+    echo "🧪 E2E tests modified - running tests..."
+    npm run test:e2e
+    if [ $? -ne 0 ]; then
+        echo "❌ E2E tests failed. Fix before committing."
+        echo "   Check: e2e/screenshots/ for failure images"
+        exit 1
+    fi
+fi
+
+echo "✅ All checks passed! Committing..."
+exit 0
