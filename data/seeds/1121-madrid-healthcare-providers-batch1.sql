@@ -1,13 +1,11 @@
 -- Task 1121: Add Madrid Healthcare Providers - Batch 1
 -- Data entry by Cletus
 -- Includes: Hospitals, Dental Clinics, Medical Centers
+-- NOTE: Clínica Cloe removed - now in 1670-clinica-cloe-dental-madrid.sql
 
 INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
 
--- 1. Clínica Cloe - English-Speaking Dental Clinic
-('Clínica Cloe', 'Dentists', 'Modern dental clinic with fully English-speaking staff specializing in general dentistry, implants, orthodontics, and cosmetic dentistry. Multilingual team speaks Spanish, English, French, German and Ukrainian. State-of-the-art digital technology including 3D imaging and intraoral scanners. Offers minimally invasive treatments and is the organizer of "CLOE Smiles For Madrid" oral health program for schools.', 'Avenida de los Prunos 5-7, 28042 Madrid', 'Madrid', 'Madrid', '+34 917 48 90 88', 'info@clinicacloe.com', 'https://www.clinicacloe.com', true, true, true, false, NOW(), NOW()),
-
--- 2. Unidad Médica Angloamericana - English-Speaking Medical Clinic
+-- 1. Unidad Médica Angloamericana - English-Speaking Medical Clinic
 ('Unidad Médica Angloamericana', 'Medical Clinics', 'Private medical center in Madrid with fully bilingual English-speaking doctors, nurses and administrative staff. Serving Madrid''s English-speaking community since establishment with comprehensive primary care services. Multilingual staff speaks English, Spanish, French and German. Specializes in primary care, preventive medicine, and specialist referrals for expats and international patients.', 'Calle Conde de Aranda 1, 28001 Madrid', 'Madrid', 'Madrid', '+34 914 351 823', 'info@unidadmedica.com', 'https://www.unidadmedica.com', true, true, true, false, NOW(), NOW()),
 
 -- 4. Hospital Universitario HM Madrid - Private University Hospital
