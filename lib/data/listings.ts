@@ -126,7 +126,7 @@ const realBusinesses: DirectoryListing[] = [
     email: 'info@simpleenglishadvice.com',
     website: 'https://simpleenglishadvice.com',
     description: 'English-speaking expat agency providing gestor and administrative support services in Malaga and throughout Spain. Founded by British expats Delroy and Christina with over 15 years of experience helping foreigners navigate Spanish bureaucracy. Winner of the SME News Award for Best Expat Relocation Support Service for 4 consecutive years. Services include vehicle ownership transfers, UK to Spanish driving licence exchange, NRA rental registration numbers, EU vehicle import/matriculation, autónomo registration, non-resident tax filing, Digital Nomad Visa support, and general bureaucracy assistance. Transparent fees with no hidden charges. Over 100 five-star Google reviews.',
-    specialties: ['Vehicle Transfers', 'Driving Licence Exchange', 'NRA Registration', 'Vehicle Import', 'Autónomo Registration', 'Tax Filing', 'Digital Certificates', 'Visa Applications', 'Property Registration', 'Bureaucracy Support'],
+    specialties: ['Vehicle Transfers', 'Driving Licence Exchange', 'NIE Registration', 'Vehicle Import', 'Autónomo Registration', 'Tax Filing', 'Digital Certificates', 'Visa Applications', 'Bureaucracy Support'],
     languages: ['English', 'Spanish'],
     rating: 4.9,
     reviewCount: 100,
