@@ -114,7 +114,8 @@ const realBusinesses: DirectoryListing[] = [
     rating: 4.7,
     reviewCount: 56,
   },
-  // TASK-1689: Costa del Sol Dental Tourism Clinics
+
+// TASK-1689: Costa del Sol Dental Tourism Clinics
   {
     id: 16891,
     name: 'Crooke & Laguna Dental Clinic',
@@ -159,6 +160,22 @@ const realBusinesses: DirectoryListing[] = [
     languages: ['English', 'Spanish', 'German', 'French'],
     rating: 4.7,
     reviewCount: 120,
+  },
+  // TASK-1654: Dental Clinic Navarro - Madrid
+  {
+    id: 1654,
+    name: 'Dental Clinic Navarro',
+    category: 'Dentists',
+    city: 'Madrid',
+    address: 'C/ Duque de Alba 12, 1.º Derecha, 28012 Madrid',
+    phone: '+34 913 642 872',
+    email: '',
+    website: 'https://www.dentalnavarro.com/en/',
+    description: 'English-speaking dental clinic in Madrid city center founded by dentists from the first promotion of Dentistry at U.C.M. University. Specializes in dental implants, orthodontics, periodontics, endodontics, and dental aesthetics. Offers conscious sedation treatments for anxious patients and digital smile design using the latest technology. Equipped with cutting-edge dental technology and staffed by highly reputed specialists with postgraduate training at prestigious international universities. Personalized treatment plans with detailed studies and customized budgets. Belongs to the Círculo de Odontólogos y Estomatólogos (COE). Two locations: Madrid Capital center (near La Latina, Puerta del Sol, Opera) and Becerril de la Sierra. Offers 5% discount on dental aesthetic treatments when requested through website, free dental study, and comfortable financing options.',
+    specialties: ['Dental Implants', 'Orthodontics', 'Periodontics', 'Endodontics', 'Cosmetic Dentistry', 'Sedation Dentistry'],
+    languages: ['English', 'Spanish'],
+    rating: 4.8,
+    reviewCount: 95,
   },
   {
     id: 16894,
