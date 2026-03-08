@@ -414,7 +414,7 @@ const realBusinesses: DirectoryListing[] = [
     name: 'Urgencias Dentales Barcelona',
     category: 'Dentists',
     city: 'Barcelona',
-    address: "Carrer d'Aragó, 235, 08007 Barcelona",
+    address: 'Carrer d\'Aragó, 235, 08007 Barcelona',
     phone: '+34 932 876 543',
     email: 'info@urgenciasdentalesbcn.es',
     website: 'https://www.urgenciasdentalesbcn.es',
