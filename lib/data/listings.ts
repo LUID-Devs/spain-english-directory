@@ -199,7 +199,7 @@ const realBusinesses: DirectoryListing[] = [
     phone: '+34 918 765 432',
     email: 'help@internationaldentalmadrid.com',
     website: 'https://www.internationaldentalmadrid.com',
-    description: 'Emergency dental service specifically designed for Madrid's tourist and expat community. Multilingual team speaks English, Spanish, French, and German. Open 7 days a week with 24-hour on-call dentist for severe emergencies. Handles travel insurance claims directly. Services include emergency fillings, crowns, root canals, extractions, and trauma care. Hotel visit service available for immobile patients. Partnerships with major hotels and concierge services. Fast-track service for tourists with travel insurance.',
+    description: "Emergency dental service specifically designed for Madrid's tourist and expat community. Multilingual team speaks English, Spanish, French, and German. Open 7 days a week with 24-hour on-call dentist for severe emergencies. Handles travel insurance claims directly. Services include emergency fillings, crowns, root canals, extractions, and trauma care. Hotel visit service available for immobile patients. Partnerships with major hotels and concierge services. Fast-track service for tourists with travel insurance.",
     specialties: ['Emergency Dentistry', 'Dental Crowns', 'Root Canal', 'Dental Trauma', 'Tooth Extraction'],
     languages: ['English', 'Spanish', 'French', 'German'],
     rating: 4.7,
