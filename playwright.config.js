@@ -2,7 +2,7 @@
 const { defineConfig, devices } = require('@playwright/test');
 
 const devPort = process.env.E2E_PORT || process.env.PORT || 3000;
-const baseUrl = process.env.BASE_URL || `http://localhost:${devPort}`;
+const baseURL = process.env.BASE_URL || `http://localhost:${devPort}`;
 
 /**
  * @see https://playwright.dev/docs/test-configuration
@@ -31,7 +31,7 @@ module.exports = defineConfig({
   /* Shared settings for all the projects below */
   use: {
     /* Base URL to use in actions like `await page.goto('/')` */
-    baseURL: baseUrl,
+    baseURL,
     
     /* Collect trace when retrying the failed test */
     trace: 'on-first-retry',
@@ -63,7 +63,7 @@ module.exports = defineConfig({
   /* Run your local dev server before starting the tests */
   webServer: {
     command: `PORT=${devPort} npm run dev`,
-    url: baseUrl,
+    url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
   },
