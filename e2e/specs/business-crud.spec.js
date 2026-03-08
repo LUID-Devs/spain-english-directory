@@ -139,7 +139,8 @@ test.describe('Business CRUD Operations', () => {
 
     // Filter by category
     await page.selectOption('[data-testid="filter-category"]', 'Dental');
-    await expect(page.locator('[data-testid="business-card"]')).toHaveCount.greaterThan(0);
+    const filteredCount = await page.locator('[data-testid="business-card"]').count();
+    expect(filteredCount).toBeGreaterThan(0);
 
     // Filter by city
     await page.selectOption('[data-testid="filter-city"]', 'Madrid');
@@ -152,7 +153,8 @@ test.describe('Business CRUD Operations', () => {
     
     // Check if more content loaded
     await expect(page.locator('[data-testid="loading-more"]')).not.toBeVisible();
-    await expect(page.locator('[data-testid="business-card"]')).toHaveCount.greaterThanOrEqual(10);
+    const loadedCount = await page.locator('[data-testid="business-card"]').count();
+    expect(loadedCount).toBeGreaterThanOrEqual(10);
   });
 
   test('CONSOLE ERRORS - should not have console errors', async ({ page }) => {

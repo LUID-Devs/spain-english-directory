@@ -1,6 +1,6 @@
-const { chromium } = require('@playwright/test');
-const fs = require('fs');
-const path = require('path');
+import { chromium } from '@playwright/test';
+import fs from 'node:fs';
+import path from 'node:path';
 
 /**
  * Capture screenshots of authenticated pages for audit
