@@ -1,18 +1,18 @@
 const { test, expect } = require('@playwright/test');
 
-test.describe('TASK-1669: Therapy in Barcelona - Mental Health', () => {
+test.describe('TASK-1669: Therapy in Barcelona - Therapists', () => {
   
   test('should display Barcelona mental health category page', async ({ page }) => {
-    await page.goto('/barcelona/mental-health');
+    await page.goto('/barcelona/therapists');
     await page.waitForLoadState('networkidle');
     
     // Verify page loads
-    await expect(page.locator('h1')).toContainText('Mental Health');
+    await expect(page.locator('h1')).toContainText('Therapists');
     await expect(page.locator('text=Barcelona')).toBeVisible();
   });
 
   test('should find Therapy in Barcelona in mental health listing', async ({ page }) => {
-    await page.goto('/barcelona/mental-health');
+    await page.goto('/barcelona/therapists');
     await page.waitForLoadState('networkidle');
     
     // Search for Therapy in Barcelona
@@ -25,7 +25,7 @@ test.describe('TASK-1669: Therapy in Barcelona - Mental Health', () => {
   });
 
   test('should display Therapy in Barcelona details page', async ({ page }) => {
-    await page.goto('/barcelona/mental-health');
+    await page.goto('/barcelona/therapists');
     await page.waitForLoadState('networkidle');
     
     // Search for and click on Therapy in Barcelona
@@ -40,7 +40,7 @@ test.describe('TASK-1669: Therapy in Barcelona - Mental Health', () => {
   });
 
   test('should show Therapy in Barcelona contact information', async ({ page }) => {
-    await page.goto('/barcelona/mental-health');
+    await page.goto('/barcelona/therapists');
     await page.waitForLoadState('networkidle');
     
     // Search and navigate to business
@@ -56,7 +56,7 @@ test.describe('TASK-1669: Therapy in Barcelona - Mental Health', () => {
   });
 
   test('should display mental health services offered', async ({ page }) => {
-    await page.goto('/barcelona/mental-health');
+    await page.goto('/barcelona/therapists');
     await page.waitForLoadState('networkidle');
     
     // Search for Therapy in Barcelona
@@ -72,7 +72,7 @@ test.describe('TASK-1669: Therapy in Barcelona - Mental Health', () => {
   });
 
   test('should verify multilingual services are highlighted', async ({ page }) => {
-    await page.goto('/barcelona/mental-health');
+    await page.goto('/barcelona/therapists');
     await page.waitForLoadState('networkidle');
     
     // Search for Therapy in Barcelona
@@ -92,11 +92,11 @@ test.describe('TASK-1669: Therapy in Barcelona - Mental Health', () => {
     await page.waitForLoadState('networkidle');
     
     // Click on mental health category
-    await page.click('text=Mental Health');
+    await page.click('text=Therapists');
     
     // Verify navigation
     await expect(page).toHaveURL(/\/barcelona\/mental-health/);
-    await expect(page.locator('h1')).toContainText('Mental Health');
+    await expect(page.locator('h1')).toContainText('Therapists');
   });
 
   test('should have no console errors on mental health pages', async ({ page }) => {
@@ -108,7 +108,7 @@ test.describe('TASK-1669: Therapy in Barcelona - Mental Health', () => {
       }
     });
 
-    await page.goto('/barcelona/mental-health');
+    await page.goto('/barcelona/therapists');
     await page.waitForLoadState('networkidle');
     
     // Search and navigate
@@ -122,7 +122,7 @@ test.describe('TASK-1669: Therapy in Barcelona - Mental Health', () => {
   });
 
   test('should verify award information is displayed', async ({ page }) => {
-    await page.goto('/barcelona/mental-health');
+    await page.goto('/barcelona/therapists');
     await page.waitForLoadState('networkidle');
     
     // Search for Therapy in Barcelona
