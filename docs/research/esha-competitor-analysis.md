@@ -1,7 +1,7 @@
 # ESHA Directory Competitor Analysis
 
 **Research Date:** March 2026  
-**Task:** #1239 - Competitor Gap Analysis  
+**Task:** #1667 - ESHA Competitor Analysis  
 **Researcher:** Rupert (Subagent)
 
 ---
