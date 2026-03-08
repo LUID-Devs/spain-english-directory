@@ -42,9 +42,6 @@ INSERT INTO directory_entries (name, category, description, address, city, provi
 
 -- ALICANTE / TORREVIEJA HEALTHCARE PROVIDERS
 
--- IMED Levante Hospital Benidorm (Alicante)
-('IMED Levante Hospital', 'Healthcare', 'Modern hospital in Benidorm, Alicante region providing healthcare in an up-to-date setting. English-speaking staff serving the international community on the Costa Blanca. Comprehensive medical services including emergency care, surgery, and specialist consultations.', 'Calle del Payaso, 2, 03503 Benidorm', 'Alicante', 'Alicante', '+34 965 855 500', 'info@imedhospitales.com', 'https://www.imedhospitales.com', true, false, true, false, NOW(), NOW()),
-
 -- Smile Dental Clinic Torrevieja
 ('Smile Dental Clinic Torrevieja', 'Healthcare', 'Scandinavian-run dental clinic in Torrevieja attending to the English-speaking community on the Costa Blanca. Provides comprehensive dental services including general dentistry, cosmetic dentistry, and dental implants with English-speaking staff.', 'Calle Caballero de Rodas, 76, 03182 Torrevieja', 'Alicante', 'Alicante', '+34 965 710 710', 'info@smiledentaltorrevieja.com', 'https://www.smiledentaltorrevieja.com', true, false, true, false, NOW(), NOW()),
 
