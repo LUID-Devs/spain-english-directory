@@ -44,7 +44,7 @@ test.describe('Task 1682: Alicante English-Speaking GP/Healthcare', () => {
     expect(providerFound).toBe(true);
   });
 
-  test('should find Euro Clínica Albir in Alicante search', async ({ request }) => {
+  test('should find Euro Clínica Albir in Albir search', async ({ request }) => {
     const response = await request.get(`${baseUrl}/api/search?query=Euro%20Cl%C3%ADnica%20Albir&city=albir`);
 
     expect(response.ok()).toBeTruthy();

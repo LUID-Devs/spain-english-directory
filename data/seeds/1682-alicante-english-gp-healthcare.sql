@@ -4,18 +4,10 @@
 
 -- Remove any existing entries to avoid duplicates if prior seed files were applied
 DELETE FROM directory_entries
-WHERE name IN (
-  'Dr Alexandra Berger - GP',
-  'Medcare Medical Centre',
-  'Euro Clínica Albir',
-  'IMED Levante Hospital'
-)
-OR website IN (
-  'https://www.euroclinica.es',
-  'https://www.medcare.es',
-  'https://www.euroclinicaalbir.com',
-  'https://www.imedhospitales.com'
-);
+WHERE (name = 'Dr Alexandra Berger - GP' AND website = 'https://www.euroclinica.es')
+  OR (name = 'Medcare Medical Centre' AND website = 'https://www.medcare.es')
+  OR (name = 'Euro Clínica Albir' AND website = 'https://www.euroclinicaalbir.com')
+  OR (name = 'IMED Levante Hospital' AND website = 'https://www.imedhospitales.com');
 
 INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
 
