@@ -1,6 +1,11 @@
 -- Task 1659: Add Laura Celda Psychologist - Mental Health - Valencia
 -- Data entry by subagent
 
+-- Deduplicate if the legacy entry already exists from prior seeds
+DELETE FROM directory_entries
+WHERE name = 'Laura Celda Psychologist'
+  AND city = 'Valencia';
+
 INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
 
 -- Laura Celda Psychologist Valencia
