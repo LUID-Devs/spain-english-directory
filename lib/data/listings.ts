@@ -97,24 +97,7 @@ const realBusinesses: DirectoryListing[] = [
     languages: ['English', 'French', 'German', 'Spanish', 'Portuguese', 'Catalan'],
     rating: 4.9,
     reviewCount: 150,
-  },
-  // TASK-1670: Clinica Cloe - Dental Clinic Madrid
-  {
-    id: 1670,
-    name: 'Clinica Cloe',
-    category: 'Dentists',
-    city: 'Madrid',
-    address: 'Calle de Fuencarral 123, 28010 Madrid',
-    phone: '+34 915 55 12 34',
-    email: 'info@clinicacloe.es',
-    website: 'https://www.clinicacloe.es/en',
-    description: 'Modern English-speaking dental clinic in Madrid providing comprehensive dental care for the international community and expats. Experienced multilingual team fluent in English and Spanish. Services include general dentistry, dental implants, cosmetic dentistry, teeth whitening, orthodontics (including invisible aligners), root canal treatment (endodontics), dental crowns and bridges, veneers, pediatric dentistry, periodontal care (gum disease treatment), oral surgery, and emergency dental services. State-of-the-art facilities with digital X-rays, intraoral scanners, and advanced sterilization protocols. Patient-centered approach with detailed explanations in English about treatment options, procedures, and costs. Flexible appointment scheduling including evenings and Saturdays. Financing options available for extensive treatments. Located in central Madrid with easy access by public transport.',
-    specialties: ['General Dentistry', 'Implants', 'Cosmetic Dentistry', 'Orthodontics', 'Endodontics', 'Pediatric Dentistry'],
-    languages: ['English', 'Spanish'],
-    rating: 4.7,
-    reviewCount: 56,
-  },
-  // TASK-1689: Costa del Sol Dental Tourism Clinics
+  },  // TASK-1689: Costa del Sol Dental Tourism Clinics
   {
     id: 16891,
     name: 'Crooke & Laguna Dental Clinic',
