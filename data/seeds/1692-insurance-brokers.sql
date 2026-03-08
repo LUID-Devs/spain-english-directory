@@ -20,8 +20,8 @@ INSERT INTO directory_entries (name, category, description, address, city, provi
  false,
  true,
  false,
- CURRENT_TIMESTAMP,
- CURRENT_TIMESTAMP),
+ NOW(),
+ NOW()),
 
 -- 2. Adeslas (SegurCaixa Adeslas) - Madrid
 ('Adeslas (SegurCaixa Adeslas)',
@@ -37,8 +37,8 @@ INSERT INTO directory_entries (name, category, description, address, city, provi
  false,
  true,
  false,
- CURRENT_TIMESTAMP,
- CURRENT_TIMESTAMP),
+ NOW(),
+ NOW()),
 
 -- 3. Health Insurance Direct Spain - Madrid
 ('Health Insurance Direct Spain',
@@ -54,8 +54,8 @@ INSERT INTO directory_entries (name, category, description, address, city, provi
  false,
  true,
  false,
- CURRENT_TIMESTAMP,
- CURRENT_TIMESTAMP),
+ NOW(),
+ NOW()),
 
 -- BARCELONA INSURANCE BROKERS
 
@@ -73,8 +73,8 @@ INSERT INTO directory_entries (name, category, description, address, city, provi
  false,
  true,
  false,
- CURRENT_TIMESTAMP,
- CURRENT_TIMESTAMP),
+ NOW(),
+ NOW()),
 
 -- 5. Cigna Global Health Insurance - Barcelona
 ('Cigna Global Health Insurance',
@@ -90,8 +90,8 @@ INSERT INTO directory_entries (name, category, description, address, city, provi
  false,
  true,
  false,
- CURRENT_TIMESTAMP,
- CURRENT_TIMESTAMP),
+ NOW(),
+ NOW()),
 
 -- 6. Expat Insurance Spain - Barcelona
 ('Expat Insurance Spain',
@@ -107,8 +107,8 @@ INSERT INTO directory_entries (name, category, description, address, city, provi
  false,
  true,
  false,
- CURRENT_TIMESTAMP,
- CURRENT_TIMESTAMP),
+ NOW(),
+ NOW()),
 
 -- VALENCIA INSURANCE BROKERS
 
@@ -126,8 +126,8 @@ INSERT INTO directory_entries (name, category, description, address, city, provi
  false,
  true,
  false,
- CURRENT_TIMESTAMP,
- CURRENT_TIMESTAMP),
+ NOW(),
+ NOW()),
 
 -- 8. Mapfre Insurance - Valencia
 ('Mapfre Insurance',
@@ -143,8 +143,8 @@ INSERT INTO directory_entries (name, category, description, address, city, provi
  false,
  true,
  false,
- CURRENT_TIMESTAMP,
- CURRENT_TIMESTAMP),
+ NOW(),
+ NOW()),
 
 -- MALAGA INSURANCE BROKERS
 
@@ -162,8 +162,8 @@ INSERT INTO directory_entries (name, category, description, address, city, provi
  false,
  true,
  false,
- CURRENT_TIMESTAMP,
- CURRENT_TIMESTAMP),
+ NOW(),
+ NOW()),
 
 -- 10. Bupa Global - Malaga
 ('Bupa Global',
@@ -179,8 +179,8 @@ INSERT INTO directory_entries (name, category, description, address, city, provi
  false,
  true,
  false,
- CURRENT_TIMESTAMP,
- CURRENT_TIMESTAMP),
+ NOW(),
+ NOW()),
 
 -- 11. Iberian Insurance Services - Malaga (Costa del Sol)
 ('Iberian Insurance Services',
@@ -196,5 +196,5 @@ INSERT INTO directory_entries (name, category, description, address, city, provi
  false,
  true,
  false,
- CURRENT_TIMESTAMP,
- CURRENT_TIMESTAMP);
+ NOW(),
+ NOW());
