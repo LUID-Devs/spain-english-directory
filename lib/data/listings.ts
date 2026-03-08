@@ -820,7 +820,13 @@ const streetNames: Record<string, string[]> = {
 };
 
 // Generate 8-12 listings per city/category combination
+const mockListingCache = new Map<string, DirectoryListing[]>();
+
 export const generateMockListings = (citySlug: string, categorySlug: string): DirectoryListing[] => {
+  const cacheKey = `${citySlug}:${categorySlug}`;
+  const cached = mockListingCache.get(cacheKey);
+  if (cached) return cached;
+
   const city = cities.find(c => c.slug === citySlug);
   const category = categories.find(c => c.slug === categorySlug);
   
@@ -858,6 +864,7 @@ export const generateMockListings = (citySlug: string, categorySlug: string): Di
     });
   }
   
+  mockListingCache.set(cacheKey, listings);
   return listings;
 };
 
