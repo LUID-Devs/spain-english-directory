@@ -101,9 +101,6 @@ INSERT INTO directory_entries (name, category, description, address, city, provi
 
 -- MADRID DENTAL CLINICS
 
--- Dental Clinic Navarro Madrid
-('Dental Clinic Navarro', 'Healthcare', 'Group of English-speaking dentists in Madrid specialized in dental implants, orthodontics, periodontics, and endodontics. Modern clinic with experienced dental professionals serving the international community.', 'Calle de Velázquez, 75, 28006', 'Madrid', 'Madrid', '+34 915 621 621', 'info@navarrodental.com', 'https://www.navarrodental.com', true, false, true, false, NOW(), NOW()),
-
 -- Dental Clinic del Rey Madrid
 ('Dental Clinic del Rey', 'Healthcare', 'Family dental clinic in Madrid providing dental care for the whole family. English-speaking dentists offering general dentistry, preventive care, and cosmetic treatments.', 'Calle de Serrano, 45, 28006', 'Madrid', 'Madrid', '+34 914 321 321', 'info@clinicadelrey.com', 'https://www.clinicadelrey.com', true, false, true, false, NOW(), NOW()),
 

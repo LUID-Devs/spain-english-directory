@@ -7,10 +7,7 @@ INSERT INTO directory_entries (name, category, description, address, city, provi
 -- 1. Clínica Cloe - English-Speaking Dental Clinic
 ('Clínica Cloe', 'Dentists', 'Modern dental clinic with fully English-speaking staff specializing in general dentistry, implants, orthodontics, and cosmetic dentistry. Multilingual team speaks Spanish, English, French, German and Ukrainian. State-of-the-art digital technology including 3D imaging and intraoral scanners. Offers minimally invasive treatments and is the organizer of "CLOE Smiles For Madrid" oral health program for schools.', 'Avenida de los Prunos 5-7, 28042 Madrid', 'Madrid', 'Madrid', '+34 917 48 90 88', 'info@clinicacloe.com', 'https://www.clinicacloe.com', true, true, true, false, NOW(), NOW()),
 
--- 2. 32Dental - English-Speaking Dental Center
-('32Dental', 'Dentists', 'International dental clinic in Madrid offering comprehensive dental care in English. Specialties include oral surgery, implantology, prosthodontics, endodontics, and periodontics. Emergency dental services available outside regular hours. Modern facilities with experienced English-speaking dentists serving expats and international patients.', 'Calle Marcenado 32, 28002 Madrid', 'Madrid', 'Madrid', '+34 911 38 59 28', 'info@32dental.es', 'https://32dental.es', true, true, true, false, NOW(), NOW()),
-
--- 3. Unidad Médica Angloamericana - English-Speaking Medical Clinic
+-- 2. Unidad Médica Angloamericana - English-Speaking Medical Clinic
 ('Unidad Médica Angloamericana', 'Medical Clinics', 'Private medical center in Madrid with fully bilingual English-speaking doctors, nurses and administrative staff. Serving Madrid''s English-speaking community since establishment with comprehensive primary care services. Multilingual staff speaks English, Spanish, French and German. Specializes in primary care, preventive medicine, and specialist referrals for expats and international patients.', 'Calle Conde de Aranda 1, 28001 Madrid', 'Madrid', 'Madrid', '+34 914 351 823', 'info@unidadmedica.com', 'https://www.unidadmedica.com', true, true, true, false, NOW(), NOW()),
 
 -- 4. Hospital Universitario HM Madrid - Private University Hospital

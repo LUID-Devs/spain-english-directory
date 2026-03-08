@@ -1,8 +1,0 @@
--- Task 1658: Add Alecora Tax and Legal Services - Tax/Accounting - Multi-City
--- Data entry for Spain English Directory
--- Tax, accounting and legal services for English-speaking expats throughout Spain
-
-INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
-
--- Alecora Tax & Legal Services - Marbella-based firm serving multiple cities across Spain
-('Alecora Tax & Legal Services', 'Tax/Accounting', 'Chartered accountants, tax advisors and lawyers specializing in services for English-speaking expats throughout Spain. Established in 2020 with headquarters in Marbella, serving clients across multiple cities including Madrid, Barcelona, Valencia, and the Costa del Sol. Full-service firm providing tax advisory and compliance, accounting and bookkeeping for freelancers and companies, business formation and company setup, payroll services, and comprehensive legal services. Expertise in Spanish tax law for foreigners, including non-resident tax returns, income tax, property taxes, and social security registration. Legal services include real estate law and conveyancing, NIE applications, wills and inheritance, contract review, and business law. All staff members speak fluent English with transparent communication and no hidden fees. Free initial consultation offered. Modern digital approach with online document submission and remote service capabilities. CIF: B02680601.', 'Calle Virgen del Pilar, Ed España 4 1 1', 'Marbella', 'Málaga', NULL, 'info@alecora.com', 'https://alecora.com', true, false, true, false, NOW(), NOW());
