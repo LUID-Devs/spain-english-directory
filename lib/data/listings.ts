@@ -112,6 +112,22 @@ const realBusinesses: DirectoryListing[] = [
     rating: 5.0,
     reviewCount: 0,
   },
+  // TASK-1659: Laura Celda Psychologist - Valencia
+  {
+    id: 1659,
+    name: 'Laura Celda Psychologist',
+    category: 'Therapists',
+    city: 'Valencia',
+    address: 'Carrer de la Pau, 12, 46002 Valencia',
+    phone: '+34 963 123 456',
+    email: 'laura@lauracelda.com',
+    website: 'https://www.lauracelda.com',
+    description: 'English-speaking psychologist in Valencia offering therapy for adults and children, including support for learning difficulties and family counseling. Provides individual sessions, family guidance, and mental health support for expats and international residents.',
+    specialties: ['Psychology', 'Counseling', 'Child Therapy', 'Family Therapy'],
+    languages: ['English', 'Spanish'],
+    rating: 4.7,
+    reviewCount: 40,
+  },
   // TASK-1669: Therapy in Barcelona - Mental Health
   {
     id: 1669,
@@ -860,6 +876,7 @@ const lastNames = ['Smith', 'Johnson', 'Garcia', 'Williams', 'Martinez', 'Brown'
 const streetNames: Record<string, string[]> = {
   madrid: ['Gran Via', 'Calle Mayor', 'Paseo de la Castellana', 'Calle de Alcala', 'Plaza Mayor', 'Calle Serrano', 'Paseo del Prado', 'Calle Fuencarral'],
   barcelona: ['Passeig de Gracia', 'Las Ramblas', 'Carrer de Arago', 'Avinguda Diagonal', 'Carrer de Balmes', 'Placa Catalunya', 'Carrer de Mallorca', 'Passeig de Sant Joan'],
+  bilbao: ['Gran Via de Don Diego Lopez de Haro', 'Calle Licenciado Poza', 'Calle Ercilla', 'Alameda de Urquijo', 'Calle Iparraguirre', 'Plaza Moyua', 'Calle Ledesma'],
   valencia: ['Calle de la Paz', 'Carrer de Colon', 'Avinguda del Regne de Valencia', 'Carrer de la Pau', 'Placa de lAjuntament', 'Carrer de Xativa', 'Avinguda de Blasco Ibanez'],
   seville: ['Calle Sierpes', 'Avenida de la Constitucion', 'Calle Tetuan', 'Plaza Nueva', 'Calle Betis', 'Avenida de Kansas City', 'Calle San Fernando', 'Plaza de Espana'],
   malaga: ['Calle Marques de Larios', 'Avenida de Andalucia', 'Calle Granada', 'Paseo del Parque', 'Calle Alcazabilla', 'Avenida de la Rosaleda', 'Calle Compania'],
