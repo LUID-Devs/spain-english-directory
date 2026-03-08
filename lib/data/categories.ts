@@ -66,6 +66,18 @@ export const categories = [
     specialties: ['Personal Training', 'Yoga', 'Pilates', 'CrossFit', 'Strength', 'Weight Loss', 'Rehabilitation', 'Sports Specific', 'Group Classes', 'Nutrition']
   },
   { 
+    slug: 'gestors', 
+    name: 'Gestors', 
+    singular: 'Gestor',
+    specialties: ['Vehicle Transfers', 'Driving Licence Exchange', 'NIE Registration', 'Vehicle Import', 'Autónomo Registration', 'Tax Filing', 'Digital Certificates', 'Visa Applications', 'Property Registration', 'Bureaucracy Support']
+  },
+  { 
+    slug: 'physiotherapists', 
+    name: 'Physiotherapists', 
+    singular: 'Physiotherapist',
+    specialties: ['Sports Injury', 'Rehabilitation', 'Manual Therapy', 'Post-Surgery Rehab', 'Back Pain', 'Neck Pain', 'Joint Mobilization', 'Massage Therapy', 'Athletic Performance', 'Chronic Pain']
+  },
+  { 
     slug: 'insurance-brokers', 
     name: 'Insurance Brokers', 
     singular: 'Insurance Broker',
