@@ -103,7 +103,7 @@ test.describe('TASK-1670: Clinica Cloe Dental Madrid', () => {
     await expect(page.locator('text=English')).toBeVisible();
     await expect(page.locator('text=Spanish')).toBeVisible();
 
-    // Verify description contains key services
+    // Verify specialties contain key services
     await expect(page.locator('text=Implants')).toBeVisible();
     await expect(page.locator('text=Cosmetic Dentistry')).toBeVisible();
   });
