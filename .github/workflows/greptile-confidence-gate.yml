@@ -58,8 +58,9 @@ jobs:
                   per_page: perPage,
                   page
                 });
+                if (!data || data.length === 0) break;
                 results.push(...data);
-                if (!data || data.length < perPage) break;
+                if (data.length < perPage) break;
                 page += 1;
               }
               return results;
