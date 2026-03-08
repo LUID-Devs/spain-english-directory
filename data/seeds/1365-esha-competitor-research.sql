@@ -40,9 +40,6 @@ INSERT INTO directory_entries (name, category, description, address, city, provi
 -- Dr Mar Grau Escriva Psychiatrist Valencia
 ('Dr Mar Grau Escriva - Psychiatrist', 'Healthcare', 'English-speaking psychiatrist and therapist with offices in Valencia. Provides psychiatric consultations, therapy sessions, and mental health support for the English-speaking community in Valencia.', 'Carrer de Colón, 20, 46004', 'Valencia', 'Valencia', '+34 963 524 524', 'info@drmargrau.com', 'https://www.drmargrau.com', true, false, true, false, NOW(), NOW()),
 
--- Laura Celda Psychologist Valencia
-('Laura Celda Psychologist', 'Healthcare', 'English-speaking psychologist in Valencia offering psychological treatment to children with learning difficulties and adults. Provides individual therapy, family counseling, and support for various mental health concerns.', 'Carrer de la Pau, 12, 46002', 'Valencia', 'Valencia', '+34 963 123 456', 'laura@lauracelda.com', 'https://www.lauracelda.com', true, false, true, false, NOW(), NOW()),
-
 -- ALICANTE / TORREVIEJA HEALTHCARE PROVIDERS
 
 -- IMED Levante Hospital Benidorm (Alicante)
