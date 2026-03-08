@@ -51,6 +51,22 @@ const realBusinesses: DirectoryListing[] = [
     rating: 4.9,
     reviewCount: 120,
   },
+  // TASK-1670: Clinica Cloe - Dental Clinic Madrid
+  {
+    id: 1670,
+    name: 'Clinica Cloe',
+    category: 'Dentists',
+    city: 'Madrid',
+    address: 'Avenida de los Prunos nº 5-7, 28042 Madrid',
+    phone: '+34 91 371 7919',
+    email: 'clinica@clinicacloe.com',
+    website: 'https://www.clinicacloe.com',
+    description: 'English-speaking dental clinic in Madrid led by a US-trained dentist with a Doctorate of Dental Surgery (D.D.S) from New York University College of Dentistry and General Practice Residency at Mount Sinai Hospital. Specialized in advanced implantology, luxury orthodontics including Invisalign and premium braces, cosmetic dentistry with natural results, conservative dentistry focused on preserving natural teeth, periodontics, endodontics, and pediatric dentistry for children and adolescents. Offers Digital Smile Design technology allowing patients to visualize their results before treatment begins. The clinic emphasizes personalized care, efficient appointment scheduling with WhatsApp/SMS reminders 24 hours in advance, and works with maximum efficiency to ensure patients are seen on time. Located near El Corte Inglés de Campo de las Naciones. Hours: Monday-Thursday 8:00 AM - 7:00 PM (Wednesday until 8:00 PM), Friday 8:00 AM - 5:00 PM.',
+    specialties: ['General Dentistry', 'Implants', 'Cosmetic Dentistry', 'Orthodontics', 'Endodontics', 'Pediatric Dentistry'],
+    languages: ['English', 'Spanish'],
+    rating: 4.8,
+    reviewCount: 87,
+  },
   // TASK-1669: Therapy in Barcelona - Mental Health
   {
     id: 1669,
@@ -63,7 +79,7 @@ const realBusinesses: DirectoryListing[] = [
     website: 'https://www.therapyinbarcelona.com',
     description: 'Award-winning therapy practice specializing in counseling and therapy services in English for international adults, couples, adolescents, and families. Over 10 years of experience helping expats deal with stress, depression, anxiety, relationships, grief, and the challenges of expat life. Winner of multiple awards including Most Compassionate Expat Therapy Practice 2026 - Spain, Best International Community Mental Health Service 2026 - Spain, and Virtual Counselling Service of the Year 2025. Multilingual team of therapists offers services in English, French, German, Spanish, Portuguese, Afrikaans, Swiss German, Austrian-German, and Catalan. Free 15-minute discovery calls available. Offers both in-office sessions and online therapy across Spain and Europe.',
     specialties: ['Psychology', 'Counseling', 'Family Therapy', 'Cognitive Behavioral', 'Anxiety & Depression', 'Relationship'],
-    languages: ['English', 'French', 'German', 'Spanish', 'Portuguese', 'Catalan'],
+    languages: ['English', 'French', 'German', 'Spanish', 'Portuguese', 'Afrikaans', 'Swiss German', 'Austrian-German', 'Catalan'],
     rating: 4.9,
     reviewCount: 150,
   },
@@ -79,7 +95,7 @@ const realBusinesses: DirectoryListing[] = [
     website: 'https://www.therapyinbarcelona.com',
     description: 'Award-winning therapy practice specializing in counseling and therapy services in English for international adults, couples, adolescents, and families. Over 10 years of experience helping expats deal with stress, depression, anxiety, relationships, grief, and the challenges of expat life. Winner of multiple awards including Most Compassionate Expat Therapy Practice 2026 - Spain, Best International Community Mental Health Service 2026 - Spain, and Virtual Counselling Service of the Year 2025. Multilingual team of therapists offers services in English, French, German, Spanish, Portuguese, Afrikaans, Swiss German, Austrian-German, and Catalan. Free 15-minute discovery calls available. Offers both in-office sessions and online therapy across Spain and Europe.',
     specialties: ['Psychology', 'Counseling', 'Family Therapy', 'Cognitive Behavioral', 'Anxiety & Depression', 'Relationship'],
-    languages: ['English', 'French', 'German', 'Spanish', 'Portuguese', 'Catalan'],
+    languages: ['English', 'French', 'German', 'Spanish', 'Portuguese', 'Afrikaans', 'Swiss German', 'Austrian-German', 'Catalan'],
     rating: 4.9,
     reviewCount: 150,
   },
@@ -392,7 +408,6 @@ const realBusinesses: DirectoryListing[] = [
     languages: ['English', 'Spanish', 'French'],
     rating: 4.8,
     reviewCount: 290,
-  },
   },
 ];
 
