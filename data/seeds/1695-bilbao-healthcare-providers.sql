@@ -2,6 +2,14 @@
 -- Data entry by subagent
 -- Focus: private hospitals and clinics with English-speaking support in Bilbao area
 
+DELETE FROM directory_entries
+WHERE name IN (
+  'Hospital Quirónsalud Bizkaia',
+  'IMQ Zorrotzaurre Klinika',
+  'Clínica Virgen Blanca'
+)
+AND city = 'Bilbao';
+
 INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
 
 -- Hospital Quirónsalud Bizkaia

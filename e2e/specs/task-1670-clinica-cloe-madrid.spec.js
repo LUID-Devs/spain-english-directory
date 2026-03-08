@@ -35,8 +35,8 @@ test.describe('TASK-1670: Clinica Cloe Dental Madrid', () => {
     await page.waitForLoadState('networkidle');
 
     // Verify contact details are visible
-    await expect(page.locator('text=+34 915 55 12 34')).toBeVisible();
-    await expect(page.locator('text=Fuencarral')).toBeVisible();
+    await expect(page.locator('text=+34 91 371 7919')).toBeVisible();
+    await expect(page.locator('text=Avenida de los Prunos')).toBeVisible();
   });
 
   test('should verify Clinica Cloe has English language badge', async ({ page }) => {
@@ -101,10 +101,9 @@ test.describe('TASK-1670: Clinica Cloe Dental Madrid', () => {
     // Verify required fields are present
     const card = page.locator('article:has-text("Clinica Cloe")');
     await expect(card).toBeVisible();
-    await expect(card.locator('text=+34 915 55 12 34')).toBeVisible();
+    await expect(card.locator('text=+34 91 371 7919')).toBeVisible();
     await expect(card.locator('text=English')).toBeVisible();
     await expect(card.locator('text=Spanish')).toBeVisible();
-
     // Verify description contains key services
     await expect(page.locator('text=Implants')).toBeVisible();
     await expect(page.locator('text=Cosmetic Dentistry')).toBeVisible();
