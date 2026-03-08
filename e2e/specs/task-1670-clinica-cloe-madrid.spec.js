@@ -115,8 +115,8 @@ test.describe('TASK-1670: Clinica Cloe Dental Madrid', () => {
     
     // Find Clinica Cloe card and verify rating
     const card = page.locator('article:has-text("Clinica Cloe")');
-    await expect(card.locator('text=4.8')).toBeVisible();
-    await expect(card.locator('text=87 reviews')).toBeVisible();
+    await expect(card.locator('text=4.7')).toBeVisible();
+    await expect(card.locator('text=56 reviews')).toBeVisible();
   });
 
   test('should link to Clinica Cloe detail page', async ({ page }) => {

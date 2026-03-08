@@ -46,6 +46,7 @@ INSERT INTO directory_entries (name, category, description, address, city, provi
  'Modern dental clinic in central Málaga providing comprehensive dental services for the international community. English-speaking team led by dentists with international training and experience. The clinic caters to expats, tourists, and dental tourism patients seeking high-quality, affordable dental care on the Costa del Sol. Services include general dentistry, cosmetic dentistry (Zoom whitening, veneers), dental implants (Straumann, Nobel Biocare), oral surgery, orthodontics (Invisalign, braces), periodontics, endodontics (microscope-assisted root canals), and pediatric dentistry. State-of-the-art facility with digital imaging, intraoral cameras, and CAD/CAM technology for same-day crowns. Multilingual staff speaks English, Spanish, German, and French. Assistance with dental insurance claims and financing options available. Walking distance from Málaga Maria Zambrano train station. Open Monday-Friday 9:00-20:00, Saturday 10:00-14:00.',
  'Calle Marqués de Larios, 3, 29005 Málaga',
  'Málaga',
+ 'Málaga',
  '+34 951 200 200',
  'info@malagadentalclinic.com',
  'https://www.malagadentalclinic.com',
