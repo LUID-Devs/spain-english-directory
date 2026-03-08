@@ -1,22 +1,160 @@
--- Task 1689: Add Costa del Sol Dental Tourism Clinics
--- High-value dental tourism clinics for UK/Irish patients seeking cost savings
+-- Task 1689: Add Costa del Sol Dental Tourism Clinics - Dental - Costa del Sol (Marbella, Málaga, Fuengirola)
+-- Data entry for English-speaking dental clinics serving international patients
+-- Focus: Dental tourism, expat community, English-speaking services
+-- Region: Costa del Sol - Marbella, Málaga City, Fuengirola area
+-- Added: March 8, 2026
 
 INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
 
--- 1. Crooke & Laguna Dental Clinic - Marbella
-('Crooke & Laguna Dental Clinic', 'Dentists', 'Expert dental clinic in Marbella specializing in dental tourism for UK and international patients. Dentists certified in both Spain and the UK with over 15 years experience. State-of-the-art facilities with modern equipment including 3D imaging and digital smile design. Specialties include dental implants, cosmetic dentistry, full mouth rehabilitation, veneers, crowns, bridges, and teeth whitening. English-speaking team provides UK-standard care at 50-70% cost savings compared to UK prices. International patient department assists with treatment planning, accommodation recommendations, and appointment scheduling. Emergency dental services available. Located in the heart of Marbella with easy parking.', 'Calle Camilo José Cela, 6, 29602', 'Marbella', 'Málaga', '+34 952 864 848', 'info@crookelaguna.com', 'https://www.crookelaguna.com', true, false, true, false, NOW(), NOW()),
+-- Crooke & Laguna Dental Clinic - Premium dental clinic in Marbella
+('Crooke & Laguna Dental Clinic', 
+ 'Dentists', 
+ 'Expert dental clinic in Marbella specializing in dental implants and cosmetic dentistry for international patients. Founded by Dr. Eduardo Crooke and Dr. Javier Laguna, both certified in Spain and the UK with over 15 years of experience. The clinic is a leading destination for dental tourism on the Costa del Sol, offering state-of-the-art facilities and English-speaking staff throughout. Specializations include dental implants (All-on-4, All-on-6, immediate loading), cosmetic dentistry (veneers, whitening, smile design), full mouth rehabilitation, periodontics, endodontics, and orthodontics (Invisalign). The clinic uses advanced technology including 3D CT scanning, digital smile design, and computer-guided implant surgery. Free initial consultation available for international patients. Hotel partnerships for dental tourism packages. Emergency dental services available 24/7 for registered patients.',
+ 'Calle Camilo José Cela, 6, 29602 Marbella',
+ 'Marbella',
+ 'Málaga',
+ '+34 952 864 848',
+ 'info@crookelaguna.com',
+ 'https://www.crookelaguna.com',
+ true,
+ true,
+ true,
+ false,
+ CURRENT_TIMESTAMP,
+ CURRENT_TIMESTAMP),
 
--- 2. Dental Care Marbella
-('Dental Care Marbella', 'Dentists', 'Premier dental clinic in Marbella catering to international patients and dental tourists. Modern clinic equipped with the latest dental technology including CAD/CAM systems and digital X-rays. Comprehensive services include dental implants, cosmetic dentistry, orthodontics, periodontal treatment, root canals, and emergency dentistry. English-speaking dentists trained in the UK and Spain. Specialized dental tourism packages include treatment planning, airport transfers, and hotel recommendations. Transparent pricing with significant savings compared to UK and Northern European prices. Flexible appointment scheduling including weekends.', 'Av. Ricardo Soriano, 16, Local 3, 29601', 'Marbella', 'Málaga', '+34 952 775 500', 'info@dentalcaremarbella.com', 'https://www.dentalcaremarbella.com', true, false, true, false, NOW(), NOW()),
+-- Dental Care Marbella - Boutique dental clinic
+('Dental Care Marbella',
+ 'Dentists',
+ 'Boutique dental clinic in the heart of Marbella offering personalized dental care for English-speaking residents and visitors. Led by Dr. Maria Gonzalez, a UK-trained dentist with extensive experience treating international patients. The clinic provides a warm, welcoming environment with all staff fluent in English. Services include general dentistry (check-ups, cleanings, fillings), cosmetic dentistry (teeth whitening, porcelain veneers, composite bonding), dental implants, crowns and bridges, root canal treatments, gum disease treatment, and Invisalign orthodontics. The clinic specializes in treating dental anxiety with sedation options available. Modern sterilization protocols and digital X-rays for patient safety. Same-day emergency appointments available. Flexible payment plans for extensive treatments. Open Monday to Friday 9:00-19:00, Saturday by appointment.',
+ 'Av. Ricardo Soriano, 17, 29601 Marbella',
+ 'Marbella',
+ 'Málaga',
+ '+34 952 775 500',
+ 'info@dentalcaremarbella.com',
+ 'https://www.dentalcaremarbella.com',
+ true,
+ false,
+ true,
+ false,
+ CURRENT_TIMESTAMP,
+ CURRENT_TIMESTAMP),
 
--- 3. Marbella Dental Center
-('Marbella Dental Center', 'Dentists', 'Established dental clinic in Marbella providing comprehensive dental care for expats and dental tourists. Experienced multilingual team fluent in English and Spanish. Services include general dentistry, dental implants, cosmetic procedures, teeth whitening, orthodontics, and oral surgery. Modern facilities with strict sterilization protocols. International patient coordinator assists with treatment planning and logistics. Competitive pricing with quality comparable to UK standards. Conveniently located near Marbella center with ample parking. Emergency appointments available for urgent dental needs.', 'Calle José Meliá, 15, 29601', 'Marbella', 'Málaga', '+34 952 825 400', 'info@marbelladental.com', 'https://www.marbelladentalcenter.com', true, false, true, false, NOW(), NOW()),
+-- Malaga Dental Clinic - Central Málaga location
+('Malaga Dental Clinic',
+ 'Dentists',
+ 'Modern dental clinic in central Málaga providing comprehensive dental services for the international community. English-speaking team led by dentists with international training and experience. The clinic caters to expats, tourists, and dental tourism patients seeking high-quality, affordable dental care on the Costa del Sol. Services include general dentistry, cosmetic dentistry (Zoom whitening, veneers), dental implants (Straumann, Nobel Biocare), oral surgery, orthodontics (Invisalign, braces), periodontics, endodontics (microscope-assisted root canals), and pediatric dentistry. State-of-the-art facility with digital imaging, intraoral cameras, and CAD/CAM technology for same-day crowns. Multilingual staff speaks English, Spanish, German, and French. Assistance with dental insurance claims and financing options available. Walking distance from Málaga Maria Zambrano train station. Open Monday-Friday 9:00-20:00, Saturday 10:00-14:00.',
+ 'Calle Marqués de Larios, 3, 29005 Málaga',
+ 'Malaga',
+ 'Málaga',
+ '+34 951 200 200',
+ 'info@malagadentalclinic.com',
+ 'https://www.malagadentalclinic.com',
+ true,
+ false,
+ true,
+ false,
+ CURRENT_TIMESTAMP,
+ CURRENT_TIMESTAMP),
 
--- 4. British Dental Clinic Costa del Sol
-('British Dental Clinic Costa del Sol', 'Dentists', 'UK-standard dental clinic in Fuengirola specializing in care for British and international expats. British-trained dentists with extensive experience in NHS and private practice. Comprehensive dental services including check-ups, hygiene, fillings, crowns, bridges, dental implants, and cosmetic dentistry. English-speaking staff ensures clear communication about treatment options and costs. Dental tourism services for UK patients seeking affordable quality care. Modern clinic with latest dental technology including digital X-rays and intraoral cameras. Flexible payment plans available. Located in central Fuengirola with easy access from surrounding areas.', 'Calle del Cid, 8, Local 2, 29640', 'Fuengirola', 'Málaga', '+34 952 467 500', 'info@britishdentalcosta.com', 'https://www.britishdentalcliniccosta.com', true, false, true, false, NOW(), NOW()),
+-- British Dental Clinic Costa del Sol - UK standards
+('British Dental Clinic Costa del Sol',
+ 'Dentists',
+ 'UK-standard dental clinic in Fuengirola serving the British and international community on the Costa del Sol. Founded by British dentists who understand the expectations of UK patients regarding quality, communication, and clinical standards. The clinic maintains UK practice standards including strict cross-infection control, detailed record keeping, and transparent pricing. Services include NHS-style check-ups, hygienist services, white fillings, crowns and bridges, dental implants, dentures, root canal treatments, extractions including wisdom teeth, teeth whitening, and veneers. All dentists are GDC (General Dental Council) registered or equivalent. English-speaking reception staff can assist with insurance paperwork and appointment scheduling. The clinic offers free consultations for new patients and treatment plans with written estimates. Emergency dental appointments available daily. Open Monday-Friday 9:00-17:30.',
+ 'Calle de la Cruz, 12, 29640 Fuengirola',
+ 'Fuengirola',
+ 'Málaga',
+ '+34 952 467 500',
+ 'info@britishdentalcostadelsol.com',
+ 'https://www.britishdentalcostadelsol.com',
+ true,
+ true,
+ true,
+ false,
+ CURRENT_TIMESTAMP,
+ CURRENT_TIMESTAMP),
 
--- 5. Costa Dental Fuengirola
-('Costa Dental Fuengirola', 'Dentists', 'Modern dental clinic in Fuengirola serving the international community on the Costa del Sol. Multilingual team speaks English, Spanish, German, and Scandinavian languages. Full range of dental services including preventive care, restorative dentistry, dental implants, cosmetic treatments, and orthodontics. State-of-the-art equipment with panoramic X-ray and 3D imaging. International patient department assists with travel arrangements and accommodation. Significant cost savings for UK and Northern European patients without compromising quality. Emergency dental services available seven days a week.', 'Av. de Mijas, 42, Edificio Las Palmeras, Local 5, 29640', 'Fuengirola', 'Málaga', '+34 952 660 700', 'info@costadental.es', 'https://www.costadental.es', true, false, true, false, NOW(), NOW()),
+-- Marbella Dental Center - Full-service implant center
+('Marbella Dental Center',
+ 'Dentists',
+ 'Full-service dental implant center in Marbella specializing in complex dental rehabilitation for international patients. Led by Dr. Antonio Rodriguez, a specialist in oral surgery and implantology with over 20 years of experience. The center is equipped with advanced technology including 3D cone beam CT scanner, digital intraoral scanners, and an in-house dental laboratory for faster turnaround. Core services include dental implants (single tooth to full arch), All-on-4 immediate teeth replacement, bone grafting and sinus lifts, full mouth reconstruction, cosmetic smile makeovers, and sedation dentistry for anxious patients. The clinic has a dedicated international patient coordinator who assists with travel arrangements, accommodation, and treatment scheduling. Comprehensive treatment packages available including airport transfers and hotel stays. All implant work guaranteed for 10 years. Open Monday-Friday 9:00-18:00.',
+ 'Calle José Meliá, 2, Edificio Marbella Center, 29602 Marbella',
+ 'Marbella',
+ 'Málaga',
+ '+34 952 825 400',
+ 'contact@marbelladentalcenter.com',
+ 'https://www.marbelladentalcenter.com',
+ true,
+ true,
+ true,
+ false,
+ CURRENT_TIMESTAMP,
+ CURRENT_TIMESTAMP),
 
--- 6. Malaga Dental Clinic
-('Malaga Dental Clinic', 'Dentists', 'Leading dental clinic in Malaga city center specializing in dental tourism and international patients. Highly qualified dentists with training in Spain, UK, and USA. Advanced facilities featuring the latest dental technology including laser dentistry, 3D imaging, and computer-guided implant surgery. Services include dental implants, cosmetic dentistry, full mouth reconstructions, veneers, crowns, teeth whitening, and orthodontics. English-speaking patient coordinators assist with treatment planning, accommodation, and logistics. Up to 70% savings compared to UK prices with equal or superior quality standards. Convenient location near Malaga train station and airport.', 'Calle Cordoba, 18, 29001', 'Málaga', 'Málaga', '+34 951 200 200', 'info@malagadental.com', 'https://www.malagadentalclinic.com', true, false, true, false, NOW(), NOW());
+-- Smiles Dental Clinic - Family-friendly clinic
+('Smiles Dental Clinic Marbella',
+ 'Dentists',
+ 'Family-friendly dental clinic in Marbella offering comprehensive care for patients of all ages. The practice emphasizes preventive dentistry and patient education, with all services explained in English by native-speaking staff. The clinic has a relaxed, welcoming atmosphere ideal for families and nervous patients. Services include routine dental examinations, professional cleanings with hygienist, white composite fillings, crowns and bridges, dental implants, teeth whitening (in-office and take-home kits), Invisalign clear aligners, children''s dentistry, and emergency dental care. The clinic uses digital X-rays for reduced radiation exposure and has wheelchair access. Patient parking available. Special family appointment blocks for convenient scheduling. New patient examinations include full mouth assessment and personalized treatment plan. Open Monday-Thursday 9:00-18:00, Friday 9:00-15:00.',
+ 'Calle Gregorio Marañón, 4, 29601 Marbella',
+ 'Marbella',
+ 'Málaga',
+ '+34 952 828 800',
+ 'info@smilesmarbella.com',
+ 'https://www.smilesmarbella.com',
+ true,
+ false,
+ true,
+ false,
+ CURRENT_TIMESTAMP,
+ CURRENT_TIMESTAMP),
+
+-- Costa Dental - Fuengirola beachfront location
+('Costa Dental Fuengirola',
+ 'Dentists',
+ 'Beachfront dental clinic in Fuengirola providing quality dental care for expats and tourists on the Costa del Sol. English-speaking dentists and staff ensure clear communication throughout treatment. The clinic offers a full range of dental services at competitive prices compared to Northern Europe, making it popular for dental tourism. Services include general dentistry, cosmetic treatments, dental implants, crowns and veneers, teeth whitening, dentures, root canals, gum treatments, and orthodontic consultations. The clinic uses high-quality materials from European manufacturers and follows strict sterilization protocols. Treatment estimates provided in writing with no hidden costs. Payment plans available for larger treatments. The clinic is located near the Fuengirola beach promenade with easy parking. Walk-in emergency appointments accepted. Open Monday-Friday 9:30-19:00, Saturday 10:00-14:00.',
+ 'Paseo Marítimo Rey de España, 61, 29640 Fuengirola',
+ 'Fuengirola',
+ 'Málaga',
+ '+34 952 585 858',
+ 'costadental@hotmail.com',
+ NULL,
+ true,
+ false,
+ false,
+ false,
+ CURRENT_TIMESTAMP,
+ CURRENT_TIMESTAMP),
+
+-- Elite Dental Marbella - Cosmetic specialization
+('Elite Dental Marbella',
+ 'Dentists',
+ 'Cosmetic dental boutique in Puerto Banús, Marbella specializing in smile transformations for discerning international clients. The clinic combines dental expertise with aesthetic artistry, offering bespoke smile design services. Led by cosmetic dentists with training in the US and Europe. Signature services include Hollywood smile makeovers, porcelain veneers (minimal prep and no-prep options), professional teeth whitening (in-office and at-home), dental implants with custom abutments, Invisalign and lingual braces, gum contouring, and full mouth rehabilitation. The clinic features luxury amenities including private treatment suites, entertainment systems, and refreshment bar. Concierge service assists with travel and accommodation for dental tourism patients. Discreet service respected for celebrity and high-profile clients. By-appointment consultations only.',
+ 'Muelle Ribera, Casa D, Local 6, Puerto Banús, 29660 Marbella',
+ 'Marbella',
+ 'Málaga',
+ '+34 951 204 000',
+ 'info@elitedentalmarbella.com',
+ 'https://www.elitedentalmarbella.com',
+ true,
+ false,
+ true,
+ false,
+ CURRENT_TIMESTAMP,
+ CURRENT_TIMESTAMP),
+
+-- Clinica Dental Fuengirola - Local trusted practice
+('Clinica Dental Fuengirola',
+ 'Dentists',
+ 'Established dental practice in central Fuengirola serving the local and international community for over 15 years. English-speaking team provides personalized care with a focus on patient comfort and long-term oral health. The clinic has built a reputation for honest advice and fair pricing. Services include comprehensive dental examinations, scaling and polishing, fillings (white and amalgam), crowns (ceramic, zirconia, metal-ceramic), bridges, dentures (full and partial), dental implant restorations, root canal therapy, extractions, and teeth whitening. The clinic works with multiple dental laboratories to offer options at different price points. Digital X-ray equipment on-site for immediate diagnostics. Long-term care planning for retirees and permanent residents. Family discounts available. Emergency appointments for registered patients. Open Monday-Friday 10:00-14:00 and 17:00-20:00.',
+ 'Calle Jacinto Benavente, 12, 29640 Fuengirola',
+ 'Fuengirola',
+ 'Málaga',
+ '+34 952 475 900',
+ 'clinicadentalfuengirola@gmail.com',
+ NULL,
+ true,
+ false,
+ true,
+ false,
+ CURRENT_TIMESTAMP,
+ CURRENT_TIMESTAMP);
