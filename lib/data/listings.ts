@@ -7,8 +7,8 @@ export interface DirectoryListing {
   category: string;
   city: string;
   address: string;
-  phone: string;
-  email: string;
+  phone?: string;
+  email?: string;
   website?: string;
   description: string;
   specialties: string[];
@@ -35,6 +35,20 @@ const realBusinesses: DirectoryListing[] = [
     rating: 4.9,
     reviewCount: 120,
   },
+  // TASK-1666: Clinica Dental Barcelona
+  {
+    id: 1666,
+    name: 'Clinica Dental Barcelona',
+    category: 'Dentists',
+    city: 'Barcelona',
+    address: 'Carrer de Balmes, 152, 08008 Barcelona',
+    website: 'https://clinicadentalbarcelona.es',
+    description: 'English-speaking dental clinic in Barcelona offering comprehensive dental care for international patients. Services include general dentistry, cosmetic treatments, dental implants, orthodontics, and preventive care with modern facilities and patient-focused communication.',
+    specialties: ['General Dentistry', 'Cosmetic Dentistry', 'Dental Implants', 'Orthodontics', 'Preventive Care'],
+    languages: ['English', 'Spanish'],
+    rating: 4.7,
+    reviewCount: 92,
+  },
 
   // TASK-1668: My Medica Medical Clinic - Valencia
   {
@@ -52,7 +66,6 @@ const realBusinesses: DirectoryListing[] = [
     rating: 5.0,
     reviewCount: 0,
   },
-
   // TASK-1669: Therapy in Barcelona - Mental Health
   {
     id: 1669,
@@ -807,7 +820,13 @@ const streetNames: Record<string, string[]> = {
 };
 
 // Generate 8-12 listings per city/category combination
+const mockListingCache = new Map<string, DirectoryListing[]>();
+
 export const generateMockListings = (citySlug: string, categorySlug: string): DirectoryListing[] => {
+  const cacheKey = `${citySlug}:${categorySlug}`;
+  const cached = mockListingCache.get(cacheKey);
+  if (cached) return cached;
+
   const city = cities.find(c => c.slug === citySlug);
   const category = categories.find(c => c.slug === categorySlug);
   
@@ -845,6 +864,7 @@ export const generateMockListings = (citySlug: string, categorySlug: string): Di
     });
   }
   
+  mockListingCache.set(cacheKey, listings);
   return listings;
 };
 
@@ -900,4 +920,8 @@ export const getListings = (
     page,
     totalPages,
   };
+};
+
+export const getListingById = (listingId: number): DirectoryListing | null => {
+  return realBusinesses.find(listing => listing.id === listingId) ?? null;
 };
