@@ -771,8 +771,6 @@ const realBusinesses: DirectoryListing[] = [
     rating: 4.6,
     reviewCount: 140,
   },
-
-  },
 ];
 
 // Generate realistic mock data for all city/category combinations
