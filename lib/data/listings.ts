@@ -35,6 +35,24 @@ const realBusinesses: DirectoryListing[] = [
     rating: 4.9,
     reviewCount: 120,
   },
+
+  // TASK-1668: My Medica Medical Clinic - Valencia
+  {
+    id: 1668,
+    name: 'My Medica Medical Clinic',
+    category: 'Doctors',
+    city: 'Valencia',
+    address: 'Plaza Ayuntamiento 26, 4º, 46002 Valencia',
+    phone: '+34 963 145 000',
+    email: 'info@mymedicavalencia.com',
+    website: 'https://mymedicavalencia.com',
+    description: 'International medical clinic in downtown Valencia with a team of English-speaking doctors providing personalized treatment for over 12 specialties. Modern clinic located in Plaza Ayuntamiento with no waiting times and high sanitization standards. Specialties include general medicine, dermatology, gynecology, endocrinology, ENT, urology, cardiology, paediatrics, pulmonology, orthopedics, and psychiatry. Accepts major international insurances including GeoBlue, HTH Travel, CISI, and Henner. Bilingual staff ensures clear communication for expats and international patients.',
+    specialties: ['General Medicine', 'Dermatology', 'Gynecology', 'Endocrinology', 'ENT', 'Urology', 'Cardiology', 'Paediatrics', 'Pulmonology', 'Orthopedics', 'Psychiatry'],
+    languages: ['English', 'Spanish'],
+    rating: 5.0,
+    reviewCount: 0,
+  },
+
   // TASK-1669: Therapy in Barcelona - Mental Health
   {
     id: 1669,
@@ -217,6 +235,7 @@ const realBusinesses: DirectoryListing[] = [
     rating: 4.6,
     reviewCount: 65,
   },
+
   // TASK-1692: Insurance Brokers - Madrid
   {
     id: 1692,
@@ -771,6 +790,7 @@ const realBusinesses: DirectoryListing[] = [
     rating: 4.6,
     reviewCount: 140,
   },
+
 ];
 
 // Generate realistic mock data for all city/category combinations
