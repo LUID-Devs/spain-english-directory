@@ -1,4 +1,4 @@
--- Task 1666: Add Clinica Dental Barcelona - Dental - Barcelona
+-- Task 1666: Add Clinica Dental Barcelona - Dentists - Barcelona
 -- Data entry by subagent
 
 INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
