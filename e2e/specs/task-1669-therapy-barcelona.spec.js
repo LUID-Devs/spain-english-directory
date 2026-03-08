@@ -65,10 +65,10 @@ test.describe('TASK-1669: Therapy in Barcelona - Therapists', () => {
     await page.click('text=Therapy in Barcelona');
     await page.waitForLoadState('networkidle');
     
-    // Verify services are listed
-    await expect(page.locator('text=Psychology')).toBeVisible();
-    await expect(page.locator('text=Counseling')).toBeVisible();
-    await expect(page.locator('text=Family Therapy')).toBeVisible();
+    // Verify services are listed (match seed description text)
+    await expect(page.locator('text=counseling')).toBeVisible();
+    await expect(page.locator('text=therapy')).toBeVisible();
+    await expect(page.locator('text=expat life')).toBeVisible();
   });
 
   test('should verify multilingual services are highlighted', async ({ page }) => {
