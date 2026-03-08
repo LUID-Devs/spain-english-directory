@@ -124,6 +124,11 @@ jobs:
             }
 
             const m = scoreMatch(matchedBody);
+            if (!m) {
+              core.setFailed("Greptile confidence score format is invalid");
+              return;
+            }
+
             const score = parseFloat(m[1]);
             if (score < 4) core.setFailed(`Greptile confidence ${score}/5 < 4/5`);
             else console.log(`Greptile confidence ${score}/5 ✅`);

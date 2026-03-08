@@ -26,6 +26,16 @@ export default function ListingDetailPage() {
   useEffect(() => {
     // For now, use mock data. In production, fetch from API
     const fetchListing = async () => {
+      const loadFromLocalData = async () => {
+        const { getListingById } = await import('@/lib/data/listings');
+        const found = getListingById(listingId);
+        if (found) {
+          setListing(found);
+          return true;
+        }
+        return false;
+      };
+
       try {
         // Try to fetch from API first
         const response = await fetch(`/api/listings/${listingId}`);
@@ -34,16 +44,17 @@ export default function ListingDetailPage() {
           setListing(data);
         } else {
           // Fallback to local data if API fails
-          const { getListingById } = await import('@/lib/data/listings');
-          const found = getListingById(listingId);
-          if (found) {
-            setListing(found);
-          } else {
+          const found = await loadFromLocalData();
+          if (!found) {
             setError('Listing not found');
           }
         }
-      } catch (err) {
-        setError('Failed to load listing');
+      } catch {
+        // If request fails (network/runtime), still try local fallback.
+        const found = await loadFromLocalData();
+        if (!found) {
+          setError('Failed to load listing');
+        }
       } finally {
         setIsLoading(false);
       }
