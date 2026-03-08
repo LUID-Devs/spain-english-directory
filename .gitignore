@@ -48,3 +48,11 @@ next-env.d.ts
 
 # Uploaded files
 public/uploads/
+
+# Playwright E2E tests
+e2e/.auth/user.json
+e2e/screenshots/
+e2e/test-results/
+e2e/playwright-report/
+e2e/audit/
+playwright/.cache/
