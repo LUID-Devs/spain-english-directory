@@ -69,7 +69,7 @@ export const categories = [
     slug: 'gestors', 
     name: 'Gestors', 
     singular: 'Gestor',
-    specialties: ['Vehicle Transfers', 'Driving Licence Exchange', 'NRA Registration', 'Vehicle Import', 'Autónomo Registration', 'Tax Filing', 'Digital Certificates', 'Visa Applications', 'Property Registration', 'Bureaucracy Support']
+    specialties: ['Vehicle Transfers', 'Driving Licence Exchange', 'NIE Registration', 'Vehicle Import', 'Autónomo Registration', 'Tax Filing', 'Digital Certificates', 'Visa Applications', 'Property Registration', 'Bureaucracy Support']
   },
   { 
     slug: 'physiotherapists', 
