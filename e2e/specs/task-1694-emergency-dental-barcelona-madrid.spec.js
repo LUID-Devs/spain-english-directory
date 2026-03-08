@@ -1,7 +1,6 @@
 const { test, expect } = require('@playwright/test');
 
 test.describe('TASK-1694: Emergency Dental Clinics - Barcelona & Madrid', () => {
-  
   test('should display Barcelona dentists category page', async ({ page }) => {
     await page.goto('/barcelona/dentists');
     await page.waitForLoadState('networkidle');
