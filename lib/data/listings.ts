@@ -393,6 +393,38 @@ const realBusinesses: DirectoryListing[] = [
     rating: 4.8,
     reviewCount: 290,
   },
+  // TASK-1669: Therapy in Barcelona - Mental Health
+  {
+    id: 1669,
+    name: 'Therapy in Barcelona',
+    category: 'Therapists',
+    city: 'Barcelona',
+    address: 'Carrer de Paris 162-164, 3o, 1a, 08036 Barcelona',
+    phone: '+34 644 522 369',
+    email: 'info@therapyinbarcelona.com',
+    website: 'https://www.therapyinbarcelona.com',
+    description: 'Award-winning therapy practice specializing in counseling and therapy services in English for international adults, couples, adolescents, and families. Over 10 years of experience helping expats deal with stress, depression, anxiety, relationships, grief, and the challenges of expat life. Winner of multiple awards including Most Compassionate Expat Therapy Practice 2026 - Spain, Best International Community Mental Health Service 2026 - Spain, and Virtual Counselling Service of the Year 2025. Multilingual team of therapists offers services in English, French, German, Spanish, Portuguese, Afrikaans, Swiss German, Austrian-German, and Catalan. Free 15-minute discovery calls available. Offers both in-office sessions and online therapy across Spain and Europe.',
+    specialties: ['Psychology', 'Counseling', 'Family Therapy', 'Cognitive Behavioral', 'Anxiety & Depression', 'Relationship'],
+    languages: ['English', 'French', 'German', 'Spanish', 'Portuguese', 'Afrikaans', 'Swiss German', 'Austrian-German', 'Catalan'],
+    rating: 4.9,
+    reviewCount: 150,
+  },
+  // Therapy in Barcelona - Madrid Office
+  {
+    id: 16691,
+    name: 'Therapy in Barcelona',
+    category: 'Therapists',
+    city: 'Madrid',
+    address: 'Calle Fernan González, 28009 Madrid',
+    phone: '+34 644 522 369',
+    email: 'info@therapyinbarcelona.com',
+    website: 'https://www.therapyinbarcelona.com',
+    description: 'Award-winning therapy practice specializing in counseling and therapy services in English for international adults, couples, adolescents, and families. Over 10 years of experience helping expats deal with stress, depression, anxiety, relationships, grief, and the challenges of expat life. Winner of multiple awards including Most Compassionate Expat Therapy Practice 2026 - Spain, Best International Community Mental Health Service 2026 - Spain, and Virtual Counselling Service of the Year 2025. Multilingual team of therapists offers services in English, French, German, Spanish, Portuguese, Afrikaans, Swiss German, Austrian-German, and Catalan. Free 15-minute discovery calls available. Offers both in-office sessions and online therapy across Spain and Europe.',
+    specialties: ['Psychology', 'Counseling', 'Family Therapy', 'Cognitive Behavioral', 'Anxiety & Depression', 'Relationship'],
+    languages: ['English', 'French', 'German', 'Spanish', 'Portuguese', 'Afrikaans', 'Swiss German', 'Austrian-German', 'Catalan'],
+    rating: 4.9,
+    reviewCount: 150,
+  },
 ];
 
 // Generate realistic mock data for all city/category combinations
