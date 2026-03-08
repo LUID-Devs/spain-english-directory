@@ -1,8 +1,9 @@
-# ESHA Competitor Landscape (ESHA site unavailable — competitor benchmark only)
+# ESHA Competitor Benchmark (ESHA site unavailable)
 
 **Research Date:** March 2026  
 **Task:** #1667 - ESHA Competitor Analysis  
-**Researcher:** Rupert (Subagent)
+**Researcher:** Rupert (Subagent)  
+**Status:** ESHA site was unreachable during research — this is a **competitor-only benchmark** (primarily **Expatica**).
 
 ---
 
