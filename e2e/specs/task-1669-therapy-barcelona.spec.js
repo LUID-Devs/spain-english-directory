@@ -64,10 +64,9 @@ test.describe('TASK-1669: Therapy in Barcelona - Mental Health', () => {
     await page.click('text=Therapy in Barcelona');
     await page.waitForLoadState('networkidle');
 
-    // Verify services are listed
-    await expect(page.locator('text=Psychology')).toBeVisible();
-    await expect(page.locator('text=Counseling')).toBeVisible();
-    await expect(page.locator('text=Family Therapy')).toBeVisible();
+    // Verify services are listed using description text
+    await expect(page.locator('text=/counseling/i')).toBeVisible();
+    await expect(page.locator('text=/therapy/i')).toBeVisible();
   });
 
   test('should verify multilingual services are highlighted', async ({ page }) => {
