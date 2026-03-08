@@ -208,8 +208,23 @@ const realBusinesses: DirectoryListing[] = [
     rating: 4.7,
     reviewCount: 56,
   },
+  // TASK-1674: Tejada Solicitors - Malaga City Office
+  {
+    id: 1674,
+    name: 'Tejada Solicitors - Malaga City Office',
+    category: 'Lawyers',
+    city: 'Malaga',
+    address: 'By appointment - contact for Malaga city location',
+    phone: '+34 952 55 82 28',
+    email: 'info@tejadasolicitors.com',
+    website: 'https://tejadasolicitors.com',
+    description: 'English-speaking law firm offering consultations in Malaga City by appointment only, with its main office in Vélez-Málaga. Specializes in Digital Nomad Visas, Non-Lucrative Visas, Golden Visas, Spanish residency, property conveyancing, tax advice for residents and non-residents, inheritance law, last wills, and power of attorney for clients abroad. Over 15 years of experience with transparent communication via email, phone, Zoom, and WhatsApp. Services cover Malaga city, Marbella, Mijas, Fuengirola, Benalmadena, Torremolinos, Nerja, Vélez-Málaga, Torrox and Torre del Mar.',
+    specialties: ['Immigration', 'Residency', 'Property Conveyancing', 'Tax', 'Inheritance', 'Power of Attorney'],
+    languages: ['English', 'Spanish'],
+    rating: 4.8,
+    reviewCount: 120,
+  },
   // TASK-1689: Costa del Sol Dental Tourism Clinics
-
   {
     id: 16891,
     name: 'Crooke & Laguna Dental Clinic',
