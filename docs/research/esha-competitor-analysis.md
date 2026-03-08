@@ -1,16 +1,22 @@
 # ESHA Competitor Landscape (ESHA site unavailable)
 
 **Research Date:** March 2026  
-**Task:** #1667 - ESHA Competitor Analysis  
+**Task:** #1667 - Competitor Gap Analysis  
 **Researcher:** Rupert (Subagent)
 
 ---
 
 ## Executive Summary
 
-The ESHA Directory domain (`esha.es`) could not be resolved during research, suggesting the site may be inactive, rebranded, or the domain information may need verification. In lieu of direct ESHA analysis, this report documents the competitive landscape of English-speaking healthcare directories in Spain, with **Expatica** emerging as the dominant player.
+The ESHA Directory domain (`esha.es`) could not be resolved during research, suggesting the site may be inactive, rebranded, or the domain information may need verification. This report therefore focuses on competitor benchmarking (primarily **Expatica**) and a gap analysis for Spain English Directory. ESHA-specific findings remain pending until the site is accessible.
 
 **Key Finding:** Expatica's Spain healthcare directory contains 100+ structured listings across 8 healthcare subcategories, with a mix of featured (paid) and organic listings.
+
+## Scope & Limitations
+
+- ESHA site (`esha.es`) was unreachable at the time of research; no ESHA services, pricing, or geographic coverage could be verified.
+- Findings are based on competitor directories (primarily Expatica) and observed gaps in Spain English Directory listings.
+- ESHA-specific analysis should be completed when the site becomes accessible.
 
 ---
 
