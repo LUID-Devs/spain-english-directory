@@ -17,7 +17,7 @@ test.describe('TASK-1674: Tejada Solicitors Malaga City Office', () => {
     await page.press('[data-testid="search-input"]', 'Enter');
 
     await expect(page.locator('text=Tejada Solicitors - Malaga City Office')).toBeVisible();
-    await expect(page.locator('text=Legal')).toBeVisible();
+    await expect(page.locator('text=Lawyers')).toBeVisible();
   });
 
   test('should display updated appointment-only address on listing card', async ({ page }) => {
