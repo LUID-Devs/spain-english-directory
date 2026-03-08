@@ -13,7 +13,9 @@ SET
   email = 'info@dentalnavarro.com',
   website = 'https://www.dentalnavarro.com/en/',
   speaks_english = true,
+  is_featured = false,
   is_verified = true,
+  is_claimed = false,
   updated_at = NOW()
 WHERE name = 'Dental Clinic Navarro'
   AND city = 'Madrid';

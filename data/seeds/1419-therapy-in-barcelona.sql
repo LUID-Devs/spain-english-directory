@@ -12,7 +12,9 @@ SET
   email = 'info@therapyinbarcelona.com',
   website = 'https://www.therapyinbarcelona.com',
   speaks_english = true,
+  is_featured = false,
   is_verified = true,
+  is_claimed = false,
   updated_at = NOW()
 WHERE name = 'Therapy in Barcelona'
   AND city = 'Barcelona';
@@ -67,7 +69,9 @@ SET
   email = 'info@therapyinbarcelona.com',
   website = 'https://www.therapyinbarcelona.com',
   speaks_english = true,
+  is_featured = false,
   is_verified = true,
+  is_claimed = false,
   updated_at = NOW()
 WHERE name = 'Therapy in Barcelona'
   AND city = 'Madrid';
