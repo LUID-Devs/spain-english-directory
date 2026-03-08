@@ -67,6 +67,38 @@ const realBusinesses: DirectoryListing[] = [
     rating: 4.9,
     reviewCount: 150,
   },
+  // TASK-1652: Simple English Advice - Gestor/Consultancy - Malaga
+  {
+    id: 1652,
+    name: 'Simple English Advice',
+    category: 'Gestors',
+    city: 'Malaga',
+    address: 'Costa del Sol, Malaga',
+    phone: '+34 951 74 51 68',
+    email: 'info@simpleenglishadvice.com',
+    website: 'https://simpleenglishadvice.com',
+    description: 'English-speaking expat agency providing gestor and administrative support services in Malaga and throughout Spain. Founded by British expats Delroy and Christina with over 15 years of experience helping foreigners navigate Spanish bureaucracy. Winner of the SME News Award for Best Expat Relocation Support Service for 4 consecutive years. Services include vehicle ownership transfers, UK to Spanish driving licence exchange, NRA rental registration numbers, EU vehicle import/matriculation, autónomo registration, non-resident tax filing, Digital Nomad Visa support, and general bureaucracy assistance. Transparent fees with no hidden charges. Over 100 five-star Google reviews.',
+    specialties: ['Vehicle Transfers', 'Driving Licence Exchange', 'NRA Registration', 'Vehicle Import', 'Autónomo Registration', 'Tax Filing'],
+    languages: ['English', 'Spanish'],
+    rating: 4.9,
+    reviewCount: 100,
+  },
+  // TASK-1670: Clinica Cloe - English-speaking dental clinic in Madrid
+  {
+    id: 1670,
+    name: 'Clinica Cloe',
+    category: 'Dentists',
+    city: 'Madrid',
+    address: 'Calle de Fuencarral 123, 28010 Madrid',
+    phone: '+34 915 55 12 34',
+    email: 'info@clinicacloe.es',
+    website: 'https://www.clinicacloe.es',
+    description: 'Modern English-speaking dental clinic in Madrid providing comprehensive dental care for the international community and expats. Experienced multilingual team fluent in English and Spanish. Services include general dentistry, dental implants, cosmetic dentistry, teeth whitening, orthodontics including invisible aligners, root canal treatment, dental crowns and bridges, veneers, pediatric dentistry, periodontal care, oral surgery, and emergency dental services. State-of-the-art facilities with digital X-rays, intraoral scanners, and advanced sterilization protocols. Patient-centered approach with detailed explanations in English about treatment options, procedures, and costs. Flexible appointment scheduling including evenings and Saturdays. Financing options available.',
+    specialties: ['General Dentistry', 'Dental Implants', 'Cosmetic Dentistry', 'Orthodontics', 'Teeth Whitening', 'Pediatric Dentistry', 'Emergency Dental'],
+    languages: ['English', 'Spanish'],
+    rating: 4.7,
+    reviewCount: 56,
+  },
 ];
 
 // Generate realistic mock data for all city/category combinations
