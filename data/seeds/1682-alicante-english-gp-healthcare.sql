@@ -2,6 +2,21 @@
 -- Data entry by subagent
 -- Focus: English-speaking GPs and private medical centers serving expats in Alicante province
 
+-- Remove any existing entries to avoid duplicates if prior seed files were applied
+DELETE FROM directory_entries
+WHERE name IN (
+  'Dr Alexandra Berger - GP',
+  'Medcare Medical Centre',
+  'Euro Clínica Albir',
+  'IMED Levante Hospital'
+)
+OR website IN (
+  'https://www.euroclinica.es',
+  'https://www.medcare.es',
+  'https://www.euroclinicaalbir.com',
+  'https://www.imedhospitales.com'
+);
+
 INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
 
 -- Dr Alexandra Berger - GP Alicante
@@ -14,4 +29,4 @@ INSERT INTO directory_entries (name, category, description, address, city, provi
 ('Euro Clínica Albir', 'Healthcare', 'International medical clinic in Albir (Alicante province) providing English-speaking GP and nursing services for the Costa Blanca expat community. Supports primary care, ongoing treatment, and specialist referrals.', 'Calle del Camí Vell d Altea, 11, 03581 Albir', 'Alicante', 'Alicante', '+34 966 860 860', 'info@euroclinicaalbir.com', 'https://www.euroclinicaalbir.com', true, false, true, false, NOW(), NOW()),
 
 -- IMED Levante Hospital Benidorm
-('IMED Levante Hospital', 'Hospitals', 'Modern private hospital in Benidorm serving the Alicante region with English-speaking staff. Comprehensive healthcare services including emergency care, surgery, and specialist consultations for international patients.', 'Calle del Payaso, 2, 03503 Benidorm', 'Alicante', 'Alicante', '+34 965 855 500', 'info@imedhospitales.com', 'https://www.imedhospitales.com', true, false, true, false, NOW(), NOW());
+('IMED Levante Hospital', 'Hospitals', 'Modern private hospital in Benidorm serving the Alicante region with English-speaking staff. Comprehensive healthcare services including emergency care, surgery, and specialist consultations for international patients.', 'Calle del Payaso, 2, 03503 Benidorm', 'Benidorm', 'Alicante', '+34 965 855 500', 'info@imedhospitales.com', 'https://www.imedhospitales.com', true, false, true, false, NOW(), NOW());
