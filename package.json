@@ -7,7 +7,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "check:seed-integrity": "node scripts/check-seed-integrity.js"
+    "check:seed-integrity": "node scripts/check-seed-integrity.js",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:report": "playwright show-report",
+    "test:e2e:update-snapshots": "playwright test --update-snapshots",
+    "test:e2e:screenshots": "playwright test --screenshot=on"
   },
   "dependencies": {
     "clsx": "^2.1.1",
