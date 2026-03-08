@@ -208,21 +208,21 @@ const realBusinesses: DirectoryListing[] = [
     rating: 4.7,
     reviewCount: 56,
   },
-  // TASK-1674: Tejada Solicitors - Malaga City Office
+  // TASK-1674: Tejada Solicitors - Malaga City (By Appointment)
   {
     id: 1674,
-    name: 'Tejada Solicitors - Malaga City Office',
+    name: 'Tejada Solicitors - Malaga City (By Appointment)',
     category: 'Lawyers',
     city: 'Malaga',
-    address: 'By appointment - contact for Malaga city location',
+    address: 'Malaga city consultations by appointment only (main office in Vélez-Málaga)',
     phone: '+34 952 55 82 28',
     email: 'info@tejadasolicitors.com',
     website: 'https://tejadasolicitors.com',
-    description: 'English-speaking law firm offering consultations in Malaga City by appointment only, with its main office in Vélez-Málaga. Specializes in Digital Nomad Visas, Non-Lucrative Visas, Golden Visas, Spanish residency, property conveyancing, tax advice for residents and non-residents, inheritance law, last wills, and power of attorney for clients abroad. Over 15 years of experience with transparent communication via email, phone, Zoom, and WhatsApp. Services cover Malaga city, Marbella, Mijas, Fuengirola, Benalmadena, Torremolinos, Nerja, Vélez-Málaga, Torrox and Torre del Mar.',
-    specialties: ['Immigration', 'Residency', 'Property Conveyancing', 'Tax', 'Inheritance', 'Power of Attorney'],
+    description: 'English-speaking law firm serving Malaga Province with appointments available in Malaga City by request. Specializes in Digital Nomad Visas, Non-Lucrative Visas, Golden Visas, and Spanish residency for international clients. With over 15 years of experience, this family-run business provides comprehensive legal and tax services under one roof. Expert team includes lawyers, economists, tax consultants, and architects. Services include property conveyancing, Spanish NIE applications, tax advice for residents and non-residents, inheritance law, last wills, and power of attorney for clients abroad. Known for transparent communication via email, phone, Zoom, and WhatsApp. Multi-office coverage serving Malaga city, Marbella, Mijas, Fuengirola, Benalmadena, Torremolinos, Nerja, Vélez-Málaga, Torrox and Torre del Mar. Malaga city consultations are by appointment only; the main office is in Vélez-Málaga with full-service coverage across the Costa del Sol. Members of Colegio de Abogados de Malaga, Colegio de Economistas de Malaga, Colegio de Arquitectos de Malaga, and British Chamber of Commerce in Spain.',
+    specialties: ['Immigration', 'Tax Law', 'Real Estate', 'Wills & Probate'],
     languages: ['English', 'Spanish'],
-    rating: 4.8,
-    reviewCount: 120,
+    rating: 4.9,
+    reviewCount: 0,
   },
   // TASK-1689: Costa del Sol Dental Tourism Clinics
   {
