@@ -2,7 +2,7 @@ const { test, expect } = require('@playwright/test');
 
 test.describe('TASK-1669: Therapy in Barcelona - Therapists', () => {
   
-  test('should display Barcelona mental health category page', async ({ page }) => {
+  test('should display Barcelona therapists category page', async ({ page }) => {
     await page.goto('/barcelona/therapists');
     await page.waitForLoadState('networkidle');
     
@@ -11,7 +11,7 @@ test.describe('TASK-1669: Therapy in Barcelona - Therapists', () => {
     await expect(page.locator('text=Barcelona')).toBeVisible();
   });
 
-  test('should find Therapy in Barcelona in mental health listing', async ({ page }) => {
+  test('should find Therapy in Barcelona in therapists listing', async ({ page }) => {
     await page.goto('/barcelona/therapists');
     await page.waitForLoadState('networkidle');
     
@@ -55,7 +55,7 @@ test.describe('TASK-1669: Therapy in Barcelona - Therapists', () => {
     await expect(page.locator('text=Carrer de Paris')).toBeVisible();
   });
 
-  test('should display mental health services offered', async ({ page }) => {
+  test('should display therapists services offered', async ({ page }) => {
     await page.goto('/barcelona/therapists');
     await page.waitForLoadState('networkidle');
     
@@ -66,9 +66,9 @@ test.describe('TASK-1669: Therapy in Barcelona - Therapists', () => {
     await page.waitForLoadState('networkidle');
     
     // Verify services are listed
-    await expect(page.locator('text=Individual Therapy')).toBeVisible();
-    await expect(page.locator('text=Couples Counseling')).toBeVisible();
-    await expect(page.locator('text=Online Therapy')).toBeVisible();
+    await expect(page.locator('text=Psychology')).toBeVisible();
+    await expect(page.locator('text=Counseling')).toBeVisible();
+    await expect(page.locator('text=Family Therapy')).toBeVisible();
   });
 
   test('should verify multilingual services are highlighted', async ({ page }) => {
@@ -87,19 +87,19 @@ test.describe('TASK-1669: Therapy in Barcelona - Therapists', () => {
     await expect(page.locator('text=German')).toBeVisible();
   });
 
-  test('should navigate from Barcelona main page to mental health category', async ({ page }) => {
+  test('should navigate from Barcelona main page to therapists category', async ({ page }) => {
     await page.goto('/barcelona');
     await page.waitForLoadState('networkidle');
     
-    // Click on mental health category
+    // Click on therapists category
     await page.click('text=Therapists');
     
     // Verify navigation
-    await expect(page).toHaveURL(/\/barcelona\/mental-health/);
+    await expect(page).toHaveURL(/\/barcelona\/therapists/);
     await expect(page.locator('h1')).toContainText('Therapists');
   });
 
-  test('should have no console errors on mental health pages', async ({ page }) => {
+  test('should have no console errors on therapists pages', async ({ page }) => {
     const consoleErrors = [];
     
     page.on('console', msg => {

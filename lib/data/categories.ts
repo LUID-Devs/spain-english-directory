@@ -66,10 +66,52 @@ export const categories = [
     specialties: ['Personal Training', 'Yoga', 'Pilates', 'CrossFit', 'Strength', 'Weight Loss', 'Rehabilitation', 'Sports Specific', 'Group Classes', 'Nutrition']
   },
   { 
+    slug: 'gestors', 
+    name: 'Gestors', 
+    singular: 'Gestor',
+    specialties: ['Vehicle Transfers', 'Driving Licence Exchange', 'NIE Registration', 'Vehicle Import', 'Autónomo Registration', 'Tax Filing', 'Digital Certificates', 'Visa Applications', 'Property Registration', 'Bureaucracy Support']
+  },
+  { 
+    slug: 'physiotherapists', 
+    name: 'Physiotherapists', 
+    singular: 'Physiotherapist',
+    specialties: ['Sports Injury', 'Rehabilitation', 'Manual Therapy', 'Post-Surgery Rehab', 'Back Pain', 'Neck Pain', 'Joint Mobilization', 'Massage Therapy', 'Athletic Performance', 'Chronic Pain']
+  },
+  { 
     slug: 'insurance-brokers', 
     name: 'Insurance Brokers', 
     singular: 'Insurance Broker',
     specialties: ['Health Insurance', 'Home Insurance', 'Car Insurance', 'Life Insurance', 'Travel Insurance', 'Business Insurance', 'Expat Insurance', 'Dental Insurance', 'Pet Insurance', 'Liability Insurance']
+  },
+  {
+    slug: 'coworking-spaces',
+    name: 'Coworking Spaces',
+    singular: 'Coworking Space',
+    specialties: ['Hot Desks', 'Dedicated Desks', 'Private Offices', 'Meeting Rooms', 'Community Events', 'High-Speed Internet', '24/7 Access', 'Virtual Office', 'Business Address', 'Networking']
+  },
+  {
+    slug: 'business-services',
+    name: 'Business Services',
+    singular: 'Business Service',
+    specialties: ['Company Formation', 'Virtual Office', 'Administrative Support', 'Payroll Setup', 'Business Consulting', 'Compliance', 'Commercial Registrations', 'Relocation Support', 'Tax Registration', 'Operational Support']
+  },
+  {
+    slug: 'educational-services',
+    name: 'Educational Services',
+    singular: 'Educational Service',
+    specialties: ['Student Orientation', 'Visa Support', 'Accommodation Guidance', 'Academic Advising', 'Scholarship Support', 'Campus Integration', 'Document Translation', 'Exam Preparation', 'Tutoring', 'Student Wellness']
+  },
+  {
+    slug: 'language-schools',
+    name: 'Language Schools',
+    singular: 'Language School',
+    specialties: ['Spanish Intensive', 'DELE Preparation', 'Small Group Classes', 'Private Lessons', 'Cultural Immersion', 'Conversation Clubs', 'Online Classes', 'Business Spanish', 'University Pathway', 'Visa Support']
+  },
+  {
+    slug: 'medical-clinics',
+    name: 'Medical Clinics',
+    singular: 'Medical Clinic',
+    specialties: ['Primary Care', 'Student Health', 'Travel Health', 'Vaccinations', 'Diagnostics', 'Specialist Referrals', 'Telemedicine', 'Mental Health', 'Wellness Checks', 'English-Speaking Staff']
   },
 ] as const;
 
