@@ -113,6 +113,12 @@ export const categories = [
     singular: 'Medical Clinic',
     specialties: ['Primary Care', 'Student Health', 'Travel Health', 'Vaccinations', 'Diagnostics', 'Specialist Referrals', 'Telemedicine', 'Mental Health', 'Wellness Checks', 'English-Speaking Staff']
   },
+  {
+    slug: 'hospitals',
+    name: 'Hospitals',
+    singular: 'Hospital',
+    specialties: ['Emergency Care', 'Surgery', 'Diagnostics', 'Maternity', 'Pediatrics', 'Cardiology', 'Oncology', 'Orthopedics', 'Intensive Care', 'Rehabilitation']
+  },
 ] as const;
 
 export type CategorySlug = typeof categories[number]['slug'];
