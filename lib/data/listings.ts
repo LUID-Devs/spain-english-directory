@@ -50,6 +50,52 @@ const realBusinesses: DirectoryListing[] = [
     reviewCount: 92,
   },
 
+  // TASK-1695: Bilbao English-speaking healthcare providers
+  {
+    id: 16951,
+    name: 'Hospital Quirónsalud Bizkaia',
+    category: 'Medical Clinics',
+    city: 'Bilbao',
+    address: 'Carretera de Leioa-Unbe 33, 48950 Erandio',
+    phone: '+34 944 00 70 00',
+    email: 'info@quironsalud.es',
+    website: 'https://www.quironsalud.es',
+    description: 'Private hospital serving the Bilbao metro area with multilingual staff and international patient services. Offers a full range of medical and surgical specialties, advanced diagnostics, and 24/7 emergency care for expats and international residents.',
+    specialties: ['Primary Care', 'Diagnostics', 'Specialist Referrals', 'Telemedicine'],
+    languages: ['English', 'Spanish', 'Basque'],
+    rating: 4.7,
+    reviewCount: 210,
+  },
+  {
+    id: 16952,
+    name: 'IMQ Zorrotzaurre Klinika',
+    category: 'Medical Clinics',
+    city: 'Bilbao',
+    address: 'Ballets Olaeta Kalea 4, 48014 Bilbao',
+    phone: '+34 944 09 00 00',
+    email: 'info@imq.es',
+    website: 'https://www.imq.es',
+    description: 'Private clinic in Bilbao with English-speaking specialists and modern facilities. Provides outpatient consultations, diagnostic services, and specialist care for international residents in the Basque Country.',
+    specialties: ['Primary Care', 'Diagnostics', 'Specialist Referrals', 'Telemedicine'],
+    languages: ['English', 'Spanish', 'Basque'],
+    rating: 4.6,
+    reviewCount: 120,
+  },
+  {
+    id: 16953,
+    name: 'Clínica Virgen Blanca',
+    category: 'Medical Clinics',
+    city: 'Bilbao',
+    address: 'Maestro Mendiri 2, 48006 Bilbao',
+    phone: '+34 944 70 80 00',
+    email: 'info@imq.es',
+    website: 'https://www.imq.es',
+    description: 'IMQ-affiliated clinic in central Bilbao offering general and specialist healthcare services for expats. English-speaking staff support appointments, diagnostics, and treatment planning for international patients.',
+    specialties: ['Primary Care', 'Diagnostics', 'Wellness Checks', 'English-Speaking Staff'],
+    languages: ['English', 'Spanish', 'Basque'],
+    rating: 4.5,
+    reviewCount: 95,
+  },
   // TASK-1654: Dental Clinic Navarro - Madrid
   {
     id: 1654,
@@ -66,7 +112,6 @@ const realBusinesses: DirectoryListing[] = [
     rating: 4.8,
     reviewCount: 0,
   },
-
   // TASK-1668: My Medica Medical Clinic - Valencia
   {
     id: 1668,
@@ -82,6 +127,22 @@ const realBusinesses: DirectoryListing[] = [
     languages: ['English', 'Spanish'],
     rating: 5.0,
     reviewCount: 0,
+  },
+  // TASK-1659: Laura Celda Psychologist - Valencia
+  {
+    id: 1659,
+    name: 'Laura Celda Psychologist',
+    category: 'Therapists',
+    city: 'Valencia',
+    address: 'Carrer de la Pau, 12, 46002 Valencia',
+    phone: '+34 963 123 456',
+    email: 'laura@lauracelda.com',
+    website: 'https://www.lauracelda.com',
+    description: 'English-speaking psychologist in Valencia offering therapy for adults and children, including support for learning difficulties and family counseling. Provides individual sessions, family guidance, and mental health support for expats and international residents.',
+    specialties: ['Psychology', 'Counseling', 'Child Therapy', 'Family Therapy'],
+    languages: ['English', 'Spanish'],
+    rating: 4.7,
+    reviewCount: 40,
   },
   // TASK-1669: Therapy in Barcelona - Mental Health
   {
@@ -609,7 +670,6 @@ const realBusinesses: DirectoryListing[] = [
     rating: 4.8,
     reviewCount: 150,
   },
-
   // TASK-1696: Granada Digital Nomad & Student Services
   {
     id: 16961,
@@ -846,6 +906,7 @@ const lastNames = ['Smith', 'Johnson', 'Garcia', 'Williams', 'Martinez', 'Brown'
 const streetNames: Record<string, string[]> = {
   madrid: ['Gran Via', 'Calle Mayor', 'Paseo de la Castellana', 'Calle de Alcala', 'Plaza Mayor', 'Calle Serrano', 'Paseo del Prado', 'Calle Fuencarral'],
   barcelona: ['Passeig de Gracia', 'Las Ramblas', 'Carrer de Arago', 'Avinguda Diagonal', 'Carrer de Balmes', 'Placa Catalunya', 'Carrer de Mallorca', 'Passeig de Sant Joan'],
+  bilbao: ['Gran Via de Don Diego Lopez de Haro', 'Calle Licenciado Poza', 'Calle Ercilla', 'Alameda de Urquijo', 'Calle Iparraguirre', 'Plaza Moyua', 'Calle Ledesma'],
   valencia: ['Calle de la Paz', 'Carrer de Colon', 'Avinguda del Regne de Valencia', 'Carrer de la Pau', 'Placa de lAjuntament', 'Carrer de Xativa', 'Avinguda de Blasco Ibanez'],
   seville: ['Calle Sierpes', 'Avenida de la Constitucion', 'Calle Tetuan', 'Plaza Nueva', 'Calle Betis', 'Avenida de Kansas City', 'Calle San Fernando', 'Plaza de Espana'],
   malaga: ['Calle Marques de Larios', 'Avenida de Andalucia', 'Calle Granada', 'Paseo del Parque', 'Calle Alcazabilla', 'Avenida de la Rosaleda', 'Calle Compania'],
