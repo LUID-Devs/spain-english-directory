@@ -1,3 +1,5 @@
+require('ts-node/register');
+
 const { initDb } = require('./lib/initDb');
 
 async function main() {
