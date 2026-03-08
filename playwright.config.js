@@ -9,7 +9,6 @@ const baseUrl = process.env.BASE_URL || `http://localhost:${devPort}`;
  */
 module.exports = defineConfig({
   testDir: './e2e/specs',
-  testMatch: ['**/task-1666-*.spec.js'],
   
   /* Run tests in files in parallel */
   fullyParallel: true,
