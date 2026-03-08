@@ -923,5 +923,16 @@ export const getListings = (
 };
 
 export const getListingById = (listingId: number): DirectoryListing | null => {
-  return realBusinesses.find(listing => listing.id === listingId) ?? null;
+  const realMatch = realBusinesses.find(listing => listing.id === listingId);
+  if (realMatch) return realMatch;
+
+  for (const city of cities) {
+    for (const category of categories) {
+      const listing = generateMockListings(city.slug, category.slug)
+        .find(entry => entry.id === listingId);
+      if (listing) return listing;
+    }
+  }
+
+  return null;
 };
