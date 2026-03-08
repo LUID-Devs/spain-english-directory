@@ -65,6 +65,12 @@ export const categories = [
     singular: 'Fitness Trainer',
     specialties: ['Personal Training', 'Yoga', 'Pilates', 'CrossFit', 'Strength', 'Weight Loss', 'Rehabilitation', 'Sports Specific', 'Group Classes', 'Nutrition']
   },
+  { 
+    slug: 'insurance-brokers', 
+    name: 'Insurance Brokers', 
+    singular: 'Insurance Broker',
+    specialties: ['Health Insurance', 'Home Insurance', 'Car Insurance', 'Life Insurance', 'Travel Insurance', 'Business Insurance', 'Expat Insurance', 'Dental Insurance', 'Pet Insurance', 'Liability Insurance']
+  },
 ] as const;
 
 export type CategorySlug = typeof categories[number]['slug'];
