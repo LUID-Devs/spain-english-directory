@@ -48,20 +48,54 @@ jobs:
               return;
             }
 
-            const { data: prData } = await github.rest.pulls.get({
+            const { data: issueComments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              pull_number: pullNumber
+              issue_number: pullNumber,
+              per_page: 100
             });
 
-            const text = (prData.body || "").replace(/<[^>]+>/g, "");
-            const m = text.match(/Confidence Score:\s*([0-5](?:\.\d+)?)\s*\/\s*5/i);
+            const { data: reviews } = await github.rest.pulls.listReviews({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pullNumber,
+              per_page: 100
+            });
 
-            if (!m) {
-              core.setFailed("Greptile confidence score not found in PR body");
+            const isGreptileAuthor = (author) => {
+              if (!author) return false;
+              const login = (author.login || "").toLowerCase();
+              return login.includes("greptile");
+            };
+
+            const entries = [
+              ...issueComments.map((comment) => ({
+                body: comment.body || "",
+                created_at: comment.created_at,
+                author: comment.user
+              })),
+              ...reviews.map((review) => ({
+                body: review.body || "",
+                created_at: review.submitted_at || review.created_at,
+                author: review.user
+              }))
+            ]
+              .filter((entry) => isGreptileAuthor(entry.author))
+              .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+            const scoreMatch = (text) => {
+              const clean = (text || "").replace(/<[^>]+>/g, "");
+              return clean.match(/Confidence Score:\s*([0-5](?:\.\d+)?)\s*\/\s*5/i);
+            };
+
+            const matchedEntry = entries.find((entry) => scoreMatch(entry.body));
+
+            if (!matchedEntry) {
+              core.setFailed("Greptile confidence score not found in Greptile comments/reviews");
               return;
             }
 
+            const m = scoreMatch(matchedEntry.body);
             const score = parseFloat(m[1]);
             if (score < 4) core.setFailed(`Greptile confidence ${score}/5 < 4/5`);
             else console.log(`Greptile confidence ${score}/5 ✅`);
