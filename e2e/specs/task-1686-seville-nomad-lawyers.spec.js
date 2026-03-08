@@ -24,17 +24,26 @@ test.describe('TASK-1686: Seville Digital Nomad Visa Lawyers', () => {
     await expect(page.locator('text=Digital Nomad')).toBeVisible();
   });
 
-  test('should find all 6 Seville immigration law firms', async ({ page }) => {
+  test('should find Giambrone International Law Firm in Seville', async ({ page }) => {
+    await page.goto('/seville/lawyers');
+    await page.waitForLoadState('networkidle');
+    
+    // Search for Giambrone
+    await page.fill('[data-testid="search-input"]', 'Giambrone');
+    await page.press('[data-testid="search-input"]', 'Enter');
+    
+    // Verify Giambrone appears in results
+    await expect(page.locator('text=Giambrone International Law Firm')).toBeVisible();
+    await expect(page.locator('text=Digital Nomad')).toBeVisible();
+  });
+
+  test('should find both Seville immigration law firms', async ({ page }) => {
     await page.goto('/seville/lawyers');
     await page.waitForLoadState('networkidle');
     
     const expectedFirms = [
       'Lexidy Law Firm',
-      'Giambrone Law',
-      'Tejada Solicitors',
-      'Abad Abogados',
-      'Martínez-Echevarría Abogados',
-      'Seville Legal Group'
+      'Giambrone International Law Firm'
     ];
     
     // Check each firm is listed
@@ -61,12 +70,12 @@ test.describe('TASK-1686: Seville Digital Nomad Visa Lawyers', () => {
     await page.waitForLoadState('networkidle');
     
     // Click on a lawyer
-    await page.click('text=Seville Legal Group');
+    await page.click('text=Lexidy Law Firm');
     
     // Verify contact details are visible
-    await expect(page.locator('text=+34 955 12 34 56')).toBeVisible();
-    await expect(page.locator('text=sevillelegalgroup.com')).toBeVisible();
-    await expect(page.locator('text=Calle Alemanes')).toBeVisible();
+    await expect(page.locator('text=+34 915 367 806')).toBeVisible();
+    await expect(page.locator('text=lexidy.com')).toBeVisible();
+    await expect(page.locator('text=Remote service')).toBeVisible();
   });
 
   test('should verify Digital Nomad Visa specialization is highlighted', async ({ page }) => {
@@ -77,9 +86,9 @@ test.describe('TASK-1686: Seville Digital Nomad Visa Lawyers', () => {
     await page.fill('[data-testid="search-input"]', 'digital nomad');
     await page.press('[data-testid="search-input"]', 'Enter');
     
-    // Should find multiple results
+    // Should find results
     const resultCount = await page.locator('[data-testid="business-card"]').count();
-    expect(resultCount).toBeGreaterThanOrEqual(3);
+    expect(resultCount).toBeGreaterThanOrEqual(1);
   });
 
   test('should navigate from Seville main page to lawyers category', async ({ page }) => {
@@ -106,12 +115,12 @@ test.describe('TASK-1686: Seville Digital Nomad Visa Lawyers', () => {
     await page.goto('/seville/lawyers');
     await page.waitForLoadState('networkidle');
     
-    // Click through several lawyers
-    await page.click('text=Giambrone Law');
+    // Click through lawyers
+    await page.click('text=Lexidy Law Firm');
     await page.waitForLoadState('networkidle');
     
     await page.goto('/seville/lawyers');
-    await page.click('text=Abad Abogados');
+    await page.click('text=Giambrone International Law Firm');
     await page.waitForLoadState('networkidle');
     
     // Assert no console errors
@@ -120,12 +129,8 @@ test.describe('TASK-1686: Seville Digital Nomad Visa Lawyers', () => {
 
   test('should verify all Seville lawyer entries have required fields', async ({ page }) => {
     const firms = [
-      { name: 'Lexidy Law Firm', phone: '+34 954 21 47 23' },
-      { name: 'Giambrone Law', phone: '+34 954 56 12 34' },
-      { name: 'Tejada Solicitors', phone: '+34 954 22 89 45' },
-      { name: 'Abad Abogados', phone: '+34 954 33 67 89' },
-      { name: 'Martínez-Echevarría Abogados', phone: '+34 954 21 56 78' },
-      { name: 'Seville Legal Group', phone: '+34 955 12 34 56' }
+      { name: 'Lexidy Law Firm', phone: '+34 915 367 806', email: 'info@lexidy.com' },
+      { name: 'Giambrone International Law Firm', phone: '+34 932 201 627', email: 'info@giambronelaw.com' }
     ];
     
     for (const firm of firms) {
