@@ -9,6 +9,12 @@ WHERE name IN (
   'Medcare Medical Centre',
   'Euro Clínica Albir',
   'IMED Levante Hospital'
+)
+OR website IN (
+  'https://www.euroclinica.es',
+  'https://www.medcare.es',
+  'https://www.euroclinicaalbir.com',
+  'https://www.imedhospitales.com'
 );
 
 INSERT INTO directory_entries (name, category, description, address, city, province, phone, email, website, speaks_english, is_featured, is_verified, is_claimed, created_at, updated_at) VALUES
