@@ -42,6 +42,8 @@ const realBusinesses: DirectoryListing[] = [
     category: 'Dentists',
     city: 'Barcelona',
     address: 'Carrer de Balmes, 152, 08008 Barcelona',
+    phone: '+34 932 123 456',
+    email: 'info@clinicadentalbarcelona.es',
     website: 'https://clinicadentalbarcelona.es',
     description: 'English-speaking dental clinic in Barcelona offering comprehensive dental care for international patients. Services include general dentistry, cosmetic treatments, dental implants, orthodontics, and preventive care with modern facilities and patient-focused communication.',
     specialties: ['General Dentistry', 'Cosmetic Dentistry', 'Dental Implants', 'Orthodontics', 'Preventive Care'],
