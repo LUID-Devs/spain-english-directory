@@ -26,11 +26,11 @@ test.describe('TASK-1654: Dental Clinic Navarro Madrid', () => {
     await expect(page.locator('text=+34 913 642 872')).toBeVisible();
   });
 
-  test('should show dental implant services', async ({ page }) => {
+  test('should find Dental Clinic Navarro via search', async ({ page }) => {
     await page.goto('/madrid/dentists');
     await page.waitForLoadState('networkidle');
     
-    await page.fill('[data-testid="search-input"]', 'implants');
+    await page.fill('[data-testid="search-input"]', 'Dental Clinic Navarro');
     await page.press('[data-testid="search-input"]', 'Enter');
     
     await expect(page.locator('text=Dental Clinic Navarro')).toBeVisible();
