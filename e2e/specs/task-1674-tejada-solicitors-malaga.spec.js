@@ -40,6 +40,6 @@ test.describe('TASK-1674: Tejada Solicitors Malaga City Office', () => {
     await expect(page.locator('h1')).toContainText('Tejada Solicitors - Malaga City Office');
     await expect(page.locator('text=+34 952 55 82 28')).toBeVisible();
     await expect(page.locator('text=info@tejadasolicitors.com')).toBeVisible();
-    await expect(page.locator('text=appointment only')).toBeVisible();
+    await expect(page.locator('text=By appointment - contact for Malaga city location')).toBeVisible();
   });
 });
