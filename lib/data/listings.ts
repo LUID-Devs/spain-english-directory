@@ -208,6 +208,20 @@ const realBusinesses: DirectoryListing[] = [
     rating: 4.7,
     reviewCount: 56,
   },
+  // TASK-1730: Clínica Dental B&J - Las Gabias (Granada)
+  {
+    id: 1730,
+    name: 'Clínica Dental B&J',
+    category: 'Dentists',
+    city: 'Las Gabias',
+    address: 'Calle Real de Málaga, 33, 18110 Las Gabias',
+    phone: '+34 958 58 41 26',
+    description: 'English-speaking dental clinic in Las Gabias, Granada, providing general and preventive dentistry for expats and international residents. Services include routine check-ups, hygiene care, restorative treatments, cosmetic dentistry, and emergency dental support with clear communication in English and Spanish.',
+    specialties: ['General Dentistry', 'Cosmetic Dentistry', 'Preventive Care', 'Emergency Dentistry'],
+    languages: ['English', 'Spanish'],
+    rating: 4.6,
+    reviewCount: 34,
+  },
   // TASK-1674: Tejada Solicitors - Malaga City Office
   {
     id: 1674,
