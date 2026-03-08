@@ -65,6 +65,24 @@ export const categories = [
     singular: 'Fitness Trainer',
     specialties: ['Personal Training', 'Yoga', 'Pilates', 'CrossFit', 'Strength', 'Weight Loss', 'Rehabilitation', 'Sports Specific', 'Group Classes', 'Nutrition']
   },
+  { 
+    slug: 'gestors', 
+    name: 'Gestors', 
+    singular: 'Gestor',
+    specialties: ['Vehicle Transfers', 'Driving Licence Exchange', 'NRA Registration', 'Vehicle Import', 'Autónomo Registration', 'Tax Filing', 'Digital Certificates', 'Visa Applications', 'Property Registration', 'Bureaucracy Support']
+  },
+  { 
+    slug: 'physiotherapists', 
+    name: 'Physiotherapists', 
+    singular: 'Physiotherapist',
+    specialties: ['Sports Injury', 'Rehabilitation', 'Manual Therapy', 'Post-Surgery Rehab', 'Back Pain', 'Neck Pain', 'Joint Mobilization', 'Massage Therapy', 'Athletic Performance', 'Chronic Pain']
+  },
+  { 
+    slug: 'insurance-brokers', 
+    name: 'Insurance Brokers', 
+    singular: 'Insurance Broker',
+    specialties: ['Health Insurance', 'Home Insurance', 'Car Insurance', 'Life Insurance', 'Travel Insurance', 'Business Insurance', 'Expat Insurance', 'Dental Insurance', 'Pet Insurance', 'Liability Insurance']
+  },
 ] as const;
 
 export type CategorySlug = typeof categories[number]['slug'];
