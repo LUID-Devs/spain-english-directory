@@ -12,7 +12,8 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:report": "playwright show-report",
     "test:e2e:update-snapshots": "playwright test --update-snapshots",
-    "test:e2e:screenshots": "playwright test --screenshot=on"
+    "test:e2e:screenshots": "playwright test --screenshot=on",
+    "test:confidence": "playwright test e2e/specs/task-1685-seville-mental-health.spec.js"
   },
   "dependencies": {
     "clsx": "^2.1.1",
@@ -28,6 +29,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",
+    "@tailwindcss/postcss": "^4.2.1",
     "@types/node": "18.19.130",
     "@types/pg": "^8.11.10",
     "@types/react": "^19.0.0",
