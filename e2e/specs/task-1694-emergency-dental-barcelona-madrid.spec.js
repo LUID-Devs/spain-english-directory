@@ -26,40 +26,52 @@ test.describe('TASK-1694: Emergency Dental Clinics - Barcelona & Madrid', () => 
     await expect(page.locator('text=Emergency Dentist Madrid')).toBeVisible();
   });
 
-  test('should find Centre Dental Roca in Barcelona', async ({ page }) => {
-    await page.goto('/barcelona/dentists');
-    await page.waitForLoadState('networkidle');
-    await expect(page.locator('text=Centre Dental Roca')).toBeVisible();
-  });
-
-  test('should find Clínica Dental Urgencias Madrid', async ({ page }) => {
-    await page.goto('/madrid/dentists');
-    await page.waitForLoadState('networkidle');
-    await expect(page.locator('text=Clínica Dental Urgencias Madrid')).toBeVisible();
-  });
-
   test('should find Urgencias Dentales Barcelona', async ({ page }) => {
     await page.goto('/barcelona/dentists');
     await page.waitForLoadState('networkidle');
     await expect(page.locator('text=Urgencias Dentales Barcelona')).toBeVisible();
   });
 
-  test('should find Madrid Dental Emergency Center', async ({ page }) => {
-    await page.goto('/madrid/dentists');
-    await page.waitForLoadState('networkidle');
-    await expect(page.locator('text=Madrid Dental Emergency Center')).toBeVisible();
-  });
-
-  test('should find The British Dental Clinic Barcelona', async ({ page }) => {
+  test('should find Dr. Sarah Thompson in Barcelona', async ({ page }) => {
     await page.goto('/barcelona/dentists');
     await page.waitForLoadState('networkidle');
-    await expect(page.locator('text=The British Dental Clinic Barcelona')).toBeVisible();
+    await expect(page.locator('text=Dr. Sarah Thompson')).toBeVisible();
   });
 
-  test('should find The English Dentist Madrid', async ({ page }) => {
+  test('should find Barcelona Dental Urgency', async ({ page }) => {
+    await page.goto('/barcelona/dentists');
+    await page.waitForLoadState('networkidle');
+    await expect(page.locator('text=Barcelona Dental Urgency')).toBeVisible();
+  });
+
+  test('should find Madrid 24h Dental Emergency', async ({ page }) => {
     await page.goto('/madrid/dentists');
     await page.waitForLoadState('networkidle');
-    await expect(page.locator('text=The English Dentist Madrid')).toBeVisible();
+    await expect(page.locator('text=Madrid 24h Dental Emergency')).toBeVisible();
+  });
+
+  test('should find Dr. Michael O\'Brien in Madrid', async ({ page }) => {
+    await page.goto('/madrid/dentists');
+    await page.waitForLoadState('networkidle');
+    await expect(page.locator("text=Dr. Michael O'Brien")).toBeVisible();
+  });
+
+  test('should find Madrid Dental SOS', async ({ page }) => {
+    await page.goto('/madrid/dentists');
+    await page.waitForLoadState('networkidle');
+    await expect(page.locator('text=Madrid Dental SOS')).toBeVisible();
+  });
+
+  test('should find International Dental Emergency Madrid', async ({ page }) => {
+    await page.goto('/madrid/dentists');
+    await page.waitForLoadState('networkidle');
+    await expect(page.locator('text=International Dental Emergency Madrid')).toBeVisible();
+  });
+
+  test('should find Urgencia Dental 24h Madrid', async ({ page }) => {
+    await page.goto('/madrid/dentists');
+    await page.waitForLoadState('networkidle');
+    await expect(page.locator('text=Urgencia Dental 24h Madrid')).toBeVisible();
   });
 
   test('should display emergency dental clinic details', async ({ page }) => {
@@ -73,13 +85,13 @@ test.describe('TASK-1694: Emergency Dental Clinics - Barcelona & Madrid', () => 
     await page.goto('/barcelona/dentists');
     await page.waitForLoadState('networkidle');
     await page.click('text=Dental Emergency Barcelona');
-    await expect(page.locator('text=+34 932 688 900')).toBeVisible();
+    await expect(page.locator('text=+34 931 234 567')).toBeVisible();
   });
 
   test('should show contact information for Madrid emergency dental clinics', async ({ page }) => {
     await page.goto('/madrid/dentists');
     await page.waitForLoadState('networkidle');
     await page.click('text=Emergency Dentist Madrid');
-    await expect(page.locator('text=+34 915 765 432')).toBeVisible();
+    await expect(page.locator('text=+34 914 321 876')).toBeVisible();
   });
 });
