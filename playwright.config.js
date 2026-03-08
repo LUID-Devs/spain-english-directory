@@ -2,7 +2,7 @@
 const { defineConfig, devices } = require('@playwright/test');
 
 const devPort = process.env.E2E_PORT || process.env.PORT || 3000;
-const baseUrl = process.env.BASE_URL || `http://localhost:${devPort}`;
+const baseUrl = process.env.BASE_URL || `http://127.0.0.1:${devPort}`;
 
 /**
  * @see https://playwright.dev/docs/test-configuration
