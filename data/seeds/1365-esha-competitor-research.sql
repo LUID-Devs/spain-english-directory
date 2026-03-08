@@ -40,25 +40,13 @@ INSERT INTO directory_entries (name, category, description, address, city, provi
 -- Dr Mar Grau Escriva Psychiatrist Valencia
 ('Dr Mar Grau Escriva - Psychiatrist', 'Healthcare', 'English-speaking psychiatrist and therapist with offices in Valencia. Provides psychiatric consultations, therapy sessions, and mental health support for the English-speaking community in Valencia.', 'Carrer de Colón, 20, 46004', 'Valencia', 'Valencia', '+34 963 524 524', 'info@drmargrau.com', 'https://www.drmargrau.com', true, false, true, false, NOW(), NOW()),
 
--- IMED Levante Hospital Benidorm (Alicante)
-('IMED Levante Hospital', 'Healthcare', 'Modern hospital in Benidorm, Alicante region providing healthcare in an up-to-date setting. English-speaking staff serving the international community on the Costa Blanca. Comprehensive medical services including emergency care, surgery, and specialist consultations.', 'Calle del Payaso, 2, 03503 Benidorm', 'Alicante', 'Alicante', '+34 965 855 500', 'info@imedhospitales.com', 'https://www.imedhospitales.com', true, false, true, false, NOW(), NOW()),
-
 -- ALICANTE / TORREVIEJA HEALTHCARE PROVIDERS
 
 -- Smile Dental Clinic Torrevieja
 ('Smile Dental Clinic Torrevieja', 'Healthcare', 'Scandinavian-run dental clinic in Torrevieja attending to the English-speaking community on the Costa Blanca. Provides comprehensive dental services including general dentistry, cosmetic dentistry, and dental implants with English-speaking staff.', 'Calle Caballero de Rodas, 76, 03182 Torrevieja', 'Alicante', 'Alicante', '+34 965 710 710', 'info@smiledentaltorrevieja.com', 'https://www.smiledentaltorrevieja.com', true, false, true, false, NOW(), NOW()),
 
--- Dr Alexandra Berger GP Alicante
-('Dr Alexandra Berger - GP', 'Healthcare', 'English-speaking GP and doctor working in Alicante. Forms part of the Euro Clinic Team and attends to English-speaking patients. Provides general practice services, health check-ups, and ongoing medical care for the expat community.', 'Av. de la Constitución, 12, 03002 Alicante', 'Alicante', 'Alicante', '+34 965 210 210', 'dr.berger@euroclinica.es', 'https://www.euroclinica.es', true, false, true, false, NOW(), NOW()),
-
 -- Dr Diego Carranza Alicante
 ('Dr Diego Carranza', 'Healthcare', 'English-speaking doctor in Alicante providing medical services to the international community. Offers general practice consultations and healthcare support for expats in the Alicante region.', 'Av. de Alfonso X el Sabio, 25, 03002 Alicante', 'Alicante', 'Alicante', '+34 965 987 654', 'info@drcarranza.com', 'https://www.drcarranza.com', true, false, true, false, NOW(), NOW()),
-
--- Medcare Medical Clinic Alicante
-('Medcare Medical Centre', 'Healthcare', 'English-speaking medical centre run on UK Department of Health guidelines and staffed by English-speaking doctors. Offers a wide range of medical services to the expat community in Alicante. Includes a fully-equipped dental clinic run by a British dentist.', 'Av. de la Estación, 45, 03003 Alicante', 'Alicante', 'Alicante', '+34 965 123 456', 'info@medcare.es', 'https://www.medcare.es', true, false, true, false, NOW(), NOW()),
-
--- Euro Clínica Albir
-('Euro Clínica Albir', 'Healthcare', 'International medical health clinic in Albir, Alicante offering medical care for the English-speaking community. Comprehensive healthcare services including GP consultations, nursing care, and specialist referrals on the Costa Blanca.', 'Calle del Camí Vell d Altea, 11, 03581 Albir', 'Alicante', 'Alicante', '+34 966 860 860', 'info@euroclinicaalbir.com', 'https://www.euroclinicaalbir.com', true, false, true, false, NOW(), NOW()),
 
 -- Nursing Home Jardines de Clara Torrevieja
 ('Jardines de Clara Nursing Home', 'Healthcare', 'Residential nursing home in Torrevieja, Alicante with English-speaking staff. Provides care for elderly residents with English language support, catering to the expat community on the Costa Blanca.', 'Calle Los Pinos, 15, 03182 Torrevieja', 'Alicante', 'Alicante', '+34 965 710 020', 'info@jardinesdeclara.com', 'https://www.jardinesdeclara.com', true, false, true, false, NOW(), NOW()),
