@@ -265,7 +265,7 @@ const realBusinesses: DirectoryListing[] = [
     email: 'info@englishacademymadrid.es',
     website: 'https://www.englishacademymadrid.es',
     description: 'Premier English language academy in Madrid offering courses for expat children, adults, and business professionals. Provides Cambridge exam preparation (KET, PET, FCE, CAE, CPE), business English, conversation classes, and private tutoring. Native English-speaking teachers with qualifications in TEFL/TESOL and experience working with international students. Small class sizes ensure personalized attention. Flexible scheduling includes intensive courses, evening classes, and weekend options. Supports students transitioning to English-speaking schools and helps professionals improve business communication skills. Also offers Spanish classes for English speakers.',
-    specialties: ['Student Orientation', 'Exam Preparation', 'Tutoring', 'Academic Advising', 'Campus Integration'],
+    specialties: ['Cambridge Exam Prep', 'Business English', 'Conversation Classes', 'Private Tutoring', 'TEFL/TESOL Instruction'],
     languages: ['English', 'Spanish'],
     rating: 4.9,
     reviewCount: 85,
