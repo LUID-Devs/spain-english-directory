@@ -254,6 +254,22 @@ const realBusinesses: DirectoryListing[] = [
     rating: 4.8,
     reviewCount: 56,
   },
+  // TASK-1733: Lycée Français de Zamudio - Bilbao
+  {
+    id: 1733,
+    name: 'Lycée Français de Zamudio',
+    category: 'Schools',
+    city: 'Bilbao',
+    address: 'Parque Tecnológico de Zamudio, 48170 Zamudio',
+    phone: '+34 946 712 911',
+    email: 'secretaria.lfz@lyceefrancaiszamudio.org',
+    website: 'https://www.lyceefrancaiszamudio.org',
+    description: 'French international school located in Zamudio, serving the Bilbao metropolitan area. Offers French national curriculum education from preschool through high school (lycée). Multilingual environment with French as the primary language of instruction, along with strong Spanish and English language programs. Provides a multicultural educational experience following the French education system while integrating local Spanish cultural elements. The school prepares students for the French Baccalaureate and welcomes international families, including English-speaking expatriates living in the Basque Country.',
+    specialties: ['International Baccalaureate', 'French Curriculum', 'Bilingual Education', 'Primary Education', 'Secondary Education'],
+    languages: ['English', 'Spanish', 'French'],
+    rating: 4.7,
+    reviewCount: 45,
+  },
   // TASK-1689: Costa del Sol Dental Tourism Clinics
   {
     id: 16891,
