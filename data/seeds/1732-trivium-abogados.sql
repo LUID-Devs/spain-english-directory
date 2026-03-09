@@ -1,4 +1,4 @@
--- Task 1732: Add Trivium Abogados - Legal - Palma de Mallorca
+-- Task 1732: Add Trivium Abogados - Lawyers - Palma de Mallorca
 -- English-speaking law firm in Palma de Mallorca for expats and international clients
 
 DELETE FROM directory_entries
