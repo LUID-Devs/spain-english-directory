@@ -9,6 +9,7 @@ export const cities = [
   { slug: 'marbella', name: 'Marbella', province: 'Malaga', population: '150K' },
   { slug: 'fuengirola', name: 'Fuengirola', province: 'Malaga', population: '75K' },
   { slug: 'las-gabias', name: 'Las Gabias', province: 'Granada', population: '22K' },
+  { slug: 'alicante', name: 'Alicante', province: 'Alicante', population: '330K' },
 ] as const;
 
 export type CitySlug = typeof cities[number]['slug'];
