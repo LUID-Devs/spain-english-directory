@@ -238,6 +238,22 @@ const realBusinesses: DirectoryListing[] = [
     rating: 4.8,
     reviewCount: 74,
   },
+  // TASK-1732: Trivium Abogados - Palma de Mallorca
+  {
+    id: 1732,
+    name: 'Trivium Abogados',
+    category: 'Lawyers',
+    city: 'Palma de Mallorca',
+    address: 'Carrer del Far Cap de la Nau, 18, 07012 Palma de Mallorca',
+    phone: '+34 971 21 05 40',
+    email: 'info@triviumabogados.com',
+    website: 'https://www.triviumabogados.com',
+    description: 'English-speaking law firm in Palma de Mallorca providing comprehensive legal services for expats, international residents, and foreign investors. Specializes in Spanish immigration law including Golden Visa applications, non-lucrative visas, and digital nomad visas. Expertise in real estate conveyancing, property law, and commercial transactions for international clients. Offers guidance on tax planning, estate planning, wills, and probate matters. The multilingual team provides clear communication in English throughout all legal processes, ensuring clients understand their rights and obligations under Spanish law. Assists with company formation, business law, and regulatory compliance for entrepreneurs and businesses establishing operations in the Balearic Islands.',
+    specialties: ['Immigration', 'Real Estate', 'Business Law', 'Tax Law', 'Wills & Probate'],
+    languages: ['English', 'Spanish'],
+    rating: 4.8,
+    reviewCount: 56,
+  },
   // TASK-1689: Costa del Sol Dental Tourism Clinics
   {
     id: 16891,
