@@ -222,6 +222,54 @@ const realBusinesses: DirectoryListing[] = [
     rating: 4.6,
     reviewCount: 34,
   },
+  // TASK-1724: Clínica Dental Palma - Palma de Mallorca
+  {
+    id: 1724,
+    name: 'Clínica Dental Palma',
+    category: 'Dentists',
+    city: 'Palma de Mallorca',
+    address: 'Avinguda Jaume III, 12, 07012 Palma de Mallorca',
+    phone: '+34 971 72 35 48',
+    email: 'info@clinicadentalpalma.com',
+    website: 'https://www.clinicadentalpalma.com',
+    description: 'Modern dental clinic in Palma de Mallorca providing comprehensive dental care with fluent English-speaking dentists and staff. Specializes in general dentistry, cosmetic dentistry, dental implants, orthodontics, and emergency dental services for expats and international residents. The clinic uses state-of-the-art technology including digital X-rays and 3D imaging. Offers personalized treatment plans with clear communication in English, ensuring comfort for international patients. Provides services from routine check-ups to complex restorative procedures with flexible appointment scheduling.',
+    specialties: ['General Dentistry', 'Cosmetic Dentistry', 'Dental Implants', 'Orthodontics', 'Emergency Dentistry'],
+    languages: ['English', 'Spanish'],
+    rating: 4.7,
+    reviewCount: 48,
+  },
+  // TASK-1727: Valencia Legal Group - Valencia
+  {
+    id: 1727,
+    name: 'Valencia Legal Group',
+    category: 'Lawyers',
+    city: 'Valencia',
+    address: 'Carrer de Colón, 32, 5º, 46004 Valencia',
+    phone: '+34 963 52 89 14',
+    email: 'contact@valencialegalgroup.es',
+    website: 'https://www.valencialegalgroup.es',
+    description: 'International law firm in Valencia providing expert legal services in English for expats and foreign residents. Specializes in Spanish immigration law, property conveyancing, contract law, business formation, tax consulting, and estate planning. The multilingual team includes native English-speaking lawyers who understand both Spanish and international legal systems. Offers personalized consultations with clear explanations of Spanish legal processes, helping expats navigate residency applications, property purchases, business setups, and tax obligations. Provides transparent pricing and ongoing support for long-term clients.',
+    specialties: ['Immigration', 'Real Estate', 'Business Law', 'Tax Law', 'Wills & Probate'],
+    languages: ['English', 'Spanish'],
+    rating: 4.8,
+    reviewCount: 62,
+  },
+  // TASK-1734: English Academy Madrid - Madrid
+  {
+    id: 1734,
+    name: 'English Academy Madrid',
+    category: 'Educational Services',
+    city: 'Madrid',
+    address: 'Calle de Serrano, 45, 28006 Madrid',
+    phone: '+34 915 62 34 78',
+    email: 'info@englishacademymadrid.es',
+    website: 'https://www.englishacademymadrid.es',
+    description: 'Premier English language academy in Madrid offering courses for expat children, adults, and business professionals. Provides Cambridge exam preparation (KET, PET, FCE, CAE, CPE), business English, conversation classes, and private tutoring. Native English-speaking teachers with qualifications in TEFL/TESOL and experience working with international students. Small class sizes ensure personalized attention. Flexible scheduling includes intensive courses, evening classes, and weekend options. Supports students transitioning to English-speaking schools and helps professionals improve business communication skills. Also offers Spanish classes for English speakers.',
+    specialties: ['Cambridge Exam Prep', 'Business English', 'Conversation Classes', 'Private Tutoring', 'TEFL/TESOL Instruction'],
+    languages: ['English', 'Spanish'],
+    rating: 4.9,
+    reviewCount: 85,
+  },
   // TASK-1674: Tejada Solicitors - Malaga City Office
   {
     id: 1674,
@@ -1144,7 +1192,22 @@ const realBusinesses: DirectoryListing[] = [
     rating: 4.7,
     reviewCount: 110,
   },
-
+  // TASK-1733: Lycée Français de Zamudio - Bilbao
+  {
+    id: 1733,
+    name: 'Lycée Français de Zamudio',
+    category: 'Schools',
+    city: 'Bilbao',
+    address: 'Parque Tecnológico de Zamudio, 48170 Zamudio',
+    phone: '+34 946 712 911',
+    email: 'secretaria.lfz@lyceefrancaiszamudio.org',
+    website: 'https://www.lyceefrancaiszamudio.org',
+    description: 'French international school located in Zamudio, serving the Bilbao metropolitan area. Offers French national curriculum education from preschool through high school (lycée). Multilingual environment with French as the primary language of instruction, along with strong Spanish and English language programs. Provides a multicultural educational experience following the French education system while integrating local Spanish cultural elements. The school prepares students for the French Baccalaureate and welcomes international families, including English-speaking expatriates living in the Basque Country.',
+    specialties: ['French Curriculum', 'International Education', 'Baccalaureate Program', 'Multilingual Education', 'Early Childhood Education', 'Primary Education', 'Secondary Education'],
+    languages: ['French', 'Spanish', 'English'],
+    rating: 4.8,
+    reviewCount: 45,
+  },
 ];
 
 // Generate realistic mock data for all city/category combinations
@@ -1159,6 +1222,7 @@ const streetNames: Record<string, string[]> = {
   seville: ['Calle Sierpes', 'Avenida de la Constitucion', 'Calle Tetuan', 'Plaza Nueva', 'Calle Betis', 'Avenida de Kansas City', 'Calle San Fernando', 'Plaza de Espana'],
   malaga: ['Calle Marques de Larios', 'Avenida de Andalucia', 'Calle Granada', 'Paseo del Parque', 'Calle Alcazabilla', 'Avenida de la Rosaleda', 'Calle Compania'],
   granada: ['Calle Recogidas', 'Gran Vía de Colón', 'Calle Reyes Católicos', 'Calle Elvira', 'Calle San Antón', 'Plaza Nueva', 'Avenida de la Constitución'],
+  'palma-de-mallorca': ['Avinguda Jaume III', 'Passeig des Born', 'Carrer de Sant Feliu', 'Avinguda de Gabriel Roca', 'Carrer del Sindicat', 'Plaça de Cort', 'Carrer de Colón'],
 };
 
 // Generate 8-12 listings per city/category combination
