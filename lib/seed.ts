@@ -2,6 +2,7 @@ import {
   sequelize, 
   Category, 
   City, 
+  DirectoryEntry,
   Professional, 
   Review, 
   Lead,
@@ -205,6 +206,41 @@ async function seed() {
       },
     ]);
     console.log(`✅ Created ${professionals.length} professionals`);
+
+    // Create Directory Entries from all professionals so lead/review FKs stay consistent.
+    const categoryById = new Map(categories.map((category) => [category.id, category.name]));
+    const cityById = new Map(cities.map((city) => [city.id, city]));
+
+    const directoryEntriesPayload = professionals.map((professional) => {
+      const category = categoryById.get(professional.categoryId);
+      const city = cityById.get(professional.cityId);
+
+      if (!category || !city) {
+        throw new Error(`Unable to map professional ${professional.name} to category/city`);
+      }
+
+      return {
+        name: professional.name,
+        category,
+        description: professional.description,
+        address: professional.address,
+        city: city.name,
+        province: city.province,
+        phone: professional.phone,
+        email: professional.email,
+        website: professional.website,
+        speaksEnglish: professional.speaksEnglish,
+        englishLevel: professional.englishLevel,
+        insuranceAccepted: professional.insuranceAccepted,
+        specialties: professional.specialties,
+        isFeatured: professional.isFeatured,
+        isVerified: professional.isVerified,
+        isClaimed: false,
+      };
+    });
+
+    const directoryEntries = await DirectoryEntry.bulkCreate(directoryEntriesPayload);
+    console.log(`✅ Created ${directoryEntries.length} directory entries`);
 
     // Create Reviews
     const reviews = await Review.bulkCreate([

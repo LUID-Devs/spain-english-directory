@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Professional, Lead, LeadStatus } from '@/models';
+import { DirectoryEntry, Lead, LeadStatus } from '@/models';
 
 interface ContactRequest {
   professionalId: number;
@@ -68,14 +68,14 @@ export async function POST(request: NextRequest) {
     
     const { professionalId, name, email, message } = body as ContactRequest;
     
-    // Check if professional exists
-    const professional = await Professional.findByPk(professionalId);
-    if (!professional) {
+    // Check if directory entry exists
+    const listing = await DirectoryEntry.findByPk(professionalId);
+    if (!listing) {
       return NextResponse.json(
         {
           success: false,
           error: 'Not found',
-          message: `Professional with ID ${professionalId} not found`,
+          message: `Listing with ID ${professionalId} not found`,
         },
         { status: 404 }
       );
@@ -91,9 +91,9 @@ export async function POST(request: NextRequest) {
     });
     
     // TODO: Send email notification to professional
-    if (professional.email) {
+    if (listing.email) {
       console.log('=== CONTACT FORM SUBMISSION ===');
-      console.log(`To: ${professional.email}`);
+      console.log(`To: ${listing.email}`);
       console.log(`From: [REDACTED]`);
       console.log(`Subject: New message from ${name} via Spain English Directory`);
       console.log(`Message: [REDACTED]`);
@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
       data: {
         leadId: lead.id,
         professionalId,
-        professionalName: professional.name,
+        professionalName: listing.name,
         sentAt: lead.createdAt,
       },
     }, {

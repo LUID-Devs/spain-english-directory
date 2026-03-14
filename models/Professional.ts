@@ -67,7 +67,7 @@ class Professional extends Model<ProfessionalAttributes, ProfessionalCreationAtt
 Professional.init(
   {
     id: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },
@@ -91,7 +91,7 @@ Professional.init(
       allowNull: true,
     },
     categoryId: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
         model: Category,
@@ -101,7 +101,7 @@ Professional.init(
       onUpdate: 'CASCADE',
     },
     cityId: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
         model: City,

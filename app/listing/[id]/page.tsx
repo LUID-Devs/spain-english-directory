@@ -5,56 +5,45 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import ClaimButton from '@/components/ClaimButton';
-import ClaimModal from '@/components/ClaimModal';
-import { DirectoryListing } from '@/lib/data/listings';
+import ClaimButton from '@/components/claims/ClaimButton';
 
-interface ListingWithClaim extends DirectoryListing {
-  claimStatus?: string;
-  claimedBy?: string;
+interface ListingDetail {
+  id: number;
+  name: string;
+  category: string;
+  description?: string;
+  address?: string;
+  city: string;
+  province?: string;
+  phone?: string;
+  email?: string;
+  website?: string;
+  specialties?: string[];
+  isClaimed: boolean;
 }
 
 export default function ListingDetailPage() {
   const params = useParams();
   const listingId = parseInt(params.id as string, 10);
-  
-  const [listing, setListing] = useState<ListingWithClaim | null>(null);
+
+  const [listing, setListing] = useState<ListingDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isClaimModalOpen, setIsClaimModalOpen] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    // For now, use mock data. In production, fetch from API
     const fetchListing = async () => {
-      const loadFromLocalData = async () => {
-        const { getListingById } = await import('@/lib/data/listings');
-        const found = getListingById(listingId);
-        if (found) {
-          setListing(found);
-          return true;
-        }
-        return false;
-      };
-
       try {
-        // Try to fetch from API first
-        const response = await fetch(`/api/listings/${listingId}`);
-        if (response.ok) {
-          const data = await response.json();
-          setListing(data);
-        } else {
-          // Fallback to local data if API fails
-          const found = await loadFromLocalData();
-          if (!found) {
-            setError('Listing not found');
-          }
+        const response = await fetch(`/api/directory-entries/${listingId}`);
+        const data = await response.json();
+
+        if (!response.ok || !data.success || !data.entry) {
+          setError(data.error || 'Listing not found');
+          return;
         }
+
+        setListing(data.entry);
       } catch {
-        // If request fails (network/runtime), still try local fallback.
-        const found = await loadFromLocalData();
-        if (!found) {
-          setError('Failed to load listing');
-        }
+        setError('Failed to load listing');
       } finally {
         setIsLoading(false);
       }
@@ -64,11 +53,6 @@ export default function ListingDetailPage() {
       fetchListing();
     }
   }, [listingId]);
-
-  const handleClaimSuccess = () => {
-    // Refresh listing data to show updated claim status
-    setListing(prev => prev ? { ...prev, claimStatus: 'verified' } : null);
-  };
 
   if (isLoading) {
     return (
@@ -100,10 +84,9 @@ export default function ListingDetailPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      
+
       <main className="flex-1 bg-gray-50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Breadcrumb */}
           <nav className="mb-6 text-sm text-gray-500">
             <Link href="/" className="hover:text-primary">Home</Link>
             <span className="mx-2">/</span>
@@ -114,15 +97,13 @@ export default function ListingDetailPage() {
             <span className="text-gray-900">{listing.name}</span>
           </nav>
 
-          {/* Main Card */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            {/* Header */}
             <div className="p-6 sm:p-8 border-b border-gray-100">
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                 <div>
                   <div className="flex items-center gap-3 mb-2">
                     <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{listing.name}</h1>
-                    {listing.claimStatus === 'approved' && (
+                    {listing.isClaimed && (
                       <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
@@ -132,46 +113,28 @@ export default function ListingDetailPage() {
                     )}
                   </div>
                   <p className="text-gray-600">{listing.category} in {listing.city}</p>
-                  <div className="flex items-center gap-1 mt-2">
-                    <div className="flex text-yellow-400">
-                      {[...Array(5)].map((_, i) => (
-                        <svg
-                          key={i}
-                          className={`w-5 h-5 ${i < Math.floor(listing.rating) ? 'fill-current' : 'text-gray-300'}`}
-                          viewBox="0 0 20 20"
-                        >
-                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                        </svg>
-                      ))}
-                    </div>
-                    <span className="text-gray-600 ml-2">
-                      {listing.rating.toFixed(1)} ({listing.reviewCount} reviews)
-                    </span>
-                  </div>
                 </div>
-                
+
                 <ClaimButton
                   listingId={listingId}
-                  claimStatus={listing.claimStatus || 'unclaimed'}
-                  onClaimClick={() => setIsClaimModalOpen(true)}
+                  listingName={listing.name}
+                  isClaimed={listing.isClaimed}
                 />
               </div>
             </div>
 
-            {/* Content */}
             <div className="p-6 sm:p-8">
               <div className="grid md:grid-cols-3 gap-8">
-                {/* Main Info */}
                 <div className="md:col-span-2 space-y-6">
                   <div>
                     <h2 className="text-lg font-semibold text-gray-900 mb-3">About</h2>
-                    <p className="text-gray-600 leading-relaxed">{listing.description}</p>
+                    <p className="text-gray-600 leading-relaxed">{listing.description || 'No description available.'}</p>
                   </div>
 
                   <div>
                     <h2 className="text-lg font-semibold text-gray-900 mb-3">Specialties</h2>
                     <div className="flex flex-wrap gap-2">
-                      {listing.specialties.map((specialty) => (
+                      {(listing.specialties && listing.specialties.length > 0 ? listing.specialties : ['General Services']).map((specialty) => (
                         <span
                           key={specialty}
                           className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm"
@@ -185,7 +148,7 @@ export default function ListingDetailPage() {
                   <div>
                     <h2 className="text-lg font-semibold text-gray-900 mb-3">Languages</h2>
                     <div className="flex flex-wrap gap-2">
-                      {listing.languages.map((language) => (
+                      {['English'].map((language) => (
                         <span
                           key={language}
                           className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium"
@@ -197,18 +160,19 @@ export default function ListingDetailPage() {
                   </div>
                 </div>
 
-                {/* Contact Info */}
                 <div className="space-y-4">
                   <h2 className="text-lg font-semibold text-gray-900">Contact Information</h2>
-                  
+
                   <div className="space-y-3">
-                    <div className="flex items-start gap-3">
-                      <svg className="w-5 h-5 text-gray-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
-                      <span className="text-gray-600">{listing.address}</span>
-                    </div>
+                    {listing.address && (
+                      <div className="flex items-start gap-3">
+                        <svg className="w-5 h-5 text-gray-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        <span className="text-gray-600">{listing.address}</span>
+                      </div>
+                    )}
 
                     {listing.phone && (
                       <a
@@ -256,14 +220,6 @@ export default function ListingDetailPage() {
       </main>
 
       <Footer />
-
-      <ClaimModal
-        listingId={listingId}
-        listingName={listing.name}
-        isOpen={isClaimModalOpen}
-        onClose={() => setIsClaimModalOpen(false)}
-        onSuccess={handleClaimSuccess}
-      />
     </div>
   );
 }

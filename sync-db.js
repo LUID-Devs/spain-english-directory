@@ -1,4 +1,10 @@
-require('ts-node/register');
+require('ts-node').register({
+  transpileOnly: true,
+  compilerOptions: {
+    module: 'commonjs',
+    moduleResolution: 'node',
+  },
+});
 
 const { initDb } = require('./lib/initDb');
 

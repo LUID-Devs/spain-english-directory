@@ -1,11 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { City } from '@/models';
+import { sequelize } from '@/lib/initDb';
+
+function slugify(value: string): string {
+  return value
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
 
 export async function GET(request: NextRequest) {
   try {
-    const cities = await City.findAll({
-      order: [['name', 'ASC']],
-    });
+    const [rows] = await sequelize.query<{
+      name: string;
+      province: string | null;
+      count: number;
+    }>(
+      `SELECT city AS name, province, COUNT(*)::int AS count
+       FROM directory_entries
+       GROUP BY city, province
+       ORDER BY city ASC`
+    );
+
+    const cities = rows.map((row, index) => ({
+      id: index + 1,
+      name: row.name,
+      slug: slugify(row.name),
+      province: row.province,
+      count: row.count,
+    }));
     
     return NextResponse.json({
       success: true,

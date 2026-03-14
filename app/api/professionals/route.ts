@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Professional, Category, City } from '@/models';
+import { DirectoryEntry } from '@/models';
 import { Op } from 'sequelize';
 
 const DEFAULT_PAGE_SIZE = 20;
@@ -16,38 +16,14 @@ export async function GET(request: NextRequest) {
     const limitRaw = parseInt(searchParams.get('limit') || String(DEFAULT_PAGE_SIZE), 10);
     const limit = isNaN(limitRaw) || limitRaw < 1 ? DEFAULT_PAGE_SIZE : Math.min(limitRaw, 100);
     
-    // Build where clause
     const where: any = {};
-    
-    // Include relations
-    const include: any[] = [];
-    
+
     if (city) {
-      include.push({
-        model: City,
-        as: 'city',
-        where: { slug: city },
-        required: true,
-      });
-    } else {
-      include.push({
-        model: City,
-        as: 'city',
-      });
+      where.city = { [Op.iLike]: city };
     }
-    
+
     if (category) {
-      include.push({
-        model: Category,
-        as: 'category',
-        where: { slug: category },
-        required: true,
-      });
-    } else {
-      include.push({
-        model: Category,
-        as: 'category',
-      });
+      where.category = { [Op.iLike]: category };
     }
     
     if (search) {
@@ -63,13 +39,37 @@ export async function GET(request: NextRequest) {
     const offset = (page - 1) * limit;
     
     // Fetch professionals
-    const { count, rows: professionals } = await Professional.findAndCountAll({
+    const { count, rows: entries } = await DirectoryEntry.findAndCountAll({
       where,
-      include,
       limit,
       offset,
       order: [['isFeatured', 'DESC'], ['name', 'ASC']],
+      raw: true,
     });
+
+    const professionals = entries.map((entry: any) => ({
+      id: entry.id,
+      name: entry.name,
+      description: entry.description,
+      address: entry.address,
+      phone: entry.phone,
+      email: entry.email,
+      website: entry.website,
+      speaksEnglish: entry.speaksEnglish,
+      englishLevel: entry.englishLevel,
+      specialties: entry.specialties,
+      isVerified: entry.isVerified,
+      isFeatured: entry.isFeatured,
+      city: {
+        name: entry.city,
+        province: entry.province,
+      },
+      category: {
+        name: entry.category,
+      },
+      createdAt: entry.createdAt,
+      updatedAt: entry.updatedAt,
+    }));
     
     // Calculate pagination
     const totalPages = Math.ceil(count / limit);

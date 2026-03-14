@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Professional, Category, City, Review } from '@/models';
+import { DirectoryEntry, Review } from '@/models';
 
 export async function GET(
   request: NextRequest,
@@ -7,7 +7,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const professionalId = parseInt(id, 10);
+    const professionalId = Number.parseInt(id, 10);
     
     if (isNaN(professionalId)) {
       return NextResponse.json(
@@ -20,13 +20,7 @@ export async function GET(
       );
     }
     
-    const professional = await Professional.findByPk(professionalId, {
-      include: [
-        { model: Category, as: 'category' },
-        { model: City, as: 'city' },
-        { model: Review, as: 'reviews' },
-      ],
-    });
+    const professional = await DirectoryEntry.findByPk(professionalId, { raw: true });
     
     if (!professional) {
       return NextResponse.json(
@@ -39,9 +33,27 @@ export async function GET(
       );
     }
     
+    const reviews = await Review.findAll({
+      where: { professionalId },
+      order: [['createdAt', 'DESC']],
+      raw: true,
+    });
+
+    const data = {
+      ...professional,
+      city: {
+        name: professional.city,
+        province: professional.province,
+      },
+      category: {
+        name: professional.category,
+      },
+      reviews,
+    };
+
     return NextResponse.json({
       success: true,
-      data: professional,
+      data,
     }, {
       headers: {
         'Access-Control-Allow-Origin': '*',
