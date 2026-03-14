@@ -134,21 +134,6 @@ export default async function Home() {
                 </p>
               )}
             </div>
-
-            <div className="flex items-center gap-3">
-              <Link
-                href="/search"
-                className="rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-100 transition"
-              >
-                Explore Search
-              </Link>
-              <Link
-                href="/admin/claims"
-                className="rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-slate-700 transition"
-              >
-                Admin Dashboard
-              </Link>
-            </div>
           </div>
 
           <div className="mt-8 max-w-3xl">

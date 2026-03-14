@@ -9,8 +9,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
           <div className="space-y-4">
             <Link href="/" className="flex items-center gap-2">
-              <span className="text-xl font-bold text-primary">España</span>
-              <span className="text-base font-medium text-foreground">English</span>
+              <span className="text-xl font-bold text-primary">SpainEnglishDirectory.com</span>
             </Link>
             <p className="text-sm text-muted-foreground">
               Connecting English speakers with trusted services across Spain.
@@ -89,7 +88,7 @@ export default function Footer() {
         </div>
         <div className="mt-8 border-t border-border pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-sm text-muted-foreground">
-            © {currentYear} España English Directory. All rights reserved.
+            © {currentYear} SpainEnglishDirectory.com. All rights reserved.
           </p>
           <div className="flex gap-4">
             <Link href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">

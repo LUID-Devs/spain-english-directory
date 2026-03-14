@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { 
   LayoutDashboard, 
   User, 
@@ -24,7 +24,13 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const handleSignOut = async () => {
+    await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+    router.replace('/login');
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -81,6 +87,7 @@ export default function DashboardLayout({
 
           <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200">
             <button
+              onClick={handleSignOut}
               className="flex items-center gap-3 px-4 py-3 w-full rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
             >
               <LogOut size={20} />

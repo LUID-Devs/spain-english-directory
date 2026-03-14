@@ -66,7 +66,7 @@ const plans: Plan[] = [
       { text: 'API access', included: false },
     ],
     cta: 'Upgrade to Pro',
-    ctaLink: '/dashboard',
+    ctaLink: '/login',
     popular: true,
   },
 ];

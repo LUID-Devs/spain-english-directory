@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { DirectoryEntry, Review } from '@/models';
+import { getAuthSession } from '@/lib/auth/server';
 
 export async function GET(
   request: NextRequest,
@@ -79,6 +80,18 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const session = await getAuthSession(request);
+    if (!session) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Unauthorized',
+          message: 'You must be logged in to update a profile',
+        },
+        { status: 401 }
+      );
+    }
+
     const { id } = await params;
     const professionalId = Number.parseInt(id, 10);
 
@@ -104,6 +117,17 @@ export async function POST(
           message: `Professional with ID ${professionalId} not found`,
         },
         { status: 404 }
+      );
+    }
+
+    if (session.entryId !== professionalId) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Forbidden',
+          message: 'You are not allowed to update this profile',
+        },
+        { status: 403 }
       );
     }
 

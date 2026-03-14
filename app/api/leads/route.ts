@@ -1,19 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Lead } from '@/models';
+import { getAuthSession } from '@/lib/auth/server';
 
 // GET /api/leads - Get leads for current professional
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const professionalIdRaw = searchParams.get('professionalId');
-
-    const where: Record<string, unknown> = {};
-    if (professionalIdRaw && /^\d+$/.test(professionalIdRaw)) {
-      where.professionalId = Number.parseInt(professionalIdRaw, 10);
+    const session = await getAuthSession(request);
+    if (!session) {
+      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
     const leads = await Lead.findAll({
-      where,
+      where: { professionalId: session.entryId },
       order: [['createdAt', 'DESC']],
       raw: true,
     });

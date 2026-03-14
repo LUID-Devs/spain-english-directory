@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Lead } from '@/models';
+import { getAuthSession } from '@/lib/auth/server';
 
 // PATCH /api/leads/:id/status - Update lead status
 export async function PATCH(
@@ -7,6 +8,11 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const session = await getAuthSession(request);
+    if (!session) {
+      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    }
+
     const { id } = await params;
     const body = await request.json();
     const { status } = body;
@@ -31,6 +37,13 @@ export async function PATCH(
       return NextResponse.json(
         { message: 'Lead not found' },
         { status: 404 }
+      );
+    }
+
+    if (lead.professionalId !== session.entryId) {
+      return NextResponse.json(
+        { message: 'Forbidden' },
+        { status: 403 }
       );
     }
 

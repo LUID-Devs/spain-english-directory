@@ -1,18 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { DirectoryEntry } from '@/models';
+import { getAuthSession } from '@/lib/auth/server';
 
 // GET /api/professionals/me - Get current user's professional profile
 export async function GET(request: NextRequest) {
   try {
-    // Until auth-based ownership is in place, prefer claimed entries and fall back to newest entry.
-    const professional = await DirectoryEntry.findOne({
-      where: { isClaimed: true },
-      order: [['updatedAt', 'DESC']],
-      raw: true,
-    }) || await DirectoryEntry.findOne({
-      order: [['updatedAt', 'DESC']],
-      raw: true,
-    });
+    const session = await getAuthSession(request);
+    if (!session) {
+      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    }
+
+    const professional = await DirectoryEntry.findByPk(session.entryId, { raw: true });
 
     if (!professional) {
       return NextResponse.json(
