@@ -1,125 +1,124 @@
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import SearchBar from "@/components/SearchBar";
-import ProfessionalCard from "@/components/ProfessionalCard";
-import SearchFilterSidebar from "@/components/SearchFilterSidebar";
-import Link from "next/link";
+import Link from 'next/link';
+import { Op, QueryTypes, WhereOptions } from 'sequelize';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import SearchBar from '@/components/SearchBar';
+import ProfessionalCard from '@/components/ProfessionalCard';
+import SearchFilterSidebar from '@/components/SearchFilterSidebar';
+import { DirectoryEntry, sequelize } from '@/models';
 
 export const dynamic = 'force-dynamic';
-
-// Sample data for demonstration
-const sampleProfessionals = [
-  {
-    id: 1,
-    name: "Dr. Sarah Mitchell",
-    category: "Healthcare",
-    description: "British GP with 15 years experience. Specializes in family medicine and expat healthcare needs.",
-    city: "Madrid",
-    phone: "+34 912 345 678",
-    email: "dr.mitchell@example.com",
-    website: "https://example.com",
-  },
-  {
-    id: 2,
-    name: "James Wilson Legal",
-    category: "Legal",
-    description: "English-speaking solicitor specializing in property law, residency visas, and business setup.",
-    city: "Barcelona",
-    phone: "+34 933 456 789",
-    email: "info@jwlegal.es",
-  },
-  {
-    id: 3,
-    name: "Costa Brava Properties",
-    category: "Living",
-    description: "Real estate agency helping expats find their dream home on the Costa Brava.",
-    city: "Barcelona",
-    phone: "+34 972 123 456",
-    website: "https://example.com",
-  },
-  {
-    id: 4,
-    name: "TaxAssist Spain",
-    category: "Business",
-    description: "English-speaking accountants and tax advisors for freelancers and small businesses.",
-    city: "Valencia",
-    phone: "+34 963 789 012",
-    email: "hello@taxassist.es",
-  },
-  {
-    id: 5,
-    name: "Málaga Dental Clinic",
-    category: "Healthcare",
-    description: "Modern dental clinic with English-speaking staff. Emergency appointments available.",
-    city: "Málaga",
-    phone: "+34 951 234 567",
-    website: "https://example.com",
-  },
-  {
-    id: 6,
-    name: "Barcelona Family Law",
-    category: "Legal",
-    description: "Family law specialists handling divorce, custody, and inheritance cases for expats.",
-    city: "Barcelona",
-    phone: "+34 934 567 890",
-    email: "contact@bflaw.es",
-  },
-];
-
-const categories = ["Healthcare", "Legal", "Living", "Business"];
-const cities = ["Madrid", "Barcelona", "Valencia", "Málaga", "Seville", "Bilbao"];
 
 interface SearchPageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
+type DirectoryEntryResult = {
+  id: number;
+  name: string;
+  category: string;
+  description?: string | null;
+  city: string;
+  phone?: string | null;
+  email?: string | null;
+  website?: string | null;
+};
+
+function toSingle(value: string | string[] | undefined): string {
+  return Array.isArray(value) ? value[0] ?? '' : value ?? '';
+}
+
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const params = await searchParams;
-  const query = typeof params.q === "string" ? params.q : "";
-  const category = typeof params.category === "string" ? params.category : "";
-  const city = typeof params.city === "string" ? params.city : "";
-  const page = typeof params.page === "string" ? parseInt(params.page, 10) : 1;
 
-  // Filter professionals based on search params
-  let filteredProfessionals = sampleProfessionals;
+  const query = toSingle(params.q).trim();
+  const category = toSingle(params.category).trim();
+  const city = toSingle(params.city).trim();
+  const requestedPage = Number.parseInt(toSingle(params.page), 10);
+  const currentPage = Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : 1;
+
+  const where: WhereOptions = {};
+  let searchWhere: WhereOptions | null = null;
 
   if (query) {
-    const q = query.toLowerCase();
-    filteredProfessionals = filteredProfessionals.filter(
-      (p) =>
-        p.name.toLowerCase().includes(q) ||
-        p.description?.toLowerCase().includes(q) ||
-        p.category.toLowerCase().includes(q)
-    );
+    const escapedQuery = query.replace(/[%_\\]/g, '\\$&');
+    const searchTerm = `%${escapedQuery}%`;
+    searchWhere = {
+      [Op.or]: [
+      { name: { [Op.iLike]: searchTerm } },
+      { description: { [Op.iLike]: searchTerm } },
+      { category: { [Op.iLike]: searchTerm } },
+      { city: { [Op.iLike]: searchTerm } },
+      ],
+    };
   }
 
   if (category) {
-    filteredProfessionals = filteredProfessionals.filter(
-      (p) => p.category === category
-    );
+    where.category = { [Op.iLike]: category };
   }
 
   if (city) {
-    filteredProfessionals = filteredProfessionals.filter((p) => p.city === city);
+    where.city = { [Op.iLike]: city };
   }
 
-  const itemsPerPage = 6;
-  const totalResults = filteredProfessionals.length;
-  const totalPages = Math.ceil(totalResults / itemsPerPage);
-  const startIndex = (page - 1) * itemsPerPage;
-  const paginatedResults = filteredProfessionals.slice(
-    startIndex,
-    startIndex + itemsPerPage
-  );
+  const finalWhere = searchWhere ? ({ ...where, ...searchWhere } as WhereOptions) : where;
 
-  const hasFilters = query || category || city;
+  const itemsPerPage = 18;
+  const offset = (currentPage - 1) * itemsPerPage;
+
+  const [totalResults, professionals, categoryRows, cityRows] = await Promise.all([
+    DirectoryEntry.count({ where: finalWhere }),
+    DirectoryEntry.findAll({
+      where: finalWhere,
+      limit: itemsPerPage,
+      offset,
+      order: [
+        ['isFeatured', 'DESC'],
+        ['isVerified', 'DESC'],
+        ['createdAt', 'DESC'],
+      ],
+      attributes: ['id', 'name', 'category', 'description', 'city', 'phone', 'email', 'website'],
+      raw: true,
+    }) as Promise<DirectoryEntryResult[]>,
+    sequelize.query<{ value: string }>(
+      `SELECT DISTINCT category AS value
+       FROM directory_entries
+       WHERE category IS NOT NULL AND category <> ''
+       ORDER BY category ASC`,
+      { type: QueryTypes.SELECT }
+    ),
+    sequelize.query<{ value: string }>(
+      `SELECT DISTINCT city AS value
+       FROM directory_entries
+       WHERE city IS NOT NULL AND city <> ''
+       ORDER BY city ASC`,
+      { type: QueryTypes.SELECT }
+    ),
+  ]);
+
+  const categories = categoryRows.map((row) => row.value);
+  const cities = cityRows.map((row) => row.value);
+
+  const totalPages = Math.max(1, Math.ceil(totalResults / itemsPerPage));
+  const page = Math.min(currentPage, totalPages);
+
+  const hasFilters = Boolean(query || category || city);
+
+  const buildPageLink = (targetPage: number): string => {
+    const urlParams = new URLSearchParams();
+    if (query) urlParams.set('q', query);
+    if (category) urlParams.set('category', category);
+    if (city) urlParams.set('city', city);
+    if (targetPage > 1) urlParams.set('page', String(targetPage));
+    const queryString = urlParams.toString();
+    return queryString ? `/search?${queryString}` : '/search';
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
 
       <main className="flex-1 bg-muted">
-        {/* Search Header */}
         <div className="bg-white border-b border-border">
           <div className="container mx-auto px-4 py-6 sm:px-6 lg:px-8">
             <div className="mb-4">
@@ -150,33 +149,34 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           </div>
         </div>
 
-        {/* Results */}
         <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
           <div className="flex flex-col lg:flex-row gap-8">
-            {/* Sidebar */}
             <SearchFilterSidebar categories={categories} cities={cities} />
 
-            {/* Results Grid */}
             <div className="flex-1">
-              {paginatedResults.length > 0 ? (
+              {professionals.length > 0 ? (
                 <>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {paginatedResults.map((professional) => (
-                      <ProfessionalCard key={professional.id} {...professional} />
+                    {professionals.map((professional) => (
+                      <ProfessionalCard
+                        key={professional.id}
+                        id={professional.id}
+                        name={professional.name}
+                        category={professional.category}
+                        description={professional.description ?? undefined}
+                        city={professional.city}
+                        phone={professional.phone ?? undefined}
+                        email={professional.email ?? undefined}
+                        website={professional.website ?? undefined}
+                      />
                     ))}
                   </div>
 
-                  {/* Pagination */}
                   {totalPages > 1 && (
                     <div className="mt-8 flex justify-center gap-2">
                       {page > 1 && (
                         <Link
-                          href={`/search?${new URLSearchParams({
-                            ...(query && { q: query }),
-                            ...(category && { category }),
-                            ...(city && { city }),
-                            page: String(page - 1),
-                          }).toString()}`}
+                          href={buildPageLink(page - 1)}
                           className="rounded-lg border border-border bg-white px-4 py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors"
                         >
                           Previous
@@ -187,12 +187,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                       </span>
                       {page < totalPages && (
                         <Link
-                          href={`/search?${new URLSearchParams({
-                            ...(query && { q: query }),
-                            ...(category && { category }),
-                            ...(city && { city }),
-                            page: String(page + 1),
-                          }).toString()}`}
+                          href={buildPageLink(page + 1)}
                           className="rounded-lg border border-border bg-white px-4 py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors"
                         >
                           Next
@@ -204,12 +199,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               ) : (
                 <div className="rounded-xl border border-border bg-white p-12 text-center">
                   <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
-                    <svg
-                      className="h-8 w-8 text-muted-foreground"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
+                    <svg className="h-8 w-8 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -218,9 +208,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                       />
                     </svg>
                   </div>
-                  <h3 className="text-lg font-semibold text-foreground mb-2">
-                    No results found
-                  </h3>
+                  <h3 className="text-lg font-semibold text-foreground mb-2">No results found</h3>
                   <p className="text-muted-foreground mb-4">
                     Try adjusting your search or filters to find what you&apos;re looking for.
                   </p>

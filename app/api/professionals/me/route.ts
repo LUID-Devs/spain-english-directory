@@ -1,17 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { DirectoryEntry } from '@/models';
 
 // GET /api/professionals/me - Get current user's professional profile
 export async function GET(request: NextRequest) {
   try {
-    // TODO: Get authenticated user from session/token
-    // For now, return mock data
-    const professional = {
-      id: 'prof-123',
-      name: 'Sample Business',
-      email: 'contact@example.com',
-      phone: '+34 123 456 789',
-      description: 'We provide excellent English-speaking services in Spain.',
-      services: ['Consulting', 'Translation', 'Legal Services'],
+    // Until auth-based ownership is in place, prefer claimed entries and fall back to newest entry.
+    const professional = await DirectoryEntry.findOne({
+      where: { isClaimed: true },
+      order: [['updatedAt', 'DESC']],
+      raw: true,
+    }) || await DirectoryEntry.findOne({
+      order: [['updatedAt', 'DESC']],
+      raw: true,
+    });
+
+    if (!professional) {
+      return NextResponse.json(
+        { message: 'No listing profile found' },
+        { status: 404 }
+      );
+    }
+
+    const payload = {
+      id: String(professional.id),
+      name: professional.name,
+      email: professional.email || '',
+      phone: professional.phone || '',
+      description: professional.description || '',
+      services: Array.isArray(professional.specialties) ? professional.specialties : [],
       hours: {
         monday: { open: '09:00', close: '18:00', closed: false },
         tuesday: { open: '09:00', close: '18:00', closed: false },
@@ -22,19 +38,19 @@ export async function GET(request: NextRequest) {
         sunday: { open: '09:00', close: '18:00', closed: true },
       },
       photoUrl: null,
-      website: 'https://example.com',
-      address: '123 Main Street',
-      city: 'Madrid',
-      province: 'Madrid',
-      category: 'Legal',
-      claimed: true,
-      claimedBy: 'user-123',
-      views: 156,
-      createdAt: '2024-01-01T00:00:00Z',
-      updatedAt: '2024-03-05T12:00:00Z',
+      website: professional.website || '',
+      address: professional.address || '',
+      city: professional.city || '',
+      province: professional.province || '',
+      category: professional.category || '',
+      claimed: Boolean(professional.isClaimed),
+      claimedBy: professional.claimedBy || undefined,
+      views: 0,
+      createdAt: professional.createdAt,
+      updatedAt: professional.updatedAt,
     };
 
-    return NextResponse.json(professional);
+    return NextResponse.json(payload);
   } catch (error) {
     console.error('Error fetching profile:', error);
     return NextResponse.json(

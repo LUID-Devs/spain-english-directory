@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { 
   Save, 
   X, 
@@ -368,10 +369,12 @@ export default function ProfilePage() {
           
           <div className="flex items-center gap-6">
             {formData.photoUrl ? (
-              <img
+              <Image
                 src={formData.photoUrl}
                 alt="Profile"
                 className="w-24 h-24 rounded-full object-cover"
+                width={96}
+                height={96}
               />
             ) : (
               <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center">

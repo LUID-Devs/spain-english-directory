@@ -1244,8 +1244,9 @@ export const generateMockListings = (citySlug: string, categorySlug: string): Di
       city: city.name,
       address: `${street} ${number}, ${city.name}`,
       phone: `+34 ${600 + Math.floor(Math.random() * 99)} ${Math.floor(Math.random() * 999)} ${Math.floor(Math.random() * 999)}`,
-      email: `${firstName.toLowerCase().replace('dr. ', '')}.${lastName.toLowerCase()}@example.com`,
-      website: Math.random() > 0.3 ? `https://www.${firstName.toLowerCase().replace('dr. ', '')}${lastName.toLowerCase()}.com` : undefined,
+      // Avoid placeholder/fabricated contact endpoints in UI.
+      email: undefined,
+      website: undefined,
       description: `Experienced ${category.singular.toLowerCase()} serving the English-speaking community in ${city.name}. Professional services with clear communication and personalized attention.`,
       specialties: selectedSpecialties,
       languages: ['English', 'Spanish', Math.random() > 0.5 ? 'French' : 'German'].filter(Boolean),

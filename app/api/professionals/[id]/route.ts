@@ -74,6 +74,69 @@ export async function GET(
   }
 }
 
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const professionalId = Number.parseInt(id, 10);
+
+    if (Number.isNaN(professionalId)) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Invalid ID format',
+          message: 'ID must be a valid number',
+        },
+        { status: 400 }
+      );
+    }
+
+    const body = await request.json();
+    const professional = await DirectoryEntry.findByPk(professionalId);
+
+    if (!professional) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Not found',
+          message: `Professional with ID ${professionalId} not found`,
+        },
+        { status: 404 }
+      );
+    }
+
+    await professional.update({
+      name: body.name ?? professional.name,
+      description: body.description ?? professional.description,
+      specialties: Array.isArray(body.services) ? body.services : professional.specialties,
+      phone: body.phone ?? professional.phone,
+      website: body.website ?? professional.website,
+      address: body.address ?? professional.address,
+      city: body.city ?? professional.city,
+      province: body.province ?? professional.province,
+      updatedAt: new Date(),
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: 'Profile updated successfully',
+      data: professional,
+    });
+  } catch (error) {
+    console.error('Error updating professional:', error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Failed to update professional',
+        message: 'An internal error occurred. Please try again later.',
+      },
+      { status: 500 }
+    );
+  }
+}
+
 export async function OPTIONS() {
   return NextResponse.json({}, {
     headers: {

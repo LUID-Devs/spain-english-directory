@@ -9,6 +9,12 @@ interface CityCardProps {
 }
 
 export default function CityCard({ name, imageUrl, professionalCount, href }: CityCardProps) {
+  const backgroundImage = !imageUrl
+    ? 'linear-gradient(135deg, #AA151B 0%, #F1BF00 100%)'
+    : imageUrl.startsWith('linear-gradient')
+      ? imageUrl
+      : `url(${imageUrl})`;
+
   return (
     <Link
       href={href}
@@ -17,11 +23,7 @@ export default function CityCard({ name, imageUrl, professionalCount, href }: Ci
       {/* Background Image */}
       <div
         className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
-        style={{
-          backgroundImage: imageUrl
-            ? `url(${imageUrl})`
-            : `linear-gradient(135deg, #AA151B 0%, #F1BF00 100%)`,
-        }}
+        style={{ backgroundImage }}
       />
       
       {/* Overlay */}

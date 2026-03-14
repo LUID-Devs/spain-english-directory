@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { initDb, DirectoryEntry } from '@/lib/initDb';
+import { DirectoryEntry } from '@/models';
 
 export async function GET(
   _request: Request,
@@ -15,8 +15,6 @@ export async function GET(
         { status: 400 }
       );
     }
-
-    await initDb();
 
     const entry = await DirectoryEntry.findByPk(entryId, { raw: true });
 

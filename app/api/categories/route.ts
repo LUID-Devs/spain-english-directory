@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { sequelize } from '@/lib/initDb';
+import { QueryTypes } from 'sequelize';
+import { sequelize } from '@/models';
 
 function slugify(value: string): string {
   return value
@@ -12,14 +13,15 @@ function slugify(value: string): string {
 
 export async function GET(request: NextRequest) {
   try {
-    const [rows] = await sequelize.query<{
+    const rows = await sequelize.query<{
       name: string;
       count: number;
     }>(
       `SELECT category AS name, COUNT(*)::int AS count
        FROM directory_entries
        GROUP BY category
-       ORDER BY category ASC`
+       ORDER BY category ASC`,
+      { type: QueryTypes.SELECT }
     );
 
     const categories = rows.map((row, index) => ({

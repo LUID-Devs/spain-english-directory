@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Claim, ClaimStatus } from '@/types';
 
 const ADMIN_KEY_STORAGE = 'admin_api_key';
@@ -18,27 +18,7 @@ export default function AdminClaimsPage() {
   const [actionLoading, setActionLoading] = useState(false);
   const skipNextAutoFetch = useRef(false);
 
-  useEffect(() => {
-    const storedKey = window.sessionStorage.getItem(ADMIN_KEY_STORAGE);
-    if (storedKey) {
-      const restoredKey = storedKey.trim();
-      setAdminKey(restoredKey);
-      void validateAndLoadClaims(restoredKey, { persist: false, skipNextFetch: true });
-    } else {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!isAuthorized || !adminKey) return;
-    if (skipNextAutoFetch.current) {
-      skipNextAutoFetch.current = false;
-      return;
-    }
-    fetchClaims();
-  }, [statusFilter, isAuthorized, adminKey]);
-
-  const fetchClaimsForKey = async (key: string): Promise<Claim[]> => {
+  const fetchClaimsForKey = useCallback(async (key: string): Promise<Claim[]> => {
     const url = new URL('/api/admin/claims', window.location.origin);
     if (statusFilter !== 'all') {
       url.searchParams.set('status', statusFilter);
@@ -60,9 +40,9 @@ export default function AdminClaimsPage() {
     }
 
     return data.claims;
-  };
+  }, [statusFilter]);
 
-  const validateAndLoadClaims = async (
+  const validateAndLoadClaims = useCallback(async (
     key: string,
     options: { persist: boolean; skipNextFetch: boolean }
   ) => {
@@ -87,9 +67,9 @@ export default function AdminClaimsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [fetchClaimsForKey]);
 
-  const fetchClaims = async () => {
+  const fetchClaims = useCallback(async () => {
     if (!adminKey) return;
     setLoading(true);
     try {
@@ -104,7 +84,27 @@ export default function AdminClaimsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [adminKey, fetchClaimsForKey]);
+
+  useEffect(() => {
+    const storedKey = window.sessionStorage.getItem(ADMIN_KEY_STORAGE);
+    if (storedKey) {
+      const restoredKey = storedKey.trim();
+      setAdminKey(restoredKey);
+      void validateAndLoadClaims(restoredKey, { persist: false, skipNextFetch: true });
+    } else {
+      setLoading(false);
+    }
+  }, [validateAndLoadClaims]);
+
+  useEffect(() => {
+    if (!isAuthorized || !adminKey) return;
+    if (skipNextAutoFetch.current) {
+      skipNextAutoFetch.current = false;
+      return;
+    }
+    void fetchClaims();
+  }, [statusFilter, isAuthorized, adminKey, fetchClaims]);
 
   const handleApprove = async (claimId: number) => {
     if (!adminKey) return;

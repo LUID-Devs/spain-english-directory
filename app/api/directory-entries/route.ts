@@ -1,10 +1,8 @@
 import { NextResponse } from 'next/server';
-import { initDb, DirectoryEntry } from '@/lib/initDb';
+import { DirectoryEntry } from '@/models';
 
 export async function GET(): Promise<NextResponse> {
   try {
-    await initDb();
-
     const entries = await DirectoryEntry.findAll({
       order: [['createdAt', 'DESC']],
     });
