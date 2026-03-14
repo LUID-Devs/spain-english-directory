@@ -1,9 +1,9 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
-import { cities, getCityBySlug, CitySlug } from '@/lib/data/cities';
-import { categories, getCategoryBySlug, CategorySlug } from '@/lib/data/categories';
-import { getListings } from '@/lib/data/listings';
+import { cities, getCityBySlug } from '@/lib/data/cities';
+import { categories, getCategoryBySlug } from '@/lib/data/categories';
+import { getCityCategoryListings } from '@/lib/server/cityCategoryListings';
 import ClientPage from './ClientPage';
 
 interface PageProps {
@@ -23,7 +23,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
   }
   
-  const data = getListings(citySlug, categorySlug);
+  const data = await getCityCategoryListings({
+    citySlug,
+    categorySlug,
+    page: 1,
+    limit: 1,
+  });
   const entryCount = data.total;
   
   const title = `English Speaking ${category.name} in ${city.name} | Spain Directory`;
@@ -220,11 +225,12 @@ export default async function CityCategoryPage({ params }: PageProps) {
   }
   
   // Get initial listings data
-  const initialData = {
-    ...getListings(citySlug, categorySlug, { page: 1, limit: 20 }),
-    specialty: null,
-    language: null,
-  };
+  const initialData = await getCityCategoryListings({
+    citySlug,
+    categorySlug,
+    page: 1,
+    limit: 20,
+  });
   
   // Generate content
   const content = {

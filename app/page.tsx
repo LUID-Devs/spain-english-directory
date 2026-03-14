@@ -8,7 +8,8 @@ import {
   Sparkles,
   Stethoscope,
 } from 'lucide-react';
-import { DirectoryEntry } from '@/models';
+import { QueryTypes } from 'sequelize';
+import { DirectoryEntry, sequelize } from '@/models';
 import { CategoryCard, CityCard, ListingCard, SearchBar } from '@/components';
 
 type HomeEntry = {
@@ -59,18 +60,44 @@ function categoryIcon(name: string) {
 
 export default async function Home() {
   let entries: HomeEntry[] = [];
+  let totalEntries = 0;
+  let categoryCounts: { name: string; count: number }[] = [];
+  let cityCounts: { name: string; count: number }[] = [];
   let loadError = false;
 
   try {
-    const rows = await DirectoryEntry.findAll({
-      raw: true,
-      order: [
-        ['isFeatured', 'DESC'],
-        ['createdAt', 'DESC'],
-      ],
-      limit: 120,
-    });
+    const [rows, total, categories, cities] = await Promise.all([
+      DirectoryEntry.findAll({
+        raw: true,
+        order: [
+          ['isFeatured', 'DESC'],
+          ['createdAt', 'DESC'],
+        ],
+        limit: 120,
+      }),
+      DirectoryEntry.count(),
+      sequelize.query<{ name: string; count: number }>(
+        `SELECT category AS name, COUNT(*)::int AS count
+         FROM directory_entries
+         GROUP BY category
+         ORDER BY count DESC, category ASC
+         LIMIT 6`,
+        { type: QueryTypes.SELECT }
+      ),
+      sequelize.query<{ name: string; count: number }>(
+        `SELECT city AS name, COUNT(*)::int AS count
+         FROM directory_entries
+         GROUP BY city
+         ORDER BY count DESC, city ASC
+         LIMIT 6`,
+        { type: QueryTypes.SELECT }
+      ),
+    ]);
+
     entries = rows as unknown as HomeEntry[];
+    totalEntries = total;
+    categoryCounts = categories;
+    cityCounts = cities;
   } catch (error) {
     console.error('Failed to load homepage entries:', error);
     loadError = true;
@@ -79,27 +106,11 @@ export default async function Home() {
   const featured = entries.slice(0, 9);
   const latest = entries.slice(0, 60);
 
-  const categories = [...entries.reduce((acc, entry) => {
-    if (!entry.category) return acc;
-    acc.set(entry.category, (acc.get(entry.category) ?? 0) + 1);
-    return acc;
-  }, new Map<string, number>()).entries()]
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 6)
-    .map(([name, count]) => ({ name, count }));
-
-  const cities = [...entries.reduce((acc, entry) => {
-    if (!entry.city) return acc;
-    acc.set(entry.city, (acc.get(entry.city) ?? 0) + 1);
-    return acc;
-  }, new Map<string, number>()).entries()]
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 6)
-    .map(([name, count], index) => ({
-      name,
-      count,
-      gradient: cityGradients[index % cityGradients.length],
-    }));
+  const categories = categoryCounts;
+  const cities = cityCounts.map((item, index) => ({
+    ...item,
+    gradient: cityGradients[index % cityGradients.length],
+  }));
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -118,7 +129,9 @@ export default async function Home() {
                 Discover English-speaking services across Spain with verified, claimable listings and practical city/category filters.
               </p>
               {!loadError && (
-                <p className="mt-3 text-sm text-slate-500">{latest.length} latest listings loaded</p>
+                <p className="mt-3 text-sm text-slate-500">
+                  Showing {latest.length} latest listings from {totalEntries} total
+                </p>
               )}
             </div>
 
